@@ -3,8 +3,7 @@
     <q-card class="q-mt-lg" style="
         background-color: white;
         border-radius: 20px 20px 0 0;
-        height: 85vh;
-        position: fixed;
+        height: 100%;
         bottom: 0;
         left: 0;
         width: 100%;
@@ -111,7 +110,7 @@ const profile = ref({
 
 const locationSharingOptions = computed(() => [
   { label: t('alwaysAvailable'), value: 'always' },
-  { label: t('availableOnDemand'), value: 'onDemand' },
+  { label: t('periodicallyCheck'), value: 'periodicallyCheck' },
   { label: t('notAvailable'), value: 'none' },
 ]);
 

@@ -29,6 +29,7 @@ export default {
   volunteerLocationSharingDescription:
     'As a volunteer, you can choose to share your location to help others in emergency situations. Select your preferred availability option below.',
   alwaysAvailable: 'Always Available (Share location every 5 minutes)',
-  availableOnDemand: 'Available On-Demand (Receive SOS alerts when nearby)',
+  periodicallyCheck:
+    'Check for SOS in every 5 minutes, but do not save my location',
   notAvailable: 'Not Available (Do not receive alerts or share location)',
 };
