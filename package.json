@@ -14,7 +14,9 @@
     "build": "quasar build"
   },
   "dependencies": {
+    "@capacitor/camera": "^6.0.2",
     "@capacitor/core": "^6.1.2",
+    "@capacitor/filesystem": "^6.0.1",
     "@capacitor/geolocation": "^6.0.1",
     "@capacitor/network": "^6.0.2",
     "@quasar/extras": "^1.0.0",

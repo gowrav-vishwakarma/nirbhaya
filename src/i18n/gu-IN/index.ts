@@ -51,4 +51,11 @@ export default {
   welcome: 'સ્વાગત છે, {name}',
   coordinates: 'નિર્દેશાંક',
   noLocationSet: 'સ્થાન સેટ નથી',
+  language: 'ભાષા',
+  languages: {
+    'en-US': 'અંગ્રેજી',
+    'hi-IN': 'હિન્દી',
+    'gu-IN': 'ગુજરાતી',
+  },
+  gettingLocation: 'સ્થાન મેળવી રહ્યા છીએ...',
 };

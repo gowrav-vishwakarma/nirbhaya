@@ -104,7 +104,7 @@
           </q-btn>
         </div>
         <div class="col-12 col-md-12 q-px-md q-mt-lg">
-          <h6 class="q-ma-none q-ml-xs">Current Location</h6>
+          <h6 class="q-ma-none q-ml-xs">{{ $t('currentLocation') }}</h6>
           <div>
             <q-icon name="my_location" color="deep-orange" size="sm" />
             <span class="q-ml-sm" style="font-size: 20px">
@@ -120,7 +120,7 @@
           </p>
         </div>
         <div class="col-12 col-md-12 q-px-md q-mt-lg">
-          <h6 class="q-ma-none q-ml-xs">Nearby Police Stations</h6>
+          <h6 class="q-ma-none q-ml-xs">{{ $t('nearbyPoliceStations') }}</h6>
           <div>
             <q-btn round color="deep-orange" icon="edit_location" />
             <span class="q-ml-sm" style="font-size: 20px"
@@ -133,8 +133,15 @@
           class="col-12 col-md-12 q-px-md q-mt-lg flex justify-center q-mb-lg"
         >
           <q-btn style="width: 100%" class="primaryBackGroundColor text-white"
-            ><b class="q-ml-xs q-my-md">Contect Police Station</b></q-btn
+            ><b class="q-ml-xs q-my-md">{{
+              $t('contactPoliceStation')
+            }}</b></q-btn
           >
+        </div>
+
+        <div v-if="isGettingLocation" class="text-center q-mt-md">
+          <q-spinner color="primary" size="3em" />
+          <p>{{ $t('gettingLocation') }}</p>
         </div>
       </div>
     </q-card>
@@ -148,6 +155,7 @@ import { useI18n } from 'vue-i18n';
 import { Geolocation } from '@capacitor/geolocation';
 import { Capacitor } from '@capacitor/core';
 import { Camera, CameraResultType } from '@capacitor/camera';
+import { Filesystem, Directory } from '@capacitor/filesystem';
 import { Microphone } from '@capacitor/microphone';
 import { Network } from '@capacitor/network';
 // import { SMS } from '@capacitor/sms';
@@ -175,33 +183,94 @@ let mediaRecorder: MediaRecorder | null = null;
 let audioStream: MediaStream | null = null;
 let videoStream: MediaStream | null = null;
 
+const isGettingLocation = ref(false);
+
+const updateCurrentLocation = async (): Promise<boolean> => {
+  isGettingLocation.value = true;
+  try {
+    let position;
+    if (Capacitor.isNativePlatform()) {
+      position = await Geolocation.getCurrentPosition({
+        enableHighAccuracy: true,
+        timeout: 10000, // 10 second timeout
+      });
+    } else {
+      // Fallback for web browsers
+      position = await new Promise((resolve, reject) => {
+        navigator.geolocation.getCurrentPosition(resolve, reject, {
+          enableHighAccuracy: true,
+          timeout: 10000,
+        });
+      });
+    }
+
+    currentLocation.value.latitude = position.coords.latitude;
+    currentLocation.value.longitude = position.coords.longitude;
+
+    currentLocationName.value = `Lat: ${position.coords.latitude.toFixed(
+      4
+    )}, Lon: ${position.coords.longitude.toFixed(4)}`;
+
+    if (sosSent.value) {
+      await sendLocationUpdate();
+    }
+    isGettingLocation.value = false;
+    return true;
+  } catch (error) {
+    console.error('Error getting location', error);
+    isGettingLocation.value = false;
+    return false;
+  }
+};
+
 const startRecording = async () => {
   try {
-    audioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-    videoStream = await navigator.mediaDevices.getUserMedia({ video: true });
+    if (Capacitor.isNativePlatform()) {
+      // For mobile platforms
+      const image = await Camera.getPhoto({
+        quality: 90,
+        allowEditing: false,
+        resultType: CameraResultType.Uri,
+      });
 
-    const combinedStream = new MediaStream([
-      ...audioStream.getAudioTracks(),
-      ...videoStream.getVideoTracks(),
-    ]);
+      // Save the image file
+      const fileName = new Date().getTime() + '.jpeg';
+      await Filesystem.writeFile({
+        path: fileName,
+        data: image.path,
+        directory: Directory.Data,
+      });
 
-    mediaRecorder = new MediaRecorder(combinedStream);
-    const chunks: Blob[] = [];
+      console.log('Recording saved:', fileName);
+    } else {
+      // For web platform, use the existing implementation
+      audioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      videoStream = await navigator.mediaDevices.getUserMedia({ video: true });
 
-    mediaRecorder.ondataavailable = (event) => {
-      if (event.data.size > 0) {
-        chunks.push(event.data);
-        // Here you would send the chunk for streaming
-        streamChunk(event.data);
-      }
-    };
+      const combinedStream = new MediaStream([
+        ...audioStream.getAudioTracks(),
+        ...videoStream.getVideoTracks(),
+      ]);
 
-    mediaRecorder.onstop = () => {
-      const blob = new Blob(chunks, { type: 'video/webm' });
-      saveRecording(blob);
-    };
+      mediaRecorder = new MediaRecorder(combinedStream);
+      const chunks: Blob[] = [];
 
-    mediaRecorder.start(1000); // Capture in 1-second intervals
+      mediaRecorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          chunks.push(event.data);
+          // Here you would send the chunk for streaming
+          streamChunk(event.data);
+        }
+      };
+
+      mediaRecorder.onstop = () => {
+        const blob = new Blob(chunks, { type: 'video/webm' });
+        saveRecording(blob);
+      };
+
+      mediaRecorder.start(1000); // Capture in 1-second intervals
+    }
+
     isRecording.value = true;
   } catch (error) {
     console.error('Failed to start recording:', error);
@@ -274,15 +343,18 @@ const cancelSOS = async () => {
 
 const confirmSOS = async (threatType?: string) => {
   try {
+    const locationUpdated = await updateCurrentLocation();
+    if (!locationUpdated) {
+      throw new Error('Failed to get location');
+    }
     await sendConfirmSOSRequest(threatType);
     sosSent.value = true;
-    // Simulate receiving notification data
     notifiedPersons.value = 10;
     acceptedPersons.value = 3;
     if (countdownInterval) {
       clearInterval(countdownInterval);
     }
-    startRecording(); // Start recording after SOS is confirmed
+    startRecording(); // Start recording after SOS is confirmed and location is updated
   } catch (error) {
     console.error('Failed to confirm SOS request:', error);
     // TODO: Show error message to user
@@ -317,6 +389,7 @@ const sendConfirmSOSRequest = async (threatType?: string) => {
 
   // If no internet or API call failed, send SMS
   try {
+    // TODO: Implement SMS sending
     // await sendSOSviaSMS(sosData);
   } catch (error) {
     console.error('Failed to send SOS via SMS:', error);
@@ -383,40 +456,6 @@ const sendUpdateThreatRequest = async (threatType: string) => {
     'Current location:',
     currentLocation.value
   );
-};
-
-const updateCurrentLocation = async () => {
-  try {
-    let position;
-    if (Capacitor.isNativePlatform()) {
-      position = await Geolocation.getCurrentPosition({
-        enableHighAccuracy: true,
-      });
-    } else {
-      // Fallback for web browsers
-      position = await new Promise((resolve, reject) => {
-        navigator.geolocation.getCurrentPosition(resolve, reject, {
-          enableHighAccuracy: true,
-        });
-      });
-    }
-
-    currentLocation.value.latitude = position.coords.latitude;
-    currentLocation.value.longitude = position.coords.longitude;
-
-    // Update location name (you might want to use a reverse geocoding service here)
-    currentLocationName.value = `Lat: ${position.coords.latitude.toFixed(
-      4
-    )}, Lon: ${position.coords.longitude.toFixed(4)}`;
-
-    // If SOS is already sent, update the server with the new location
-    if (sosSent.value) {
-      await sendLocationUpdate();
-    }
-  } catch (error) {
-    console.error('Error getting location', error);
-    // TODO: Show error message to user
-  }
 };
 
 const startLocationUpdates = () => {

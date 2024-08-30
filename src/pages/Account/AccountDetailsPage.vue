@@ -14,6 +14,21 @@
       "
     >
       <div class="row q-pa-md">
+        <!-- Language switcher -->
+        <div class="col-12 q-mb-md">
+          <h6 class="q-ma-none q-ml-xs">{{ $t('language') }}</h6>
+          <q-select
+            v-model="languageStore.currentLanguage"
+            :options="languageOptions"
+            outlined
+            emit-value
+            map-options
+            @update:model-value="languageStore.setLanguage"
+            class="q-mt-sm"
+            style="border-radius: 20px"
+          />
+        </div>
+
         <!-- Basic profile information -->
         <div class="col-12 q-mb-md">
           <h6 class="q-ma-none q-ml-xs">{{ $t('name') }}</h6>
@@ -190,14 +205,19 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, computed } from 'vue';
+import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { Geolocation } from '@capacitor/geolocation';
-import { useQuasar } from 'quasar';
-import { Capacitor } from '@capacitor/core';
+import { useLanguageStore } from 'src/stores/languageStore';
 
 const { t } = useI18n();
-const $q = useQuasar();
+const languageStore = useLanguageStore();
+
+const languageOptions = computed(() =>
+  languageStore.availableLanguages.map((lang) => ({
+    value: lang,
+    label: t(`languages.${lang}`),
+  }))
+);
 
 const profile = ref({
   name: '',
