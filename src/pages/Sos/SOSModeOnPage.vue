@@ -147,6 +147,10 @@ import { useRouter, useRoute } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import { Geolocation } from '@capacitor/geolocation';
 import { Capacitor } from '@capacitor/core';
+import { Camera, CameraResultType } from '@capacitor/camera';
+import { Microphone } from '@capacitor/microphone';
+import { Network } from '@capacitor/network';
+// import { SMS } from '@capacitor/sms';
 
 const router = useRouter();
 const route = useRoute();
@@ -166,6 +170,72 @@ const currentLocation = ref({ latitude: null, longitude: null });
 const currentLocationName = ref('');
 let locationUpdateInterval: number | null = null;
 
+const isRecording = ref(false);
+let mediaRecorder: MediaRecorder | null = null;
+let audioStream: MediaStream | null = null;
+let videoStream: MediaStream | null = null;
+
+const startRecording = async () => {
+  try {
+    audioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    videoStream = await navigator.mediaDevices.getUserMedia({ video: true });
+
+    const combinedStream = new MediaStream([
+      ...audioStream.getAudioTracks(),
+      ...videoStream.getVideoTracks(),
+    ]);
+
+    mediaRecorder = new MediaRecorder(combinedStream);
+    const chunks: Blob[] = [];
+
+    mediaRecorder.ondataavailable = (event) => {
+      if (event.data.size > 0) {
+        chunks.push(event.data);
+        // Here you would send the chunk for streaming
+        streamChunk(event.data);
+      }
+    };
+
+    mediaRecorder.onstop = () => {
+      const blob = new Blob(chunks, { type: 'video/webm' });
+      saveRecording(blob);
+    };
+
+    mediaRecorder.start(1000); // Capture in 1-second intervals
+    isRecording.value = true;
+  } catch (error) {
+    console.error('Failed to start recording:', error);
+  }
+};
+
+const stopRecording = () => {
+  if (mediaRecorder) {
+    mediaRecorder.stop();
+    isRecording.value = false;
+  }
+  if (audioStream) audioStream.getTracks().forEach((track) => track.stop());
+  if (videoStream) videoStream.getTracks().forEach((track) => track.stop());
+};
+
+const saveRecording = async (blob: Blob) => {
+  // Implement saving the recording locally
+  // This is a placeholder implementation
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.style.display = 'none';
+  a.href = url;
+  a.download = 'sos_recording.webm';
+  document.body.appendChild(a);
+  a.click();
+  URL.revokeObjectURL(url);
+};
+
+const streamChunk = (chunk: Blob) => {
+  // Implement your streaming logic here
+  // This could involve sending the chunk to a server using WebSockets or WebRTC
+  console.log('Streaming chunk:', chunk);
+};
+
 onMounted(() => {
   startCountdown();
   updateCurrentLocation();
@@ -179,6 +249,7 @@ onUnmounted(() => {
   if (locationUpdateInterval) {
     clearInterval(locationUpdateInterval);
   }
+  stopRecording();
 });
 
 const startCountdown = () => {
@@ -211,6 +282,7 @@ const confirmSOS = async (threatType?: string) => {
     if (countdownInterval) {
       clearInterval(countdownInterval);
     }
+    startRecording(); // Start recording after SOS is confirmed
   } catch (error) {
     console.error('Failed to confirm SOS request:', error);
     // TODO: Show error message to user
@@ -223,13 +295,69 @@ const sendCancelSOSRequest = async () => {
 };
 
 const sendConfirmSOSRequest = async (threatType?: string) => {
-  // TODO: Implement actual API call
-  console.log(
-    'Sending confirm SOS request',
-    threatType ? `with threat: ${threatType}` : '',
-    'Current location:',
-    currentLocation.value
-  );
+  const networkStatus = await Network.getStatus();
+
+  const sosData = {
+    threatType,
+    location: currentLocation.value,
+    timestamp: new Date().toISOString(),
+  };
+
+  if (networkStatus.connected) {
+    try {
+      // TODO: Implement actual API call
+      console.log('Sending confirm SOS request', sosData);
+      // If API call is successful, return
+      return;
+    } catch (error) {
+      console.error('Failed to send SOS request via API:', error);
+      // If API call fails, fall through to SMS
+    }
+  }
+
+  // If no internet or API call failed, send SMS
+  try {
+    // await sendSOSviaSMS(sosData);
+  } catch (error) {
+    console.error('Failed to send SOS via SMS:', error);
+    // TODO: Show error message to user
+  }
+
+  // Start background task to keep trying API
+  startBackgroundAPIRetry(sosData);
+};
+
+const sendSOSviaSMS = async (sosData: any) => {
+  const message = `SOS: ${sosData.threatType || 'Emergency'} at ${
+    sosData.location.latitude
+  }, ${sosData.location.longitude}. Time: ${sosData.timestamp}`;
+
+  try {
+    await SMS.send({
+      numbers: ['EMERGENCY_NUMBER'], // Replace with actual emergency number
+      text: message,
+    });
+    console.log('SOS sent via SMS');
+  } catch (error) {
+    console.error('Failed to send SMS:', error);
+    throw error;
+  }
+};
+
+const startBackgroundAPIRetry = (sosData: any) => {
+  const retryInterval = setInterval(async () => {
+    const networkStatus = await Network.getStatus();
+    if (networkStatus.connected) {
+      try {
+        // TODO: Implement actual API call
+        console.log('Retrying SOS API call', sosData);
+        // If successful, clear the interval
+        clearInterval(retryInterval);
+      } catch (error) {
+        console.error('Failed to send SOS request via API:', error);
+      }
+    }
+  }, 30000); // Retry every 30 seconds
 };
 
 const updateThreat = async (threatType: string) => {
