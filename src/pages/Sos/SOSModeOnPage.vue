@@ -31,6 +31,7 @@
               track-color="grey-3"
               :min="0"
               :max="countdownDuration"
+              @click="resetCountdown"
             >
               {{ timeLeft }}
             </q-circular-progress>
@@ -108,7 +109,7 @@
           <div>
             <q-icon name="my_location" color="deep-orange" size="sm" />
             <span class="q-ml-sm" style="font-size: 20px">
-              {{ currentLocationName || 'Updating location...' }}
+              {{ currentLocationName || $t('gettingLocation') }}
             </span>
           </div>
           <p
@@ -322,6 +323,10 @@ onUnmounted(() => {
 });
 
 const startCountdown = () => {
+  if (countdownInterval) {
+    clearInterval(countdownInterval);
+  }
+  timeLeft.value = countdownDuration;
   countdownInterval = setInterval(() => {
     timeLeft.value--;
     if (timeLeft.value <= 0) {
@@ -329,6 +334,10 @@ const startCountdown = () => {
       confirmSOS();
     }
   }, 1000);
+};
+
+const resetCountdown = () => {
+  startCountdown();
 };
 
 const cancelSOS = async () => {
