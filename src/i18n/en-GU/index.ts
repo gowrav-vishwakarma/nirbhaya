@@ -34,7 +34,7 @@ export default {
   notAvailable: 'ઉપલબ્ધ નથી (એલર્ટ્સ મેળવશો નહીં અથવા સ્થાન શેર કરશો નહીં)',
   sosWarning: 'SOS ચેતવણી',
   cancelSOS: 'SOS રદ કરો',
-  sosSent: 'SOS મોકલવામાં આવ્યું છે',
+  sosSent: 'SOS મોકલવામાં આવ્યું',
   notificationSentTo: 'સૂચના {count} નજીકના વ્યક્તિઓને મોકલવામાં આવી',
   acceptedBy: '{count} વ્યક્તિઓ દ્વારા સ્વીકારવામાં આવ્યું',
   emergencyContactsInformed: 'કટોકટી સંપર્કોને જાણ કરવામાં આવી છે',
@@ -48,4 +48,5 @@ export default {
   attemptedKidnapping: 'અપહરણનો પ્રયાસ',
   sexualAssault: 'જાતીય હુમલો',
   domesticViolence: 'ઘરેલુ હિંસા',
+  welcome: 'સ્વાગત છે, {name}',
 };
