@@ -12,7 +12,7 @@ const routes: RouteRecordRaw[] = [
       },
       {
         path: 'sos-mode',
-        component: () => import('pages/Sos/SOSModeOn.vue'),
+        component: () => import('pages/Sos/SOSModeOnPage.vue'),
       },
     ],
   },

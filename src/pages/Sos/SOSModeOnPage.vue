@@ -4,12 +4,13 @@
       style="background-color: white; border-radius: 20px 20px 0 0; height: 85vh; position: fixed; bottom: 0; left: 0; width: 100%;">
       <div class="row ">
         <div class="col-12 col-md-12 q-px-md q-mt-xl ">
-          <h6 class="q-ma-none q-ml-xs">Name</h6>
-          <q-input class="q-mt-sm q-mb-md" outlined v-model="text" label="Name" style="border-radius: 20px;" />
+          <h6 class="q-ma-none q-ml-xs">Lorem ipsum dolor sit amet consectetur adipisicing elit. Laboriosam suscipit
+            doloribus maiores voluptas. Non, molestias.</h6>
+
         </div>
         <div class="col-12 col-md-12 q-px-md ">
-          <h6 class="q-ma-none q-ml-xs">Mobile Number</h6>
-          <q-input class="q-mt-sm q-mb-md" outlined v-model="text" label="Mobile Number" style="border-radius: 20px;" />
+          <q-btn round color="deep-orange" label="sos" size="xl" />
+          <b class="q-ml-md">MODE ON</b>
         </div>
         <div class="col-12 col-md-12 q-px-md ">
           <h6 class="q-ma-none q-ml-xs">City</h6>
