@@ -45,7 +45,8 @@ export default {
   contactPoliceStation: 'पुलिस स्टेशन से संपर्क करें',
   verbalHarassment: 'मौखिक उत्पीड़न',
   physicalThreat: 'शारीरिक धमकी',
-  attemptedKidnapping: 'अपहरण का प्रयास',
+  attemptedKidnapping: 'अपहरण का प्रया���',
   sexualAssault: 'यौन हमला',
   domesticViolence: 'घरेलू हिंसा',
+  welcome: 'स्वागत है, {name}',
 };

@@ -48,4 +48,5 @@ export default {
   currentLocation: 'Current Location',
   nearbyPoliceStations: 'Nearby Police Stations',
   contactPoliceStation: 'Contact Police Station',
+  welcome: 'Welcome, {name}',
 };
