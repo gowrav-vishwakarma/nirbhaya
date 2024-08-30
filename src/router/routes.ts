@@ -16,7 +16,11 @@ const routes: RouteRecordRaw[] = [
       },
       {
         path: 'sos-request',
-        component: () => import('pages/Sos/SoSRequestPage.vue'),
+        component: () => import('pages/Sos/SOSRequestPage.vue'),
+      },
+      {
+        path: 'sos-location-change',
+        component: () => import('pages/Sos/SOSLocationChangePage.vue'),
       },
     ],
   },

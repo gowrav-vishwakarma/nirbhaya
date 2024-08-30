@@ -42,7 +42,7 @@
           </div>
         </div>
 
-        <div class="col-12 col-md-12 q-px-md q-mt-lg flex justify-center ">
+        <div class="col-12 col-md-12 q-px-md q-mt-lg flex justify-center q-mb-lg ">
           <q-btn style="width: 100%;" class="primaryBackGroundColor text-white "><b class="q-ml-xs q-my-md">Contect
               Police
               Station</b></q-btn>
