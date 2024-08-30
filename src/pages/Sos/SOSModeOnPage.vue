@@ -10,15 +10,19 @@
         </div>
         <div class="col-12 col-md-12 q-px-md ">
           <q-btn round color="deep-orange" label="sos" size="xl" />
-          <b class="q-ml-md">MODE ON</b>
+          <b class="q-ml-md text-h4 text-bold">MODE ON</b>
         </div>
         <div class="col-12 col-md-12 q-px-md ">
-          <h6 class="q-ma-none q-ml-xs">City</h6>
-          <q-input class="q-mt-sm" outlined v-model="text" label="City" style="border-radius: 20px;" />
+          <h5 class="q-ma-none q-ml-xs text-bold q-mt-md">Help Us More:</h5>
         </div>
-        <div class="col-12 col-md-12 q-px-md q-mt-lg ">
-          <q-btn style="width: 100%;" class="primaryBackGroundColor text-white " icon="add_circle"><span
-              class="q-ml-xs">Add Emergency
+        <div class="col-12 col-md-12 q-px-md q-mt-lg flex flex-wrap">
+          <q-btn style="width: 100%;" class=""><span class="q-ml-xs">Add Emergency
+              Contect</span></q-btn>
+          <q-btn style="width: 100%;" class=""><span class="q-ml-xs">Add Emergency
+              Contect</span></q-btn>
+          <q-btn style="width: 100%;" class=""><span class="q-ml-xs">Add Emergency
+              Contect</span></q-btn>
+          <q-btn style="width: 100%;" class=""><span class="q-ml-xs">Add Emergency
               Contect</span></q-btn>
         </div>
         <div class="col-12 col-md-12 q-px-md q-mt-lg ">
