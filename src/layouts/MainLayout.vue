@@ -2,6 +2,14 @@
   <q-layout view="lHh Lpr lFf" style="background-color: #ec7063">
     <q-header elevated>
       <q-toolbar>
+        <q-btn
+          flat
+          dense
+          round
+          icon="home"
+          aria-label="Home"
+          @click="goToDashboardPage"
+        />
         <!-- <q-btn
           flat
           dense
@@ -13,7 +21,16 @@
 
         <q-toolbar-title> Nirbhaya </q-toolbar-title>
 
-        <div>v{{ $q.version }}</div>
+        <div>
+          <q-btn
+            flat
+            dense
+            round
+            icon="person"
+            aria-label="Menu"
+            @click="goToAccountPage"
+          />
+        </div>
       </q-toolbar>
     </q-header>
 
@@ -34,62 +51,17 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
-import EssentialLink, {
-  EssentialLinkProps,
-} from 'components/EssentialLink.vue';
+import { useRouter } from 'vue-router';
 
-const essentialLinks: EssentialLinkProps[] = [
-  {
-    title: 'Account',
-    caption: 'Details',
-    icon: 'school',
-    link: '/account',
-  },
+const router = useRouter();
 
-  {
-    title: 'Github',
-    caption: 'github.com/quasarframework',
-    icon: 'code',
-    link: 'https://github.com/quasarframework',
-  },
-  {
-    title: 'Discord Chat Channel',
-    caption: 'chat.quasar.dev',
-    icon: 'chat',
-    link: 'https://chat.quasar.dev',
-  },
-  {
-    title: 'Forum',
-    caption: 'forum.quasar.dev',
-    icon: 'record_voice_over',
-    link: 'https://forum.quasar.dev',
-  },
-  {
-    title: 'Twitter',
-    caption: '@quasarframework',
-    icon: 'rss_feed',
-    link: 'https://twitter.quasar.dev',
-  },
-  {
-    title: 'Facebook',
-    caption: '@QuasarFramework',
-    icon: 'public',
-    link: 'https://facebook.quasar.dev',
-  },
-  {
-    title: 'Quasar Awesome',
-    caption: 'Community Quasar projects',
-    icon: 'favorite',
-    link: 'https://awesome.quasar.dev',
-  },
-];
+const goToAccountPage = () => {
+  router.push('/account');
+};
 
-const leftDrawerOpen = ref(false);
-
-function toggleLeftDrawer() {
-  leftDrawerOpen.value = !leftDrawerOpen.value;
-}
+const goToDashboardPage = () => {
+  router.push('/dashboard');
+};
 </script>
 <style>
 .primaryBackGroundColor {
