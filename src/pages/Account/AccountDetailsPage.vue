@@ -1,0 +1,51 @@
+<template>
+  <q-page>
+    <q-card class="q-mt-lg"
+      style="background-color: white; border-radius: 20px 20px 0 0; height: 85vh; position: fixed; bottom: 0; left: 0; width: 100%;">
+      <div class="row ">
+        <div class="col-12 col-md-12 q-px-md q-mt-xl ">
+          <h6 class="q-ma-none q-ml-xs">Name</h6>
+          <q-input class="q-mt-sm q-mb-md" outlined v-model="text" label="Name" style="border-radius: 20px;" />
+        </div>
+        <div class="col-12 col-md-12 q-px-md ">
+          <h6 class="q-ma-none q-ml-xs">Mobile Number</h6>
+          <q-input class="q-mt-sm q-mb-md" outlined v-model="text" label="Mobile Number" style="border-radius: 20px;" />
+        </div>
+        <div class="col-12 col-md-12 q-px-md ">
+          <h6 class="q-ma-none q-ml-xs">City</h6>
+          <q-input class="q-mt-sm" outlined v-model="text" label="City" style="border-radius: 20px;" />
+        </div>
+        <div class="col-12 col-md-12 q-px-md q-mt-lg ">
+          <q-btn style="width: 100%;" class="primaryBackGroundColor text-white " icon="add_circle"><span
+              class="q-ml-xs">Add Emergency
+              Contect</span></q-btn>
+        </div>
+        <div class="col-12 col-md-12 q-px-md q-mt-lg ">
+          <h6 class="q-ma-none q-ml-xs">Current Location</h6>
+          <div>
+            <q-btn round color="deep-orange" icon="edit_location" />
+            <span class="q-ml-sm" style="font-size: 20px;">South Bopal Ahmedabad</span>
+          </div>
+        </div>
+        <div class="col-12 col-md-12 q-px-md q-mt-lg flex justify-between ">
+          <q-btn style="width: 48%;" class="primaryBackGroundColor text-white "><span class="q-ml-xs">Add Emergency
+              Contect</span></q-btn>
+          <q-btn style="width: 48%;" class="primaryBackGroundColor text-white "><span class="q-ml-xs">Add Emergency
+              Contect</span></q-btn>
+        </div>
+        <div class="col-12 col-md-12 q-px-md q-mt-lg flex justify-center ">
+          <q-btn style="width: 100%;" class="bg-green text-white "><b class="q-ml-xs q-my-md">Save
+              Changes</b></q-btn>
+
+        </div>
+      </div>
+    </q-card>
+
+  </q-page>
+</template>
+
+<script lang="ts" setup>
+
+</script>
+
+<style scoped></style>
