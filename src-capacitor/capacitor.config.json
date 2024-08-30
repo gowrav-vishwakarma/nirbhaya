@@ -1,5 +1,12 @@
 {
   "appId": "org.nirbhaya.quasar.app",
   "appName": "Nirbhaya, freedom",
-  "webDir": "www"
+  "webDir": "www",
+  "plugins": {
+    "Geolocation": {
+      "permissions": [
+        "location"
+      ]
+    }
+  }
 }

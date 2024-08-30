@@ -28,9 +28,9 @@ export default {
     'Choose how you want to make yourself available as a volunteer to help others in need.',
   volunteerLocationSharingDescription:
     'As a volunteer, you can choose to share your location to help others in emergency situations. Select your preferred availability option below.',
-  alwaysAvailable: 'Always Available (Share location every 5 minutes)',
+  alwaysAvailable: 'Always Available (Update my location every 5 minutes)',
   periodicallyCheck:
-    'Check for SOS in every 5 minutes, but do not save my location',
+    'Check for SOS in every 5 minutes (Do not save my location)',
   notAvailable: 'Not Available (Do not receive alerts or share location)',
   sosWarning: 'SOS Warning',
   cancelSOS: 'Cancel SOS',
@@ -49,4 +49,6 @@ export default {
   nearbyPoliceStations: 'Nearby Police Stations',
   contactPoliceStation: 'Contact Police Station',
   welcome: 'Welcome, {name}',
+  coordinates: 'Coordinates',
+  noLocationSet: 'No location set',
 };

@@ -49,4 +49,6 @@ export default {
   sexualAssault: 'यौन हमला',
   domesticViolence: 'घरेलू हिंसा',
   welcome: 'स्वागत है, {name}',
+  coordinates: 'निर्देशांक',
+  noLocationSet: 'स्थान सेट नहीं है',
 };
