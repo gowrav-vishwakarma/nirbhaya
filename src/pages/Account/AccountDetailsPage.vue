@@ -1,8 +1,6 @@
 <template>
   <q-page>
-    <q-card
-      class="q-mt-lg"
-      style="
+    <q-card class="q-mt-lg" style="
         background-color: white;
         border-radius: 20px 20px 0 0;
         height: 85vh;
@@ -11,39 +9,21 @@
         left: 0;
         width: 100%;
         overflow-y: auto;
-      "
-    >
+      ">
       <div class="row q-pa-md">
         <!-- Basic profile information -->
         <div class="col-12 q-mb-md">
           <h6 class="q-ma-none q-ml-xs">{{ $t('name') }}</h6>
-          <q-input
-            class="q-mt-sm"
-            outlined
-            v-model="profile.name"
-            :label="$t('name')"
-            style="border-radius: 20px"
-          />
+          <q-input class="q-mt-sm" outlined v-model="profile.name" :label="$t('name')" style="border-radius: 20px" />
         </div>
         <div class="col-12 q-mb-md">
           <h6 class="q-ma-none q-ml-xs">{{ $t('mobileNumber') }}</h6>
-          <q-input
-            class="q-mt-sm"
-            outlined
-            v-model="profile.mobileNumber"
-            :label="$t('mobileNumber')"
-            style="border-radius: 20px"
-          />
+          <q-input class="q-mt-sm" outlined v-model="profile.mobileNumber" :label="$t('mobileNumber')"
+            style="border-radius: 20px" />
         </div>
         <div class="col-12 q-mb-md">
           <h6 class="q-ma-none q-ml-xs">{{ $t('city') }}</h6>
-          <q-input
-            class="q-mt-sm"
-            outlined
-            v-model="profile.city"
-            :label="$t('city')"
-            style="border-radius: 20px"
-          />
+          <q-input class="q-mt-sm" outlined v-model="profile.city" :label="$t('city')" style="border-radius: 20px" />
         </div>
 
         <!-- Emergency contacts -->
@@ -54,39 +34,14 @@
               <q-tooltip>{{ $t('emergencyContactsHelp') }}</q-tooltip>
             </q-icon>
           </div>
-          <div
-            v-for="(contact, index) in profile.emergencyContacts"
-            :key="index"
-            class="q-mt-sm"
-          >
-            <q-input
-              outlined
-              v-model="contact.name"
-              :label="$t('name')"
-              class="q-mb-sm"
-              style="border-radius: 20px"
-            />
-            <q-input
-              outlined
-              v-model="contact.number"
-              :label="$t('number')"
-              class="q-mb-sm"
-              style="border-radius: 20px"
-            />
-            <q-btn
-              flat
-              round
-              color="negative"
-              icon="delete"
-              @click="removeEmergencyContact(index)"
-            />
+          <div v-for="(contact, index) in profile.emergencyContacts" :key="index" class="q-mt-sm">
+            <q-input outlined v-model="contact.name" :label="$t('name')" class="q-mb-sm" style="border-radius: 20px" />
+            <q-input outlined v-model="contact.number" :label="$t('number')" class="q-mb-sm"
+              style="border-radius: 20px" />
+            <q-btn flat round color="negative" icon="delete" @click="removeEmergencyContact(index)" />
           </div>
-          <q-btn
-            v-if="profile.emergencyContacts.length < 3"
-            @click="addEmergencyContact"
-            class="q-mt-sm primaryBackGroundColor text-white"
-            icon="add_circle"
-          >
+          <q-btn v-if="profile.emergencyContacts.length < 3" @click="addEmergencyContact"
+            class="q-mt-sm primaryBackGroundColor text-white" icon="add_circle">
             <span class="q-ml-xs">{{ $t('addEmergencyContact') }}</span>
           </q-btn>
         </div>
@@ -104,11 +59,7 @@
           <p class="text-caption q-mb-sm">
             {{ $t('volunteerLocationSharingDescription') }}
           </p>
-          <q-option-group
-            v-model="profile.locationSharingOption"
-            :options="locationSharingOptions"
-            color="primary"
-          />
+          <q-option-group v-model="profile.locationSharingOption" :options="locationSharingOptions" color="primary" />
         </div>
 
         <!-- Notification locations -->
@@ -119,50 +70,22 @@
               <q-tooltip>{{ $t('notificationLocationsHelp') }}</q-tooltip>
             </q-icon>
           </div>
-          <div
-            v-for="(location, index) in profile.notificationLocations"
-            :key="index"
-            class="q-mt-sm"
-          >
-            <q-input
-              outlined
-              v-model="location.name"
-              :label="$t('locationName')"
-              class="q-mb-sm"
-              style="border-radius: 20px"
-            />
-            <q-input
-              outlined
-              v-model="location.address"
-              :label="$t('address')"
-              class="q-mb-sm"
-              style="border-radius: 20px"
-            />
-            <q-btn
-              flat
-              round
-              color="negative"
-              icon="delete"
-              @click="removeNotificationLocation(index)"
-            />
+          <div v-for="(location, index) in profile.notificationLocations" :key="index" class="q-mt-sm">
+            <q-input outlined v-model="location.name" :label="$t('locationName')" class="q-mb-sm"
+              style="border-radius: 20px" />
+            <q-input outlined v-model="location.address" :label="$t('address')" class="q-mb-sm"
+              style="border-radius: 20px" />
+            <q-btn flat round color="negative" icon="delete" @click="removeNotificationLocation(index)" />
           </div>
-          <q-btn
-            v-if="profile.notificationLocations.length < 2"
-            @click="addNotificationLocation"
-            class="q-mt-sm primaryBackGroundColor text-white"
-            icon="add_circle"
-          >
+          <q-btn v-if="profile.notificationLocations.length < 2" @click="addNotificationLocation"
+            class="q-mt-sm primaryBackGroundColor text-white" icon="add_circle">
             <span class="q-ml-xs">{{ $t('addNotificationLocation') }}</span>
           </q-btn>
         </div>
 
         <!-- Save button -->
         <div class="col-12 q-mt-lg">
-          <q-btn
-            @click="saveChanges"
-            style="width: 100%"
-            class="bg-green text-white"
-          >
+          <q-btn @click="saveChanges" style="width: 100%" class="bg-green text-white">
             <b class="q-ml-xs q-my-md">{{ $t('saveChanges') }}</b>
           </q-btn>
         </div>
