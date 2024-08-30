@@ -6,15 +6,21 @@
         bottom: 0;
         left: 0;
         width: 100%;
-       ">
+        overflow-y: auto;">
       <div class="row ">
         <div class="col-12 col-md-12 q-px-md q-mt-xl ">
           <h6 class="q-ma-none q-ml-xs">Lorem ipsum dolor sit amet consectetur adipisicing elit. Laboriosam suscipit
             doloribus maiores voluptas. Non, molestias.</h6>
         </div>
-        <div class="col-12 col-md-12 q-px-md q-mt-md">
-          <q-btn round color="deep-orange" label="sos" size="xl" />
-          <b class="q-ml-md text-h4 text-bold">MODE ON</b>
+        <div class="col-12 col-md-12 q-px-md q-mt-md flex justify-center">
+          <q-btn round color="deep-orange" style="height: 200px; width: 200px;">
+            <b class="text-h1">9</b>
+          </q-btn>
+        </div>
+        <div class="col-12 col-md-12 q-px-md q-mt-lg flex justify-center ">
+          <q-btn style="width: 100%;" class="primaryBackGroundColor text-white "><b class="q-ml-xs q-my-md">Cancel My
+              Request</b></q-btn>
+
         </div>
         <div class="col-12 col-md-12 q-px-md ">
           <h5 class="q-ma-none q-ml-xs text-bold q-mt-md">Help Us More:</h5>
@@ -42,7 +48,7 @@
           </div>
         </div>
 
-        <div class="col-12 col-md-12 q-px-md q-mt-lg flex justify-center ">
+        <div class="col-12 col-md-12 q-px-md q-mt-lg flex justify-center q-mb-lg ">
           <q-btn style="width: 100%;" class="primaryBackGroundColor text-white "><b class="q-ml-xs q-my-md">Contect
               Police
               Station</b></q-btn>
