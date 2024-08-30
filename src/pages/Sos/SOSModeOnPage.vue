@@ -106,11 +106,18 @@
         <div class="col-12 col-md-12 q-px-md q-mt-lg">
           <h6 class="q-ma-none q-ml-xs">Current Location</h6>
           <div>
-            <q-btn round color="deep-orange" icon="edit_location" />
-            <span class="q-ml-sm" style="font-size: 20px"
-              >South Bopal Ahmedabad</span
-            >
+            <q-icon name="my_location" color="deep-orange" size="sm" />
+            <span class="q-ml-sm" style="font-size: 20px">
+              {{ currentLocationName || 'Updating location...' }}
+            </span>
           </div>
+          <p
+            v-if="currentLocation.latitude && currentLocation.longitude"
+            class="text-caption q-mt-sm"
+          >
+            {{ $t('coordinates') }}: {{ currentLocation.latitude.toFixed(6) }},
+            {{ currentLocation.longitude.toFixed(6) }}
+          </p>
         </div>
         <div class="col-12 col-md-12 q-px-md q-mt-lg">
           <h6 class="q-ma-none q-ml-xs">Nearby Police Stations</h6>
@@ -138,6 +145,8 @@
 import { ref, onMounted, onUnmounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useI18n } from 'vue-i18n';
+import { Geolocation } from '@capacitor/geolocation';
+import { Capacitor } from '@capacitor/core';
 
 const router = useRouter();
 const route = useRoute();
@@ -153,13 +162,22 @@ const acceptedPersons = ref(0);
 const initialRequestTime =
   Number(route.params.initialRequestTime) || Date.now();
 
+const currentLocation = ref({ latitude: null, longitude: null });
+const currentLocationName = ref('');
+let locationUpdateInterval: number | null = null;
+
 onMounted(() => {
   startCountdown();
+  updateCurrentLocation();
+  startLocationUpdates();
 });
 
 onUnmounted(() => {
   if (countdownInterval) {
     clearInterval(countdownInterval);
+  }
+  if (locationUpdateInterval) {
+    clearInterval(locationUpdateInterval);
   }
 });
 
@@ -208,7 +226,9 @@ const sendConfirmSOSRequest = async (threatType?: string) => {
   // TODO: Implement actual API call
   console.log(
     'Sending confirm SOS request',
-    threatType ? `with threat: ${threatType}` : ''
+    threatType ? `with threat: ${threatType}` : '',
+    'Current location:',
+    currentLocation.value
   );
 };
 
@@ -230,7 +250,56 @@ const updateThreat = async (threatType: string) => {
 
 const sendUpdateThreatRequest = async (threatType: string) => {
   // TODO: Implement actual API call to update the threat
-  console.log(`Sending update threat request: ${threatType}`);
+  console.log(
+    `Sending update threat request: ${threatType}`,
+    'Current location:',
+    currentLocation.value
+  );
+};
+
+const updateCurrentLocation = async () => {
+  try {
+    let position;
+    if (Capacitor.isNativePlatform()) {
+      position = await Geolocation.getCurrentPosition({
+        enableHighAccuracy: true,
+      });
+    } else {
+      // Fallback for web browsers
+      position = await new Promise((resolve, reject) => {
+        navigator.geolocation.getCurrentPosition(resolve, reject, {
+          enableHighAccuracy: true,
+        });
+      });
+    }
+
+    currentLocation.value.latitude = position.coords.latitude;
+    currentLocation.value.longitude = position.coords.longitude;
+
+    // Update location name (you might want to use a reverse geocoding service here)
+    currentLocationName.value = `Lat: ${position.coords.latitude.toFixed(
+      4
+    )}, Lon: ${position.coords.longitude.toFixed(4)}`;
+
+    // If SOS is already sent, update the server with the new location
+    if (sosSent.value) {
+      await sendLocationUpdate();
+    }
+  } catch (error) {
+    console.error('Error getting location', error);
+    // TODO: Show error message to user
+  }
+};
+
+const startLocationUpdates = () => {
+  locationUpdateInterval = setInterval(() => {
+    updateCurrentLocation();
+  }, 10000); // Update every 10 seconds
+};
+
+const sendLocationUpdate = async () => {
+  // TODO: Implement actual API call to update location on the server
+  console.log('Sending location update:', currentLocation.value);
 };
 </script>
 
