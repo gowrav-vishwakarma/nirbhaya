@@ -125,6 +125,7 @@ let countdownInterval: number | null = null;
 const sosSent = ref(false);
 const notifiedPersons = ref(0);
 const acceptedPersons = ref(0);
+const createdSosId = ref(0);
 
 const initialRequestTime =
   Number(route.params.initialRequestTime) || Date.now();
@@ -172,7 +173,7 @@ const updateCurrentLocation = async (action = 'edit'): Promise<void> => {
       await sendLocationUpdate('create');
     } else {
       if (sosSent.value) {
-        await sendLocationUpdate('create');
+        await sendLocationUpdate('edit');
       }
     }
   } catch (error) {
@@ -448,14 +449,24 @@ const {
   errors,
   callbacks,
   isLoading,
-} = useUserForm('/qnatk/SosEvent/create', {
+  updateUrl,
+} = useUserForm('auth/sos-location-crud', {
   location: '',
   userId: 1,
 })
 
+callbacks.onSuccess = (data) => {
+  console.log('data...........', data);
+  // createdSosId.value = data.modelInstance.id
+  return data
+}
+
 
 const sendLocationUpdate = async (action = 'edit') => {
   try {
+    // if (action == 'edit') {
+    //   updateUrl(`/qnatk/SosEvent/update/${createdSosId.value}`)
+    // }
     values.value.location = currentLocation.value;
     await validateAndSubmit()
     // TODO: Implement actual API call to update location on the server
@@ -470,7 +481,7 @@ const sendLocationUpdate = async (action = 'edit') => {
 // Add a watcher for isLocationReceived
 watch(isLocationReceived, async (newValue) => {
   if (newValue && sosSent.value) {
-    await sendLocationUpdate();
+    await sendLocationUpdate('edit');
   }
 });
 </script>
