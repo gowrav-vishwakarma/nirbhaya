@@ -91,6 +91,16 @@
             <q-btn
               flat
               round
+              color="primary"
+              icon="save"
+              @click="saveEmergencyContact(index)"
+              :loading="contact.saving"
+            >
+              <q-tooltip>{{ $t('saveContact') }}</q-tooltip>
+            </q-btn>
+            <q-btn
+              flat
+              round
               color="negative"
               icon="delete"
               @click="removeEmergencyContact(index)"
@@ -208,9 +218,14 @@
 import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useLanguageStore } from 'src/stores/languageStore';
+import { Capacitor } from '@capacitor/core';
+import { Geolocation } from '@capacitor/geolocation';
+import { useQuasar } from 'quasar';
+import { api } from 'src/boot/axios'; // Make sure you have this import
 
 const { t } = useI18n();
 const languageStore = useLanguageStore();
+const $q = useQuasar();
 
 const languageOptions = computed(() =>
   languageStore.availableLanguages.map((lang) => ({
@@ -223,7 +238,12 @@ const profile = ref({
   name: '',
   mobileNumber: '',
   city: '',
-  emergencyContacts: [],
+  emergencyContacts: [] as Array<{
+    name: string;
+    number: string;
+    saving: boolean;
+    saved: boolean;
+  }>,
   locationSharingOption: 'none',
   notificationLocations: [],
 });
@@ -262,11 +282,17 @@ const updateLocationCoordinates = async (index: number) => {
   try {
     let position;
     if (Capacitor.isNativePlatform()) {
-      position = await Geolocation.getCurrentPosition();
+      position = await Geolocation.getCurrentPosition({
+        enableHighAccuracy: true,
+        timeout: 10000,
+      });
     } else {
       // Fallback for web browsers
       position = await new Promise((resolve, reject) => {
-        navigator.geolocation.getCurrentPosition(resolve, reject);
+        navigator.geolocation.getCurrentPosition(resolve, reject, {
+          enableHighAccuracy: true,
+          timeout: 10000,
+        });
       });
     }
 
@@ -304,6 +330,44 @@ const getLocationHint = (location: {
 const saveChanges = () => {
   // TODO: Implement API call to save profile changes
   console.log('Profile saved:', profile.value);
+};
+
+const saveEmergencyContact = async (index: number) => {
+  const contact = profile.value.emergencyContacts[index];
+  contact.saving = true;
+
+  try {
+    // Call API to check if the number exists
+    const response = await api.post('/check-number', {
+      number: contact.number,
+    });
+
+    if (response.data.exists) {
+      // Number exists, save the contact
+      contact.saved = true;
+      $q.notify({
+        color: 'positive',
+        message: t('emergencyContactSaved'),
+        icon: 'check',
+      });
+    } else {
+      // Number doesn't exist
+      $q.notify({
+        color: 'negative',
+        message: t('emergencyContactNotFound'),
+        icon: 'error',
+      });
+    }
+  } catch (error) {
+    console.error('Error checking emergency contact number', error);
+    $q.notify({
+      color: 'negative',
+      message: t('errorCheckingContact'),
+      icon: 'error',
+    });
+  } finally {
+    contact.saving = false;
+  }
 };
 </script>
 

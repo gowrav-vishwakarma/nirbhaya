@@ -41,6 +41,7 @@ export default {
   helpUsMore: 'हमें और मदद करें',
   followedBySomeone: 'पीछा किया जा रहा है',
   currentLocation: 'वर्तमान स्थान',
+  useCurrentLocation: 'वर्तमान स्थान वापरें',
   nearbyPoliceStations: 'निकटवर्ती पुलिस स्टेशन',
   contactPoliceStation: 'पुलिस स्टेशन से संपर्क करें',
   verbalHarassment: 'मौखिक उत्पीड़न',
