@@ -1,48 +1,68 @@
 import { defineStore } from 'pinia';
 import { computed, ref } from 'vue';
 
-export interface User {
-  id: number;
+export interface UserProfile {
   name: string;
-  email: string;
-  location: string;
-  lastLogin: Date;
+  mobileNumber: string;
+  city: string;
+  emergencyContacts: Array<{
+    name: string;
+    number: string;
+  }>;
+  locationSharingOption: 'always' | 'periodicallyCheck' | 'none';
+  notificationLocations: Array<{
+    name: string;
+    latitude: number | null;
+    longitude: number | null;
+  }>;
+}
+
+export interface User {
+  name: string;
+  mobileNumber: string;
+  token: string;
+  profile: UserProfile;
 }
 
 export const useUserStore = defineStore(
   'userStore',
   () => {
     // State
-    const user = ref<User>({} as User);
+    const user = ref<User | null>(null);
 
     // Getters
-    const userName = computed(() => user.value.name);
-    const userEmail = computed(() => user.value.email);
-    const userLocation = computed(() => user.value.location);
-    const userLastLogin = computed(() => user.value.lastLogin);
+    const isLoggedIn = computed(() => !!user.value?.token);
+    const userName = computed(() => user.value?.name ?? '');
+    const userMobileNumber = computed(() => user.value?.mobileNumber ?? '');
 
     // Actions
     function setUser(newUser: User) {
       user.value = newUser;
     }
 
-    function updateUser(data: Partial<User>) {
-      Object.assign(user.value, data);
+    function updateProfile(newProfile: Partial<UserProfile>) {
+      if (user.value) {
+        user.value.profile = { ...user.value.profile, ...newProfile };
+      }
+    }
+
+    function logout() {
+      user.value = null;
     }
 
     return {
       user,
+      isLoggedIn,
       userName,
-      userEmail,
-      userLocation,
-      userLastLogin,
+      userMobileNumber,
       setUser,
-      updateUser,
+      updateProfile,
+      logout,
     };
   },
   {
     persist: {
-      key: 'nirdhaya',
+      key: 'nirdhaya-user',
     },
   }
 );
