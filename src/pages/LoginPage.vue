@@ -51,13 +51,15 @@
 import { ref } from 'vue';
 import { useUserStore } from 'stores/user-store';
 import { useRouter } from 'vue-router';
-import { useComposibleForm } from 'src/composables/use-composible-form';
+import { useForm } from 'src/qnatk/composibles/use-form';
+import { api } from 'src/boot/axios';
 
 const userStore = useUserStore();
 const router = useRouter();
 const otpSent = ref(false);
 
-const { values, validateAndSubmit, callbacks, errors } = useComposibleForm(
+const { values, validateAndSubmit, callbacks, errors } = useForm(
+  api,
   'auth/login',
   {
     mobileNumber: '',
