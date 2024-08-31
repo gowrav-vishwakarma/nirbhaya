@@ -13,7 +13,7 @@ export default {
   locationSharing: 'स्थान साझाकरण',
   locationSharingHelp:
     'सुरक्षा उद्देश्यों के लिए अपना स्थान कैसे साझा करना चाहते हैं, चुनें।',
-  notificationLocations: 'अधिसूचना स्थान',
+  notificationLocations: 'आप जिन स्थानों का अपडेट चाहते हैं, please add those',
   notificationLocationsHelp:
     '2 स्थान जोड़ें जहां आप सूचनाएं प्राप्त करना चाहते हैं।',
   locationName: 'स्थान का नाम',
@@ -28,10 +28,7 @@ export default {
     'चुनें कि आप जरूरतमंदों की मदद के लिए स्वयंसेवक के रूप में कैसे उपलब्ध होना चाहते हैं।',
   volunteerLocationSharingDescription:
     'एक स्वयंसेवक के रूप में, आप आपातकालीन स्थितियों में दूसरों की मदद करने के लिए अपना स्थान साझा करना चुन सकते हैं। नीचे अपना पसंदीदा उपलब्धता विकल्प चुनें।',
-  alwaysAvailable: 'हमेशा उपलब्ध (हर 5 मिनट में स्थान साझा करें)',
-  periodicallyCheck:
-    'हर 5 मिनट में SOS जाँच करें, लेकिन मेरा स्थान save न करें',
-  notAvailable: 'उपलब्ध नहीं (अलर्ट प्राप्त न करें या स्थान साझा न करें)',
+
   sosWarning: 'SOS चेतावनी',
   cancelSOS: 'SOS रद्द करें',
   sosSent: 'SOS भेजा गया',
@@ -59,4 +56,7 @@ export default {
     'gu-IN': 'गुजराती',
   },
   gettingLocation: 'स्थान प्राप्त किया जा रहा है...',
+  liveSosEventChecking: 'लाइव SOS इवेंट जांच',
+  liveSosEventCheckingDescription:
+    'अपने क्षेत्र में लाइव SOS घटनाओं की जांच के लिए नियमित अंतराल पर सक्षम करें।',
 };

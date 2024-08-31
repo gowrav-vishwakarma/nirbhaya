@@ -13,7 +13,7 @@ export default {
   locationSharing: 'Location Sharing',
   locationSharingHelp:
     'Choose how you want to share your location for safety purposes.',
-  notificationLocations: 'Notification Locations',
+  notificationLocations: 'Get Notified for following locations',
   notificationLocationsHelp:
     'Add up to 2 locations where you want to receive notifications.',
   locationName: 'Location Name',
@@ -29,10 +29,6 @@ export default {
   volunteerLocationSharingDescription:
     'As a volunteer, you can choose to share your location to help others in emergency situations. Select your preferred availability option below.',
   alwaysAvailable: 'Always Available (Update my location every 5 minutes)',
-  periodicallyCheck:
-    'Check for SOS in every 5 minutes (Do not save my location)',
-  notAvailable: 'Not Available (Do not receive alerts or share location)',
-  sosWarning: 'SOS Warning',
   cancelSOS: 'Cancel SOS',
   sosSent: 'SOS Sent',
   notificationSentTo: 'Notification sent to {count} nearby persons',
@@ -59,4 +55,7 @@ export default {
     'hi-IN': 'Hindi',
     'gu-IN': 'Gujarati',
   },
+  liveSosEventChecking: 'Live SOS Event Checking',
+  liveSosEventCheckingDescription:
+    'Enable to check for live SOS events in your area at frequent intervals.',
 };
