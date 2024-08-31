@@ -1,8 +1,6 @@
 import { boot } from 'quasar/wrappers';
 import axios, { AxiosInstance } from 'axios';
 import { useUserStore } from 'stores/user-store';
-import { date } from 'quasar';
-import { getWorkingDate } from 'src/composibles/use-workingdate';
 
 declare module '@vue/runtime-core' {
   interface ComponentCustomProperties {
@@ -22,12 +20,12 @@ const api = axios.create({ baseURL: 'http://localhost:3000' });
 
 export default boot(({ app, store }) => {
   // for use inside Vue files (Options API) through this.$axios and this.$api
-  // const userStore = useUserStore(store);
+  const userStore = useUserStore(store);
 
-  // api.interceptors.request.use((config) => {
-  //   config.headers.Authorization = `Bearer ${userStore.user.token}`;
-  //   return config;
-  // });
+  api.interceptors.request.use((config) => {
+    config.headers.Authorization = `Bearer ${userStore.user.token}`;
+    return config;
+  });
 
   app.config.globalProperties.$axios = axios;
   // ^ ^ ^ this will allow you to use this.$axios (for Vue Options API form)
