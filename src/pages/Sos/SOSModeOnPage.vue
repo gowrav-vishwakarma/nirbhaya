@@ -422,9 +422,6 @@ const updateThreat = async (threatType: string) => {
 
   } else {
     try {
-      selectedThreat.value = threatType;
-      console.log('selectedThreat.....', selectedThreat);
-
       await sendLocationUpdate('edit', threatType)
       await sendUpdateThreatRequest(threatType);
       // You might want to update the UI to show that the threat has been updated
@@ -465,25 +462,14 @@ const {
   status: ''
 })
 
-// callbacks.beforeSubmit = (data) => {
-//   console.log('beforeSubmit.............111111', selectedThreat.value);
-
-//   data.status = selectedThreat.value ? 'active' : 'created'
-//   console.log('beforeSubmit.............222222', selectedThreat.value);
-
-//   return data
-// }
-
 callbacks.onSuccess = (data) => {
   console.log('data...........', data);
-  // createdSosId.value = data.modelInstance.id
   return data
 }
 
 
 const sendLocationUpdate = async (action = 'edit', threat = '') => {
   try {
-    console.log('ttttttttt', threat);
     selectedThreat.value = threat
     values.value.status = selectedThreat.value ? 'active' : 'created'
     values.value.location = currentLocation.value;
