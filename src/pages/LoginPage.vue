@@ -29,7 +29,12 @@
             />
 
             <div class="q-mt-md">
-              <q-btn :label="otpSent ? 'Login' : 'Send OTP'" type="submit" color="primary" full-width />
+              <q-btn
+                :label="otpSent ? 'Login' : 'Send OTP'"
+                type="submit"
+                color="primary"
+                full-width
+              />
             </div>
           </q-form>
         </q-card-section>
@@ -67,11 +72,19 @@ callbacks.beforeSubmit = (formValues) => {
   const newErrors = {};
 
   if (!otpSent.value) {
-    if (!formValues.mobileNumber || formValues.mobileNumber.length !== 10 || !/^\d+$/.test(formValues.mobileNumber)) {
+    if (
+      !formValues.mobileNumber ||
+      formValues.mobileNumber.length !== 10 ||
+      !/^\d+$/.test(formValues.mobileNumber)
+    ) {
       newErrors.mobileNumber = ['Please enter a valid 10-digit mobile number'];
     }
   } else {
-    if (!formValues.otp || formValues.otp.length !== 4 || !/^\d+$/.test(formValues.otp)) {
+    if (
+      !formValues.otp ||
+      formValues.otp.length !== 4 ||
+      !/^\d+$/.test(formValues.otp)
+    ) {
       newErrors.otp = ['Please enter a valid 4-digit OTP'];
     }
   }
@@ -84,15 +97,15 @@ callbacks.beforeSubmit = (formValues) => {
   return formValues;
 };
 
-callbacks.onSuccess = (user) => {
+callbacks.onSuccess = (userData) => {
   if (!otpSent.value) {
     otpSent.value = true;
     updateUrl('/auth/login');
   } else {
-    userStore.setUser(user);
-    if(user.name){
-    router.push('/dashboard');
-    }else {
+    userStore.setUser(userData);
+    if (userData.name) {
+      router.push('/dashboard');
+    } else {
       router.push('/account');
     }
   }
@@ -101,7 +114,9 @@ callbacks.onSuccess = (user) => {
 callbacks.onError = (error) => {
   Notify.create({
     type: 'negative',
-    message: otpSent.value ? 'Login failed. Please check your OTP and try again.' : 'Failed to send OTP. Please try again.',
+    message: otpSent.value
+      ? 'Login failed. Please check your OTP and try again.'
+      : 'Failed to send OTP. Please try again.',
   });
 };
 </script>

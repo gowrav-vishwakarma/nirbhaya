@@ -1,53 +1,73 @@
 import { defineStore } from 'pinia';
 import { computed, ref } from 'vue';
 
-export interface UserProfile {
+export interface EmergencyContact {
+  contactName: string;
+  contactPhone: string;
+  relationship?: string;
+  isAppUser: boolean;
+  priority?: number;
+}
+
+export interface UserLocation {
   name: string;
-  mobileNumber: string;
-  city: string;
-  emergencyContacts: Array<{
-    name: string;
-    number: string;
-  }>;
-  locationSharingOption: 'always' | 'periodicallyCheck' | 'none';
-  notificationLocations: Array<{
-    name: string;
-    latitude: number | null;
-    longitude: number | null;
-  }>;
+  location: {
+    type: 'Point';
+    coordinates: [number, number]; // [longitude, latitude]
+  };
 }
 
 export interface User {
+  id: number;
+  phoneNumber: string;
+  userType: 'child' | 'volunteer';
   name: string;
-  mobileNumber: string;
+  email: string;
+  lastLogin?: Date;
   token: string;
-  profile: UserProfile;
+  isVerified: boolean;
+  city: string;
+  liveSosEventChecking: boolean;
+  emergencyContacts: EmergencyContact[];
+  locations: UserLocation[];
 }
+
+const defaultUser: User = {
+  id: 0,
+  phoneNumber: '',
+  userType: 'child',
+  name: '',
+  email: '',
+  token: '',
+  isVerified: false,
+  city: '',
+  liveSosEventChecking: false,
+  emergencyContacts: [],
+  locations: [],
+};
 
 export const useUserStore = defineStore(
   'userStore',
   () => {
     // State
-    const user = ref<User | null>(null);
+    const user = ref<User>(defaultUser);
 
     // Getters
     const isLoggedIn = computed(() => !!user.value?.token);
     const userName = computed(() => user.value?.name ?? '');
-    const userMobileNumber = computed(() => user.value?.mobileNumber ?? '');
+    const userMobileNumber = computed(() => user.value?.phoneNumber ?? '');
 
     // Actions
     function setUser(newUser: User) {
       user.value = newUser;
     }
 
-    function updateProfile(newProfile: Partial<UserProfile>) {
-      if (user.value) {
-        user.value.profile = { ...user.value.profile, ...newProfile };
-      }
+    function updateUser(updatedFields: Partial<User>) {
+      user.value = { ...user.value, ...updatedFields };
     }
 
     function logout() {
-      user.value = null;
+      user.value = defaultUser;
     }
 
     return {
@@ -56,7 +76,7 @@ export const useUserStore = defineStore(
       userName,
       userMobileNumber,
       setUser,
-      updateProfile,
+      updateUser,
       logout,
     };
   },

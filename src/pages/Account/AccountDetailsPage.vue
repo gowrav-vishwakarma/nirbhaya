@@ -35,7 +35,7 @@
           <q-input
             class="q-mt-sm"
             outlined
-            v-model="profile.name"
+            v-model="values.name"
             :label="$t('name')"
             style="border-radius: 20px"
           />
@@ -47,7 +47,7 @@
             disable
             class="q-mt-sm"
             outlined
-            v-model="profile.mobileNumber"
+            v-model="values.phoneNumber"
             :label="$t('mobileNumber')"
             style="border-radius: 20px"
           />
@@ -57,7 +57,7 @@
           <q-input
             class="q-mt-sm"
             outlined
-            v-model="profile.city"
+            v-model="values.city"
             :label="$t('city')"
             style="border-radius: 20px"
           />
@@ -72,20 +72,20 @@
             </q-icon>
           </div>
           <div
-            v-for="(contact, index) in profile.emergencyContacts"
+            v-for="(contact, index) in values.emergencyContacts"
             :key="index"
             class="q-mt-sm"
           >
             <q-input
               outlined
-              v-model="contact.name"
+              v-model="contact.contactName"
               :label="$t('name')"
               class="q-mb-sm"
               style="border-radius: 20px"
             />
             <q-input
               outlined
-              v-model="contact.number"
+              v-model="contact.contactPhone"
               :label="$t('number')"
               class="q-mb-sm"
               style="border-radius: 20px"
@@ -109,7 +109,7 @@
             />
           </div>
           <q-btn
-            v-if="profile.emergencyContacts.length < 3"
+            v-if="values.emergencyContacts.length < 3"
             @click="addEmergencyContact"
             class="q-mt-sm primaryBackGroundColor text-white"
             icon="add_circle"
@@ -127,7 +127,7 @@
             </q-icon>
           </div>
           <div
-            v-for="(location, index) in profile.notificationLocations"
+            v-for="(location, index) in values.locations"
             :key="index"
             class="q-mt-sm"
           >
@@ -164,15 +164,18 @@
               </div>
             </div>
             <p
-              v-if="location.latitude && location.longitude"
+              v-if="
+                location.location.coordinates[1] &&
+                location.location.coordinates[0]
+              "
               class="text-caption q-mt-sm"
             >
-              {{ $t('coordinates') }}: {{ location.latitude }},
-              {{ location.longitude }}
+              {{ $t('coordinates') }}: {{ location.location.coordinates[1] }},
+              {{ location.location.coordinates[0] }}
             </p>
           </div>
           <q-btn
-            v-if="profile.notificationLocations.length < 2"
+            v-if="values.locations.length < 2"
             @click="addNotificationLocation"
             class="q-mt-sm primaryBackGroundColor text-white"
             icon="add_circle"
@@ -192,7 +195,7 @@
                 {{ $t('liveSosEventCheckingDescription') }}
               </p>
             </div>
-            <q-toggle v-model="profile.liveSosEventChecking" color="primary" />
+            <q-toggle v-model="values.liveSosEventChecking" color="primary" />
           </div>
         </div>
 
@@ -213,18 +216,21 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, ref } from 'vue';
+import { computed, ref, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useLanguageStore } from 'src/stores/languageStore';
 import { Capacitor } from '@capacitor/core';
 import { Geolocation } from '@capacitor/geolocation';
 import { useQuasar } from 'quasar';
 import { api } from 'src/boot/axios';
-import { useUserForm } from 'src/composables/use-user-form';
+import { useForm } from 'src/qnatk/composibles/use-form';
+import { useUserStore } from 'src/stores/user-store';
 
 const { t } = useI18n();
 const languageStore = useLanguageStore();
 const $q = useQuasar();
+
+const userStore = useUserStore();
 
 const languageOptions = computed(() =>
   languageStore.availableLanguages.map((lang) => ({
@@ -233,42 +239,89 @@ const languageOptions = computed(() =>
   }))
 );
 
-const profile = ref({
-  name: 'bhashkar',
-  mobileNumber: '9639567903',
-  city: 'Ahmedabad',
-  emergencyContacts: [] as Array<{
-    name: string;
-    number: string;
-    saving: boolean;
-    saved: boolean;
-  }>,
-  notificationLocations: [],
-  liveSosEventChecking: false,
+// Use useForm for the main profile form
+const {
+  values,
+  errors,
+  isLoading: updateProfileIsLoading,
+  validateAndSubmit: updateProfileValidateAndSubmit,
+  callbacks: updateProfileCallbacks,
+} = useForm(api, 'auth/user-profile-update', {
+  name: userStore.user.name,
+  phoneNumber: userStore.user.phoneNumber,
+  city: userStore.user.city,
+  emergencyContacts: userStore.user.emergencyContacts,
+  locations: userStore.user.locations,
+  liveSosEventChecking: userStore.user.liveSosEventChecking,
 });
 
+onMounted(() => {
+  // Initialize form values with user store data
+  values.name = userStore.user.name;
+  values.phoneNumber = userStore.user.phoneNumber;
+  values.city = userStore.user.city;
+  values.emergencyContacts = userStore.user.emergencyContacts;
+  values.locations = userStore.user.locations;
+  values.liveSosEventChecking = userStore.user.liveSosEventChecking;
+});
+
+// Update callbacks for the profile update
+updateProfileCallbacks.onSuccess = (updatedUser) => {
+  // Update the user store with the new data
+  userStore.updateUser({
+    name: updatedUser.name,
+    city: updatedUser.city,
+    liveSosEventChecking: updatedUser.liveSosEventChecking,
+    emergencyContacts: updatedUser.emergencyContacts,
+    locations: updatedUser.locations,
+  });
+
+  $q.notify({
+    color: 'positive',
+    message: t('profileUpdateSuccess'),
+    icon: 'check',
+  });
+};
+
+updateProfileCallbacks.onError = (error) => {
+  console.error('Error updating profile', error);
+  $q.notify({
+    color: 'negative',
+    message: t('profileUpdateError'),
+    icon: 'error',
+  });
+};
+
 const addEmergencyContact = () => {
-  if (profile.value.emergencyContacts.length < 3) {
-    profile.value.emergencyContacts.push({ name: '', number: '' });
+  if (values.emergencyContacts.length < 3) {
+    values.emergencyContacts.push({
+      contactName: '',
+      contactPhone: '',
+      relationship: '',
+      isAppUser: false,
+      priority: 0,
+    });
   }
 };
 
 const removeEmergencyContact = (index: number) => {
-  profile.value.emergencyContacts.splice(index, 1);
+  values.emergencyContacts.splice(index, 1);
 };
 
 const addNotificationLocation = () => {
-  if (profile.value.notificationLocations.length < 2) {
-    profile.value.notificationLocations.push({
+  if (values.locations.length < 2) {
+    values.locations.push({
       name: '',
-      latitude: null,
-      longitude: null,
+      location: {
+        type: 'Point',
+        coordinates: [null, null],
+      },
     });
   }
 };
 
 const removeNotificationLocation = (index: number) => {
-  profile.value.notificationLocations.splice(index, 1);
+  values.locations.splice(index, 1);
 };
 
 const updateLocationCoordinates = async (index: number) => {
@@ -289,10 +342,10 @@ const updateLocationCoordinates = async (index: number) => {
       });
     }
 
-    profile.value.notificationLocations[index].latitude =
-      position.coords.latitude;
-    profile.value.notificationLocations[index].longitude =
-      position.coords.longitude;
+    values.locations[index].location.coordinates = [
+      position.coords.longitude,
+      position.coords.latitude,
+    ];
     $q.notify({
       color: 'positive',
       message: t('locationUpdated'),
@@ -309,56 +362,22 @@ const updateLocationCoordinates = async (index: number) => {
 };
 
 const getLocationHint = (location: {
-  latitude: number | null;
-  longitude: number | null;
+  location: { coordinates: [number, number] };
 }) => {
-  if (location.latitude && location.longitude) {
-    return `${t('coordinates')}: ${location.latitude.toFixed(
+  const [longitude, latitude] = location.location.coordinates;
+  if (latitude && longitude) {
+    return `${t('coordinates')}: ${latitude.toFixed(6)}, ${longitude.toFixed(
       6
-    )}, ${location.longitude.toFixed(6)}`;
+    )}`;
   }
   return t('noLocationSet');
 };
 
-const {
-  values: updateProfileValues,
-  validateAndSubmit: updateProfileValidateAndSubmit,
-  errors: updateProfileErrors,
-  callbacks: updateProfileCallbacks,
-  isLoading: updateProfileIsLoading,
-} = useUserForm('auth/user-profile-update', {});
-updateProfileCallbacks.beforeSubmit = (data) => {
-  data = profile.value;
-  return data;
-};
-
 const saveChanges = () => {
   updateProfileValidateAndSubmit();
-  console.log('Profile saved:', profile.value);
 };
 
-const { values, validateAndSubmit, errors, callbacks, isLoading } = useUserForm(
-  'auth/user-emergency-contect-add',
-  {
-    number: '',
-    name: '',
-    userId: 1,
-  }
-);
-
-const saveEmergencyContact = async (index: number) => {
-  const contact = profile.value.emergencyContacts[index];
-  contact.saving = true;
-  values.value.number = contact.number;
-  values.value.name = contact.name;
-  try {
-    await validateAndSubmit();
-  } catch (error) {
-    console.error('Error checking emergency contact number', error);
-  } finally {
-    contact.saving = false;
-  }
-};
+// You can add more custom logic or error handling as needed
 </script>
 
 <style scoped>
