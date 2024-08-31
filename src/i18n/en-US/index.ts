@@ -58,4 +58,6 @@ export default {
   liveSosEventChecking: 'Live SOS Event Checking',
   liveSosEventCheckingDescription:
     'Enable to check for live SOS events in your area at frequent intervals.',
+  notAMember: 'Contact {contactPhone} is not a member of the app',
+  profileUpdateSuccess: 'Profile updated successfully',
 };

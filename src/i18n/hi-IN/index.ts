@@ -59,4 +59,6 @@ export default {
   liveSosEventChecking: 'लाइव SOS इवेंट जांच',
   liveSosEventCheckingDescription:
     'अपने क्षेत्र में लाइव SOS घटनाओं की जांच के लिए नियमित अंतराल पर सक्षम करें।',
+  notAMember: 'संपर्क {contactPhone} ऐप का सदस्य नहीं है',
+  profileUpdateSuccess: 'प्रोफ़ाइल सफलतापूर्वक अपडेट करें',
 };

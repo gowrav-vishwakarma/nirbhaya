@@ -284,12 +284,29 @@ updateProfileCallbacks.onSuccess = (updatedUser) => {
 };
 
 updateProfileCallbacks.onError = (error) => {
-  console.error('Error updating profile', error);
-  $q.notify({
-    color: 'negative',
-    message: t('profileUpdateError'),
-    icon: 'error',
-  });
+  console.log(error.response.data);
+  if (error.response.data.message === 'Validation Exception') {
+    Object.keys(error.response.data.response.errors).forEach((key) => {
+      $q.notify({
+        color: 'negative',
+        message: `${key}: ${t('notAMember', { contactPhone: key })}`,
+        icon: 'error',
+      });
+      const index = values.emergencyContacts.findIndex(
+        (contact) => contact.contactPhone === key
+      );
+      if (index !== -1) {
+        values.emergencyContacts.splice(index, 1);
+      }
+    });
+  } else {
+    console.error('Error updating profile', error);
+    $q.notify({
+      color: 'negative',
+      message: t('profileUpdateError'),
+      icon: 'error',
+    });
+  }
 };
 
 const addEmergencyContact = () => {
@@ -375,13 +392,6 @@ const getLocationHint = (location: {
 
 const saveChanges = async () => {
   await updateProfileValidateAndSubmit();
-  userStore.updateUser({
-    emergencyContacts: values.emergencyContacts,
-    locations: values.locations,
-    liveSosEventChecking: values.liveSosEventChecking,
-    name: values.name,
-    city: values.city,
-  });
 };
 
 // You can add more custom logic or error handling as needed

@@ -23,11 +23,9 @@
 <script lang="ts" setup>
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { useI18n } from 'vue-i18n';
 import { useUserForm } from 'src/composables/use-user-form';
 
 const router = useRouter();
-const { t } = useI18n();
 
 const userName = ref('User');
 
@@ -42,10 +40,13 @@ const initiateSOSMode = async () => {
   }
 };
 
-const { values, validateAndSubmit, errors, callbacks, isLoading, updateUrl } =
-  useUserForm('auth/sos-location-crud', {
-    status: 'created',
-  });
+const { validateAndSubmit, callbacks } = useUserForm('auth/sos-location-crud', {
+  status: 'created',
+});
+
+callbacks.onSuccess = () => {
+  console.log('SOS log started');
+};
 
 const sendInitialSOSRequest = async () => {
   validateAndSubmit();

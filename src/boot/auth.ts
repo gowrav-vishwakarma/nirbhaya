@@ -1,7 +1,7 @@
 import { boot } from 'quasar/wrappers';
 import { useUserStore } from 'stores/user-store';
 
-export default boot(async ({ app, redirect, store, urlPath }) => {
+export default boot(async ({ redirect, store, urlPath }) => {
   console.log('urlPath', urlPath);
   const userStore = useUserStore(store);
   const loggedIn = userStore.isLoggedIn;
