@@ -6,6 +6,10 @@ const routes: RouteRecordRaw[] = [
     component: () => import('layouts/MainLayout.vue'),
     children: [
       {
+        path: 'login',
+        component: () => import('pages/LoginPage.vue'),
+      },
+      {
         path: '',
         component: () => import('pages/Dashboard/DashboardPage.vue'),
       },
@@ -29,6 +33,7 @@ const routes: RouteRecordRaw[] = [
         path: 'sos-location-change',
         component: () => import('pages/Sos/SOSLocationChangePage.vue'),
       },
+
     ],
   },
 
