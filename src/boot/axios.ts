@@ -20,12 +20,12 @@ const api = axios.create({ baseURL: process.env.API_BASE_URL });
 
 export default boot(({ app, store }) => {
   // for use inside Vue files (Options API) through this.$axios and this.$api
-  const userStore = useUserStore(store);
+  // const userStore = useUserStore(store);
 
-  api.interceptors.request.use((config) => {
-    config.headers.Authorization = `Bearer ${userStore.user.token}`;
-    return config;
-  });
+  // api.interceptors.request.use((config) => {
+  //   config.headers.Authorization = `Bearer ${userStore.user.token}`;
+  //   return config;
+  // });
 
   app.config.globalProperties.$axios = axios;
   // ^ ^ ^ this will allow you to use this.$axios (for Vue Options API form)
