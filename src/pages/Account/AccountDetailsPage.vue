@@ -90,16 +90,7 @@
               class="q-mb-sm"
               style="border-radius: 20px"
             />
-            <q-btn
-              flat
-              round
-              color="primary"
-              icon="save"
-              @click="saveEmergencyContact(index)"
-              :loading="contact.saving"
-            >
-              <q-tooltip>{{ $t('saveContact') }}</q-tooltip>
-            </q-btn>
+
             <q-btn
               flat
               round
