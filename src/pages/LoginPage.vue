@@ -90,7 +90,11 @@ callbacks.onSuccess = (user) => {
     updateUrl('/auth/login');
   } else {
     userStore.setUser(user);
+    if(user.name){
     router.push('/dashboard');
+    }else {
+      router.push('/account');
+    }
   }
 };
 
