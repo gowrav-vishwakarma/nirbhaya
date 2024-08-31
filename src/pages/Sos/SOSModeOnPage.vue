@@ -87,7 +87,8 @@
         </div>
 
         <div class="col-12 col-md-12 q-px-md q-mt-lg flex justify-center q-mb-lg">
-          <q-btn style="width: 100%" class="primaryBackGroundColor text-white"><b class="q-ml-xs q-my-md">{{
+          <q-btn @click="sendLocationUpdate('edit', 'active')" style="width: 100%"
+            class="primaryBackGroundColor text-white"><b class="q-ml-xs q-my-md">{{
             $t('contactPoliceStation')
           }}</b></q-btn>
         </div>
@@ -422,9 +423,9 @@ const updateThreat = async (threatType: string) => {
 
   } else {
     try {
-      await sendLocationUpdate('edit', threatType)
       await sendUpdateThreatRequest(threatType);
       // You might want to update the UI to show that the threat has been updated
+      selectedThreat.value = threatType
       console.log(`Threat updated: ${threatType}`);
 
     } catch (error) {
@@ -459,7 +460,8 @@ const {
 } = useUserForm('auth/sos-location-crud', {
   location: '',
   userId: 1,
-  status: ''
+  status: '',
+  threat: ''
 })
 
 callbacks.onSuccess = (data) => {
@@ -468,11 +470,11 @@ callbacks.onSuccess = (data) => {
 }
 
 
-const sendLocationUpdate = async (action = 'edit', threat = '') => {
+const sendLocationUpdate = async (action = 'edit', threat = 'created') => {
   try {
-    selectedThreat.value = threat
-    values.value.status = selectedThreat.value ? 'active' : 'created'
+    values.value.status = threat
     values.value.location = currentLocation.value;
+    values.value.threat = selectedThreat.value
     await validateAndSubmit()
     // TODO: Implement actual API call to update location on the server
     console.log('Sending location update:', currentLocation.value);
