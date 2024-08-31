@@ -373,8 +373,15 @@ const getLocationHint = (location: {
   return t('noLocationSet');
 };
 
-const saveChanges = () => {
-  updateProfileValidateAndSubmit();
+const saveChanges = async () => {
+  await updateProfileValidateAndSubmit();
+  userStore.updateUser({
+    emergencyContacts: values.emergencyContacts,
+    locations: values.locations,
+    liveSosEventChecking: values.liveSosEventChecking,
+    name: values.name,
+    city: values.city,
+  });
 };
 
 // You can add more custom logic or error handling as needed
