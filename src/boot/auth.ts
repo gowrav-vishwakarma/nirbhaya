@@ -14,17 +14,9 @@ export default boot(async ({ app, redirect, store, urlPath }) => {
 
   // Define the login routes for each role
   const loginRoutes: Record<string, string> = {
+    user: '/login',
     admin: '/admin/login',
-    member: '/login',
-    affiliate: '/affiliate/login',
   };
-
-  // Define the base routes for each role
-  // const baseRoutes: Record<string, string> = {
-  //   admin: '/admin',
-  //   member: '/member',
-  //   affiliate: '/affiliate',
-  // };
 
   // Check if the user is not logged in and accessing a protected route
   if (!loggedIn && !urlPath.endsWith('/login')) {
@@ -32,17 +24,11 @@ export default boot(async ({ app, redirect, store, urlPath }) => {
     let roleForPath = null;
     if (urlPath.startsWith('/admin/')) {
       roleForPath = 'admin';
-    } else if (urlPath.startsWith('/member/')) {
-      roleForPath = 'member';
-    } else if (urlPath.startsWith('/affiliate/')) {
-      roleForPath = 'affiliate';
     }
 
     if (
-      urlPath === '/admin' ||
-      urlPath === '/member' ||
-      urlPath === '/affiliate'
-    ) {
+      urlPath === '/admin'
+      ) {
       redirect(loginRoutes[urlPath.split('/')[1]]);
     }
 
@@ -53,24 +39,6 @@ export default boot(async ({ app, redirect, store, urlPath }) => {
   } else if (loggedIn) {
     // Check if the user's role matches the accessed path
     console.log('loggedIn');
-    // const expectedRole = urlPath.split('/')[1]; // Extract the role from the path
-    // if (
-    //   expectedRole !== 'admin' &&
-    //   expectedRole !== 'member' &&
-    //   expectedRole !== 'affiliate'
-    // ) {
-    //   console.log('loggedIn...,', loggedIn);
-    //   console.log('loggedInStore...,', loggedInStore);
-    //   console.log('role...,', role);
-    //   if (baseRoutes[role]) {
-    //     // Redirect to the base route for the user's role if the accessed path is invalid
-    //     redirect(baseRoutes[role] + '/dashboard');
-    //   }
-    // }
-    // if (role !== expectedRole) {
-    //   // Redirect to the base route for the user's role if there's a role mismatch
-    //   redirect(baseRoutes[role]);
-    // }
   }
 
   // Set the current user in global properties if logged in
