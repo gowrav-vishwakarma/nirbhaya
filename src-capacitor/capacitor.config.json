@@ -1,6 +1,6 @@
 {
-  "appId": "org.nirbhaya.quasar.app",
-  "appName": "Nirbhaya, freedom",
+  "appId": "com.xavoc.shoutout",
+  "appName": "Nirbhaya, freedom from violence",
   "webDir": "www",
   "plugins": {
     "Geolocation": {

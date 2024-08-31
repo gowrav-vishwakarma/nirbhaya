@@ -7,38 +7,29 @@
           <div class="text-h6 text-center">Login</div>
         </q-card-section>
         <q-card-section>
-          <q-form @submit.prevent="validateAndSubmit">
+          <q-form @submit="handleSubmit">
             <q-input
               filled
               v-model="values.mobileNumber"
               label="Mobile Number"
-              lazy-rules
               :error="!!errors.mobileNumber"
-              :error-message="errors.mobileNumber ? errors.mobileNumber.join('; ') : ''"
-              :rules="[
-                (val) => (val && val.length > 0) || 'Please enter your mobile number',
-              ]"
+              :error-message="errors.mobileNumber?.join('; ')"
+              mask="##########"
+              :disable="otpSent"
             />
-
-            <div v-if="!otpSent" class="q-mt-md">
-              <q-btn label="Send OTP" @click="sendOTP" color="primary" full-width />
-            </div>
 
             <q-input
               v-if="otpSent"
               filled
               v-model="values.otp"
               label="Enter OTP"
-              lazy-rules
               :error="!!errors.otp"
-              :error-message="errors.otp ? errors.otp.join('; ') : ''"
-              :rules="[
-                (val) => (val && val.length > 0) || 'Please enter the OTP',
-              ]"
+              :error-message="errors.otp?.join('; ')"
+              mask="####"
             />
 
-            <div v-if="otpSent" class="q-mt-md">
-              <q-btn label="Login" type="submit" color="primary" full-width />
+            <div class="q-mt-md">
+              <q-btn :label="otpSent ? 'Login' : 'Send OTP'" type="submit" color="primary" full-width />
             </div>
           </q-form>
         </q-card-section>
@@ -53,30 +44,65 @@ import { useUserStore } from 'stores/user-store';
 import { useRouter } from 'vue-router';
 import { useForm } from 'src/qnatk/composibles/use-form';
 import { api } from 'src/boot/axios';
+import { Notify } from 'quasar';
 
 const userStore = useUserStore();
 const router = useRouter();
 const otpSent = ref(false);
 
-const { values, validateAndSubmit, callbacks, errors } = useForm(
+const { values, errors, validateAndSubmit, updateUrl, callbacks } = useForm(
   api,
-  'auth/login',
+  'auth/sendOtp',
   {
     mobileNumber: '',
     otp: '',
   }
 );
 
-const sendOTP = async () => {
-  // Implement OTP sending logic here
-  // For example:
-  // await sendOTPToMobile(values.mobileNumber);
-  otpSent.value = true;
+const handleSubmit = () => {
+  validateAndSubmit(false); // Pass false to prevent form reset
+};
+
+callbacks.beforeSubmit = (formValues) => {
+  const newErrors = {};
+
+  if (!otpSent.value) {
+    if (!formValues.mobileNumber || formValues.mobileNumber.length !== 10 || !/^\d+$/.test(formValues.mobileNumber)) {
+      newErrors.mobileNumber = ['Please enter a valid 10-digit mobile number'];
+    }
+  } else {
+    if (!formValues.otp || formValues.otp.length !== 4 || !/^\d+$/.test(formValues.otp)) {
+      newErrors.otp = ['Please enter a valid 4-digit OTP'];
+    }
+  }
+
+  if (Object.keys(newErrors).length > 0) {
+    errors.value = newErrors;
+    throw new Error('Validation failed');
+  }
+
+  return formValues;
 };
 
 callbacks.onSuccess = (user) => {
-  userStore.setUser(user);
-  router.push('/');
+  if (!otpSent.value) {
+    otpSent.value = true;
+    updateUrl('/auth/login');
+  } else {
+    userStore.setUser(user);
+    if(user.name){
+    router.push('/dashboard');
+    }else {
+      router.push('/account');
+    }
+  }
+};
+
+callbacks.onError = (error) => {
+  Notify.create({
+    type: 'negative',
+    message: otpSent.value ? 'Login failed. Please check your OTP and try again.' : 'Failed to send OTP. Please try again.',
+  });
 };
 </script>
 
@@ -115,7 +141,6 @@ callbacks.onSuccess = (user) => {
   transform: translate(-50%, -50%);
   z-index: 2;
   width: 100%;
-  /* Adjust based on your needs */
   display: flex;
   justify-content: center;
   align-items: center;
