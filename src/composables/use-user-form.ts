@@ -7,5 +7,5 @@ export function useUserForm<ResponseFormat extends object>(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   defaultValues: Record<string, any>
 ) {
-  return useForm<ResponseFormat>(api, '/user/' + initialUrl, defaultValues);
+  return useForm<ResponseFormat>(api, '' + initialUrl, defaultValues);
 }

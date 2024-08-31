@@ -14,7 +14,9 @@ const {
   errors,
   callbacks,
   isLoading,
-} = useUserForm('qnatk/User/list')
+} = useUserForm('auth/user-emergency-contect-add', {
+  number: 2323232323
+})
 
 validateAndSubmit()
 </script>
