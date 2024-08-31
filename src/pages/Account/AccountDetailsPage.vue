@@ -259,16 +259,16 @@ const {
   callbacks,
   isLoading,
 } = useUserForm('auth/user-emergency-contect-add', {
-  contactPhone: '',
-  contactName: '',
+  number: '',
+  name: '',
   userId: 1,
 })
 
 const saveEmergencyContact = async (index: number) => {
   const contact = profile.value.emergencyContacts[index];
   contact.saving = true;
-  values.value.contactPhone = contact.number;
-  values.value.contactName = contact.name;
+  values.value.number = contact.number;
+  values.value.name = contact.name;
   try {
     // Call API to check if the number exists
     await validateAndSubmit()
