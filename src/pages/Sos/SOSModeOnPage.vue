@@ -1,8 +1,6 @@
 <template>
   <q-page>
-    <q-card
-      class="q-mt-lg"
-      style="
+    <q-card class="q-mt-lg" style="
         background-color: white;
         border-radius: 20px 20px 0 0;
         height: 100%;
@@ -11,8 +9,7 @@
         top: 5px;
         width: 100%;
         overflow-y: auto;
-      "
-    >
+      ">
       <div class="row">
         <div class="col-12 col-md-12 q-px-md q-mt-xl">
           <h6 class="q-ma-none q-ml-xs">{{ $t('sosWarning') }}</h6>
@@ -21,18 +18,8 @@
         <!-- Timer and Cancel SOS button -->
         <template v-if="!sosSent">
           <div class="col-12 col-md-12 q-px-md q-mt-md text-center">
-            <q-circular-progress
-              show-value
-              class="text-red q-ma-md"
-              :value="timeLeft"
-              size="100px"
-              :thickness="0.22"
-              color="red"
-              track-color="grey-3"
-              :min="0"
-              :max="countdownDuration"
-              @click="resetCountdown"
-            >
+            <q-circular-progress show-value class="text-red q-ma-md" :value="timeLeft" size="100px" :thickness="0.22"
+              color="red" track-color="grey-3" :min="0" :max="countdownDuration" @click="resetCountdown">
               {{ timeLeft }}
             </q-circular-progress>
           </div>
@@ -58,49 +45,23 @@
             {{ $t('helpUsMore') }}
           </h5>
         </div>
-        <div
-          class="col-12 col-md-12 q-px-md q-mt-lg flex flex-wrap justify-between"
-        >
-          <q-btn
-            style="width: 48%"
-            class="q-mb-md"
-            @click="updateThreat('followedBySomeone')"
-          >
+        <div class="col-12 col-md-12 q-px-md q-mt-lg flex flex-wrap justify-between">
+          <q-btn style="width: 48%" class="q-mb-md" @click="updateThreat('followedBySomeone')">
             <span class="q-ml-xs">{{ $t('followedBySomeone') }}</span>
           </q-btn>
-          <q-btn
-            style="width: 48%"
-            class="q-mb-md"
-            @click="updateThreat('verbalHarassment')"
-          >
+          <q-btn style="width: 48%" class="q-mb-md" @click="updateThreat('verbalHarassment')">
             <span class="q-ml-xs">{{ $t('verbalHarassment') }}</span>
           </q-btn>
-          <q-btn
-            style="width: 48%"
-            class="q-mb-md"
-            @click="updateThreat('physicalThreat')"
-          >
+          <q-btn style="width: 48%" class="q-mb-md" @click="updateThreat('physicalThreat')">
             <span class="q-ml-xs">{{ $t('physicalThreat') }}</span>
           </q-btn>
-          <q-btn
-            style="width: 48%"
-            class="q-mb-md"
-            @click="updateThreat('attemptedKidnapping')"
-          >
+          <q-btn style="width: 48%" class="q-mb-md" @click="updateThreat('attemptedKidnapping')">
             <span class="q-ml-xs">{{ $t('attemptedKidnapping') }}</span>
           </q-btn>
-          <q-btn
-            style="width: 48%"
-            class="q-mb-md"
-            @click="updateThreat('sexualAssault')"
-          >
+          <q-btn style="width: 48%" class="q-mb-md" @click="updateThreat('sexualAssault')">
             <span class="q-ml-xs">{{ $t('sexualAssault') }}</span>
           </q-btn>
-          <q-btn
-            style="width: 48%"
-            class="q-mb-md"
-            @click="updateThreat('domesticViolence')"
-          >
+          <q-btn style="width: 48%" class="q-mb-md" @click="updateThreat('domesticViolence')">
             <span class="q-ml-xs">{{ $t('domesticViolence') }}</span>
           </q-btn>
         </div>
@@ -112,10 +73,7 @@
               {{ currentLocationName || $t('gettingLocation') }}
             </span>
           </div>
-          <p
-            v-if="currentLocation.latitude && currentLocation.longitude"
-            class="text-caption q-mt-sm"
-          >
+          <p v-if="currentLocation.latitude && currentLocation.longitude" class="text-caption q-mt-sm">
             {{ $t('coordinates') }}: {{ currentLocation.latitude.toFixed(6) }},
             {{ currentLocation.longitude.toFixed(6) }}
           </p>
@@ -124,20 +82,14 @@
           <h6 class="q-ma-none q-ml-xs">{{ $t('nearbyPoliceStations') }}</h6>
           <div>
             <q-btn round color="deep-orange" icon="edit_location" />
-            <span class="q-ml-sm" style="font-size: 20px"
-              >South Bopal Ahmedabad</span
-            >
+            <span class="q-ml-sm" style="font-size: 20px">South Bopal Ahmedabad</span>
           </div>
         </div>
 
-        <div
-          class="col-12 col-md-12 q-px-md q-mt-lg flex justify-center q-mb-lg"
-        >
-          <q-btn style="width: 100%" class="primaryBackGroundColor text-white"
-            ><b class="q-ml-xs q-my-md">{{
-              $t('contactPoliceStation')
-            }}</b></q-btn
-          >
+        <div class="col-12 col-md-12 q-px-md q-mt-lg flex justify-center q-mb-lg">
+          <q-btn style="width: 100%" class="primaryBackGroundColor text-white"><b class="q-ml-xs q-my-md">{{
+            $t('contactPoliceStation')
+          }}</b></q-btn>
         </div>
 
         <div v-if="isGettingLocation" class="text-center q-mt-md">
@@ -159,6 +111,8 @@ import { Camera, CameraResultType } from '@capacitor/camera';
 import { Filesystem, Directory } from '@capacitor/filesystem';
 import { Microphone } from '@capacitor/microphone';
 import { Network } from '@capacitor/network';
+import { useUserForm } from 'src/composables/use-user-form';
+
 // import { SMS } from '@capacitor/sms';
 
 const router = useRouter();
@@ -187,7 +141,7 @@ let videoStream: MediaStream | null = null;
 const isGettingLocation = ref(false);
 const isLocationReceived = ref(false);
 
-const updateCurrentLocation = async (): Promise<void> => {
+const updateCurrentLocation = async (action = 'edit'): Promise<void> => {
   isGettingLocation.value = true;
   try {
     let position;
@@ -214,8 +168,12 @@ const updateCurrentLocation = async (): Promise<void> => {
 
     isLocationReceived.value = true;
 
-    if (sosSent.value) {
-      await sendLocationUpdate();
+    if (action == 'create') {
+      await sendLocationUpdate('create');
+    } else {
+      if (sosSent.value) {
+        await sendLocationUpdate('create');
+      }
     }
   } catch (error) {
     console.error('Error getting location', error);
@@ -308,7 +266,7 @@ const streamChunk = (chunk: Blob) => {
 
 onMounted(() => {
   startCountdown();
-  updateCurrentLocation();
+  updateCurrentLocation('create');
   startLocationUpdates();
 });
 
@@ -422,9 +380,8 @@ const sendConfirmSOSRequest = async (threatType?: string) => {
 };
 
 const sendSOSviaSMS = async (sosData: any) => {
-  const message = `SOS: ${sosData.threatType || 'Emergency'} at ${
-    sosData.location.latitude
-  }, ${sosData.location.longitude}. Time: ${sosData.timestamp}`;
+  const message = `SOS: ${sosData.threatType || 'Emergency'} at ${sosData.location.latitude
+    }, ${sosData.location.longitude}. Time: ${sosData.timestamp}`;
 
   try {
     await SMS.send({
@@ -485,8 +442,22 @@ const startLocationUpdates = () => {
   }, 10000); // Update every 10 seconds
 };
 
-const sendLocationUpdate = async () => {
+const {
+  values,
+  validateAndSubmit,
+  errors,
+  callbacks,
+  isLoading,
+} = useUserForm('/qnatk/SosEvent/create', {
+  location: '',
+  userId: 1,
+})
+
+
+const sendLocationUpdate = async (action = 'edit') => {
   try {
+    values.value.location = currentLocation.value;
+    await validateAndSubmit()
     // TODO: Implement actual API call to update location on the server
     console.log('Sending location update:', currentLocation.value);
     // Example API call:
