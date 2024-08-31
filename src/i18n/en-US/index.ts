@@ -46,6 +46,7 @@ export default {
   sexualAssault: 'Sexual Assault',
   domesticViolence: 'Domestic Violence',
   currentLocation: 'Current Location',
+  useCurrentLocation: 'Use Current Location',
   nearbyPoliceStations: 'Nearby Police Stations',
   gettingLocation: 'Getting location...',
   contactPoliceStation: 'Contact Police Station',

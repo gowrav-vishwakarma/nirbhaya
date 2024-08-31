@@ -150,7 +150,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, onMounted, onUnmounted, watch } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import { Geolocation } from '@capacitor/geolocation';
@@ -185,18 +185,18 @@ let audioStream: MediaStream | null = null;
 let videoStream: MediaStream | null = null;
 
 const isGettingLocation = ref(false);
+const isLocationReceived = ref(false);
 
-const updateCurrentLocation = async (): Promise<boolean> => {
+const updateCurrentLocation = async (): Promise<void> => {
   isGettingLocation.value = true;
   try {
     let position;
     if (Capacitor.isNativePlatform()) {
       position = await Geolocation.getCurrentPosition({
         enableHighAccuracy: true,
-        timeout: 10000, // 10 second timeout
+        timeout: 10000,
       });
     } else {
-      // Fallback for web browsers
       position = await new Promise((resolve, reject) => {
         navigator.geolocation.getCurrentPosition(resolve, reject, {
           enableHighAccuracy: true,
@@ -212,15 +212,15 @@ const updateCurrentLocation = async (): Promise<boolean> => {
       4
     )}, Lon: ${position.coords.longitude.toFixed(4)}`;
 
+    isLocationReceived.value = true;
+
     if (sosSent.value) {
       await sendLocationUpdate();
     }
-    isGettingLocation.value = false;
-    return true;
   } catch (error) {
     console.error('Error getting location', error);
+  } finally {
     isGettingLocation.value = false;
-    return false;
   }
 };
 
@@ -352,18 +352,23 @@ const cancelSOS = async () => {
 
 const confirmSOS = async (threatType?: string) => {
   try {
-    const locationUpdated = await updateCurrentLocation();
-    if (!locationUpdated) {
-      throw new Error('Failed to get location');
-    }
-    await sendConfirmSOSRequest(threatType);
+    // Start location update in the background
+    updateCurrentLocation();
+
+    // Set a timeout for waiting for location
+    setTimeout(async () => {
+      if (!isLocationReceived.value) {
+        await sendConfirmSOSRequest(threatType);
+      }
+    }, 3000); // Wait for 3 seconds
+
     sosSent.value = true;
     notifiedPersons.value = 10;
     acceptedPersons.value = 3;
     if (countdownInterval) {
       clearInterval(countdownInterval);
     }
-    startRecording(); // Start recording after SOS is confirmed and location is updated
+    startRecording();
   } catch (error) {
     console.error('Failed to confirm SOS request:', error);
     // TODO: Show error message to user
@@ -393,6 +398,13 @@ const sendConfirmSOSRequest = async (threatType?: string) => {
     } catch (error) {
       console.error('Failed to send SOS request via API:', error);
       // If API call fails, fall through to SMS
+    }
+  } else {
+    // If no internet, send SMS
+    try {
+      await sendSOSviaSMS(sosData);
+    } catch (error) {
+      console.error('Failed to send SOS via SMS:', error);
     }
   }
 
@@ -474,9 +486,22 @@ const startLocationUpdates = () => {
 };
 
 const sendLocationUpdate = async () => {
-  // TODO: Implement actual API call to update location on the server
-  console.log('Sending location update:', currentLocation.value);
+  try {
+    // TODO: Implement actual API call to update location on the server
+    console.log('Sending location update:', currentLocation.value);
+    // Example API call:
+    // await api.updateSOSLocation(currentLocation.value);
+  } catch (error) {
+    console.error('Failed to send location update:', error);
+  }
 };
+
+// Add a watcher for isLocationReceived
+watch(isLocationReceived, async (newValue) => {
+  if (newValue && sosSent.value) {
+    await sendLocationUpdate();
+  }
+});
 </script>
 
 <style scoped></style>

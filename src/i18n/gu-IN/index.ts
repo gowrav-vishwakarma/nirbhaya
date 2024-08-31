@@ -41,6 +41,7 @@ export default {
   helpUsMore: 'વધુ વિગતો આપો:',
   followedBySomeone: 'કોઈનું અનુસરણ કરવામાં આવી રહ્યું છે',
   currentLocation: 'વર્તમાન સ્થાન',
+  useCurrentLocation: 'વર્તમાન સ્થાન વાપરો',
   nearbyPoliceStations: 'નજીકના પોલીસ સ્ટેશનો',
   contactPoliceStation: 'પોલીસ સ્ટેશનનો સંપર્ક કરો',
   verbalHarassment: 'મૌખિક ઉત્પીડન',
