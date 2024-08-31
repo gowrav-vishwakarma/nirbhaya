@@ -382,7 +382,7 @@ const getLocationHint = (location: {
 };
 
 const saveChanges = async () => {
-  await updateProfileValidateAndSubmit();
+  await updateProfileValidateAndSubmit(false);
 };
 
 // You can add more custom logic or error handling as needed
