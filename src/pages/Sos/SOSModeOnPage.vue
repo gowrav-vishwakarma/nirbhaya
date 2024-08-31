@@ -141,6 +141,8 @@ let videoStream: MediaStream | null = null;
 
 const isGettingLocation = ref(false);
 const isLocationReceived = ref(false);
+const selectedThreat = ref('');
+
 
 const updateCurrentLocation = async (action = 'edit'): Promise<void> => {
   isGettingLocation.value = true;
@@ -416,11 +418,18 @@ const updateThreat = async (threatType: string) => {
   if (!sosSent.value) {
     // If SOS hasn't been sent yet, send it immediately with the threat information
     await confirmSOS(threatType);
+    console.log('threatType.........', threatType);
+
   } else {
     try {
+      selectedThreat.value = threatType;
+      console.log('selectedThreat.....', selectedThreat);
+
+      await sendLocationUpdate('edit', threatType)
       await sendUpdateThreatRequest(threatType);
       // You might want to update the UI to show that the threat has been updated
       console.log(`Threat updated: ${threatType}`);
+
     } catch (error) {
       console.error('Failed to update threat:', error);
       // TODO: Show error message to user
@@ -453,7 +462,17 @@ const {
 } = useUserForm('auth/sos-location-crud', {
   location: '',
   userId: 1,
+  status: ''
 })
+
+// callbacks.beforeSubmit = (data) => {
+//   console.log('beforeSubmit.............111111', selectedThreat.value);
+
+//   data.status = selectedThreat.value ? 'active' : 'created'
+//   console.log('beforeSubmit.............222222', selectedThreat.value);
+
+//   return data
+// }
 
 callbacks.onSuccess = (data) => {
   console.log('data...........', data);
@@ -462,11 +481,11 @@ callbacks.onSuccess = (data) => {
 }
 
 
-const sendLocationUpdate = async (action = 'edit') => {
+const sendLocationUpdate = async (action = 'edit', threat = '') => {
   try {
-    // if (action == 'edit') {
-    //   updateUrl(`/qnatk/SosEvent/update/${createdSosId.value}`)
-    // }
+    console.log('ttttttttt', threat);
+    selectedThreat.value = threat
+    values.value.status = selectedThreat.value ? 'active' : 'created'
     values.value.location = currentLocation.value;
     await validateAndSubmit()
     // TODO: Implement actual API call to update location on the server
