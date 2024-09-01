@@ -48,8 +48,8 @@
 
         <!-- Notification status -->
         <div v-if="sosSent" class="col-12 col-md-12 q-px-md q-mt-md">
-          <p>Notification sent to {{ notifiedPersons }} nearby persons</p>
-          <p>Accepted by {{ acceptedPersons }} persons</p>
+          <p>Notification sent to {{ informed }} nearby persons</p>
+          <p>Accepted by {{ accepted }} persons</p>
           <p>Emergency contacts informed</p>
         </div>
 
@@ -505,8 +505,13 @@ const { values, validateAndSubmit, errors, callbacks, isLoading, updateUrl } =
     threat: '',
   });
 
+const informed = ref(0);
+const accepted = ref(0);
+
 callbacks.onSuccess = (data) => {
   console.log('data...........', data);
+  informed.value = data.informed;
+  accepted.value = data.accepted;
   return data;
 };
 

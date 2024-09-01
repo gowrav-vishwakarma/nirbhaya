@@ -49,4 +49,5 @@ export default {
   gettingLocation: 'સ્થાન મેળવી રહ્યા છીએ...',
   notAMember: 'સંપર્ક {contactPhone} એપ્લિકેશનનો સદસ્ય નથી',
   profileUpdateSuccess: 'પ્રોફાઇલ સફળતાપૂર્વક અપડેટ થઈ ગયેલું',
+  userType: 'વપરાશકર્તા પ્રકાર',
 };

@@ -63,6 +63,19 @@
           />
         </div>
 
+        <!-- New user type dropdown -->
+        <div class="col-12 q-mb-md">
+          <h6 class="q-ma-none q-ml-xs">{{ $t('userType') }}</h6>
+          <q-select
+            class="q-mt-sm"
+            outlined
+            v-model="values.userType"
+            :options="userTypeOptions"
+            :label="$t('userType')"
+            style="border-radius: 20px"
+          />
+        </div>
+
         <!-- Emergency contacts -->
         <div class="col-12 q-mb-md">
           <div class="flex items-center">
@@ -207,7 +220,7 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, ref, onMounted } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useLanguageStore } from 'src/stores/languageStore';
 import { Capacitor } from '@capacitor/core';
@@ -230,10 +243,19 @@ const languageOptions = computed(() =>
   }))
 );
 
-// Use useForm for the main profile form
+// Add userTypeOptions
+const userTypeOptions = [
+  'Girl',
+  'Child',
+  'Elder Woman',
+  'Elder Man',
+  'Youth',
+  // Add more options as needed
+];
+
+// Modify the useForm hook to include userType
 const {
   values,
-  errors,
   isLoading: updateProfileIsLoading,
   validateAndSubmit: updateProfileValidateAndSubmit,
   callbacks: updateProfileCallbacks,
@@ -241,6 +263,7 @@ const {
   name: userStore.user.name,
   phoneNumber: userStore.user.phoneNumber,
   city: userStore.user.city,
+  userType: userStore.user.userType, // Add this line
   emergencyContacts: userStore.user.emergencyContacts,
   locations: userStore.user.locations,
   liveSosEventChecking: userStore.user.liveSosEventChecking,
@@ -251,6 +274,7 @@ onMounted(() => {
   values.name = userStore.user.name;
   values.phoneNumber = userStore.user.phoneNumber;
   values.city = userStore.user.city;
+  values.userType = userStore.user.userType; // Add this line
   values.emergencyContacts = userStore.user.emergencyContacts;
   values.locations = userStore.user.locations;
   values.liveSosEventChecking = userStore.user.liveSosEventChecking;
@@ -262,6 +286,7 @@ updateProfileCallbacks.onSuccess = (updatedUser) => {
   userStore.updateUser({
     name: updatedUser.name,
     city: updatedUser.city,
+    userType: updatedUser.userType, // Add this line
     liveSosEventChecking: updatedUser.liveSosEventChecking,
     emergencyContacts: updatedUser.emergencyContacts,
     locations: updatedUser.locations,
