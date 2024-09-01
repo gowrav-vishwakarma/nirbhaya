@@ -2,6 +2,9 @@
 <resources>
     <string name="app_name">Nirbhaya, freedom</string>
     <string name="title_activity_main">Nirbhaya, freedom</string>
-    <string name="package_name">org.nirbhaya.quasar.app</string>
-    <string name="custom_url_scheme">org.nirbhaya.quasar.app</string>
+    <string name="package_name">com.xavoc.shoutout</string>
+    <string name="custom_url_scheme">com.xavoc.shoutout</string>
+    <string name="default_notification_channel_id">fcm_default_channel</string>
+    <string name="default_notification_channel_name">Default Channel</string>
+    <string name="default_notification_channel_description">Default Firebase Cloud Messaging Channel</string>
 </resources>

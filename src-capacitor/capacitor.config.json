@@ -7,6 +7,16 @@
       "permissions": [
         "location"
       ]
+    },
+    "PushNotifications": {
+      "presentationOptions": [
+        "badge",
+        "sound",
+        "alert"
+      ]
     }
+  },
+  "android": {
+    "allowMixedContent": true
   }
 }

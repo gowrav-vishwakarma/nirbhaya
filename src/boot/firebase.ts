@@ -2,6 +2,7 @@ import { boot } from 'quasar/wrappers';
 import { initializeApp } from 'firebase/app';
 import { getMessaging, getToken } from 'firebase/messaging';
 import { getAnalytics } from 'firebase/analytics';
+import { Capacitor } from '@capacitor/core';
 
 const firebaseConfig = {
   apiKey: 'AIzaSyATkKRDqPJwPAoH8_MZy9dOD_dEA6VC7tM',
@@ -14,14 +15,22 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
-const messaging = getMessaging(app);
 const analytics = getAnalytics(app);
 
 export const vapidKey =
   'BJVaeVF6AvoWFr1yIb5vYUfZ-PCyEpvT-OvTY6JNdninVg7ksFQkt3bu-6XeczzlMbUrwlZ7KMpPCs90joHCdiM';
 
+let messaging;
+
+if (!Capacitor.isNativePlatform()) {
+  const { getMessaging } = require('firebase/messaging');
+  messaging = getMessaging(app);
+}
+
 export default boot(({ app }) => {
-  app.config.globalProperties.$messaging = messaging;
+  if (messaging) {
+    app.config.globalProperties.$messaging = messaging;
+  }
   app.config.globalProperties.$analytics = analytics;
 });
 

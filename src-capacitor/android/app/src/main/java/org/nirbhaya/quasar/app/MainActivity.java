@@ -1,4 +1,4 @@
-package org.nirbhaya.quasar.app;
+package com.xavoc.shoutout;
 
 import com.getcapacitor.BridgeActivity;
 

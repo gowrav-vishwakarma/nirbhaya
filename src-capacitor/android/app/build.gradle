@@ -1,10 +1,10 @@
 apply plugin: 'com.android.application'
 
 android {
-    namespace "org.nirbhaya.quasar.app"
+    namespace "com.xavoc.shoutout"
     compileSdk rootProject.ext.compileSdkVersion
     defaultConfig {
-        applicationId "org.nirbhaya.quasar.app"
+        applicationId "com.xavoc.shoutout"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1

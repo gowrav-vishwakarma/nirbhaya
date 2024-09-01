@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "599043169760",
+    "project_id": "shoutout-1e61c",
+    "storage_bucket": "shoutout-1e61c.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:599043169760:android:d4140528e1282d3b455f85",
+        "android_client_info": {
+          "package_name": "com.xavoc.shoutout"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAq40QlvXKobGFPyi7DZhJZY4v-wIsqcxw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
