@@ -1,4 +1,5 @@
 import { register } from 'register-service-worker';
+import { Notify } from 'quasar';
 
 // The ready(), registered(), cached(), updatefound() and updated()
 // events passes a ServiceWorkerRegistration instance in their arguments.
@@ -42,7 +43,7 @@ register(process.env.SERVICE_WORKER_FILE, {
 });
 
 function initializeWebPush(registration: ServiceWorkerRegistration) {
-  if ('PushManager' in window) {
+  if ('PushManager' in self) {
     const vapidPublicKey = 'YOUR_PUBLIC_VAPID_KEY'; // Replace with your actual VAPID public key
     const convertedVapidKey = urlBase64ToUint8Array(vapidPublicKey);
 
@@ -68,7 +69,7 @@ function urlBase64ToUint8Array(base64String: string) {
     .replace(/\-/g, '+')
     .replace(/_/g, '/');
 
-  const rawData = window.atob(base64);
+  const rawData = atob(base64);
   const outputArray = new Uint8Array(rawData.length);
 
   for (let i = 0; i < rawData.length; ++i) {
@@ -76,3 +77,36 @@ function urlBase64ToUint8Array(base64String: string) {
   }
   return outputArray;
 }
+
+// Add this function to handle showing notifications
+function showNotification(title: string, options: NotificationOptions) {
+  Notify.create({
+    message: title,
+    caption: options.body,
+    actions: [
+      {
+        label: 'Go to SOS',
+        color: 'red',
+        handler: () => {
+          window.location.href = '/#/sos';
+        },
+      },
+    ],
+  });
+}
+
+// Add this function to handle incoming messages from the service worker
+function handleIncomingMessage(event: MessageEvent) {
+  if (event.data && event.data.type === 'SHOW_NOTIFICATION') {
+    const { title, options } = event.data;
+    showNotification(title, options);
+  }
+}
+
+// Listen for messages from the service worker
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.addEventListener('message', handleIncomingMessage);
+}
+
+// Export the showNotification function
+export { showNotification };
