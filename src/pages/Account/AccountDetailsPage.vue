@@ -199,7 +199,33 @@
                 {{ $t('liveSosEventCheckingDescription') }}
               </p>
             </div>
-            <q-toggle v-model="values.liveSosEventChecking" color="primary" />
+            <q-toggle
+              v-model="values.liveSosEventChecking"
+              color="primary"
+              @update:model-value="handleLiveSosToggle"
+            />
+          </div>
+        </div>
+
+        <!-- Permissions section -->
+        <div class="col-12 q-mb-md">
+          <h6 class="q-ma-none q-ml-xs">{{ $t('appPermissions') }}</h6>
+          <div
+            v-for="(permission, index) in permissions"
+            :key="index"
+            class="q-mt-sm"
+          >
+            <div class="flex items-center justify-between">
+              <span>{{ $t(permission.name) }}</span>
+              <q-btn
+                :label="
+                  $t(permission.granted ? 'granted' : 'requestPermission')
+                "
+                :color="permission.granted ? 'positive' : 'primary'"
+                @click="requestPermission(permission.name)"
+                :disable="permission.granted"
+              />
+            </div>
           </div>
         </div>
 
@@ -223,8 +249,9 @@
 import { computed, onMounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useLanguageStore } from 'src/stores/languageStore';
-import { Capacitor } from '@capacitor/core';
+import { Capacitor, Plugins } from '@capacitor/core';
 import { Geolocation } from '@capacitor/geolocation';
+import { Camera } from '@capacitor/camera';
 import { useQuasar } from 'quasar';
 import { api } from 'src/boot/axios';
 import { useForm } from 'src/qnatk/composibles/use-form';
@@ -269,7 +296,113 @@ const {
   liveSosEventChecking: userStore.user.liveSosEventChecking,
 });
 
-onMounted(() => {
+const permissions = ref([
+  { name: 'location', granted: false },
+  { name: 'camera', granted: false },
+  { name: 'microphone', granted: false },
+]);
+
+const requestPermission = async (permissionName: string) => {
+  try {
+    let result;
+    if (Capacitor.isNativePlatform()) {
+      switch (permissionName) {
+        case 'location':
+          result = await Geolocation.requestPermissions();
+          break;
+        case 'camera':
+          result = await Camera.requestPermissions();
+          break;
+        case 'microphone':
+          result = await Plugins.Permissions.requestPermissions({
+            permissions: ['microphone'],
+          });
+          break;
+      }
+    } else {
+      // Web API fallback
+      switch (permissionName) {
+        case 'location':
+          result = await navigator.permissions.query({ name: 'geolocation' });
+          break;
+        case 'camera':
+        case 'microphone':
+          result = await navigator.mediaDevices.getUserMedia({
+            video: permissionName === 'camera',
+            audio: permissionName === 'microphone',
+          });
+          break;
+      }
+    }
+
+    const permissionIndex = permissions.value.findIndex(
+      (p) => p.name === permissionName
+    );
+    if (permissionIndex !== -1) {
+      permissions.value[permissionIndex].granted = true;
+    }
+
+    $q.notify({
+      color: 'positive',
+      message: t('permissionGranted', { permission: t(permissionName) }),
+      icon: 'check',
+    });
+  } catch (error) {
+    console.error(`Error requesting ${permissionName} permission:`, error);
+    $q.notify({
+      color: 'negative',
+      message: t('permissionDenied', { permission: t(permissionName) }),
+      icon: 'error',
+    });
+  }
+};
+
+const handleLiveSosToggle = async (value: boolean) => {
+  if (value) {
+    if (Capacitor.isNativePlatform()) {
+      try {
+        const result = await Geolocation.requestPermissions({
+          permissions: ['location', 'coarseLocation'],
+        });
+        if (
+          result.location === 'granted' &&
+          result.coarseLocation === 'granted'
+        ) {
+          // Enable background tracking
+          await Geolocation.watchPosition({ enableHighAccuracy: true }, () => {
+            // Handle position updates
+          });
+        } else {
+          values.liveSosEventChecking = false;
+          $q.notify({
+            color: 'negative',
+            message: t('backgroundLocationPermissionRequired'),
+            icon: 'error',
+          });
+        }
+      } catch (error) {
+        console.error(
+          'Error requesting background location permission:',
+          error
+        );
+        values.liveSosEventChecking = false;
+      }
+    } else {
+      // For PWA, we can't do true background tracking, but we can inform the user
+      $q.notify({
+        color: 'info',
+        message: t('pwaBackgroundLocationLimited'),
+        icon: 'info',
+      });
+    }
+  } else {
+    if (Capacitor.isNativePlatform()) {
+      await Geolocation.clearWatch({ id: '' }); // Clear all watches
+    }
+  }
+};
+
+onMounted(async () => {
   // Initialize form values with user store data
   values.name = userStore.user.name;
   values.phoneNumber = userStore.user.phoneNumber;
@@ -278,6 +411,47 @@ onMounted(() => {
   values.emergencyContacts = userStore.user.emergencyContacts;
   values.locations = userStore.user.locations;
   values.liveSosEventChecking = userStore.user.liveSosEventChecking;
+
+  // Check initial permission states
+  for (const permission of permissions.value) {
+    try {
+      let result;
+      if (Capacitor.isNativePlatform()) {
+        switch (permission.name) {
+          case 'location':
+            result = await Geolocation.checkPermissions();
+            permission.granted = result.location === 'granted';
+            break;
+          case 'camera':
+            result = await Camera.checkPermissions();
+            permission.granted = result.camera === 'granted';
+            break;
+          case 'microphone':
+            result = await Plugins.Permissions.query({ name: 'microphone' });
+            permission.granted = result.state === 'granted';
+            break;
+        }
+      } else {
+        // Web API fallback
+        if (permission.name === 'location') {
+          result = await navigator.permissions.query({ name: 'geolocation' });
+          permission.granted = result.state === 'granted';
+        } else {
+          try {
+            await navigator.mediaDevices.getUserMedia({
+              video: permission.name === 'camera',
+              audio: permission.name === 'microphone',
+            });
+            permission.granted = true;
+          } catch {
+            permission.granted = false;
+          }
+        }
+      }
+    } catch (error) {
+      console.error(`Error checking ${permission.name} permission:`, error);
+    }
+  }
 });
 
 // Update callbacks for the profile update

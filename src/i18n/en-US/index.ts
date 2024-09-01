@@ -61,4 +61,19 @@ export default {
   notAMember: 'Contact {contactPhone} is not a member of the app',
   profileUpdateSuccess: 'Profile updated successfully',
   userType: 'User Type',
+  pwaBackgroundLocationLimited:
+    'Background location tracking is limited in PWAs. Please use the native app for better experience.',
+  appPermissions: 'App Permissions',
+  location: 'Location',
+  camera: 'Camera',
+  microphone: 'Microphone',
+  granted: 'Granted',
+  requestPermission: 'Request Permission',
+  permissionGranted: '{permission} permission granted',
+  permissionDenied: '{permission} permission denied',
+  backgroundLocationPermissionRequired:
+    'Background location permission is required for this feature',
+  profileUpdateError: 'Error updating profile',
+  locationUpdated: 'Location updated',
+  locationError: 'Error getting location',
 };

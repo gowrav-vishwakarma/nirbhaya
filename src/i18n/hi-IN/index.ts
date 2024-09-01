@@ -62,4 +62,19 @@ export default {
   notAMember: 'संपर्क {contactPhone} ऐप का सदस्य नहीं है',
   profileUpdateSuccess: 'प्रोफ़ाइल सफलतापूर्वक अपडेट करें',
   userType: 'उपयोगकर्ता प्रकार',
+  pwaBackgroundLocationLimited:
+    'पेजों में पछाड़े स्थान ट्रैकिंग सामान्य है। साधन अप्लिकेशन का उपयोग करने के लिए जरूरी है।',
+  appPermissions: 'ऐप अनुमतियाँ',
+  location: 'स्थान',
+  camera: 'कैमरा',
+  microphone: 'माइक्रोफोन',
+  granted: 'प्रदान किया गया',
+  requestPermission: 'अनुमति माँगें',
+  permissionGranted: '{permission} अनुमति प्रदान की गई',
+  permissionDenied: '{permission} अनुमति अस्वीकृत',
+  backgroundLocationPermissionRequired:
+    'इस सुविधा के लिए पृष्ठभूमि स्थान अनुमति आवश्यक है',
+  profileUpdateError: 'प्रोफ़ाइल अपडेट करने में त्रुटि',
+  locationUpdated: 'स्थान अपडेट किया गया',
+  locationError: 'स्थान प्राप्त करने में त्रुटि',
 };
