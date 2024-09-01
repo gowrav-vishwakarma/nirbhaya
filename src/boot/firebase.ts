@@ -1,8 +1,8 @@
 import { boot } from 'quasar/wrappers';
 import { initializeApp } from 'firebase/app';
-import { getMessaging, getToken } from 'firebase/messaging';
 import { getAnalytics } from 'firebase/analytics';
 import { Capacitor } from '@capacitor/core';
+import { Messaging } from 'firebase/messaging';
 
 const firebaseConfig = {
   apiKey: 'AIzaSyATkKRDqPJwPAoH8_MZy9dOD_dEA6VC7tM',
@@ -20,11 +20,12 @@ const analytics = getAnalytics(app);
 export const vapidKey =
   'BJVaeVF6AvoWFr1yIb5vYUfZ-PCyEpvT-OvTY6JNdninVg7ksFQkt3bu-6XeczzlMbUrwlZ7KMpPCs90joHCdiM';
 
-let messaging;
+let messaging: Messaging | undefined;
 
 if (!Capacitor.isNativePlatform()) {
-  const { getMessaging } = require('firebase/messaging');
-  messaging = getMessaging(app);
+  import('firebase/messaging').then(({ getMessaging }) => {
+    messaging = getMessaging(app);
+  });
 }
 
 export default boot(({ app }) => {

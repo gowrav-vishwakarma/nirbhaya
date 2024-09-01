@@ -1,5 +1,13 @@
 {
+  "appId": "com.xavoc.shoutout",
+  "appName": "Nirbhaya, freedom from violence",
+  "webDir": "www",
   "plugins": {
+    "Geolocation": {
+      "permissions": [
+        "location"
+      ]
+    },
     "PushNotifications": {
       "presentationOptions": [
         "badge",
@@ -7,5 +15,8 @@
         "alert"
       ]
     }
+  },
+  "android": {
+    "allowMixedContent": true
   }
 }
