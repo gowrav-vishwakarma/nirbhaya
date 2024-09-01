@@ -104,7 +104,7 @@ function handleIncomingMessage(event: MessageEvent) {
 }
 
 // Listen for messages from the service worker
-if ('serviceWorker' in navigator) {
+if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
   navigator.serviceWorker.addEventListener('message', handleIncomingMessage);
 }
 
