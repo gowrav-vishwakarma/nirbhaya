@@ -1,5 +1,5 @@
 import { boot } from 'quasar/wrappers';
-import { messaging, vapidKey } from './firebase';
+import { messagingReadyPromise, vapidKey } from './firebase';
 import { Capacitor } from '@capacitor/core';
 import { PushNotifications } from '@capacitor/push-notifications';
 import { useUserStore } from 'src/stores/user-store';
@@ -47,13 +47,10 @@ export default boot(async ({ app }) => {
     } catch (error) {
       console.error('Error setting up push notifications:', error);
     }
-  } else if (
-    typeof window !== 'undefined' &&
-    'serviceWorker' in navigator &&
-    messaging
-  ) {
+  } else if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
     console.log('Running on web platform');
     try {
+      const messaging = await messagingReadyPromise;
       const { getToken, onMessage } = await import('firebase/messaging');
       const currentToken = await getToken(messaging, { vapidKey });
       if (currentToken) {

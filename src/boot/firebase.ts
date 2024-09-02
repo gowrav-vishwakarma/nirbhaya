@@ -21,11 +21,15 @@ export const vapidKey =
   'BJVaeVF6AvoWFr1yIb5vYUfZ-PCyEpvT-OvTY6JNdninVg7ksFQkt3bu-6XeczzlMbUrwlZ7KMpPCs90joHCdiM';
 
 let messaging: Messaging | undefined;
+let messagingReadyPromise;
 
 if (!Capacitor.isNativePlatform()) {
-  import('firebase/messaging').then(({ getMessaging }) => {
-    messaging = getMessaging(app);
-  });
+  messagingReadyPromise = import('firebase/messaging').then(
+    ({ getMessaging }) => {
+      messaging = getMessaging(app);
+      return messaging;
+    }
+  );
 }
 
 export default boot(({ app }) => {
@@ -35,4 +39,4 @@ export default boot(({ app }) => {
   app.config.globalProperties.$analytics = analytics;
 });
 
-export { messaging, analytics };
+export { messaging, messagingReadyPromise, analytics };
