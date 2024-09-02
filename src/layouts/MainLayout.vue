@@ -30,7 +30,9 @@
             aria-label="Notifications"
             @click="goToNotificationsPage"
           >
-            <q-badge color="red" floating>{{ notificationCount }}</q-badge>
+            <q-badge color="red" floating v-if="unreadNotificationCount > 0">
+              {{ unreadNotificationCount }}
+            </q-badge>
           </q-btn>
           <q-btn
             flat
@@ -69,11 +71,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
 import { useRouter } from 'vue-router';
+import { useBackgroundNotifications } from 'src/composables/useBackgroundNotifications';
 
 const router = useRouter();
-const notificationCount = ref(5); // Example count, replace with actual logic
+const { unreadNotificationCount } = useBackgroundNotifications();
 
 const goToAccountPage = () => {
   router.push('/account');
@@ -91,6 +93,7 @@ const goToHelpPage = () => {
   router.push('/help');
 };
 </script>
+
 <style>
 .primaryBackGroundColor {
   background-color: #ec7063;
