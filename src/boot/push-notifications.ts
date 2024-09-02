@@ -1,6 +1,5 @@
 import { boot } from 'quasar/wrappers';
 import { messaging, vapidKey } from './firebase';
-import { Notify } from 'quasar';
 import { api } from 'src/boot/axios';
 import { Capacitor } from '@capacitor/core';
 import { PushNotifications } from '@capacitor/push-notifications';
@@ -14,58 +13,41 @@ async function sendFcmTokenToBackend(token: string) {
   }
 }
 
-function showNotification(title: string, body: string) {
-  Notify.create({
-    message: title,
-    caption: body,
-    actions: [
-      {
-        label: 'Go to SOS',
-        color: 'red',
-        handler: () => {
-          window.location.href = '/#/sos';
-        },
-      },
-    ],
-  });
-}
-
 export default boot(async ({ app }) => {
   console.log('Initializing push notifications');
   if (Capacitor.isNativePlatform()) {
     console.log('Running on native platform');
-    // Native platform (iOS/Android)
     try {
       const permissionStatus = await PushNotifications.requestPermissions();
       console.log('Push notification permission status:', permissionStatus);
-      await PushNotifications.register();
-      console.log('Push notifications registered');
 
-      PushNotifications.addListener('registration', async (token) => {
-        console.log('Push registration success, token: ' + token.value);
-        await sendFcmTokenToBackend(token.value);
-      });
+      if (permissionStatus.receive === 'granted') {
+        PushNotifications.addListener('registration', async (token) => {
+          console.log('Push registration success, token: ' + token.value);
+          await sendFcmTokenToBackend(token.value);
+        });
 
-      PushNotifications.addListener(
-        'pushNotificationReceived',
-        (notification) => {
-          console.log('Push notification received: ', notification);
-          showNotification(notification.title || '', notification.body || '');
-        }
-      );
-
-      PushNotifications.addListener(
-        'pushNotificationActionPerformed',
-        (notification) => {
-          console.log('Push notification action performed', notification);
-          if (
-            notification.notification.data &&
-            notification.notification.data.url
-          ) {
-            window.location.href = notification.notification.data.url;
+        PushNotifications.addListener(
+          'pushNotificationReceived',
+          (notification) => {
+            console.log('Push notification received: ', notification);
+            // Notification handling logic here (without showNotification)
           }
-        }
-      );
+        );
+
+        PushNotifications.addListener(
+          'pushNotificationActionPerformed',
+          (notification) => {
+            console.log('Push notification action performed', notification);
+            // Action handling logic here
+          }
+        );
+
+        await PushNotifications.register();
+        console.log('Push notifications registered');
+      } else {
+        console.log('Push notification permission denied');
+      }
     } catch (error) {
       console.error('Error setting up push notifications:', error);
     }
@@ -75,7 +57,6 @@ export default boot(async ({ app }) => {
     messaging
   ) {
     console.log('Running on web platform');
-    // Web platform
     try {
       const { getToken, onMessage } = await import('firebase/messaging');
       const currentToken = await getToken(messaging, { vapidKey });
@@ -90,10 +71,7 @@ export default boot(async ({ app }) => {
 
       onMessage(messaging, (payload) => {
         console.log('Message received:', payload);
-        showNotification(
-          payload.notification?.title || '',
-          payload.notification?.body || ''
-        );
+        // Web notification handling logic here (without showNotification)
       });
     } catch (error) {
       console.error('Error setting up push notifications:', error);
@@ -102,6 +80,3 @@ export default boot(async ({ app }) => {
     console.log('Push notifications are not supported on this platform');
   }
 });
-
-// Export the showNotification function
-export { showNotification };
