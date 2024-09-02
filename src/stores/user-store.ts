@@ -87,6 +87,10 @@ export const useUserStore = defineStore(
       }
     }
 
+    function clearUser() {
+      user.value = null;
+    }
+
     return {
       user,
       isLoggedIn,
@@ -96,6 +100,7 @@ export const useUserStore = defineStore(
       updateUser,
       logout,
       sendTokenIfAvailable,
+      clearUser,
     };
   },
   {

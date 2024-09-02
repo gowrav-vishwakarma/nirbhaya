@@ -1,6 +1,7 @@
 import { boot } from 'quasar/wrappers';
 import axios, { AxiosInstance } from 'axios';
 import { useUserStore } from 'stores/user-store';
+import { Router } from 'vue-router';
 
 declare module '@vue/runtime-core' {
   interface ComponentCustomProperties {
@@ -18,7 +19,7 @@ const api = axios.create({ baseURL: process.env.API_BASE_URL });
 // const api = axios.create({ baseURL: 'http://192.168.2.145:3000' });
 // const api = axios.create({ baseURL: 'http://localhost:3000' });
 
-export default boot(({ app, store }) => {
+export default boot(({ app, store, router }) => {
   // for use inside Vue files (Options API) through this.$axios and this.$api
   const userStore = useUserStore(store);
   7369;
@@ -28,6 +29,19 @@ export default boot(({ app, store }) => {
     }
     return config;
   });
+
+  // Add a response interceptor
+  api.interceptors.response.use(
+    (response) => response,
+    (error) => {
+      if (error.response && error.response.status === 401) {
+        // Unauthorized, redirect to login page
+        userStore.clearUser(); // Clear user data
+        router.push('/login');
+      }
+      return Promise.reject(error);
+    }
+  );
 
   app.config.globalProperties.$axios = axios;
   // ^ ^ ^ this will allow you to use this.$axios (for Vue Options API form)
