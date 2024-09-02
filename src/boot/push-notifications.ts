@@ -1,20 +1,13 @@
 import { boot } from 'quasar/wrappers';
 import { messaging, vapidKey } from './firebase';
-import { api } from 'src/boot/axios';
 import { Capacitor } from '@capacitor/core';
 import { PushNotifications } from '@capacitor/push-notifications';
-
-async function sendFcmTokenToBackend(token: string) {
-  try {
-    await api.post('/auth/update-fcm-token', { fcmToken: token });
-    console.log('FCM token sent to backend successfully');
-  } catch (error) {
-    console.error('Error sending FCM token to backend:', error);
-  }
-}
+import { useUserStore } from 'src/stores/user-store';
 
 export default boot(async ({ app }) => {
+  const userStore = useUserStore();
   console.log('Initializing push notifications');
+
   if (Capacitor.isNativePlatform()) {
     console.log('Running on native platform');
     try {
@@ -24,7 +17,10 @@ export default boot(async ({ app }) => {
       if (permissionStatus.receive === 'granted') {
         PushNotifications.addListener('registration', async (token) => {
           console.log('Push registration success, token: ' + token.value);
-          await sendFcmTokenToBackend(token.value);
+          localStorage.setItem('fcmToken', token.value); // Store token in localStorage
+          if (userStore.isLoggedIn) {
+            await userStore.sendTokenIfAvailable();
+          }
         });
 
         PushNotifications.addListener(
@@ -62,7 +58,10 @@ export default boot(async ({ app }) => {
       const currentToken = await getToken(messaging, { vapidKey });
       if (currentToken) {
         console.log('FCM token:', currentToken);
-        await sendFcmTokenToBackend(currentToken);
+        localStorage.setItem('fcmToken', currentToken); // Store token in localStorage
+        if (userStore.isLoggedIn) {
+          await userStore.sendTokenIfAvailable();
+        }
       } else {
         console.log(
           'No registration token available. Request permission to generate one.'

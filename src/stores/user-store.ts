@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
 import { computed, ref } from 'vue';
+import { api } from 'src/boot/axios';
 
 export interface EmergencyContact {
   contactName: string;
@@ -70,6 +71,22 @@ export const useUserStore = defineStore(
       user.value = defaultUser;
     }
 
+    async function sendFcmTokenToBackend(token: string) {
+      try {
+        await api.post('/auth/update-fcm-token', { fcmToken: token });
+        console.log('FCM token sent to backend successfully');
+      } catch (error) {
+        console.error('Error sending FCM token to backend:', error);
+      }
+    }
+
+    async function sendTokenIfAvailable() {
+      const token = localStorage.getItem('fcmToken');
+      if (token) {
+        await sendFcmTokenToBackend(token);
+      }
+    }
+
     return {
       user,
       isLoggedIn,
@@ -78,6 +95,7 @@ export const useUserStore = defineStore(
       setUser,
       updateUser,
       logout,
+      sendTokenIfAvailable,
     };
   },
   {

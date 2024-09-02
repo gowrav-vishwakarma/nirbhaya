@@ -71,7 +71,7 @@ module.exports = configure(function (/* ctx */) {
       // publicPath: '/',
       // analyze: true,
       env: {
-        API_BASE_URL: 'http://192.168.2.145:3000',
+        API_BASE_URL: 'http://192.168.2.209:3000',
       },
       // rawDefine: {}
       // ignorePublicFolder: true,

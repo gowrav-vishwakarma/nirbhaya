@@ -97,12 +97,13 @@ callbacks.beforeSubmit = (formValues) => {
   return formValues;
 };
 
-callbacks.onSuccess = (userData) => {
+callbacks.onSuccess = async (userData) => {
   if (!otpSent.value) {
     otpSent.value = true;
     updateUrl('/auth/login');
   } else {
     userStore.setUser(userData);
+    await userStore.sendTokenIfAvailable(); // Send FCM token after user is set
     if (userData.name) {
       router.push('/dashboard');
     } else {
