@@ -26,8 +26,26 @@
             flat
             dense
             round
+            icon="notifications"
+            aria-label="Notifications"
+            @click="goToNotificationsPage"
+          >
+            <q-badge color="red" floating>{{ notificationCount }}</q-badge>
+          </q-btn>
+          <q-btn
+            flat
+            dense
+            round
+            icon="help"
+            aria-label="Help"
+            @click="goToHelpPage"
+          />
+          <q-btn
+            flat
+            dense
+            round
             icon="person"
-            aria-label="Menu"
+            aria-label="Profile"
             @click="goToAccountPage"
           />
         </div>
@@ -51,9 +69,11 @@
 </template>
 
 <script setup lang="ts">
+import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
+const notificationCount = ref(5); // Example count, replace with actual logic
 
 const goToAccountPage = () => {
   router.push('/account');
@@ -61,6 +81,14 @@ const goToAccountPage = () => {
 
 const goToDashboardPage = () => {
   router.push('/dashboard');
+};
+
+const goToNotificationsPage = () => {
+  router.push('/notifications');
+};
+
+const goToHelpPage = () => {
+  router.push('/help');
 };
 </script>
 <style>

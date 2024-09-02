@@ -36,7 +36,10 @@ export default boot(async ({ app, router }) => {
           (notification) => {
             console.log('Push notification action performed', notification);
             const { sosEventId, location } = notification.notification.data;
-            router.push({ name: 'sos-page', params: { sosEventId, location } });
+            router.push({
+              name: 'sos-page',
+              params: { sosEventId, location },
+            });
           }
         );
 

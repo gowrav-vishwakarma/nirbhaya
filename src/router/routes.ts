@@ -34,6 +34,20 @@ const routes: RouteRecordRaw[] = [
         component: () => import('pages/Sos/SOSLocationChangePage.vue'),
       },
       {
+        path: 'sos-page/:sosEventId/:location',
+        name: 'sos-page',
+        component: () => import('pages/Sos/SOSPage.vue'),
+        props: true,
+      },
+      {
+        path: 'notifications',
+        component: () => import('pages/NotificationsPage.vue'),
+      },
+      {
+        path: 'help',
+        component: () => import('pages/HelpPage.vue'),
+      },
+      {
         path: 'test',
         component: () => import('pages/TestPage.vue'),
       },
