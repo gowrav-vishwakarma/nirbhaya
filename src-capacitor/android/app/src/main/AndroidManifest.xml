@@ -36,13 +36,13 @@
         </provider>
 
         <!-- Add this section for Firebase Cloud Messaging -->
-        <service
-            android:name=".MyFirebaseMessagingService"
+        <!-- <service
+            android:name=".java.MyFirebaseMessagingService"
             android:exported="false">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
-        </service>
+        </service> -->
 
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_color"
