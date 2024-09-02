@@ -23,6 +23,7 @@
     "@ionic/pwa-elements": "^3.3.0",
     "@quasar/extras": "^1.0.0",
     "axios": "^1.7.6",
+    "ci": "^2.3.0",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.1",
     "pinia": "^2.2.2",
