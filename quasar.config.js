@@ -32,7 +32,7 @@ module.exports = configure(function (/* ctx */) {
       'i18n',
       'axios',
       'auth',
-      // 'capacitor',
+      'capacitor',
       // 'firebase',
       // 'push-notifications',
     ],
