@@ -14,7 +14,7 @@ register(process.env.SERVICE_WORKER_FILE, {
 
   ready(registration) {
     console.log('Service worker is active.');
-    initializeWebPush(registration);
+    // Removed initializeWebPush call
   },
 
   registered(registration) {
@@ -41,42 +41,6 @@ register(process.env.SERVICE_WORKER_FILE, {
     // console.error('Error during service worker registration:', err)
   },
 });
-
-function initializeWebPush(registration: ServiceWorkerRegistration) {
-  if ('PushManager' in self) {
-    const vapidPublicKey = 'YOUR_PUBLIC_VAPID_KEY'; // Replace with your actual VAPID public key
-    const convertedVapidKey = urlBase64ToUint8Array(vapidPublicKey);
-
-    registration.pushManager
-      .subscribe({
-        userVisibleOnly: true,
-        applicationServerKey: convertedVapidKey,
-      })
-      .then(function (subscription) {
-        console.log('User is subscribed:', subscription);
-        // TODO: Send subscription to your server
-      })
-      .catch(function (err) {
-        console.log('Failed to subscribe the user: ', err);
-      });
-  }
-}
-
-// Helper function to convert base64 to Uint8Array
-function urlBase64ToUint8Array(base64String: string) {
-  const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
-  const base64 = (base64String + padding)
-    .replace(/\-/g, '+')
-    .replace(/_/g, '/');
-
-  const rawData = atob(base64);
-  const outputArray = new Uint8Array(rawData.length);
-
-  for (let i = 0; i < rawData.length; ++i) {
-    outputArray[i] = rawData.charCodeAt(i);
-  }
-  return outputArray;
-}
 
 // Add this function to handle showing notifications
 function showNotification(title: string, options: NotificationOptions) {

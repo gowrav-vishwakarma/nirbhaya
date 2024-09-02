@@ -163,21 +163,36 @@ module.exports = configure(function (/* ctx */) {
     // https://v2.quasar.dev/quasar-cli-vite/developing-pwa/configuring-pwa
     pwa: {
       workboxMode: 'injectManifest',
+      swSrc: 'public/firebase-messaging-sw.js', // Ensure this path is correct
       injectPwaMetaTags: true,
       swFilename: 'sw.js',
       manifestFilename: 'manifest.json',
+      includeManifestIcons: false,
       useCredentialsForManifestTag: false,
-      extendInjectManifestOptions(cfg) {
-        cfg.additionalManifestEntries = [
-          { url: 'index.html', revision: Date.now().toString() },
-        ];
-        // Ensure no duplicate entries
-        cfg.additionalManifestEntries = cfg.additionalManifestEntries.filter(
-          (entry, index, self) =>
-            index === self.findIndex((e) => e.url === entry.url)
-        );
-        return cfg;
-      },
+      // extendInjectManifestOptions(cfg) {
+      //   cfg.additionalManifestEntries = [
+      //     { url: 'index.html', revision: Date.now().toString() },
+      //   ];
+      //   // Log entries for debugging
+      //   console.log(
+      //     'Initial additionalManifestEntries:',
+      //     cfg.additionalManifestEntries
+      //   );
+
+      //   // Ensure no duplicate entries
+      //   cfg.additionalManifestEntries = cfg.additionalManifestEntries.filter(
+      //     (entry, index, self) =>
+      //       index === self.findIndex((e) => e.url === entry.url)
+      //   );
+
+      //   // Log filtered entries for debugging
+      //   console.log(
+      //     'Filtered additionalManifestEntries:',
+      //     cfg.additionalManifestEntries
+      //   );
+
+      //   return cfg;
+      // },
       // useFilenameHashes: true,
       // extendGenerateSWOptions (cfg) {}
       // extendInjectManifestOptions (cfg) {},
