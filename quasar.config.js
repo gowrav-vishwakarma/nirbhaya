@@ -70,8 +70,9 @@ module.exports = configure(function (/* ctx */) {
 
       // publicPath: '/',
       // analyze: true,
-      // env: {},
-      env: require('dotenv').config().parsed
+      env: {
+        API_BASE_URL: 'http://192.168.2.145:3000',
+      },
       // rawDefine: {}
       // ignorePublicFolder: true,
       // minify: false,
