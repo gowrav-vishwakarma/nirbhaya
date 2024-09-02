@@ -4,7 +4,7 @@ import { Capacitor } from '@capacitor/core';
 import { PushNotifications } from '@capacitor/push-notifications';
 import { useUserStore } from 'src/stores/user-store';
 
-export default boot(async ({ app }) => {
+export default boot(async ({ app, router }) => {
   const userStore = useUserStore();
   console.log('Initializing push notifications');
 
@@ -35,7 +35,8 @@ export default boot(async ({ app }) => {
           'pushNotificationActionPerformed',
           (notification) => {
             console.log('Push notification action performed', notification);
-            // Action handling logic here
+            const { sosEventId, location } = notification.notification.data;
+            router.push({ name: 'sos-page', params: { sosEventId, location } });
           }
         );
 
@@ -67,7 +68,23 @@ export default boot(async ({ app }) => {
 
       onMessage(messaging, (payload) => {
         console.log('Message received:', payload);
-        // Web notification handling logic here (without showNotification)
+        const { title, body } = payload.notification;
+        const { sosEventId, location } = payload.data;
+
+        if (Notification.permission === 'granted') {
+          const notification = new Notification(title, {
+            body,
+            data: { sosEventId, location },
+          });
+
+          notification.onclick = () => {
+            window.focus();
+            router.push({
+              name: 'sos-page',
+              params: { sosEventId, location },
+            });
+          };
+        }
       });
     } catch (error) {
       console.error('Error setting up push notifications:', error);
