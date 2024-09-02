@@ -1,8 +1,7 @@
 import { ref, onMounted, onUnmounted } from 'vue';
 import { api } from 'boot/axios';
-import { Capacitor, Plugins } from '@capacitor/core';
-
-const { BackgroundFetch } = Plugins;
+import { Capacitor } from '@capacitor/core';
+import { BackgroundRunner } from '@capacitor/background-runner';
 
 export function useBackgroundNotifications() {
   const unreadNotificationCount = ref(0);
@@ -19,7 +18,7 @@ export function useBackgroundNotifications() {
 
   const startNotificationCountRefresh = (intervalMs = 60000) => {
     fetchUnreadNotificationCount(); // Fetch immediately
-    notificationCountInterval = setInterval(
+    notificationCountInterval = window.setInterval(
       fetchUnreadNotificationCount,
       intervalMs
     );
@@ -27,32 +26,33 @@ export function useBackgroundNotifications() {
 
   const stopNotificationCountRefresh = () => {
     if (notificationCountInterval) {
-      clearInterval(notificationCountInterval);
+      window.clearInterval(notificationCountInterval);
     }
   };
 
-  const setupBackgroundFetch = async () => {
+  const setupBackgroundRunner = async () => {
     if (Capacitor.isNativePlatform()) {
       try {
-        await BackgroundFetch.configure({
-          minimumFetchInterval: 15, // Fetch every 15 minutes
-        });
+        await BackgroundRunner.requestPermissions();
 
-        BackgroundFetch.addListener('backgroundFetch', async () => {
-          await fetchUnreadNotificationCount();
-          BackgroundFetch.finish({
-            fetchResult: BackgroundFetch.BackgroundFetchResult.NewData,
-          });
+        // The actual background task will be defined in a separate file
+        // as specified in the capacitor.config.ts
+
+        // We can dispatch the event manually if needed
+        await BackgroundRunner.dispatchEvent({
+          label: 'com.example.notifications',
+          event: 'fetchNotifications',
+          details: {},
         });
       } catch (error) {
-        console.error('Error setting up background fetch:', error);
+        console.error('Error setting up background runner:', error);
       }
     }
   };
 
   onMounted(() => {
     startNotificationCountRefresh();
-    setupBackgroundFetch();
+    setupBackgroundRunner();
   });
 
   onUnmounted(() => {
@@ -64,6 +64,6 @@ export function useBackgroundNotifications() {
     fetchUnreadNotificationCount,
     startNotificationCountRefresh,
     stopNotificationCountRefresh,
-    setupBackgroundFetch,
+    setupBackgroundRunner,
   };
 }
