@@ -14,6 +14,7 @@
     "build": "quasar build"
   },
   "dependencies": {
+    "@capacitor-firebase/messaging": "^6.1.0",
     "@capacitor/camera": "^6.0.2",
     "@capacitor/core": "^6.1.2",
     "@capacitor/filesystem": "^6.0.1",
@@ -26,6 +27,7 @@
     "ci": "^2.3.0",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.1",
+    "firebase": "^10.13.1",
     "pinia": "^2.2.2",
     "pinia-plugin-persistedstate": "^3.2.3",
     "quasar": "^2.6.0",

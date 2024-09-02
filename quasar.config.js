@@ -33,8 +33,8 @@ module.exports = configure(function (/* ctx */) {
       'axios',
       'auth',
       'capacitor',
-      // 'firebase',
-      // 'push-notifications',
+      'firebase',
+      'push-notifications',
     ],
 
     // https://v2.quasar.dev/quasar-cli-vite/quasar-config-js#css
