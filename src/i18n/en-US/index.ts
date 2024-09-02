@@ -76,4 +76,29 @@ export default {
   profileUpdateError: 'Error updating profile',
   locationUpdated: 'Location updated',
   locationError: 'Error getting location',
+  missingPermissions: 'Missing Permissions',
+  request: 'Request {permission}',
+  helpFor: 'Help for {permission}',
+  help: 'Help',
+
+  // Add these new keys if they're not already present
+  locationPermission: 'Location Permission',
+  locationPermissionHelp:
+    'This app needs access to your location to provide accurate SOS services.',
+  requestLocationPermission: 'Request Location Permission',
+
+  cameraPermission: 'Camera Permission',
+  cameraPermissionHelp:
+    'Camera access is required to capture photos or videos during emergencies.',
+  requestCameraPermission: 'Request Camera Permission',
+
+  microphonePermission: 'Microphone Permission',
+  microphonePermissionHelp:
+    'Microphone access is needed to record audio during emergencies.',
+  requestMicrophonePermission: 'Request Microphone Permission',
+
+  notificationPermission: 'Notification Permission',
+  notificationPermissionHelp:
+    'Notifications are essential to alert you about nearby SOS events.',
+  requestNotificationPermission: 'Request Notification Permission',
 };

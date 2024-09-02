@@ -75,6 +75,30 @@ export default {
   backgroundLocationPermissionRequired:
     'इस सुविधा के लिए पृष्ठभूमि स्थान अनुमति आवश्यक है',
   profileUpdateError: 'प्रोफ़ाइल अपडेट करने में त्रुटि',
-  locationUpdated: 'स्थान अपडेट किया गया',
+  locationUpdated: 'स्थान अपडート किया गया',
   locationError: 'स्थान प्राप्त करने में त्रुटि',
+  missingPermissions: 'अनुपस्थित अनुमतियाँ',
+  request: '{permission} अनुरोध करें',
+  helpFor: '{permission} के लिए सहायता',
+  help: 'सहायता',
+
+  locationPermission: 'स्थान अनुमति',
+  locationPermissionHelp:
+    'सटीक SOS सेवाएं प्रदान करने के लिए इस ऐप को आपके स्थान तक पहुंच की आवश्यकता है।',
+  requestLocationPermission: 'स्थान अनुमति का अनुरोध करें',
+
+  cameraPermission: 'कैमरा अनुमति',
+  cameraPermissionHelp:
+    'आपातकाल के दौरान फोटो या वीडियो कैप्चर करने के लिए कैमरा एक्सेस आवश्यक है।',
+  requestCameraPermission: 'कैमरा अनुमति का अनुरोध करें',
+
+  microphonePermission: 'माइक्रोफोन अनुमति',
+  microphonePermissionHelp:
+    'आपातकाल के दौरान ऑडियो रिकॉर्ड करने के लिए माइक्रोफोन एक्सेस आवश्यक है।',
+  requestMicrophonePermission: 'माइक्रोफोन अनुमति का अनुरोध करें',
+
+  notificationPermission: 'अधिसूचना अनुमति',
+  notificationPermissionHelp:
+    'आस-पास के SOS घटनाओं के बारे में आपको सूचित करने के लिए सूचनाएं आवश्यक हैं।',
+  requestNotificationPermission: 'अधिसूचना अनुमति का अनुरोध करें',
 };

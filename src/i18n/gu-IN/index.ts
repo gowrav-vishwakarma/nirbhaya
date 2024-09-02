@@ -65,4 +65,24 @@ export default {
   profileUpdateError: 'પ્રોફાઇલ અપડેટ કરવામાં ભૂલ',
   locationUpdated: 'સ્થાન અપડેટ થયું',
   locationError: 'સ્થાન મેળવવામાં ભૂલ',
+  missingPermissions: 'ગેરહાજર પરવાનગીઓ',
+  request: '{permission} વિનંતી કરો',
+  helpFor: '{permission} માટે મદદ',
+  help: 'મદદ',
+  locationPermission: 'સ્થાન પરવાનગી',
+  locationPermissionHelp:
+    'ચોક્કસ SOS સેવાઓ પ્રદાન કરવા માટે આ એપ્લિકેશનને તમારા સ્થાનની ઍક્સેસની જરૂર છે.',
+  requestLocationPermission: 'સ્થાન પરવાનગીની વિનંતી કરો',
+  cameraPermission: 'કેમેરા પરવાનગી',
+  cameraPermissionHelp:
+    'કટોકટી દરમિયાન ફોટા અથવા વિડિઓ કેપ્ચર કરવા માટે કેમેરા ઍક્સેસ જરૂરી છે.',
+  requestCameraPermission: 'કેમેરા પરવાનગીની વિનંતી કરો',
+  microphonePermission: 'માઇક્રોફોન પરવાનગી',
+  microphonePermissionHelp:
+    'કટોકટી દરમિયાન ઓડિયો રેકોર્ડ કરવા માટે માઇક્રોફોન ઍક્સેસ જરૂરી છે.',
+  requestMicrophonePermission: 'માઇક્રોફોન પરવાનગીની વિનંતી કરો',
+  notificationPermission: 'સૂચના પરવાનગી',
+  notificationPermissionHelp:
+    'નજીકના SOS ઘટનાઓ વિશે તમને સૂચિત કરવા માટે સૂચનાઓ આવશ્યક છે.',
+  requestNotificationPermission: 'સૂચના પરવાનગીની વિનંતી કરો',
 };
