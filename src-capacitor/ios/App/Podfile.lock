@@ -15,9 +15,9 @@ DEPENDENCIES:
   - "Capacitor (from `../../node_modules/@capacitor/ios`)"
   - "CapacitorApp (from `../../node_modules/@capacitor/app`)"
   - "CapacitorCordova (from `../../node_modules/@capacitor/ios`)"
-  - "CapacitorGeolocation (from `../../node_modules/@capacitor/geolocation`)"
-  - "CapacitorNetwork (from `../../node_modules/@capacitor/network`)"
-  - "CapacitorPushNotifications (from `../../node_modules/@capacitor/push-notifications`)"
+  - "CapacitorGeolocation (from `../../../node_modules/@capacitor/geolocation`)"
+  - "CapacitorNetwork (from `../../../node_modules/@capacitor/network`)"
+  - "CapacitorPushNotifications (from `../../../node_modules/@capacitor/push-notifications`)"
 
 EXTERNAL SOURCES:
   Capacitor:
@@ -27,11 +27,11 @@ EXTERNAL SOURCES:
   CapacitorCordova:
     :path: "../../node_modules/@capacitor/ios"
   CapacitorGeolocation:
-    :path: "../../node_modules/@capacitor/geolocation"
+    :path: "../../../node_modules/@capacitor/geolocation"
   CapacitorNetwork:
-    :path: "../../node_modules/@capacitor/network"
+    :path: "../../../node_modules/@capacitor/network"
   CapacitorPushNotifications:
-    :path: "../../node_modules/@capacitor/push-notifications"
+    :path: "../../../node_modules/@capacitor/push-notifications"
 
 SPEC CHECKSUMS:
   Capacitor: 679f9673fdf30597493a6362a5d5bf233d46abc2
@@ -41,6 +41,6 @@ SPEC CHECKSUMS:
   CapacitorNetwork: 8796cf1f1104a00b289957b6150b7c60e1c2a8d3
   CapacitorPushNotifications: ccd797926c030acad3d5498ef452c735c90a2c89
 
-PODFILE CHECKSUM: 5c634ca04853b4baa6f34fc17a0464f9180922b4
+PODFILE CHECKSUM: 2c8e19afa125f2049b82b111333c824ef4fabe21
 
-COCOAPODS: 1.15.2
+COCOAPODS: 1.15.0

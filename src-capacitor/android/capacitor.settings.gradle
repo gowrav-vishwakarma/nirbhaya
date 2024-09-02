@@ -6,10 +6,10 @@ include ':capacitor-app'
 project(':capacitor-app').projectDir = new File('../node_modules/@capacitor/app/android')
 
 include ':capacitor-geolocation'
-project(':capacitor-geolocation').projectDir = new File('../node_modules/@capacitor/geolocation/android')
+project(':capacitor-geolocation').projectDir = new File('../../node_modules/@capacitor/geolocation/android')
 
 include ':capacitor-network'
-project(':capacitor-network').projectDir = new File('../node_modules/@capacitor/network/android')
+project(':capacitor-network').projectDir = new File('../../node_modules/@capacitor/network/android')
 
 include ':capacitor-push-notifications'
-project(':capacitor-push-notifications').projectDir = new File('../node_modules/@capacitor/push-notifications/android')
+project(':capacitor-push-notifications').projectDir = new File('../../node_modules/@capacitor/push-notifications/android')
