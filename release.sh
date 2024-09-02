@@ -14,8 +14,8 @@ if [ -n "$(git status --porcelain)" ]; then
 fi
 
 # Uncomment the API_BASE_URL with https and comment the one with http
-sed -i 's/^#\(.*https.*\)/\1/' .env
-sed -i 's/^\(.*http.*\)/#\1/' .env
+sed -i.bak 's/^#\(.*https.*\)/\1/' .env && rm .env.bak
+sed -i.bak 's/^\(.*http.*\)/#\1/' .env && rm .env.bak
 
 # Checkout to master and merge develop
 git checkout master
@@ -60,7 +60,7 @@ fi
 git checkout develop
 
 # Revert the changes in .env
-sed -i 's/^\(.*https.*\)/#\1/' .env
-sed -i 's/^#\(.*http.*\)/\1/' .env
+sed -i.bak 's/^\(.*https.*\)/#\1/' .env && rm .env.bak
+sed -i.bak 's/^#\(.*http.*\)/\1/' .env && rm .env.bak
 
 echo "Release successful!"
