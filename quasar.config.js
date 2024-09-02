@@ -162,42 +162,16 @@ module.exports = configure(function (/* ctx */) {
 
     // https://v2.quasar.dev/quasar-cli-vite/developing-pwa/configuring-pwa
     pwa: {
-      workboxMode: 'injectManifest',
-      swSrc: 'public/firebase-messaging-sw.js', // Ensure this path is correct
+      workboxMode: 'generateSW', // Change to generateSW
       injectPwaMetaTags: true,
       swFilename: 'sw.js',
       manifestFilename: 'manifest.json',
-      includeManifestIcons: false,
       useCredentialsForManifestTag: false,
-      // extendInjectManifestOptions(cfg) {
-      //   cfg.additionalManifestEntries = [
-      //     { url: 'index.html', revision: Date.now().toString() },
-      //   ];
-      //   // Log entries for debugging
-      //   console.log(
-      //     'Initial additionalManifestEntries:',
-      //     cfg.additionalManifestEntries
-      //   );
-
-      //   // Ensure no duplicate entries
-      //   cfg.additionalManifestEntries = cfg.additionalManifestEntries.filter(
-      //     (entry, index, self) =>
-      //       index === self.findIndex((e) => e.url === entry.url)
-      //   );
-
-      //   // Log filtered entries for debugging
-      //   console.log(
-      //     'Filtered additionalManifestEntries:',
-      //     cfg.additionalManifestEntries
-      //   );
-
-      //   return cfg;
+      // Remove swSrc as it is not needed for generateSW
+      // swSrc: 'public/firebase-messaging-sw.js',
+      // extendGenerateSWOptions (cfg) {
+      //   // Customize Workbox options here if needed
       // },
-      // useFilenameHashes: true,
-      // extendGenerateSWOptions (cfg) {}
-      // extendInjectManifestOptions (cfg) {},
-      // extendManifestJson (json) {}
-      // extendPWACustomSWConf (esbuildConf) {}
     },
 
     // Full list of options: https://v2.quasar.dev/quasar-cli-vite/developing-cordova-apps/configuring-cordova

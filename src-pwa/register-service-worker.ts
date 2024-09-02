@@ -5,7 +5,8 @@ import { Notify } from 'quasar';
 // events passes a ServiceWorkerRegistration instance in their arguments.
 // ServiceWorkerRegistration: https://developer.mozilla.org/en-US/docs/Web/API/ServiceWorkerRegistration
 
-register(process.env.SERVICE_WORKER_FILE, {
+register('/firebase-messaging-sw.js', {
+  // Ensure this path is correct
   // The registrationOptions object will be passed as the second argument
   // to ServiceWorkerContainer.register()
   // https://developer.mozilla.org/en-US/docs/Web/API/ServiceWorkerContainer/register#Parameter
@@ -52,7 +53,9 @@ function showNotification(title: string, options: NotificationOptions) {
         label: 'Go to SOS',
         color: 'red',
         handler: () => {
-          window.location.href = '/#/sos';
+          if (typeof window !== 'undefined') {
+            window.location.href = '/#/sos';
+          }
         },
       },
     ],
@@ -69,7 +72,10 @@ function handleIncomingMessage(event: MessageEvent) {
 
 // Listen for messages from the service worker
 if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
-  navigator.serviceWorker.addEventListener('message', handleIncomingMessage);
+  (navigator.serviceWorker as ServiceWorkerContainer).addEventListener(
+    'message',
+    handleIncomingMessage
+  );
 }
 
 // Export the showNotification function
