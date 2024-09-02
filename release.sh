@@ -34,14 +34,14 @@ fi
 rm -rf dist
 
 # Build PWA
-quasar build -m pwa
+npm run build -m pwa
 if [ $? -ne 0 ]; then
   echo "Error: Failed to build PWA."
   exit 1
 fi
 
 # Initialize a new git repository in the dist folder
-cd dist
+cd dist/spa
 git init
 git remote add origin git@github.com:gowrav-vishwakarma/nirbhaya-pwa.git
 
