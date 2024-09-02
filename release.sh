@@ -56,6 +56,8 @@ if [ $? -ne 0 ]; then
   exit 1
 fi
 
+cd ../..
+
 # Checkout back to develop branch
 git checkout develop
 
