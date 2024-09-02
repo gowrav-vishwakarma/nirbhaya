@@ -171,6 +171,11 @@ module.exports = configure(function (/* ctx */) {
         cfg.additionalManifestEntries = [
           { url: 'index.html', revision: Date.now().toString() },
         ];
+        // Ensure no duplicate entries
+        cfg.additionalManifestEntries = cfg.additionalManifestEntries.filter(
+          (entry, index, self) =>
+            index === self.findIndex((e) => e.url === entry.url)
+        );
         return cfg;
       },
       // useFilenameHashes: true,
