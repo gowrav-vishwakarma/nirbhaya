@@ -5,13 +5,13 @@ import { Capacitor } from '@capacitor/core';
 import { Messaging } from 'firebase/messaging';
 
 const firebaseConfig = {
-  apiKey: 'AIzaSyATkKRDqPJwPAoH8_MZy9dOD_dEA6VC7tM',
-  authDomain: 'shoutout-1e61c.firebaseapp.com',
-  projectId: 'shoutout-1e61c',
-  storageBucket: 'shoutout-1e61c.appspot.com',
-  messagingSenderId: '599043169760',
-  appId: '1:599043169760:web:3522088aa2511184455f85',
-  measurementId: 'G-L2WNXZ0ZQR',
+  apiKey: process.env.FIREBASE_API_KEY,
+  authDomain: process.env.FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.FIREBASE_PROJECT_ID,
+  storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.FIREBASE_MESSANGING_SENDER_ID,
+  appId: process.env.FIREBASE_APP_ID,
+  measurementId: process.env.FIREBASE_MEASUREMENT_ID,
 };
 
 const app = initializeApp(firebaseConfig);
