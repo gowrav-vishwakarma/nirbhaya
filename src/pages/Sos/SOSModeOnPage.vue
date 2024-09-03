@@ -64,42 +64,42 @@
           <q-btn
             style="width: 48%"
             class="q-mb-md"
-            @click="updateThreat('followedBySomeone')"
+            @click="handleThreatButtonClick('followedBySomeone')"
           >
             <span class="q-ml-xs">{{ $t('followedBySomeone') }}</span>
           </q-btn>
           <q-btn
             style="width: 48%"
             class="q-mb-md"
-            @click="updateThreat('verbalHarassment')"
+            @click="handleThreatButtonClick('verbalHarassment')"
           >
             <span class="q-ml-xs">{{ $t('verbalHarassment') }}</span>
           </q-btn>
           <q-btn
             style="width: 48%"
             class="q-mb-md"
-            @click="updateThreat('physicalThreat')"
+            @click="handleThreatButtonClick('physicalThreat')"
           >
             <span class="q-ml-xs">{{ $t('physicalThreat') }}</span>
           </q-btn>
           <q-btn
             style="width: 48%"
             class="q-mb-md"
-            @click="updateThreat('attemptedKidnapping')"
+            @click="handleThreatButtonClick('attemptedKidnapping')"
           >
             <span class="q-ml-xs">{{ $t('attemptedKidnapping') }}</span>
           </q-btn>
           <q-btn
             style="width: 48%"
             class="q-mb-md"
-            @click="updateThreat('sexualAssault')"
+            @click="handleThreatButtonClick('sexualAssault')"
           >
             <span class="q-ml-xs">{{ $t('sexualAssault') }}</span>
           </q-btn>
           <q-btn
             style="width: 48%"
             class="q-mb-md"
-            @click="updateThreat('domesticViolence')"
+            @click="handleThreatButtonClick('domesticViolence')"
           >
             <span class="q-ml-xs">{{ $t('domesticViolence') }}</span>
           </q-btn>
@@ -134,7 +134,7 @@
           class="col-12 col-md-12 q-px-md q-mt-lg flex justify-center q-mb-lg"
         >
           <q-btn
-            @click="sendLocationUpdate('edit', 'active')"
+            @click="updateSOSData({ status: 'active' })"
             style="width: 100%"
             class="primaryBackGroundColor text-white"
             ><b class="q-ml-xs q-my-md">{{
@@ -207,6 +207,7 @@ const shouldStream = computed(() => process.env.STREAM_SAVE === 'true');
 
 onMounted(async () => {
   await checkPermissions();
+  await activateSOSPermissions();
   startCountdown();
   await startLocationWatching();
 });
@@ -228,7 +229,7 @@ const startCountdown = () => {
     timeLeft.value--;
     if (timeLeft.value <= 0) {
       clearInterval(countdownInterval!);
-      confirmSOS();
+      updateSOSData({ status: 'active', confirm: true });
     }
   }, 1000);
 };
@@ -258,31 +259,43 @@ const activateSOSPermissions = async () => {
   }
 };
 
-const confirmSOS = async (threatType?: string) => {
+const updateSOSData = async (data: {
+  location?: { latitude: number | null; longitude: number | null };
+  status?: string;
+  threat?: string;
+  confirm?: boolean;
+}) => {
   try {
-    await activateSOSPermissions();
-
-    // Start location update in the background
-    updateCurrentLocation();
-
-    // Set a timeout for waiting for location
-    setTimeout(async () => {
-      if (!isLocationReceived.value) {
-        await sendConfirmSOSRequest(threatType);
+    if (data.confirm || !sosSent.value) {
+      if (countdownInterval) {
+        clearInterval(countdownInterval);
       }
-    }, 3000); // Wait for 3 seconds
-
-    sosSent.value = true;
-    notifiedPersons.value = 10;
-    acceptedPersons.value = 3;
-    if (countdownInterval) {
-      clearInterval(countdownInterval);
+      sosSent.value = true;
+      notifiedPersons.value = 10;
+      acceptedPersons.value = 3;
+      startRecordingAndStreaming();
     }
-    startRecordingAndStreaming();
+
+    // Always update all available values
+    if (currentLocation.value.longitude && currentLocation.value.latitude) {
+      values.value.location = currentLocation.value;
+    }
+    if (data.status) values.value.status = data.status;
+    if (data.threat) values.value.threat = data.threat;
+
+    await validateAndSubmit();
+    console.log('SOS data updated:', values.value);
+
+    if (!isLocationReceived.value) {
+      updateCurrentLocation();
+    }
   } catch (error) {
-    console.error('Failed to confirm SOS request:', error);
-    // TODO: Show error message to user
+    console.error('Failed to update SOS data:', error);
   }
+};
+
+const handleThreatButtonClick = (threatType: string) => {
+  updateSOSData({ threat: threatType, status: 'active', confirm: true });
 };
 
 const sendCancelSOSRequest = async () => {
@@ -364,33 +377,6 @@ const startBackgroundAPIRetry = (sosData: any) => {
   }, 30000); // Retry every 30 seconds
 };
 
-const updateThreat = async (threatType: string) => {
-  if (!sosSent.value) {
-    // If SOS hasn't been sent yet, send it immediately with the threat information
-    await confirmSOS(threatType);
-    console.log('threatType.........', threatType);
-  } else {
-    try {
-      await sendUpdateThreatRequest(threatType);
-      // You might want to update the UI to show that the threat has been updated
-      selectedThreat.value = threatType;
-      console.log(`Threat updated: ${threatType}`);
-    } catch (error) {
-      console.error('Failed to update threat:', error);
-      // TODO: Show error message to user
-    }
-  }
-};
-
-const sendUpdateThreatRequest = async (threatType: string) => {
-  // TODO: Implement actual API call to update the threat
-  console.log(
-    `Sending update threat request: ${threatType}`,
-    'Current location:',
-    currentLocation.value
-  );
-};
-
 const startLocationWatching = async () => {
   try {
     watchId = await Geolocation.watchPosition(
@@ -419,17 +405,17 @@ const handleLocationUpdate: WatchPositionCallback = (
   }
 
   if (position) {
-    currentLocation.value.latitude = position.coords.latitude;
-    currentLocation.value.longitude = position.coords.longitude;
-
-    currentLocationName.value = `Lat: ${position.coords.latitude.toFixed(
+    currentLocation.value = {
+      latitude: position.coords.latitude,
+      longitude: position.coords.longitude,
+    };
+    currentLocationName.value = `Lat: ${currentLocation.value.latitude.toFixed(
       4
-    )}, Lon: ${position.coords.longitude.toFixed(4)}`;
-
+    )}, Lon: ${currentLocation.value.longitude.toFixed(4)}`;
     isLocationReceived.value = true;
 
     if (sosSent.value) {
-      sendLocationUpdate('edit').catch(console.error);
+      updateSOSData({}).catch(console.error);
     }
   }
 };
@@ -459,32 +445,13 @@ callbacks.onSuccess = (data) => {
   return data;
 };
 
-const sendLocationUpdate = async (action = 'edit', threat = 'active') => {
-  try {
-    values.value.status = threat;
-    values.value.location = currentLocation.value;
-    values.value.threat = selectedThreat.value;
-    await validateAndSubmit();
-    console.log('Sending location update:', currentLocation.value);
-  } catch (error) {
-    console.error('Failed to send location update:', error);
-  }
-};
-
-// Update the watcher
-watch(isLocationReceived, async (newValue) => {
-  if (newValue && sosSent.value) {
-    await sendLocationUpdate();
-  }
-});
-
-const updateCurrentLocation = async (action = 'edit'): Promise<void> => {
+const updateCurrentLocation = async (): Promise<void> => {
   if (!watchId) {
     await startLocationWatching();
   }
 
-  if (action === 'create' && isLocationReceived.value) {
-    await sendLocationUpdate('create');
+  if (isLocationReceived.value) {
+    await updateSOSData({ location: currentLocation.value, status: 'active' });
   }
 };
 

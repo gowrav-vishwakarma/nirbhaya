@@ -16,7 +16,7 @@ PODS:
 DEPENDENCIES:
   - "Capacitor (from `../../node_modules/@capacitor/ios`)"
   - "CapacitorApp (from `../../node_modules/@capacitor/app`)"
-  - "CapacitorBackgroundRunner (from `../../../node_modules/@capacitor/background-runner`)"
+  - "CapacitorBackgroundRunner (from `../../node_modules/@capacitor/background-runner`)"
   - "CapacitorCordova (from `../../node_modules/@capacitor/ios`)"
   - "CapacitorGeolocation (from `../../node_modules/@capacitor/geolocation`)"
   - "CapacitorNetwork (from `../../node_modules/@capacitor/network`)"
@@ -28,7 +28,7 @@ EXTERNAL SOURCES:
   CapacitorApp:
     :path: "../../node_modules/@capacitor/app"
   CapacitorBackgroundRunner:
-    :path: "../../../node_modules/@capacitor/background-runner"
+    :path: "../../node_modules/@capacitor/background-runner"
   CapacitorCordova:
     :path: "../../node_modules/@capacitor/ios"
   CapacitorGeolocation:
@@ -47,6 +47,6 @@ SPEC CHECKSUMS:
   CapacitorNetwork: 8796cf1f1104a00b289957b6150b7c60e1c2a8d3
   CapacitorPushNotifications: ccd797926c030acad3d5498ef452c735c90a2c89
 
-PODFILE CHECKSUM: d1e700ca837dcef00317ca9319dce1d0c22011bf
+PODFILE CHECKSUM: 755aafa57303ce56bbf0c45c791de76c7c400187
 
 COCOAPODS: 1.15.2

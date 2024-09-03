@@ -83,7 +83,7 @@ const initiateSOSMode = async () => {
   }
 };
 
-const { validateAndSubmit, callbacks } = useUserForm('auth/sos-location-crud', {
+const { validateAndSubmit, callbacks } = useUserForm('auth/sos-update', {
   status: 'created',
 });
 
