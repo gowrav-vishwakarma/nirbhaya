@@ -156,7 +156,11 @@
 import { ref, onMounted, onUnmounted, watch } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useI18n } from 'vue-i18n';
-import { Geolocation } from '@capacitor/geolocation';
+import {
+  Geolocation,
+  Position,
+  WatchPositionCallback,
+} from '@capacitor/geolocation';
 import { Capacitor } from '@capacitor/core';
 import { Camera, CameraResultType } from '@capacitor/camera';
 import { Filesystem, Directory } from '@capacitor/filesystem';
@@ -183,7 +187,7 @@ const initialRequestTime =
 
 const currentLocation = ref({ latitude: null, longitude: null });
 const currentLocationName = ref('');
-let locationUpdateInterval: number | null = null;
+let watchId: string | null = null;
 
 const isRecording = ref(false);
 let mediaRecorder: MediaRecorder | null = null;
@@ -200,16 +204,14 @@ const { permissions, checkPermissions, requestPermission, activatePermission } =
 onMounted(async () => {
   await checkPermissions();
   startCountdown();
-  startLocationUpdates();
+  await startLocationWatching();
 });
 
 onUnmounted(async () => {
   if (countdownInterval) {
     clearInterval(countdownInterval);
   }
-  if (locationUpdateInterval) {
-    clearInterval(locationUpdateInterval);
-  }
+  await stopLocationWatching();
   await stopAndDownloadRecording();
 });
 
@@ -385,10 +387,55 @@ const sendUpdateThreatRequest = async (threatType: string) => {
   );
 };
 
-const startLocationUpdates = () => {
-  locationUpdateInterval = setInterval(() => {
-    updateCurrentLocation();
-  }, 10000); // Update every 10 seconds
+const startLocationWatching = async () => {
+  try {
+    watchId = await Geolocation.watchPosition(
+      {
+        enableHighAccuracy: true,
+        timeout: 30000,
+        maximumAge: 10000,
+      },
+      handleLocationUpdate
+    );
+
+    console.log('Started watching location');
+  } catch (error) {
+    console.error('Error starting location watch:', error);
+    currentLocationName.value = t('locationWatchError');
+  }
+};
+
+const handleLocationUpdate: WatchPositionCallback = (
+  position: Position | null,
+  err?: any
+) => {
+  if (err) {
+    console.error('Error in location update:', err);
+    return;
+  }
+
+  if (position) {
+    currentLocation.value.latitude = position.coords.latitude;
+    currentLocation.value.longitude = position.coords.longitude;
+
+    currentLocationName.value = `Lat: ${position.coords.latitude.toFixed(
+      4
+    )}, Lon: ${position.coords.longitude.toFixed(4)}`;
+
+    isLocationReceived.value = true;
+
+    if (sosSent.value) {
+      sendLocationUpdate('edit').catch(console.error);
+    }
+  }
+};
+
+const stopLocationWatching = async () => {
+  if (watchId !== null) {
+    await Geolocation.clearWatch({ id: watchId });
+    watchId = null;
+    console.log('Stopped watching location');
+  }
 };
 
 const { values, validateAndSubmit, errors, callbacks, isLoading, updateUrl } =
@@ -428,45 +475,12 @@ watch(isLocationReceived, async (newValue) => {
 });
 
 const updateCurrentLocation = async (action = 'edit'): Promise<void> => {
-  isGettingLocation.value = true;
-  currentLocationName.value = null; // Reset location name
-  try {
-    let position;
-    if (Capacitor.isNativePlatform()) {
-      position = await Geolocation.getCurrentPosition({
-        enableHighAccuracy: true,
-        timeout: 10000,
-      });
-    } else {
-      position = await new Promise((resolve, reject) => {
-        navigator.geolocation.getCurrentPosition(resolve, reject, {
-          enableHighAccuracy: true,
-          timeout: 10000,
-        });
-      });
-    }
+  if (!watchId) {
+    await startLocationWatching();
+  }
 
-    currentLocation.value.latitude = position.coords.latitude;
-    currentLocation.value.longitude = position.coords.longitude;
-
-    currentLocationName.value = `Lat: ${position.coords.latitude.toFixed(
-      4
-    )}, Lon: ${position.coords.longitude.toFixed(4)}`;
-
-    isLocationReceived.value = true;
-
-    if (action == 'create') {
-      await sendLocationUpdate('create');
-    } else {
-      if (sosSent.value) {
-        await sendLocationUpdate('edit');
-      }
-    }
-  } catch (error) {
-    console.error('Error getting location', error);
-    currentLocationName.value = null; // Ensure it's null if there's an error
-  } finally {
-    isGettingLocation.value = false;
+  if (action === 'create' && isLocationReceived.value) {
+    await sendLocationUpdate('create');
   }
 };
 
