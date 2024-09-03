@@ -34,6 +34,13 @@
             @click="acceptNotification(notification.id)"
           />
         </q-item-section>
+        <q-item-section side v-else-if="notification.status === 'accepted'">
+          <q-btn
+            color="secondary"
+            label="Follow"
+            @click="followLocation(notification.sosEvent.location)"
+          />
+        </q-item-section>
         <q-item-section side v-else>
           <q-chip
             :color="getStatusColor(notification.status)"
@@ -135,25 +142,36 @@ const getStatusColor = (status: string) => {
 
 const acceptNotification = async (notificationId: number) => {
   try {
-    // Implement the API call to accept the notification
     await api.post(`/auth/notifications/${notificationId}/accept`);
-
-    // Update the local state
     const index = responseData.value.findIndex((n) => n.id === notificationId);
     if (index !== -1) {
       responseData.value[index].status = 'accepted';
     }
-
     $q.notify({
       color: 'positive',
       message: 'Notification accepted successfully',
       icon: 'check',
     });
+    await fetchUnreadNotificationCount();
   } catch (error) {
     console.error('Error accepting notification:', error);
     $q.notify({
       color: 'negative',
       message: 'Failed to accept notification',
+      icon: 'error',
+    });
+  }
+};
+
+const followLocation = (location: { type: string; coordinates: number[] }) => {
+  if (location && location.coordinates) {
+    const [lng, lat] = location.coordinates;
+    const url = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
+    window.open(url, '_blank');
+  } else {
+    $q.notify({
+      color: 'negative',
+      message: 'Location information is not available',
       icon: 'error',
     });
   }
