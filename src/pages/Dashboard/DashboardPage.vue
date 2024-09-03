@@ -54,6 +54,7 @@ import { useI18n } from 'vue-i18n';
 import { Capacitor, Plugins } from '@capacitor/core';
 import { Geolocation } from '@capacitor/geolocation';
 import { Camera } from '@capacitor/camera';
+import { usePermissions } from 'src/composables/usePermissions';
 
 const router = useRouter();
 const $q = useQuasar();
@@ -61,16 +62,12 @@ const { t } = useI18n();
 
 const userName = ref('User');
 
-const permissions = ref([
-  { name: 'location', granted: false, denied: false },
-  { name: 'camera', granted: false, denied: false },
-  { name: 'microphone', granted: false, denied: false },
-  { name: 'notifications', granted: false, denied: false },
-]);
-
-const allPermissionsGranted = computed(() =>
-  permissions.value.every((permission) => permission.granted)
-);
+const {
+  permissions,
+  allPermissionsGranted,
+  checkPermissions,
+  requestPermission,
+} = usePermissions();
 
 const initiateSOSMode = async () => {
   try {
@@ -99,150 +96,13 @@ const sendInitialSOSRequest = async () => {
   console.log('Sending initial SOS request');
 };
 
-const requestPermission = async (permissionName: string) => {
-  try {
-    let result;
-    if (Capacitor.isNativePlatform()) {
-      switch (permissionName) {
-        case 'location':
-          result = await Geolocation.requestPermissions();
-          break;
-        case 'camera':
-          result = await Camera.requestPermissions();
-          break;
-        case 'microphone':
-          result = await Plugins.Permissions.requestPermissions({
-            permissions: ['microphone'],
-          });
-          break;
-        case 'notifications':
-          result = await Plugins.PushNotifications.requestPermission();
-          break;
-      }
-    } else {
-      // Web API fallback
-      switch (permissionName) {
-        case 'location':
-          result = await navigator.permissions.query({ name: 'geolocation' });
-          break;
-        case 'camera':
-        case 'microphone':
-          result = await navigator.mediaDevices.getUserMedia({
-            video: permissionName === 'camera',
-            audio: permissionName === 'microphone',
-          });
-          break;
-        case 'notifications':
-          result = await Notification.requestPermission();
-          break;
-      }
-    }
-
-    updatePermissionStatus(permissionName, true, false);
-    $q.notify({
-      color: 'positive',
-      message: t('permissionGranted', { permission: t(permissionName) }),
-      icon: 'check',
-    });
-  } catch (error) {
-    console.error(`Error requesting ${permissionName} permission:`, error);
-    updatePermissionStatus(permissionName, false, true);
-    $q.notify({
-      color: 'negative',
-      message: t('permissionDenied', { permission: t(permissionName) }),
-      icon: 'error',
-    });
-  }
-};
-
-const updatePermissionStatus = (
-  name: string,
-  granted: boolean,
-  denied: boolean
-) => {
-  const index = permissions.value.findIndex((p) => p.name === name);
-  if (index !== -1) {
-    permissions.value[index].granted = granted;
-    permissions.value[index].denied = denied;
-  }
-};
+onMounted(async () => {
+  await checkPermissions();
+});
 
 const goToHelp = (permissionName: string) => {
   router.push({ path: '/help', query: { section: permissionName } });
 };
-
-onMounted(async () => {
-  // Check initial permission states
-  for (const permission of permissions.value) {
-    try {
-      let result;
-      if (Capacitor.isNativePlatform()) {
-        switch (permission.name) {
-          case 'location':
-            result = await Geolocation.checkPermissions();
-            updatePermissionStatus(
-              permission.name,
-              result.location === 'granted',
-              result.location === 'denied'
-            );
-            break;
-          case 'camera':
-            result = await Camera.checkPermissions();
-            updatePermissionStatus(
-              permission.name,
-              result.camera === 'granted',
-              result.camera === 'denied'
-            );
-            break;
-          case 'microphone':
-            result = await Plugins.Permissions.query({ name: 'microphone' });
-            updatePermissionStatus(
-              permission.name,
-              result.state === 'granted',
-              result.state === 'denied'
-            );
-            break;
-          case 'notifications':
-            result = await Plugins.PushNotifications.checkPermissions();
-            updatePermissionStatus(
-              permission.name,
-              result.receive === 'granted',
-              result.receive === 'denied'
-            );
-            break;
-        }
-      } else {
-        // Web API fallback
-        if (permission.name === 'location') {
-          result = await navigator.permissions.query({ name: 'geolocation' });
-          updatePermissionStatus(
-            permission.name,
-            result.state === 'granted',
-            result.state === 'denied'
-          );
-        } else if (permission.name === 'notifications') {
-          updatePermissionStatus(
-            permission.name,
-            Notification.permission === 'granted',
-            Notification.permission === 'denied'
-          );
-        } else {
-          try {
-            await navigator.mediaDevices.getUserMedia({
-              video: permission.name === 'camera',
-              audio: permission.name === 'microphone',
-            });
-            updatePermissionStatus(permission.name, true, false);
-          } catch {
-            updatePermissionStatus(permission.name, false, true);
-          }
-        }
-      }
-    } catch (error) {
-      console.error(`Error checking ${permission.name} permission:`, error);
-    }
-  }
-});
 </script>
 
 <style scoped>

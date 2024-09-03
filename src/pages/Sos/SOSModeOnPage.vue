@@ -106,10 +106,14 @@
         </div>
         <div class="col-12 col-md-12 q-px-md q-mt-lg">
           <h6 class="q-ma-none q-ml-xs">{{ $t('currentLocation') }}</h6>
-          <div>
+          <div v-if="isGettingLocation">
+            <q-spinner color="primary" size="2em" />
+            <span class="q-ml-sm">{{ $t('gettingLocation') }}</span>
+          </div>
+          <div v-else>
             <q-icon name="my_location" color="deep-orange" size="sm" />
             <span class="q-ml-sm" style="font-size: 20px">
-              {{ currentLocationName || $t('gettingLocation') }}
+              {{ currentLocationName || $t('locationNotAvailable') }}
             </span>
           </div>
           <p
@@ -134,7 +138,7 @@
           class="col-12 col-md-12 q-px-md q-mt-lg flex justify-center q-mb-lg"
         >
           <q-btn
-            @click="sendLocationUpdate('edit', 'active')"
+            @click="sendLocationUpdate('active')"
             style="width: 100%"
             class="primaryBackGroundColor text-white"
             ><b class="q-ml-xs q-my-md">{{
@@ -160,9 +164,9 @@ import { Geolocation } from '@capacitor/geolocation';
 import { Capacitor } from '@capacitor/core';
 import { Camera, CameraResultType } from '@capacitor/camera';
 import { Filesystem, Directory } from '@capacitor/filesystem';
-import { Microphone } from '@capacitor/microphone';
 import { Network } from '@capacitor/network';
 import { useUserForm } from 'src/composables/use-user-form';
+import { usePermissions } from 'src/composables/usePermissions';
 
 // import { SMS } from '@capacitor/sms';
 
@@ -194,132 +198,12 @@ const isGettingLocation = ref(false);
 const isLocationReceived = ref(false);
 const selectedThreat = ref('');
 
-const updateCurrentLocation = async (action = 'edit'): Promise<void> => {
-  isGettingLocation.value = true;
-  try {
-    let position;
-    if (Capacitor.isNativePlatform()) {
-      position = await Geolocation.getCurrentPosition({
-        enableHighAccuracy: true,
-        timeout: 10000,
-      });
-    } else {
-      position = await new Promise((resolve, reject) => {
-        navigator.geolocation.getCurrentPosition(resolve, reject, {
-          enableHighAccuracy: true,
-          timeout: 10000,
-        });
-      });
-    }
+const { permissions, checkPermissions, requestPermission, activatePermission } =
+  usePermissions();
 
-    currentLocation.value.latitude = position.coords.latitude;
-    currentLocation.value.longitude = position.coords.longitude;
-
-    currentLocationName.value = `Lat: ${position.coords.latitude.toFixed(
-      4
-    )}, Lon: ${position.coords.longitude.toFixed(4)}`;
-
-    isLocationReceived.value = true;
-
-    if (action == 'create') {
-      await sendLocationUpdate('create');
-    } else {
-      if (sosSent.value) {
-        await sendLocationUpdate('edit');
-      }
-    }
-  } catch (error) {
-    console.error('Error getting location', error);
-  } finally {
-    isGettingLocation.value = false;
-  }
-};
-
-const startRecording = async () => {
-  try {
-    if (Capacitor.isNativePlatform()) {
-      // For mobile platforms
-      const image = await Camera.getPhoto({
-        quality: 90,
-        allowEditing: false,
-        resultType: CameraResultType.Uri,
-      });
-
-      // Save the image file
-      const fileName = new Date().getTime() + '.jpeg';
-      await Filesystem.writeFile({
-        path: fileName,
-        data: image.path,
-        directory: Directory.Data,
-      });
-
-      console.log('Recording saved:', fileName);
-    } else {
-      // For web platform, use the existing implementation
-      audioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      videoStream = await navigator.mediaDevices.getUserMedia({ video: true });
-
-      const combinedStream = new MediaStream([
-        ...audioStream.getAudioTracks(),
-        ...videoStream.getVideoTracks(),
-      ]);
-
-      mediaRecorder = new MediaRecorder(combinedStream);
-      const chunks: Blob[] = [];
-
-      mediaRecorder.ondataavailable = (event) => {
-        if (event.data.size > 0) {
-          chunks.push(event.data);
-          // Here you would send the chunk for streaming
-          streamChunk(event.data);
-        }
-      };
-
-      mediaRecorder.onstop = () => {
-        const blob = new Blob(chunks, { type: 'video/webm' });
-        saveRecording(blob);
-      };
-
-      mediaRecorder.start(1000); // Capture in 1-second intervals
-    }
-
-    isRecording.value = true;
-  } catch (error) {
-    console.error('Failed to start recording:', error);
-  }
-};
-
-const stopRecording = () => {
-  if (mediaRecorder) {
-    mediaRecorder.stop();
-    isRecording.value = false;
-  }
-  if (audioStream) audioStream.getTracks().forEach((track) => track.stop());
-  if (videoStream) videoStream.getTracks().forEach((track) => track.stop());
-};
-
-const saveRecording = async (blob: Blob) => {
-  // Implement saving the recording locally
-  // This is a placeholder implementation
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.style.display = 'none';
-  a.href = url;
-  a.download = 'sos_recording.webm';
-  document.body.appendChild(a);
-  a.click();
-  URL.revokeObjectURL(url);
-};
-
-const streamChunk = (chunk: Blob) => {
-  // Implement your streaming logic here
-  // This could involve sending the chunk to a server using WebSockets or WebRTC
-  console.log('Streaming chunk:', chunk);
-};
-
-onMounted(() => {
+onMounted(async () => {
+  await checkPermissions();
   startCountdown();
-  // updateCurrentLocation('create');
   startLocationUpdates();
 });
 
@@ -361,8 +245,21 @@ const cancelSOS = async () => {
   }
 };
 
+const activateSOSPermissions = async () => {
+  const requiredPermissions = ['location', 'camera'];
+  for (const permissionName of requiredPermissions) {
+    const permission = permissions.value.find((p) => p.name === permissionName);
+    if (permission && !permission.granted) {
+      await requestPermission(permissionName);
+    }
+    await activatePermission(permissionName);
+  }
+};
+
 const confirmSOS = async (threatType?: string) => {
   try {
+    await activateSOSPermissions();
+
     // Start location update in the background
     updateCurrentLocation();
 
@@ -515,27 +412,63 @@ callbacks.onSuccess = (data) => {
   return data;
 };
 
-const sendLocationUpdate = async (action = 'edit', threat = 'active') => {
+const sendLocationUpdate = async (threat = 'active') => {
   try {
     values.value.status = threat;
     values.value.location = currentLocation.value;
     values.value.threat = selectedThreat.value;
     await validateAndSubmit();
-    // TODO: Implement actual API call to update location on the server
     console.log('Sending location update:', currentLocation.value);
-    // Example API call:
-    // await api.updateSOSLocation(currentLocation.value);
   } catch (error) {
     console.error('Failed to send location update:', error);
   }
 };
 
-// Add a watcher for isLocationReceived
+// Update the watcher
 watch(isLocationReceived, async (newValue) => {
   if (newValue && sosSent.value) {
-    await sendLocationUpdate('edit');
+    await sendLocationUpdate();
   }
 });
+
+const updateCurrentLocation = async (): Promise<void> => {
+  isGettingLocation.value = true;
+  currentLocationName.value = null; // Reset location name
+  try {
+    let position;
+    if (Capacitor.isNativePlatform()) {
+      position = await Geolocation.getCurrentPosition({
+        enableHighAccuracy: true,
+        timeout: 10000,
+      });
+    } else {
+      position = await new Promise((resolve, reject) => {
+        navigator.geolocation.getCurrentPosition(resolve, reject, {
+          enableHighAccuracy: true,
+          timeout: 10000,
+        });
+      });
+    }
+
+    currentLocation.value.latitude = position.coords.latitude;
+    currentLocation.value.longitude = position.coords.longitude;
+
+    currentLocationName.value = `Lat: ${position.coords.latitude.toFixed(
+      4
+    )}, Lon: ${position.coords.longitude.toFixed(4)}`;
+
+    isLocationReceived.value = true;
+
+    if (sosSent.value) {
+      await sendLocationUpdate();
+    }
+  } catch (error) {
+    console.error('Error getting location', error);
+    currentLocationName.value = null; // Ensure it's null if there's an error
+  } finally {
+    isGettingLocation.value = false;
+  }
+};
 </script>
 
 <style scoped></style>
