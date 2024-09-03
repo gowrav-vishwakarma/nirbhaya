@@ -194,6 +194,7 @@ const countdownDuration = 10; // seconds
 const timeLeft = ref(countdownDuration);
 let countdownInterval: number | null = null;
 const sosSent = ref(false);
+const isResolvingManually = ref(false);
 const notifiedPersons = ref(0);
 const acceptedPersons = ref(0);
 const createdSosId = ref(0);
@@ -230,6 +231,8 @@ onMounted(async () => {
 });
 
 const showResolveConfirmation = () => {
+  isResolvingManually.value = true;
+  console.log('showResolveConfirmation');
   const locationMessage = locationSentToServer.value
     ? 'Your location has been sent to the server.'
     : 'Your location has not been sent to the server yet.';
@@ -241,7 +244,7 @@ const showResolveConfirmation = () => {
       type: 'radio',
       model: 'close',
       items: [
-        { label: 'Close the SOS event', value: 'close' },
+        { label: 'Cancel the SOS event', value: 'cancel' },
         { label: 'Resolve the SOS event', value: 'resolve' },
         { label: 'Keep the SOS event active', value: 'keep' },
       ],
@@ -251,8 +254,8 @@ const showResolveConfirmation = () => {
   })
     .onOk(async (action) => {
       switch (action) {
-        case 'close':
-          await updateSOSData({ status: 'closed' });
+        case 'cancel':
+          await updateSOSData({ status: 'cancelled' });
           $q.notify({
             message: 'Your SOS event has been closed.',
             color: 'info',
@@ -284,14 +287,15 @@ const showResolveConfirmation = () => {
 };
 
 onUnmounted(async () => {
+  console.log('Unmounting SOSModeOnPage');
   if (countdownInterval) {
     clearInterval(countdownInterval);
   }
   await stopLocationWatching();
   await stopRecordingAndStreaming();
 
-  // Only show the confirmation if SOS has been sent
-  if (sosSent.value) {
+  // Only show the confirmation if SOS has been sent and not manually resolving
+  if (sosSent.value && !isResolvingManually.value) {
     showResolveConfirmation();
   }
 });
@@ -355,13 +359,13 @@ const updateSOSData = async (data: {
     // Always update all available values
     if (currentLocation.value.longitude && currentLocation.value.latitude) {
       values.value.location = currentLocation.value;
+      locationSentToServer.value = true; // Set this to true when data is successfully sent
     }
     if (data.status) values.value.status = data.status;
     if (data.threat) values.value.threat = data.threat;
 
     await validateAndSubmit();
     console.log('SOS data updated:', values.value);
-    locationSentToServer.value = true; // Set this to true when data is successfully sent
 
     if (!isLocationReceived.value) {
       updateCurrentLocation();
