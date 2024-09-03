@@ -26,12 +26,45 @@ register('/firebase-messaging-sw.js', {
     // console.log('Content has been cached for offline use.')
   },
 
-  updatefound(/* registration */) {
-    // console.log('New content is downloading.')
+  updatefound(registration) {
+    console.log('New content is downloading.');
+    Notify.create({
+      message: 'A new version is available',
+      caption: 'Please refresh to update.',
+      color: 'info',
+      actions: [
+        {
+          label: 'Refresh',
+          color: 'white',
+          handler: () => {
+            if (typeof window !== 'undefined') {
+              window.location.reload();
+            }
+          },
+        },
+      ],
+    });
   },
 
-  updated(/* registration */) {
-    // console.log('New content is available; please refresh.')
+  updated(registration) {
+    console.log('New content is available; please refresh.');
+    Notify.create({
+      message: 'App updated',
+      caption:
+        'New version is ready. Please refresh to use the latest version.',
+      color: 'positive',
+      actions: [
+        {
+          label: 'Refresh',
+          color: 'white',
+          handler: () => {
+            if (typeof window !== 'undefined') {
+              window.location.reload();
+            }
+          },
+        },
+      ],
+    });
   },
 
   offline() {
