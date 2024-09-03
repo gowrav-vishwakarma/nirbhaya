@@ -106,14 +106,10 @@
         </div>
         <div class="col-12 col-md-12 q-px-md q-mt-lg">
           <h6 class="q-ma-none q-ml-xs">{{ $t('currentLocation') }}</h6>
-          <div v-if="isGettingLocation">
-            <q-spinner color="primary" size="2em" />
-            <span class="q-ml-sm">{{ $t('gettingLocation') }}</span>
-          </div>
-          <div v-else>
+          <div>
             <q-icon name="my_location" color="deep-orange" size="sm" />
             <span class="q-ml-sm" style="font-size: 20px">
-              {{ currentLocationName || $t('locationNotAvailable') }}
+              {{ currentLocationName || $t('gettingLocation') }}
             </span>
           </div>
           <p
@@ -138,7 +134,7 @@
           class="col-12 col-md-12 q-px-md q-mt-lg flex justify-center q-mb-lg"
         >
           <q-btn
-            @click="sendLocationUpdate('active')"
+            @click="sendLocationUpdate('edit', 'active')"
             style="width: 100%"
             class="primaryBackGroundColor text-white"
             ><b class="q-ml-xs q-my-md">{{
@@ -191,8 +187,8 @@ let locationUpdateInterval: number | null = null;
 
 const isRecording = ref(false);
 let mediaRecorder: MediaRecorder | null = null;
-let audioStream: MediaStream | null = null;
-let videoStream: MediaStream | null = null;
+let recordedChunks: Blob[] = [];
+let mediaStream: MediaStream | null = null;
 
 const isGettingLocation = ref(false);
 const isLocationReceived = ref(false);
@@ -207,14 +203,14 @@ onMounted(async () => {
   startLocationUpdates();
 });
 
-onUnmounted(() => {
+onUnmounted(async () => {
   if (countdownInterval) {
     clearInterval(countdownInterval);
   }
   if (locationUpdateInterval) {
     clearInterval(locationUpdateInterval);
   }
-  stopRecording();
+  await stopAndDownloadRecording();
 });
 
 const startCountdown = () => {
@@ -412,7 +408,7 @@ callbacks.onSuccess = (data) => {
   return data;
 };
 
-const sendLocationUpdate = async (threat = 'active') => {
+const sendLocationUpdate = async (action = 'edit', threat = 'active') => {
   try {
     values.value.status = threat;
     values.value.location = currentLocation.value;
@@ -431,7 +427,7 @@ watch(isLocationReceived, async (newValue) => {
   }
 });
 
-const updateCurrentLocation = async (): Promise<void> => {
+const updateCurrentLocation = async (action = 'edit'): Promise<void> => {
   isGettingLocation.value = true;
   currentLocationName.value = null; // Reset location name
   try {
@@ -459,8 +455,12 @@ const updateCurrentLocation = async (): Promise<void> => {
 
     isLocationReceived.value = true;
 
-    if (sosSent.value) {
-      await sendLocationUpdate();
+    if (action == 'create') {
+      await sendLocationUpdate('create');
+    } else {
+      if (sosSent.value) {
+        await sendLocationUpdate('edit');
+      }
     }
   } catch (error) {
     console.error('Error getting location', error);
@@ -468,6 +468,89 @@ const updateCurrentLocation = async (): Promise<void> => {
   } finally {
     isGettingLocation.value = false;
   }
+};
+
+const startRecording = async () => {
+  try {
+    mediaStream = await navigator.mediaDevices.getUserMedia({
+      video: true,
+      audio: true,
+    });
+    mediaRecorder = new MediaRecorder(mediaStream);
+    recordedChunks = [];
+
+    mediaRecorder.ondataavailable = (event) => {
+      if (event.data.size > 0) {
+        recordedChunks.push(event.data);
+      }
+    };
+
+    mediaRecorder.start(1000); // Capture in 1-second intervals
+    isRecording.value = true;
+  } catch (error) {
+    console.error('Failed to start recording:', error);
+  }
+};
+
+const stopAndDownloadRecording = async () => {
+  if (mediaRecorder && isRecording.value) {
+    mediaRecorder.stop();
+    isRecording.value = false;
+
+    // Wait for the last chunk to be added
+    await new Promise((resolve) => (mediaRecorder!.onstop = resolve));
+
+    const videoBlob = new Blob(recordedChunks, { type: 'video/webm' });
+    await saveRecording(videoBlob);
+
+    // Stop all tracks
+    if (mediaStream) {
+      mediaStream.getTracks().forEach((track) => track.stop());
+    }
+  }
+};
+
+const saveRecording = async (videoBlob: Blob) => {
+  try {
+    if (videoBlob.size === 0) {
+      console.error('Video blob is empty');
+      return;
+    }
+
+    const fileName = `sos_recording_${Date.now()}.webm`;
+    const file = new File([videoBlob], fileName, { type: 'video/webm' });
+
+    if (Capacitor.isNativePlatform()) {
+      const base64Data = await blobToBase64(file);
+      await Filesystem.writeFile({
+        path: fileName,
+        data: base64Data,
+        directory: Directory.Documents,
+      });
+      console.log('Recording saved to device:', fileName);
+    } else {
+      const url = URL.createObjectURL(file);
+      const a = document.createElement('a');
+      a.style.display = 'none';
+      a.href = url;
+      a.download = fileName;
+      document.body.appendChild(a);
+      a.click();
+      URL.revokeObjectURL(url);
+      console.log('Recording downloaded in browser:', fileName);
+    }
+  } catch (error) {
+    console.error('Failed to save recording:', error);
+  }
+};
+
+const blobToBase64 = (blob: Blob): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onloadend = () => resolve(reader.result as string);
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
 };
 </script>
 
