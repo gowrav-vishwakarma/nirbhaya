@@ -443,7 +443,7 @@ const stopLocationWatching = async () => {
 };
 
 const { values, validateAndSubmit, errors, callbacks, isLoading, updateUrl } =
-  useUserForm('auth/sos-location-crud', {
+  useUserForm('auth/sos-update', {
     location: '',
     status: '',
     threat: '',
