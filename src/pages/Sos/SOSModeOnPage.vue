@@ -153,7 +153,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted, onUnmounted, watch } from 'vue';
+import { ref, onMounted, onUnmounted, watch, computed } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import {
@@ -167,6 +167,7 @@ import { Filesystem, Directory } from '@capacitor/filesystem';
 import { Network } from '@capacitor/network';
 import { useUserForm } from 'src/composables/use-user-form';
 import { usePermissions } from 'src/composables/usePermissions';
+import { io } from 'socket.io-client';
 
 // import { SMS } from '@capacitor/sms';
 
@@ -190,9 +191,10 @@ const currentLocationName = ref('');
 let watchId: string | null = null;
 
 const isRecording = ref(false);
+const socket = io(process.env.API_BASE_URL);
 let mediaRecorder: MediaRecorder | null = null;
-let recordedChunks: Blob[] = [];
 let mediaStream: MediaStream | null = null;
+let recordedChunks: Blob[] = [];
 
 const isGettingLocation = ref(false);
 const isLocationReceived = ref(false);
@@ -200,6 +202,8 @@ const selectedThreat = ref('');
 
 const { permissions, checkPermissions, requestPermission, activatePermission } =
   usePermissions();
+
+const shouldStream = computed(() => process.env.STREAM_SAVE === 'true');
 
 onMounted(async () => {
   await checkPermissions();
@@ -212,7 +216,7 @@ onUnmounted(async () => {
     clearInterval(countdownInterval);
   }
   await stopLocationWatching();
-  await stopAndDownloadRecording();
+  await stopRecordingAndStreaming();
 });
 
 const startCountdown = () => {
@@ -274,7 +278,7 @@ const confirmSOS = async (threatType?: string) => {
     if (countdownInterval) {
       clearInterval(countdownInterval);
     }
-    startRecording();
+    startRecordingAndStreaming();
   } catch (error) {
     console.error('Failed to confirm SOS request:', error);
     // TODO: Show error message to user
@@ -484,58 +488,58 @@ const updateCurrentLocation = async (action = 'edit'): Promise<void> => {
   }
 };
 
-const startRecording = async () => {
+const startRecordingAndStreaming = async () => {
   try {
     mediaStream = await navigator.mediaDevices.getUserMedia({
       video: true,
       audio: true,
     });
-    mediaRecorder = new MediaRecorder(mediaStream);
-    recordedChunks = [];
+    mediaRecorder = new MediaRecorder(mediaStream, {
+      mimeType: 'video/webm;codecs=vp9,opus',
+    });
 
     mediaRecorder.ondataavailable = (event) => {
       if (event.data.size > 0) {
         recordedChunks.push(event.data);
+        if (shouldStream.value) {
+          socket.emit('stream-chunk', event.data);
+        }
       }
     };
 
-    mediaRecorder.start(1000); // Capture in 1-second intervals
+    mediaRecorder.start(1000); // Capture data every second
     isRecording.value = true;
   } catch (error) {
     console.error('Failed to start recording:', error);
   }
 };
 
-const stopAndDownloadRecording = async () => {
+const stopRecordingAndStreaming = async () => {
   if (mediaRecorder && isRecording.value) {
     mediaRecorder.stop();
     isRecording.value = false;
 
-    // Wait for the last chunk to be added
-    await new Promise((resolve) => (mediaRecorder!.onstop = resolve));
-
-    const videoBlob = new Blob(recordedChunks, { type: 'video/webm' });
-    await saveRecording(videoBlob);
+    if (shouldStream.value) {
+      socket.emit('end-stream');
+    }
 
     // Stop all tracks
     if (mediaStream) {
       mediaStream.getTracks().forEach((track) => track.stop());
     }
+
+    // Save the recorded video locally
+    await saveRecording();
   }
 };
 
-const saveRecording = async (videoBlob: Blob) => {
+const saveRecording = async () => {
   try {
-    if (videoBlob.size === 0) {
-      console.error('Video blob is empty');
-      return;
-    }
-
+    const videoBlob = new Blob(recordedChunks, { type: 'video/webm' });
     const fileName = `sos_recording_${Date.now()}.webm`;
-    const file = new File([videoBlob], fileName, { type: 'video/webm' });
 
     if (Capacitor.isNativePlatform()) {
-      const base64Data = await blobToBase64(file);
+      const base64Data = await blobToBase64(videoBlob);
       await Filesystem.writeFile({
         path: fileName,
         data: base64Data,
@@ -543,7 +547,7 @@ const saveRecording = async (videoBlob: Blob) => {
       });
       console.log('Recording saved to device:', fileName);
     } else {
-      const url = URL.createObjectURL(file);
+      const url = URL.createObjectURL(videoBlob);
       const a = document.createElement('a');
       a.style.display = 'none';
       a.href = url;
