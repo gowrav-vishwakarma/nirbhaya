@@ -142,6 +142,10 @@
             }}</b></q-btn
           >
         </div>
+        <div>
+          <!-- work o staging only -->
+          <q-btn color="red" :label="$t('cancelSOS')" @click="cancelSOS" />
+        </div>
 
         <div v-if="isGettingLocation" class="text-center q-mt-md">
           <q-spinner color="primary" size="3em" />
@@ -218,6 +222,7 @@ onUnmounted(async () => {
   }
   await stopLocationWatching();
   await stopRecordingAndStreaming();
+  await updateSOSData({ status: 'resolved' });
 });
 
 const startCountdown = () => {
@@ -300,6 +305,7 @@ const handleThreatButtonClick = (threatType: string) => {
 
 const sendCancelSOSRequest = async () => {
   // TODO: Implement actual API call
+  await updateSOSData({ status: 'cancelled' });
   console.log('Sending cancel SOS request');
 };
 
