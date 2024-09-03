@@ -142,9 +142,19 @@
             }}</b></q-btn
           >
         </div>
-        <div>
-          <!-- work o staging only -->
-          <q-btn color="red" :label="$t('cancelSOS')" @click="cancelSOS" />
+
+        <div
+          v-if="sosSent"
+          class="col-12 col-md-12 q-px-md q-mt-lg flex justify-center q-mb-lg"
+        >
+          <q-btn
+            @click="showResolveConfirmation"
+            style="width: 100%"
+            color="positive"
+            class="q-mb-md"
+          >
+            <b class="q-ml-xs q-my-md">{{ $t('resolveSOSIssue') }}</b>
+          </q-btn>
         </div>
 
         <div v-if="isGettingLocation" class="text-center q-mt-md">
@@ -172,12 +182,13 @@ import { Network } from '@capacitor/network';
 import { useUserForm } from 'src/composables/use-user-form';
 import { usePermissions } from 'src/composables/usePermissions';
 import { io } from 'socket.io-client';
-
+import { useQuasar } from 'quasar';
 // import { SMS } from '@capacitor/sms';
 
 const router = useRouter();
 const route = useRoute();
 const { t } = useI18n();
+const $q = useQuasar();
 
 const countdownDuration = 10; // seconds
 const timeLeft = ref(countdownDuration);
@@ -209,6 +220,8 @@ const { permissions, checkPermissions, requestPermission, activatePermission } =
 
 const shouldStream = computed(() => process.env.STREAM_SAVE === 'true');
 
+const locationSentToServer = ref(false);
+
 onMounted(async () => {
   await checkPermissions();
   await activateSOSPermissions();
@@ -216,13 +229,71 @@ onMounted(async () => {
   await startLocationWatching();
 });
 
+const showResolveConfirmation = () => {
+  const locationMessage = locationSentToServer.value
+    ? 'Your location has been sent to the server.'
+    : 'Your location has not been sent to the server yet.';
+
+  $q.dialog({
+    title: 'SOS Event Options',
+    message: `What would you like to do with your SOS event? ${locationMessage}`,
+    options: {
+      type: 'radio',
+      model: 'close',
+      items: [
+        { label: 'Close the SOS event', value: 'close' },
+        { label: 'Resolve the SOS event', value: 'resolve' },
+        { label: 'Keep the SOS event active', value: 'keep' },
+      ],
+    },
+    cancel: true,
+    persistent: true,
+  })
+    .onOk(async (action) => {
+      switch (action) {
+        case 'close':
+          await updateSOSData({ status: 'closed' });
+          $q.notify({
+            message: 'Your SOS event has been closed.',
+            color: 'info',
+          });
+          router.push('/dashboard');
+          break;
+        case 'resolve':
+          await updateSOSData({ status: 'resolved' });
+          $q.notify({
+            message: 'Your SOS event has been resolved.',
+            color: 'positive',
+          });
+          router.push('/dashboard');
+          break;
+        case 'keep':
+          $q.notify({
+            message: 'Your SOS event remains active.',
+            color: 'warning',
+          });
+          break;
+      }
+    })
+    .onCancel(() => {
+      $q.notify({
+        message: 'Action cancelled. Your SOS event remains active.',
+        color: 'warning',
+      });
+    });
+};
+
 onUnmounted(async () => {
   if (countdownInterval) {
     clearInterval(countdownInterval);
   }
   await stopLocationWatching();
   await stopRecordingAndStreaming();
-  await updateSOSData({ status: 'resolved' });
+
+  // Only show the confirmation if SOS has been sent
+  if (sosSent.value) {
+    showResolveConfirmation();
+  }
 });
 
 const startCountdown = () => {
@@ -290,6 +361,7 @@ const updateSOSData = async (data: {
 
     await validateAndSubmit();
     console.log('SOS data updated:', values.value);
+    locationSentToServer.value = true; // Set this to true when data is successfully sent
 
     if (!isLocationReceived.value) {
       updateCurrentLocation();
