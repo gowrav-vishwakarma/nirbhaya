@@ -490,32 +490,83 @@ const updateCurrentLocation = async (action = 'edit'): Promise<void> => {
 
 const startRecordingAndStreaming = async () => {
   try {
-    mediaStream = await navigator.mediaDevices.getUserMedia({
-      video: true,
-      audio: true,
-    });
-    mediaRecorder = new MediaRecorder(mediaStream, {
-      mimeType: 'video/webm;codecs=vp9,opus',
-    });
+    if (Capacitor.isNativePlatform()) {
+      // For mobile platforms (iOS and Android)
+      const image = await Camera.getPhoto({
+        quality: 90,
+        allowEditing: false,
+        resultType: CameraResultType.Uri,
+      });
 
-    mediaRecorder.ondataavailable = (event) => {
-      if (event.data.size > 0) {
-        recordedChunks.push(event.data);
-        if (shouldStream.value) {
-          socket.emit('stream-chunk', event.data);
+      // Save the image file
+      const fileName = `sos_image_${Date.now()}.jpeg`;
+      await Filesystem.writeFile({
+        path: fileName,
+        data: image.path!,
+        directory: Directory.Data,
+      });
+
+      console.log('Image saved:', fileName);
+      isRecording.value = true;
+    } else {
+      // For web platform (PWA mode)
+      if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        mediaStream = await navigator.mediaDevices.getUserMedia({
+          video: true,
+          audio: true,
+        });
+
+        // Try to use a more widely supported format
+        const mimeType = getSupportedMimeType([
+          'video/webm',
+          'video/mp4',
+          'video/x-matroska',
+          'video/quicktime',
+        ]);
+
+        if (!mimeType) {
+          throw new Error('No supported mime type found for video recording');
         }
-      }
-    };
 
-    mediaRecorder.start(1000); // Capture data every second
-    isRecording.value = true;
+        mediaRecorder = new MediaRecorder(mediaStream, { mimeType });
+
+        mediaRecorder.ondataavailable = (event) => {
+          if (event.data.size > 0) {
+            recordedChunks.push(event.data);
+            if (shouldStream.value) {
+              socket.emit('stream-chunk', event.data);
+            }
+          }
+        };
+
+        mediaRecorder.start(1000); // Capture data every second
+        isRecording.value = true;
+      } else {
+        throw new Error('Media Devices API not available');
+      }
+    }
   } catch (error) {
     console.error('Failed to start recording:', error);
+    // You might want to show a user-friendly error message here
   }
 };
 
+// Helper function to get supported MIME type
+const getSupportedMimeType = (types: string[]): string | null => {
+  for (const type of types) {
+    if (MediaRecorder.isTypeSupported(type)) {
+      return type;
+    }
+  }
+  return null;
+};
+
 const stopRecordingAndStreaming = async () => {
-  if (mediaRecorder && isRecording.value) {
+  if (Capacitor.isNativePlatform()) {
+    isRecording.value = false;
+    // For mobile platforms, we don't need to do anything here
+    // as we've already saved the image in startRecordingAndStreaming
+  } else if (mediaRecorder && isRecording.value) {
     mediaRecorder.stop();
     isRecording.value = false;
 
@@ -534,19 +585,13 @@ const stopRecordingAndStreaming = async () => {
 };
 
 const saveRecording = async () => {
-  try {
-    const videoBlob = new Blob(recordedChunks, { type: 'video/webm' });
-    const fileName = `sos_recording_${Date.now()}.webm`;
+  if (!Capacitor.isNativePlatform() && mediaRecorder) {
+    try {
+      const mimeType = mediaRecorder.mimeType;
+      const fileExtension = mimeType.split('/')[1].split(';')[0];
+      const videoBlob = new Blob(recordedChunks, { type: mimeType });
+      const fileName = `sos_recording_${Date.now()}.${fileExtension}`;
 
-    if (Capacitor.isNativePlatform()) {
-      const base64Data = await blobToBase64(videoBlob);
-      await Filesystem.writeFile({
-        path: fileName,
-        data: base64Data,
-        directory: Directory.Documents,
-      });
-      console.log('Recording saved to device:', fileName);
-    } else {
       const url = URL.createObjectURL(videoBlob);
       const a = document.createElement('a');
       a.style.display = 'none';
@@ -556,9 +601,9 @@ const saveRecording = async () => {
       a.click();
       URL.revokeObjectURL(url);
       console.log('Recording downloaded in browser:', fileName);
+    } catch (error) {
+      console.error('Failed to save recording:', error);
     }
-  } catch (error) {
-    console.error('Failed to save recording:', error);
   }
 };
 

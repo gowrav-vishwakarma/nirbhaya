@@ -118,16 +118,30 @@ export function usePermissions() {
         // Web API fallback
         switch (permissionName) {
           case 'location':
-            result = await navigator.permissions.query({ name: 'geolocation' });
+            if (navigator.permissions && navigator.permissions.query) {
+              result = await navigator.permissions.query({
+                name: 'geolocation',
+              });
+            } else {
+              throw new Error('Geolocation API not available');
+            }
             break;
           case 'camera':
-            result = await navigator.mediaDevices.getUserMedia({
-              video: true,
-              audio: true, // Request audio along with video
-            });
+            if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+              result = await navigator.mediaDevices.getUserMedia({
+                video: true,
+                audio: true, // Request audio along with video
+              });
+            } else {
+              throw new Error('Media Devices API not available');
+            }
             break;
           case 'notifications':
-            result = await Notification.requestPermission();
+            if ('Notification' in window) {
+              result = await Notification.requestPermission();
+            } else {
+              throw new Error('Notifications API not available');
+            }
             break;
         }
       }
@@ -166,19 +180,30 @@ export function usePermissions() {
         // Web API fallback
         switch (permissionName) {
           case 'location':
-            await navigator.geolocation.watchPosition(() => {
-              console.log('Location permission activated');
-            });
+            if (navigator.geolocation) {
+              await navigator.geolocation.watchPosition(() => {
+                console.log('Location permission activated');
+              });
+            } else {
+              throw new Error('Geolocation API not available');
+            }
             break;
           case 'camera':
-            // For web, request both video and audio
-            await navigator.mediaDevices.getUserMedia({
-              video: true,
-              audio: true,
-            });
+            if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+              await navigator.mediaDevices.getUserMedia({
+                video: true,
+                audio: true,
+              });
+            } else {
+              throw new Error('Media Devices API not available');
+            }
             break;
           case 'notifications':
-            await Notification.requestPermission();
+            if ('Notification' in window) {
+              await Notification.requestPermission();
+            } else {
+              throw new Error('Notifications API not available');
+            }
             break;
         }
       }
