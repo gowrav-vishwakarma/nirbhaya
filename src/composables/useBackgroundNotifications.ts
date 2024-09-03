@@ -2,6 +2,9 @@ import { ref, onMounted, onUnmounted } from 'vue';
 import { api } from 'boot/axios';
 import { Capacitor } from '@capacitor/core';
 import { BackgroundRunner } from '@capacitor/background-runner';
+import { useUserStore } from 'src/stores/user-store';
+
+const userStore = useUserStore();
 
 export function useBackgroundNotifications() {
   const unreadNotificationCount = ref(0);
@@ -51,8 +54,10 @@ export function useBackgroundNotifications() {
   };
 
   onMounted(() => {
-    startNotificationCountRefresh();
-    setupBackgroundRunner();
+    if (userStore.user) {
+      startNotificationCountRefresh();
+      setupBackgroundRunner();
+    }
   });
 
   onUnmounted(() => {

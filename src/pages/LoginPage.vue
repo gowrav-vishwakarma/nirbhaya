@@ -4,9 +4,12 @@
     <div class="auth-container flex flex-center">
       <q-card class="q-pa-md admin-login-card">
         <q-card-section class="q-pb-none">
-          <div class="text-h6 text-center">Login</div>
+          <div class="text-h6 text-center">{{ $t('login') }}</div>
         </q-card-section>
         <q-card-section>
+          <!-- Add LanguageSelector here -->
+          <LanguageSelector class="q-mb-md" />
+
           <q-form @submit="handleSubmit">
             <q-input
               filled
@@ -50,6 +53,7 @@ import { useRouter } from 'vue-router';
 import { useForm } from 'src/qnatk/composibles/use-form';
 import { api } from 'src/boot/axios';
 import { Notify } from 'quasar';
+import LanguageSelector from 'src/components/LanguageSelector.vue';
 
 const userStore = useUserStore();
 const router = useRouter();
@@ -127,6 +131,7 @@ callbacks.onError = (error) => {
   max-width: 400px;
   width: 80%;
   margin: 0 auto;
+  padding: 20px; // Add some padding to give more space for the language selector
 }
 .container {
   position: relative;

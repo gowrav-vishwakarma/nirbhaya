@@ -12,21 +12,12 @@
         width: 100%;
         overflow-y: auto;
       "
+      v-if="userStore?.user"
     >
       <div class="row q-pa-md">
         <!-- Language switcher -->
         <div class="col-12 q-mb-md">
-          <h6 class="q-ma-none q-ml-xs">{{ $t('language') }}</h6>
-          <q-select
-            v-model="languageStore.currentLanguage"
-            :options="languageOptions"
-            outlined
-            emit-value
-            map-options
-            @update:model-value="languageStore.setLanguage"
-            class="q-mt-sm"
-            style="border-radius: 20px"
-          />
+          <LanguageSelector />
         </div>
 
         <!-- Basic profile information -->
@@ -113,7 +104,7 @@
             />
           </div>
           <q-btn
-            v-if="values.emergencyContacts.length < 3"
+            v-if="values.emergencyContacts?.length < 3"
             @click="addEmergencyContact"
             class="q-mt-sm primaryBackGroundColor text-white"
             icon="add_circle"
@@ -240,6 +231,13 @@
             <b class="q-ml-xs q-my-md">{{ $t('saveChanges') }}</b>
           </q-btn>
         </div>
+
+        <!-- Logout button -->
+        <div class="col-12 q-mt-md">
+          <q-btn @click="logout" style="width: 100%" class="bg-red text-white">
+            <b class="q-ml-xs q-my-md">{{ $t('logout') }}</b>
+          </q-btn>
+        </div>
       </div>
     </q-card>
   </q-page>
@@ -256,21 +254,27 @@ import { useQuasar } from 'quasar';
 import { api } from 'src/boot/axios';
 import { useForm } from 'src/qnatk/composibles/use-form';
 import { useUserStore } from 'src/stores/user-store';
+import { useRouter } from 'vue-router';
+import LanguageSelector from 'src/components/LanguageSelector.vue';
 
 const { t } = useI18n();
 const languageStore = useLanguageStore();
 const $q = useQuasar();
-
+const router = useRouter();
 const userStore = useUserStore();
 
-const languageOptions = computed(() =>
-  languageStore.availableLanguages.map((lang) => ({
-    value: lang,
-    label: t(`languages.${lang}`),
-  }))
-);
+// Add this block to check user authentication
+onMounted(() => {
+  if (!userStore.isLoggedIn) {
+    router.push('/login');
+    $q.notify({
+      color: 'warning',
+      message: t('pleaseLoginFirst'),
+      icon: 'warning',
+    });
+  }
+});
 
-// Add userTypeOptions
 const userTypeOptions = [
   'Girl',
   'Child',
@@ -287,13 +291,13 @@ const {
   validateAndSubmit: updateProfileValidateAndSubmit,
   callbacks: updateProfileCallbacks,
 } = useForm(api, 'auth/user-profile-update', {
-  name: userStore.user.name,
-  phoneNumber: userStore.user.phoneNumber,
-  city: userStore.user.city,
-  userType: userStore.user.userType, // Add this line
-  emergencyContacts: userStore.user.emergencyContacts,
-  locations: userStore.user.locations,
-  liveSosEventChecking: userStore.user.liveSosEventChecking,
+  name: userStore?.user?.name,
+  phoneNumber: userStore?.user?.phoneNumber,
+  city: userStore?.user?.city,
+  userType: userStore?.user?.userType, // Add this line
+  emergencyContacts: userStore?.user?.emergencyContacts,
+  locations: userStore?.user?.locations,
+  liveSosEventChecking: userStore?.user?.liveSosEventChecking,
 });
 
 const permissions = ref([
@@ -582,6 +586,25 @@ const getLocationHint = (location: {
 
 const saveChanges = async () => {
   await updateProfileValidateAndSubmit(false);
+};
+
+const logout = async () => {
+  try {
+    userStore.clearUser();
+    router.push('/login');
+    $q.notify({
+      color: 'positive',
+      message: t('logoutSuccess'),
+      icon: 'check',
+    });
+  } catch (error) {
+    console.error('Error logging out', error);
+    $q.notify({
+      color: 'negative',
+      message: t('logoutError'),
+      icon: 'error',
+    });
+  }
 };
 
 // You can add more custom logic or error handling as needed
