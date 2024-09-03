@@ -161,6 +161,20 @@
           <q-spinner color="primary" size="3em" />
           <p>{{ $t('gettingLocation') }}</p>
         </div>
+
+        <div
+          v-if="sosSent"
+          class="col-12 col-md-12 q-px-md q-mt-md text-center"
+        >
+          <q-btn
+            round
+            size="xl"
+            :color="isAudioOpen ? 'primary' : 'grey'"
+            icon="mic"
+            @click="toggleAudio"
+          />
+          <p>{{ isAudioOpen ? 'Audio Open' : 'Click to Open Audio' }}</p>
+        </div>
       </div>
     </q-card>
   </q-page>
@@ -181,9 +195,9 @@ import { Filesystem, Directory } from '@capacitor/filesystem';
 import { Network } from '@capacitor/network';
 import { useUserForm } from 'src/composables/use-user-form';
 import { usePermissions } from 'src/composables/usePermissions';
-import { io } from 'socket.io-client';
 import { useQuasar } from 'quasar';
-// import { SMS } from '@capacitor/sms';
+import { VoiceRecorder } from 'capacitor-voice-recorder';
+import { socket } from 'boot/socket';
 
 const router = useRouter();
 const route = useRoute();
@@ -207,11 +221,6 @@ const currentLocationName = ref('');
 let watchId: string | null = null;
 
 const isRecording = ref(false);
-const socket = io(process.env.API_BASE_URL);
-let mediaRecorder: MediaRecorder | null = null;
-let mediaStream: MediaStream | null = null;
-let recordedChunks: Blob[] = [];
-
 const isGettingLocation = ref(false);
 const isLocationReceived = ref(false);
 const selectedThreat = ref('');
@@ -223,11 +232,16 @@ const shouldStream = computed(() => process.env.STREAM_SAVE === 'true');
 
 const locationSentToServer = ref(false);
 
+const isAudioOpen = ref(false);
+
+const peerConnection = ref<RTCPeerConnection | null>(null);
+
 onMounted(async () => {
   await checkPermissions();
   await activateSOSPermissions();
   startCountdown();
   await startLocationWatching();
+  initializeWebSocket();
 });
 
 const showResolveConfirmation = () => {
@@ -293,6 +307,8 @@ onUnmounted(async () => {
   }
   await stopLocationWatching();
   await stopRecordingAndStreaming();
+  closeWebSocket();
+  closePeerConnection();
 
   // Only show the confirmation if SOS has been sent and not manually resolving
   if (sosSent.value && !isResolvingManually.value) {
@@ -663,6 +679,118 @@ const blobToBase64 = (blob: Blob): Promise<string> => {
     reader.onerror = reject;
     reader.readAsDataURL(blob);
   });
+};
+
+const initializeWebSocket = () => {
+  if (socket) {
+    socket.on('webrtc_signal', handleWebRTCSignal);
+  }
+};
+
+const closeWebSocket = () => {
+  if (socket) {
+    socket.off('webrtc_signal', handleWebRTCSignal);
+  }
+};
+
+const toggleAudio = async () => {
+  if (Capacitor.isNativePlatform()) {
+    await toggleNativeAudio();
+  } else {
+    await toggleWebAudio();
+  }
+  isAudioOpen.value = !isAudioOpen.value;
+};
+
+const toggleNativeAudio = async () => {
+  if (isAudioOpen.value) {
+    await VoiceRecorder.stopRecording();
+  } else {
+    await VoiceRecorder.startRecording();
+    VoiceRecorder.addListener('recordingData', handleRecordingData);
+  }
+};
+
+const toggleWebAudio = async () => {
+  if (isAudioOpen.value) {
+    closePeerConnection();
+    console.log('Web audio closed');
+  } else {
+    await createPeerConnection();
+    console.log('Web audio opened');
+  }
+  isAudioOpen.value = !isAudioOpen.value;
+};
+
+const createPeerConnection = async () => {
+  peerConnection.value = new RTCPeerConnection();
+  console.log('Peer connection created');
+
+  const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+  console.log('Got user media stream');
+
+  stream.getTracks().forEach((track) => {
+    peerConnection.value!.addTrack(track, stream);
+    console.log('Added track to peer connection:', track.kind);
+  });
+
+  peerConnection.value.onicecandidate = (event) => {
+    if (event.candidate && socket) {
+      console.log('Sending ICE candidate:', event.candidate);
+      socket.emit('webrtc_signal', {
+        sosEventId: createdSosId.value,
+        signal: { type: 'ice_candidate', candidate: event.candidate },
+      });
+    }
+  };
+
+  const offer = await peerConnection.value.createOffer();
+  await peerConnection.value.setLocalDescription(offer);
+  console.log('Created and set local description');
+
+  if (socket) {
+    console.log('Sending offer:', offer);
+    socket.emit('webrtc_signal', {
+      sosEventId: createdSosId.value,
+      signal: { type: 'offer', sdp: offer },
+    });
+  }
+};
+
+const handleRecordingData = (data: { value: { recordDataBase64: string } }) => {
+  if (socket) {
+    socket.emit('audio_data', {
+      sosEventId: createdSosId.value,
+      audioData: data.value.recordDataBase64,
+    });
+  }
+};
+
+const handleWebRTCSignal = async (data: {
+  type: string;
+  sdp?: RTCSessionDescriptionInit;
+  candidate?: RTCIceCandidate;
+}) => {
+  if (!peerConnection.value) {
+    peerConnection.value = new RTCPeerConnection();
+  }
+
+  if (data.type === 'answer' && data.sdp) {
+    await peerConnection.value.setRemoteDescription(
+      new RTCSessionDescription(data.sdp)
+    );
+  } else if (data.type === 'ice_candidate' && data.candidate) {
+    await peerConnection.value.addIceCandidate(
+      new RTCIceCandidate(data.candidate)
+    );
+  }
+};
+
+const closePeerConnection = () => {
+  if (peerConnection.value) {
+    peerConnection.value.close();
+    peerConnection.value = null;
+  }
 };
 </script>
 
