@@ -1,6 +1,6 @@
 <template>
   <q-page padding>
-    <h1 class="text-h4 q-mb-md">Notifications</h1>
+    <h1 class="text-h4 q-mb-md">{{ $t('notifications') }}</h1>
     <q-list v-if="responseData.length > 0" bordered separator>
       <q-item
         v-for="notification in responseData"
@@ -15,22 +15,25 @@
             {{ formatDate(notification.createdAt) }}
           </q-item-label>
           <q-item-label v-if="notification.sosEvent" caption>
-            Status: {{ notification.sosEvent.status }}
+            {{ $t('status') }}:
+            {{ $t(`sosStatus.${notification.sosEvent.status}`) }}
             <template v-if="notification.sosEvent.location">
-              | Location: {{ formatLocation(notification.sosEvent.location) }}
+              | {{ $t('location') }}:
+              {{ formatLocation(notification.sosEvent.location) }}
             </template>
           </q-item-label>
           <q-item-label
             v-if="notification.sosEvent && notification.sosEvent.threat"
             caption
           >
-            Threat: {{ notification.sosEvent.threat }}
+            {{ $t('threat') }}:
+            {{ $t(`threatTypes.${notification.sosEvent.threat}`) }}
           </q-item-label>
         </q-item-section>
         <q-item-section side v-if="notification.status === 'sent'">
           <q-btn
             color="primary"
-            label="Accept"
+            :label="$t('accept')"
             @click="acceptNotification(notification.id)"
           />
         </q-item-section>
@@ -38,13 +41,13 @@
           <q-btn-group spread>
             <q-btn
               color="secondary"
-              label="Follow"
+              :label="$t('follow')"
               @click="followLocation(notification.sosEvent.location)"
             />
             <q-btn
               round
               color="primary"
-              icon="mic"
+              :icon="$t('icons.mic')"
               @click="connectAudio(notification.sosEvent.id)"
             />
           </q-btn-group>
@@ -54,12 +57,12 @@
             :color="getStatusColor(notification.status)"
             text-color="white"
           >
-            {{ notification.status }}
+            {{ $t(`notificationStatus.${notification.status}`) }}
           </q-chip>
         </q-item-section>
       </q-item>
     </q-list>
-    <p v-else>No notifications found.</p>
+    <p v-else>{{ $t('noNotificationsFound') }}</p>
   </q-page>
 </template>
 
@@ -73,6 +76,7 @@ import { Capacitor } from '@capacitor/core';
 import { VoiceRecorder } from 'capacitor-voice-recorder';
 import { io, Socket } from 'socket.io-client';
 import { socket } from 'boot/socket';
+import { useI18n } from 'vue-i18n';
 
 interface SosEvent {
   id: number;
@@ -113,6 +117,8 @@ const peerConnection = ref<RTCPeerConnection | null>(null);
 const audioContext = ref<AudioContext | null>(null);
 const audioSource = ref<AudioBufferSourceNode | null>(null);
 
+const { t } = useI18n();
+
 onMounted(async () => {
   await validateAndSubmit(false);
   initializeWebSocket();
@@ -144,9 +150,13 @@ const formatLocation = (location: { type: string; coordinates: number[] }) => {
 const getNotificationTitle = (notification: Notification) => {
   const eventType = notification.sosEvent?.threat || 'SOS';
   if (notification.recipientType === 'volunteer') {
-    return `Nearby ${eventType} alert`;
+    return t('notificationTitles.volunteerNearby', {
+      eventType: t(`threatTypes.${eventType}`),
+    });
   } else {
-    return `Emergency contact ${eventType} alert`;
+    return t('notificationTitles.emergencyContact', {
+      eventType: t(`threatTypes.${eventType}`),
+    });
   }
 };
 
@@ -174,7 +184,7 @@ const acceptNotification = async (notificationId: number) => {
     }
     $q.notify({
       color: 'positive',
-      message: 'Notification accepted successfully',
+      message: t('notificationAcceptedSuccess'),
       icon: 'check',
     });
     await fetchUnreadNotificationCount();
@@ -182,7 +192,7 @@ const acceptNotification = async (notificationId: number) => {
     console.error('Error accepting notification:', error);
     $q.notify({
       color: 'negative',
-      message: 'Failed to accept notification',
+      message: t('notificationAcceptedError'),
       icon: 'error',
     });
   }
@@ -196,7 +206,7 @@ const followLocation = (location: { type: string; coordinates: number[] }) => {
   } else {
     $q.notify({
       color: 'negative',
-      message: 'Location information is not available',
+      message: t('locationNotAvailable'),
       icon: 'error',
     });
   }
@@ -227,14 +237,14 @@ const connectAudio = async (sosEventId: number) => {
     console.log('Audio connection successful');
     $q.notify({
       color: 'positive',
-      message: 'Audio connected successfully',
+      message: t('audioConnectedSuccess'),
       icon: 'mic',
     });
   } catch (error) {
     console.error('Error connecting audio:', error);
     $q.notify({
       color: 'negative',
-      message: 'Failed to connect audio',
+      message: t('audioConnectedError'),
       icon: 'error',
     });
   }

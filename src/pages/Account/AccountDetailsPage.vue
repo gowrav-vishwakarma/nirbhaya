@@ -10,8 +10,8 @@
         align="justify"
         narrow-indicator
       >
-        <q-tab name="profile" label="Profile" />
-        <q-tab name="volunteering" label="Volunteering" />
+        <q-tab :name="'profile'" :label="$t('profile')" />
+        <q-tab :name="'volunteering'" :label="$t('volunteering')" />
       </q-tabs>
 
       <q-separator />

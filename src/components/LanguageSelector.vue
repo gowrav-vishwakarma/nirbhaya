@@ -2,12 +2,12 @@
   <div>
     <h6 class="q-ma-none q-ml-xs">{{ $t('language') }}</h6>
     <q-select
-      v-model="languageStore.currentLanguage"
+      v-model="userStore.language"
       :options="languageOptions"
       outlined
       emit-value
       map-options
-      @update:model-value="languageStore.setLanguage"
+      @update:model-value="changeLanguage"
       class="q-mt-sm"
       style="border-radius: 20px"
     />
@@ -17,15 +17,20 @@
 <script lang="ts" setup>
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { useLanguageStore } from 'src/stores/languageStore';
+import { useUserStore } from 'src/stores/user-store';
 
-const { t } = useI18n();
-const languageStore = useLanguageStore();
+const { t, locale } = useI18n();
+const userStore = useUserStore();
 
 const languageOptions = computed(() =>
-  languageStore.availableLanguages.map((lang) => ({
+  userStore.availableLanguages.map((lang) => ({
     value: lang,
     label: t(`languages.${lang}`),
   }))
 );
+
+const changeLanguage = (lang: string) => {
+  userStore.setLanguage(lang);
+  locale.value = lang;
+};
 </script>

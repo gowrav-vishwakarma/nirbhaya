@@ -52,6 +52,8 @@ export const useUserStore = defineStore(
   () => {
     // State
     const user = ref<User>(defaultUser);
+    const language = ref(localStorage.getItem('userLanguage') || 'en-US');
+    const availableLanguages = ['en-US', 'hi-IN', 'gu-IN'];
 
     // Getters
     const isLoggedIn = computed(() => !!user.value?.token);
@@ -91,6 +93,11 @@ export const useUserStore = defineStore(
       user.value = defaultUser;
     }
 
+    function setLanguage(lang: string) {
+      language.value = lang;
+      localStorage.setItem('userLanguage', lang);
+    }
+
     return {
       user,
       isLoggedIn,
@@ -101,6 +108,9 @@ export const useUserStore = defineStore(
       logout,
       sendTokenIfAvailable,
       clearUser,
+      language,
+      availableLanguages,
+      setLanguage,
     };
   },
   {

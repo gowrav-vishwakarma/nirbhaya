@@ -149,4 +149,37 @@ export default {
   locationUpdated: 'Location updated',
   locationError: 'Error getting location',
   locationWatchError: 'Error watching location',
+
+  // Account Page
+  profile: 'Profile',
+  volunteering: 'Volunteering',
+  logoutSuccess: 'Logged out successfully',
+  logoutError: 'Error logging out',
+
+  // Notifications Page
+  noNotificationsFound: 'No notifications found.',
+  status: 'Status',
+  threat: 'Threat',
+  accept: 'Accept',
+  follow: 'Follow',
+  notificationAcceptedSuccess: 'Notification accepted successfully',
+  notificationAcceptedError: 'Failed to accept notification',
+
+  notificationTitles: {
+    volunteerNearby: 'Nearby {eventType} alert',
+    emergencyContact: 'Emergency contact {eventType} alert',
+  },
+
+  sosStatus: {
+    active: 'Active',
+    resolved: 'Resolved',
+    cancelled: 'Cancelled',
+  },
+
+  notificationStatus: {
+    sent: 'Sent',
+    received: 'Received',
+    accepted: 'Accepted',
+    ignored: 'Ignored',
+  },
 };
