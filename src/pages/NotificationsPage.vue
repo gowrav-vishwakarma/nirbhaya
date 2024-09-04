@@ -12,22 +12,24 @@
             {{ getNotificationTitle(notification) }}
           </q-item-label>
           <q-item-label caption>
-            {{ formatDate(notification.createdAt) }}
+            {{ formatRelativeTime(notification.createdAt) }}
           </q-item-label>
           <q-item-label v-if="notification.sosEvent" caption>
             {{ $t('status') }}:
             {{ $t(`sosStatus.${notification.sosEvent.status}`) }}
-            <template v-if="notification.sosEvent.location">
-              | {{ $t('location') }}:
-              {{ formatLocation(notification.sosEvent.location) }}
-            </template>
           </q-item-label>
           <q-item-label
             v-if="notification.sosEvent && notification.sosEvent.threat"
             caption
           >
-            {{ $t('threat') }}:
-            {{ $t(notification.sosEvent.threat) }}
+            {{ $t('threat') }}: {{ $t(notification.sosEvent.threat) }}
+          </q-item-label>
+          <q-item-label
+            v-if="notification.userLocationName && notification.distanceToEvent"
+            caption
+          >
+            {{ formatDistance(notification.distanceToEvent) }}
+            {{ $t('awayFrom') }} {{ notification.userLocationName }}
           </q-item-label>
         </q-item-section>
         <q-item-section side v-if="notification.status === 'sent'">
@@ -95,6 +97,12 @@ interface Notification {
   recipientId: number;
   recipientType: 'volunteer' | 'emergency_contact';
   status: 'sent' | 'received' | 'accepted' | 'ignored';
+  userLocationName: string;
+  userLocation: {
+    x: number;
+    y: number;
+  };
+  distanceToEvent: number;
   createdAt: string;
   updatedAt: string;
   sosEvent: SosEvent;
@@ -133,19 +141,6 @@ onUnmounted(() => {
 watch(unreadNotificationCount, async () => {
   await validateAndSubmit(false);
 });
-
-const formatDate = (dateString: string) => {
-  return new Date(dateString).toLocaleString();
-};
-
-const formatLocation = (location: { type: string; coordinates: number[] }) => {
-  if (location && location.coordinates) {
-    return `${location.coordinates[1].toFixed(
-      6
-    )}, ${location.coordinates[0].toFixed(6)}`;
-  }
-  return 'Unknown';
-};
 
 const getNotificationTitle = (notification: Notification) => {
   const eventType = notification.sosEvent?.threat || 'SOS';
@@ -389,6 +384,53 @@ const closePeerConnection = () => {
     peerConnection.value.close();
     peerConnection.value = null;
   }
+};
+
+const formatDistance = (distance: number) => {
+  if (distance < 1000) {
+    return `${Math.round(distance)} ${t('meters')}`;
+  } else {
+    return `${(distance / 1000).toFixed(2)} ${t('kilometers')}`;
+  }
+};
+
+const formatRelativeTime = (dateString: string) => {
+  const now = new Date();
+  const date = new Date(dateString);
+  const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+
+  if (diffInSeconds < 60) {
+    return t('justNow');
+  }
+
+  const diffInMinutes = Math.floor(diffInSeconds / 60);
+  if (diffInMinutes < 60) {
+    return `${diffInMinutes} ${t('minutesAgo')}`;
+  }
+
+  const diffInHours = Math.floor(diffInMinutes / 60);
+  if (diffInHours < 24) {
+    const remainingMinutes = diffInMinutes % 60;
+    return `${diffInHours} ${t('hoursAnd')} ${remainingMinutes} ${t(
+      'minutesAgo'
+    )}`;
+  }
+
+  const diffInDays = Math.floor(diffInHours / 24);
+  if (diffInDays < 30) {
+    const remainingHours = diffInHours % 24;
+    return `${diffInDays} ${t('daysAnd')} ${remainingHours} ${t('hoursAgo')}`;
+  }
+
+  const diffInMonths = Math.floor(diffInDays / 30);
+  if (diffInMonths < 12) {
+    return `${diffInMonths} ${
+      diffInMonths === 1 ? t('monthAgo') : t('monthsAgo')
+    }`;
+  }
+
+  const diffInYears = Math.floor(diffInDays / 365);
+  return `${diffInYears} ${diffInYears === 1 ? t('yearAgo') : t('yearsAgo')}`;
 };
 </script>
 
