@@ -1,11 +1,11 @@
 <template>
-  <q-page class="flex flex-center">
-    <q-card class="q-pa-lg" style="width: 100%; max-width: 400px">
-      <h2 class="text-center q-mb-xl">
+  <q-page class="q-pa-md bg-grey-1">
+    <q-card class="dashboard-card q-pa-lg">
+      <h2 class="text-center text-primary q-mb-xl">
         {{ $t('welcome', { name: userName }) }}
       </h2>
 
-      <div class="flex justify-center q-mb-lg">
+      <div class="flex justify-center q-mb-xl">
         <q-btn
           round
           color="red"
@@ -13,13 +13,12 @@
           class="sos-button"
           @click="initiateSOSMode"
         >
-          <span class="text-h5">SOS</span>
+          <span class="text-h5 text-weight-bold">SOS</span>
         </q-btn>
       </div>
 
-      <!-- Permission checks and buttons -->
-      <div v-if="!allPermissionsGranted" class="q-mt-md">
-        <h6 class="text-center">{{ $t('missingPermissions') }}</h6>
+      <div v-if="!allPermissionsGranted" class="q-mt-lg">
+        <h6 class="text-center text-grey-8">{{ $t('missingPermissions') }}</h6>
         <div
           v-for="permission in permissions"
           :key="permission.name"
@@ -29,6 +28,7 @@
             v-if="!permission.granted && !permission.denied"
             :label="$t('request', { permission: $t(permission.name) })"
             color="primary"
+            outline
             @click="requestPermission(permission.name)"
             class="full-width"
           />
@@ -36,6 +36,7 @@
             v-if="permission.denied"
             :label="$t('helpFor', { permission: $t(permission.name) })"
             color="secondary"
+            outline
             @click="goToHelp(permission.name)"
             class="full-width"
           />
@@ -106,8 +107,17 @@ const goToHelp = (permissionName: string) => {
 </script>
 
 <style scoped>
+.dashboard-card {
+  max-width: 500px;
+  margin: 0 auto;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
 .sos-button {
   width: 150px;
   height: 150px;
+  font-weight: bold;
+  box-shadow: 0 4px 8px rgba(255, 0, 0, 0.3);
 }
 </style>

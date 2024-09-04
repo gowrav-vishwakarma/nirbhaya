@@ -1,6 +1,6 @@
 <template>
-  <q-layout view="lHh Lpr lFf" style="background-color: #ec7063">
-    <q-header elevated>
+  <q-layout view="lHh Lpr lFf" class="bg-grey-1">
+    <q-header elevated class="bg-primary text-white">
       <q-toolbar>
         <q-btn
           flat
@@ -10,16 +10,10 @@
           aria-label="Home"
           @click="goToDashboardPage"
         />
-        <!-- <q-btn
-          flat
-          dense
-          round
-          icon="menu"
-          aria-label="Menu"
-          @click="toggleLeftDrawer"
-        /> -->
 
-        <q-toolbar-title> Nirbhaya </q-toolbar-title>
+        <q-toolbar-title class="text-h6">
+          <span class="text-weight-bold">Nirbhaya</span>
+        </q-toolbar-title>
 
         <div>
           <q-btn
@@ -95,11 +89,11 @@ const goToHelpPage = () => {
 </script>
 
 <style>
-.primaryBackGroundColor {
-  background-color: #ec7063;
+.bg-primary {
+  background-color: #1976d2 !important;
 }
 
-.primarytextColor {
-  background-color: #ec7063;
+.text-primary {
+  color: #1976d2 !important;
 }
 </style>

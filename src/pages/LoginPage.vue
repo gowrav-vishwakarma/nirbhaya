@@ -1,48 +1,52 @@
 <template>
-  <q-page class="row justify-center items-center container">
-    <div class="image"></div>
-    <div class="auth-container flex flex-center">
-      <q-card class="q-pa-md admin-login-card">
-        <q-card-section class="q-pb-none">
-          <div class="text-h6 text-center">{{ $t('login') }}</div>
-        </q-card-section>
-        <q-card-section>
-          <!-- Add LanguageSelector here -->
-          <LanguageSelector class="q-mb-md" />
+  <q-page class="flex flex-center bg-grey-1">
+    <q-card class="login-card q-pa-lg">
+      <q-card-section class="text-center">
+        <div class="text-h5 text-weight-bold text-primary q-mb-md">
+          {{ $t('login') }}
+        </div>
+        <LanguageSelector class="q-mb-md" />
+      </q-card-section>
 
-          <q-form @submit="handleSubmit">
-            <q-input
-              filled
-              v-model="values.mobileNumber"
-              label="Mobile Number"
-              :error="!!errors.mobileNumber"
-              :error-message="errors.mobileNumber?.join('; ')"
-              mask="##########"
-              :disable="otpSent"
-            />
+      <q-card-section>
+        <q-form @submit="handleSubmit" class="q-gutter-md">
+          <q-input
+            filled
+            v-model="values.mobileNumber"
+            :label="$t('mobileNumber')"
+            :error="!!errors.mobileNumber"
+            :error-message="errors.mobileNumber?.join('; ')"
+            mask="##########"
+            :disable="otpSent"
+          >
+            <template v-slot:prepend>
+              <q-icon name="phone" />
+            </template>
+          </q-input>
 
-            <q-input
-              v-if="otpSent"
-              filled
-              v-model="values.otp"
-              label="Enter OTP"
-              :error="!!errors.otp"
-              :error-message="errors.otp?.join('; ')"
-              mask="####"
-            />
+          <q-input
+            v-if="otpSent"
+            filled
+            v-model="values.otp"
+            :label="$t('enterOTP')"
+            :error="!!errors.otp"
+            :error-message="errors.otp?.join('; ')"
+            mask="####"
+          >
+            <template v-slot:prepend>
+              <q-icon name="lock" />
+            </template>
+          </q-input>
 
-            <div class="q-mt-md">
-              <q-btn
-                :label="otpSent ? 'Login' : 'Send OTP'"
-                type="submit"
-                color="primary"
-                full-width
-              />
-            </div>
-          </q-form>
-        </q-card-section>
-      </q-card>
-    </div>
+          <q-btn
+            :label="otpSent ? $t('login') : $t('sendOTP')"
+            type="submit"
+            color="primary"
+            class="full-width"
+          />
+        </q-form>
+      </q-card-section>
+    </q-card>
   </q-page>
 </template>
 
@@ -127,43 +131,10 @@ callbacks.onError = (error) => {
 </script>
 
 <style scoped lang="scss">
-.admin-login-card {
+.login-card {
   max-width: 400px;
-  width: 80%;
-  margin: 0 auto;
-  padding: 20px; // Add some padding to give more space for the language selector
-}
-.container {
-  position: relative;
-  height: 100vh;
-}
-.image {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  color: white;
-  font-weight: 600;
-  font-family: sans-serif;
-  background-color: var(--midnight-blue-2);
-  background-image: linear-gradient(#0707400c, transparent 40%),
-    linear-gradient(transparent, #070740 95%),
-    linear-gradient(transparent, transparent),
-    url(https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQhWXv_XZLA4D4Ptn67GnmCRU9S9raRiIIF2rCebk15P8z4RZfcb4ibNBVOnrRASRuWCKA&usqp=CAU);
-  background-repeat: no-repeat;
-  background-size: cover;
-  z-index: 1;
-}
-.auth-container {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  z-index: 2;
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  width: 90%;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 </style>

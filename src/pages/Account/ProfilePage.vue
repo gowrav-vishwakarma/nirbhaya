@@ -14,6 +14,7 @@
           style="border-radius: 20px"
           :error="!!errors.name"
           :error-message="errors.name?.join('; ')"
+          :rules="[(val) => !!val || $t('nameRequired')]"
         />
       </div>
 
@@ -76,6 +77,7 @@
             outlined
             class="q-mb-sm"
             style="border-radius: 20px"
+            :rules="[(val) => !!val || $t('contactNameRequired')]"
           />
           <q-input
             v-model="contact.contactPhone"
@@ -83,6 +85,10 @@
             outlined
             class="q-mb-sm"
             style="border-radius: 20px"
+            :rules="[(val) => !!val || $t('contactNumberRequired')]"
+            @blur="validatePhoneNumber(contact.contactPhone, index)"
+            :error="!!errors[`emergencyContact${index}`]"
+            :error-message="errors[`emergencyContact${index}`]?.join('; ')"
           />
           <q-btn
             flat
@@ -95,11 +101,14 @@
         <q-btn
           v-if="values.emergencyContacts.length < 3"
           @click="addEmergencyContact"
-          class="q-mt-sm primaryBackGroundColor text-white"
+          class="q-mt-sm bg-primary text-white"
           icon="add_circle"
         >
           <span class="q-ml-xs">{{ $t('addEmergencyContact') }}</span>
         </q-btn>
+        <p v-if="!hasEmergencyContacts" class="text-negative q-mt-sm">
+          {{ $t('atLeastOneEmergencyContactRequired') }}
+        </p>
       </div>
 
       <!-- Permissions section -->
@@ -128,6 +137,7 @@
         :loading="isLoading"
         style="width: 100%"
         class="bg-green text-white"
+        :disable="!isFormValid"
       >
         <b class="q-ml-xs q-my-md">{{ $t('saveChanges') }}</b>
       </q-btn>
@@ -136,7 +146,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted } from 'vue';
+import { onMounted, ref, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useQuasar } from 'quasar';
 import { useUserStore } from 'src/stores/user-store';
@@ -294,6 +304,71 @@ const checkPermissions = async () => {
   }
 };
 
+const hasEmergencyContacts = computed(
+  () => values.value.emergencyContacts.length > 0
+);
+
+const isFormValid = computed(() => {
+  return (
+    !!values.value.name &&
+    hasEmergencyContacts.value &&
+    values.value.emergencyContacts.every(
+      (contact) => contact.contactName && contact.contactPhone
+    ) &&
+    Object.keys(errors.value).length === 0
+  );
+});
+
+const validatePhoneNumber = async (phoneNumber: string, index: number) => {
+  try {
+    const response = await api.post('auth/validate-phone', { phoneNumber });
+    if (!response.data.isValid) {
+      errors.value[`emergencyContact${index}`] = [t('phoneNumberNotInSystem')];
+    } else {
+      delete errors.value[`emergencyContact${index}`];
+    }
+  } catch (error) {
+    console.error('Error validating phone number:', error);
+    errors.value[`emergencyContact${index}`] = [t('phoneValidationError')];
+  }
+};
+
+const handleSubmit = async () => {
+  // Validate all phone numbers before submitting
+  for (let i = 0; i < values.value.emergencyContacts.length; i++) {
+    await validatePhoneNumber(
+      values.value.emergencyContacts[i].contactPhone,
+      i
+    );
+  }
+
+  if (isFormValid.value) {
+    validateAndSubmit(false);
+  } else {
+    $q.notify({
+      color: 'negative',
+      message: t('pleaseFixErrors'),
+      icon: 'error',
+    });
+  }
+};
+
+callbacks.beforeSubmit = (formValues) => {
+  if (!formValues.name) {
+    errors.value.name = [t('nameRequired')];
+  }
+
+  if (formValues.emergencyContacts.length === 0) {
+    errors.value.emergencyContacts = [t('atLeastOneEmergencyContactRequired')];
+  }
+
+  if (Object.keys(errors.value).length > 0) {
+    throw new Error('Validation failed');
+  }
+
+  return formValues;
+};
+
 callbacks.onSuccess = (data) => {
   userStore.updateUser(data.user);
   loadUserData(); // Reload user data from the store
@@ -311,10 +386,5 @@ callbacks.onError = (error) => {
     message: t('profileUpdateError'),
     icon: 'error',
   });
-};
-
-// New function to handle form submission
-const handleSubmit = () => {
-  validateAndSubmit(false); // Pass false to prevent form reset
 };
 </script>

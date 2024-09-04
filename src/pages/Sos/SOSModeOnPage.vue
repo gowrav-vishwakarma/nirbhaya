@@ -1,31 +1,20 @@
 <template>
-  <q-page>
-    <q-card
-      class="q-mt-lg"
-      style="
-        background-color: white;
-        border-radius: 20px 20px 0 0;
-        height: 100%;
-        bottom: 0;
-        left: 0;
-        top: 5px;
-        width: 100%;
-        overflow-y: auto;
-      "
-    >
-      <div class="row">
-        <div class="col-12 col-md-12 q-px-md q-mt-xl">
-          <h6 class="q-ma-none q-ml-xs">{{ $t('sosWarning') }}</h6>
+  <q-page class="bg-grey-1">
+    <q-card class="sos-card q-pa-lg">
+      <div class="row q-col-gutter-md">
+        <div class="col-12">
+          <h6 class="text-h6 text-weight-bold text-red">
+            {{ $t('sosWarning') }}
+          </h6>
         </div>
 
-        <!-- Timer and Cancel SOS button -->
         <template v-if="!sosSent">
-          <div class="col-12 col-md-12 q-px-md q-mt-md text-center">
+          <div class="col-12 text-center">
             <q-circular-progress
               show-value
               class="text-red q-ma-md"
               :value="timeLeft"
-              size="100px"
+              size="120px"
               :thickness="0.22"
               color="red"
               track-color="grey-3"
@@ -33,82 +22,52 @@
               :max="countdownDuration"
               @click="resetCountdown"
             >
-              {{ timeLeft }}
+              <div class="text-h6">{{ timeLeft }}</div>
             </q-circular-progress>
           </div>
-          <div class="col-12 col-md-12 q-px-md q-mt-md text-center">
+          <div class="col-12 text-center">
             <q-btn color="red" :label="$t('cancelSOS')" @click="cancelSOS" />
           </div>
         </template>
 
-        <!-- SOS Sent message -->
-        <div v-else class="col-12 col-md-12 q-px-md q-mt-md text-center">
-          <h4 class="text-red">SOS Sent</h4>
+        <div v-else class="col-12 text-center">
+          <h4 class="text-red text-weight-bold">SOS Sent</h4>
         </div>
 
-        <!-- Notification status -->
-        <div v-if="sosSent" class="col-12 col-md-12 q-px-md q-mt-md">
-          <p>Notification sent to {{ informed }} nearby persons</p>
-          <p>Accepted by {{ accepted }} persons</p>
-          <p>Emergency contacts informed</p>
+        <div v-if="sosSent" class="col-12">
+          <p class="text-body1">
+            Notification sent to {{ informed }} nearby persons
+          </p>
+          <p class="text-body1">Accepted by {{ accepted }} persons</p>
+          <p class="text-body1">Emergency contacts informed</p>
         </div>
 
-        <div class="col-12 col-md-12 q-px-md">
-          <h5 class="q-ma-none q-ml-xs text-bold q-mt-md">
+        <div class="col-12">
+          <h5 class="text-h6 text-weight-bold q-mt-md">
             {{ $t('helpUsMore') }}
           </h5>
         </div>
-        <div
-          class="col-12 col-md-12 q-px-md q-mt-lg flex flex-wrap justify-between"
-        >
+
+        <div class="col-12 q-gutter-y-sm">
           <q-btn
-            style="width: 48%"
-            class="q-mb-md"
-            @click="handleThreatButtonClick('followedBySomeone')"
+            v-for="threat in threats"
+            :key="threat"
+            class="full-width"
+            color="primary"
+            outline
+            @click="handleThreatButtonClick(threat)"
           >
-            <span class="q-ml-xs">{{ $t('followedBySomeone') }}</span>
-          </q-btn>
-          <q-btn
-            style="width: 48%"
-            class="q-mb-md"
-            @click="handleThreatButtonClick('verbalHarassment')"
-          >
-            <span class="q-ml-xs">{{ $t('verbalHarassment') }}</span>
-          </q-btn>
-          <q-btn
-            style="width: 48%"
-            class="q-mb-md"
-            @click="handleThreatButtonClick('physicalThreat')"
-          >
-            <span class="q-ml-xs">{{ $t('physicalThreat') }}</span>
-          </q-btn>
-          <q-btn
-            style="width: 48%"
-            class="q-mb-md"
-            @click="handleThreatButtonClick('attemptedKidnapping')"
-          >
-            <span class="q-ml-xs">{{ $t('attemptedKidnapping') }}</span>
-          </q-btn>
-          <q-btn
-            style="width: 48%"
-            class="q-mb-md"
-            @click="handleThreatButtonClick('sexualAssault')"
-          >
-            <span class="q-ml-xs">{{ $t('sexualAssault') }}</span>
-          </q-btn>
-          <q-btn
-            style="width: 48%"
-            class="q-mb-md"
-            @click="handleThreatButtonClick('domesticViolence')"
-          >
-            <span class="q-ml-xs">{{ $t('domesticViolence') }}</span>
+            {{ $t(threat) }}
           </q-btn>
         </div>
-        <div class="col-12 col-md-12 q-px-md q-mt-lg">
-          <h6 class="q-ma-none q-ml-xs">{{ $t('currentLocation') }}</h6>
-          <div>
-            <q-icon name="my_location" color="deep-orange" size="sm" />
-            <span class="q-ml-sm" style="font-size: 20px">
+
+        <div class="col-12 q-mt-md">
+          <h6 class="text-subtitle1 text-weight-bold">
+            {{ $t('currentLocation') }}
+          </h6>
+          <div class="text-body1">
+            <q-icon name="my_location" color="primary" size="sm" />
+            <span class="q-ml-sm">
               {{ currentLocationName || $t('gettingLocation') }}
             </span>
           </div>
@@ -120,52 +79,38 @@
             {{ currentLocation.longitude.toFixed(6) }}
           </p>
         </div>
-        <div class="col-12 col-md-12 q-px-md q-mt-lg">
-          <h6 class="q-ma-none q-ml-xs">{{ $t('nearbyPoliceStations') }}</h6>
-          <div>
-            <q-btn round color="deep-orange" icon="edit_location" />
-            <span class="q-ml-sm" style="font-size: 20px"
-              >South Bopal Ahmedabad</span
-            >
+
+        <div class="col-12 q-mt-md">
+          <h6 class="text-subtitle1 text-weight-bold">
+            {{ $t('nearbyPoliceStations') }}
+          </h6>
+          <div class="text-body1">
+            <q-icon name="location_on" color="primary" size="sm" />
+            <span class="q-ml-sm">South Bopal Ahmedabad</span>
           </div>
         </div>
 
-        <div
-          class="col-12 col-md-12 q-px-md q-mt-lg flex justify-center q-mb-lg"
-        >
+        <div class="col-12 q-mt-lg">
           <q-btn
             @click="updateSOSData({ status: 'active' })"
-            style="width: 100%"
-            class="primaryBackGroundColor text-white"
-            ><b class="q-ml-xs q-my-md">{{
-              $t('contactPoliceStation')
-            }}</b></q-btn
+            color="primary"
+            class="full-width"
           >
-        </div>
-
-        <div
-          v-if="sosSent"
-          class="col-12 col-md-12 q-px-md q-mt-lg flex justify-center q-mb-lg"
-        >
-          <q-btn
-            @click="showResolveConfirmation"
-            style="width: 100%"
-            color="positive"
-            class="q-mb-md"
-          >
-            <b class="q-ml-xs q-my-md">{{ $t('resolveSOSIssue') }}</b>
+            <b>{{ $t('contactPoliceStation') }}</b>
           </q-btn>
         </div>
 
-        <div v-if="isGettingLocation" class="text-center q-mt-md">
-          <q-spinner color="primary" size="3em" />
-          <p>{{ $t('gettingLocation') }}</p>
+        <div v-if="sosSent" class="col-12 q-mt-md">
+          <q-btn
+            @click="showResolveConfirmation"
+            color="positive"
+            class="full-width"
+          >
+            <b>{{ $t('resolveSOSIssue') }}</b>
+          </q-btn>
         </div>
 
-        <div
-          v-if="sosSent"
-          class="col-12 col-md-12 q-px-md q-mt-md text-center"
-        >
+        <div v-if="sosSent" class="col-12 q-mt-md text-center">
           <q-btn
             round
             size="xl"
@@ -173,7 +118,9 @@
             icon="mic"
             @click="toggleAudio"
           />
-          <p>{{ isAudioOpen ? 'Audio Open' : 'Click to Open Audio' }}</p>
+          <p class="q-mt-sm">
+            {{ isAudioOpen ? 'Audio Open' : 'Click to Open Audio' }}
+          </p>
         </div>
       </div>
     </q-card>
@@ -239,6 +186,15 @@ const peerConnection = ref<RTCPeerConnection | null>(null);
 const mediaRecorder = ref<MediaRecorder | null>(null);
 const mediaStream = ref<MediaStream | null>(null);
 const recordedChunks = ref<Blob[]>([]);
+
+const threats = [
+  'followedBySomeone',
+  'verbalHarassment',
+  'physicalThreat',
+  'attemptedKidnapping',
+  'sexualAssault',
+  'domesticViolence',
+];
 
 onMounted(async () => {
   await checkPermissions();
@@ -800,4 +756,11 @@ const closePeerConnection = () => {
 };
 </script>
 
-<style scoped></style>
+<style scoped>
+.sos-card {
+  max-width: 600px;
+  margin: 0 auto;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+</style>

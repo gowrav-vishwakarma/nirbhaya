@@ -1,19 +1,6 @@
 <template>
-  <q-page>
-    <q-card
-      class="q-mt-lg"
-      style="
-        background-color: white;
-        border-radius: 20px 20px 0 0;
-        height: 100%;
-        bottom: 0;
-        left: 0;
-        top: 5px;
-        width: 100%;
-        overflow-y: auto;
-      "
-      v-if="userStore?.user"
-    >
+  <q-page class="bg-grey-1">
+    <q-card class="account-card q-mt-lg" v-if="userStore?.user">
       <q-tabs
         v-model="tab"
         dense
@@ -39,10 +26,9 @@
         </q-tab-panel>
       </q-tab-panels>
 
-      <!-- Logout button -->
       <div class="q-pa-md">
-        <q-btn @click="logout" style="width: 100%" class="bg-red text-white">
-          <b class="q-ml-xs q-my-md">{{ $t('logout') }}</b>
+        <q-btn @click="logout" color="red" class="full-width">
+          <b>{{ $t('logout') }}</b>
         </q-btn>
       </div>
     </q-card>
@@ -96,5 +82,10 @@ const logout = async () => {
 </script>
 
 <style scoped>
-/* Add any scoped styles here */
+.account-card {
+  max-width: 600px;
+  margin: 0 auto;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
 </style>

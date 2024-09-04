@@ -22,6 +22,8 @@
               :hint="getLocationHint(location)"
               class="q-mb-sm"
               style="border-radius: 20px"
+              :error="!isLocationValid(location)"
+              :error-message="$t('pleaseSelectLocation')"
             />
           </div>
           <div class="col-auto">
@@ -31,6 +33,7 @@
               color="primary"
               icon="my_location"
               @click="updateLocationCoordinates(index)"
+              :loading="locationLoading[index]"
             >
               <q-tooltip>{{ $t('useCurrentLocation') }}</q-tooltip>
             </q-btn>
@@ -56,9 +59,9 @@
         </p>
       </div>
       <q-btn
-        v-if="values.locations.length < 2"
+        v-if="values.locations.length < 10"
         @click="addNotificationLocation"
-        class="q-mt-sm primaryBackGroundColor text-white"
+        class="q-mt-sm bg-primary text-white"
         icon="add_circle"
       >
         <span class="q-ml-xs">{{ $t('addNotificationLocation') }}</span>
@@ -87,6 +90,7 @@
         @click="handleSubmit"
         style="width: 100%"
         class="bg-green text-white"
+        :disable="!isFormValid"
       >
         <b class="q-ml-xs q-my-md">{{ $t('saveChanges') }}</b>
       </q-btn>
@@ -95,7 +99,7 @@
 </template>
 
 <script lang="ts" setup>
-import { onMounted, watch } from 'vue';
+import { onMounted, watch, ref, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useQuasar } from 'quasar';
 import { Capacitor } from '@capacitor/core';
@@ -117,16 +121,19 @@ const { values, errors, isLoading, validateAndSubmit, callbacks } = useForm(
   }
 );
 
+const locationLoading = ref<boolean[]>([]);
+
 const loadUserData = () => {
   const userData = userStore.user;
   values.value.locations = userData.locations || [];
   values.value.availableForCommunity = userData.availableForCommunity || false;
+  locationLoading.value = new Array(values.value.locations.length).fill(false);
 };
 
 onMounted(loadUserData);
 
 const addNotificationLocation = () => {
-  if (values.value.locations.length < 2) {
+  if (values.value.locations.length < 10) {
     values.value.locations.push({
       name: '',
       location: {
@@ -134,14 +141,17 @@ const addNotificationLocation = () => {
         coordinates: [null, null],
       },
     });
+    locationLoading.value.push(false);
   }
 };
 
 const removeNotificationLocation = (index: number) => {
   values.value.locations.splice(index, 1);
+  locationLoading.value.splice(index, 1);
 };
 
 const updateLocationCoordinates = async (index: number) => {
+  locationLoading.value[index] = true;
   try {
     let position;
     if (Capacitor.isNativePlatform()) {
@@ -176,6 +186,8 @@ const updateLocationCoordinates = async (index: number) => {
       message: t('locationError'),
       icon: 'error',
     });
+  } finally {
+    locationLoading.value[index] = false;
   }
 };
 
@@ -190,6 +202,17 @@ const getLocationHint = (location: {
   }
   return t('noLocationSet');
 };
+
+const isLocationValid = (location: {
+  location: { coordinates: [number | null, number | null] };
+}) => {
+  const [longitude, latitude] = location.location.coordinates;
+  return latitude !== null && longitude !== null;
+};
+
+const isFormValid = computed(() => {
+  return values.value.locations.every(isLocationValid);
+});
 
 callbacks.onSuccess = (data) => {
   userStore.updateUser(data.user);
@@ -208,6 +231,9 @@ watch(
     values.value.locations = newUserData.locations || [];
     values.value.availableForCommunity =
       newUserData.availableForCommunity || false;
+    locationLoading.value = new Array(values.value.locations.length).fill(
+      false
+    );
   },
   { deep: true }
 );
@@ -223,6 +249,14 @@ callbacks.onError = (error) => {
 
 // Modify the validateAndSubmit call to prevent form reset
 const handleSubmit = () => {
-  validateAndSubmit(false); // Pass false to prevent form reset
+  if (isFormValid.value) {
+    validateAndSubmit(false); // Pass false to prevent form reset
+  } else {
+    $q.notify({
+      color: 'negative',
+      message: t('pleaseSelectAllLocations'),
+      icon: 'error',
+    });
+  }
 };
 </script>
