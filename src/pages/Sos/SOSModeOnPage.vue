@@ -236,6 +236,10 @@ const isAudioOpen = ref(false);
 
 const peerConnection = ref<RTCPeerConnection | null>(null);
 
+const mediaRecorder = ref<MediaRecorder | null>(null);
+const mediaStream = ref<MediaStream | null>(null);
+const recordedChunks = ref<Blob[]>([]);
+
 onMounted(async () => {
   await checkPermissions();
   await activateSOSPermissions();
@@ -576,7 +580,7 @@ const startRecordingAndStreaming = async () => {
     } else {
       // For web platform (PWA mode)
       if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-        mediaStream = await navigator.mediaDevices.getUserMedia({
+        mediaStream.value = await navigator.mediaDevices.getUserMedia({
           video: true,
           audio: true,
         });
@@ -593,18 +597,20 @@ const startRecordingAndStreaming = async () => {
           throw new Error('No supported mime type found for video recording');
         }
 
-        mediaRecorder = new MediaRecorder(mediaStream, { mimeType });
+        mediaRecorder.value = new MediaRecorder(mediaStream.value, {
+          mimeType,
+        });
 
-        mediaRecorder.ondataavailable = (event) => {
+        mediaRecorder.value.ondataavailable = (event) => {
           if (event.data.size > 0) {
-            recordedChunks.push(event.data);
+            recordedChunks.value.push(event.data);
             if (shouldStream.value) {
               socket.emit('stream-chunk', event.data);
             }
           }
         };
 
-        mediaRecorder.start(1000); // Capture data every second
+        mediaRecorder.value.start(1000); // Capture data every second
         isRecording.value = true;
       } else {
         throw new Error('Media Devices API not available');
@@ -631,8 +637,8 @@ const stopRecordingAndStreaming = async () => {
     isRecording.value = false;
     // For mobile platforms, we don't need to do anything here
     // as we've already saved the image in startRecordingAndStreaming
-  } else if (mediaRecorder && isRecording.value) {
-    mediaRecorder.stop();
+  } else if (mediaRecorder.value && isRecording.value) {
+    mediaRecorder.value.stop();
     isRecording.value = false;
 
     if (shouldStream.value) {
@@ -640,8 +646,8 @@ const stopRecordingAndStreaming = async () => {
     }
 
     // Stop all tracks
-    if (mediaStream) {
-      mediaStream.getTracks().forEach((track) => track.stop());
+    if (mediaStream.value) {
+      mediaStream.value.getTracks().forEach((track) => track.stop());
     }
 
     // Save the recorded video locally
@@ -650,11 +656,11 @@ const stopRecordingAndStreaming = async () => {
 };
 
 const saveRecording = async () => {
-  if (!Capacitor.isNativePlatform() && mediaRecorder) {
+  if (!Capacitor.isNativePlatform() && mediaRecorder.value) {
     try {
-      const mimeType = mediaRecorder.mimeType;
+      const mimeType = mediaRecorder.value.mimeType;
       const fileExtension = mimeType.split('/')[1].split(';')[0];
-      const videoBlob = new Blob(recordedChunks, { type: mimeType });
+      const videoBlob = new Blob(recordedChunks.value, { type: mimeType });
       const fileName = `sos_recording_${Date.now()}.${fileExtension}`;
 
       const url = URL.createObjectURL(videoBlob);
