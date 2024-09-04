@@ -76,7 +76,6 @@ import { useQuasar } from 'quasar';
 import { useBackgroundNotifications } from 'src/composables/useBackgroundNotifications';
 import { Capacitor } from '@capacitor/core';
 import { VoiceRecorder } from 'capacitor-voice-recorder';
-import { io, Socket } from 'socket.io-client';
 import { socket } from 'boot/socket';
 import { useI18n } from 'vue-i18n';
 
@@ -105,15 +104,12 @@ const $q = useQuasar();
 const { unreadNotificationCount, fetchUnreadNotificationCount } =
   useBackgroundNotifications();
 
-const { responseData, validateAndSubmit, isLoading } = useForm<Notification>(
+const { responseData, validateAndSubmit } = useForm<Notification>(
   api,
   '/auth/notifications',
   {},
   'get'
 );
-
-// Remove the socket ref declaration
-// const socket = ref<Socket | null>(null);
 
 const peerConnection = ref<RTCPeerConnection | null>(null);
 const audioContext = ref<AudioContext | null>(null);

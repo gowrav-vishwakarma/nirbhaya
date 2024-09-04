@@ -1,7 +1,9 @@
 import { ref, Ref, computed } from 'vue';
-import { Capacitor, Plugins } from '@capacitor/core';
+import { Capacitor } from '@capacitor/core';
 import { Geolocation } from '@capacitor/geolocation';
 import { Camera } from '@capacitor/camera';
+import { PushNotifications } from '@capacitor/push-notifications';
+
 // Remove Microphone import
 
 interface Permission {
@@ -57,7 +59,7 @@ export function usePermissions() {
               );
               break;
             case 'notifications':
-              result = await Plugins.PushNotifications.checkPermissions();
+              result = await PushNotifications.checkPermissions();
               updatePermissionStatus(
                 permission.name,
                 result.receive === 'granted',
@@ -105,13 +107,19 @@ export function usePermissions() {
         switch (permissionName) {
           case 'location':
             result = await Geolocation.requestPermissions();
+            console.log('Location permission result:', result);
             break;
           case 'camera':
             result = await Camera.requestPermissions();
+            console.log('Camera permission result:', result);
             break;
           // Remove microphone case
           case 'notifications':
-            result = await Plugins.PushNotifications.requestPermission();
+            result = await PushNotifications.requestPermissions();
+            console.log('Notifications permission result:', result);
+            if (result.receive === 'granted') {
+              await PushNotifications.register();
+            }
             break;
         }
       } else {
@@ -122,6 +130,7 @@ export function usePermissions() {
               result = await navigator.permissions.query({
                 name: 'geolocation',
               });
+              console.log('Geolocation permission result:', result);
             } else {
               throw new Error('Geolocation API not available');
             }
@@ -132,6 +141,7 @@ export function usePermissions() {
                 video: true,
                 audio: true, // Request audio along with video
               });
+              console.log('Media Devices permission result:', result);
             } else {
               throw new Error('Media Devices API not available');
             }
@@ -139,6 +149,7 @@ export function usePermissions() {
           case 'notifications':
             if ('Notification' in window) {
               result = await Notification.requestPermission();
+              console.log('Notifications permission result:', result);
             } else {
               throw new Error('Notifications API not available');
             }
@@ -146,8 +157,12 @@ export function usePermissions() {
         }
       }
 
-      updatePermissionStatus(permissionName, true, false);
-      return true;
+      updatePermissionStatus(
+        permissionName,
+        result.receive === 'granted',
+        result.receive === 'denied'
+      );
+      return result.receive === 'granted';
     } catch (error) {
       console.error(`Error requesting ${permissionName} permission:`, error);
       updatePermissionStatus(permissionName, false, true);
@@ -173,7 +188,7 @@ export function usePermissions() {
             break;
           // Remove microphone case
           case 'notifications':
-            await Plugins.PushNotifications.requestPermission();
+            await PushNotifications.register();
             break;
         }
       } else {
@@ -220,6 +235,6 @@ export function usePermissions() {
     allPermissionsGranted,
     checkPermissions,
     requestPermission,
-    activatePermission, // Add this new method to the return object
+    activatePermission,
   };
 }

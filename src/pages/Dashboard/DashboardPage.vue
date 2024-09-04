@@ -47,14 +47,11 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useUserForm } from 'src/composables/use-user-form';
 import { useQuasar } from 'quasar';
 import { useI18n } from 'vue-i18n';
-import { Capacitor, Plugins } from '@capacitor/core';
-import { Geolocation } from '@capacitor/geolocation';
-import { Camera } from '@capacitor/camera';
 import { usePermissions } from 'src/composables/usePermissions';
 
 const router = useRouter();

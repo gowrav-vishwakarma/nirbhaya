@@ -14,12 +14,12 @@ register('/firebase-messaging-sw.js', {
   // registrationOptions: { scope: './' },
 
   ready(registration) {
-    console.log('Service worker is active.');
+    console.log('Service worker is active.', registration);
     // Removed initializeWebPush call
   },
 
   registered(registration) {
-    console.log('Service worker has been registered.');
+    console.log('Service worker has been registered.', registration);
   },
 
   cached(/* registration */) {
@@ -27,7 +27,7 @@ register('/firebase-messaging-sw.js', {
   },
 
   updatefound(registration) {
-    console.log('New content is downloading.');
+    console.log('New content is downloading.', registration);
     Notify.create({
       message: 'A new version is available',
       caption: 'Please refresh to update.',
@@ -47,7 +47,7 @@ register('/firebase-messaging-sw.js', {
   },
 
   updated(registration) {
-    console.log('New content is available; please refresh.');
+    console.log('New content is available; please refresh.', registration);
     Notify.create({
       message: 'App updated',
       caption:

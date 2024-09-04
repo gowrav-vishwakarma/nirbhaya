@@ -121,6 +121,7 @@ callbacks.onSuccess = async (userData) => {
 };
 
 callbacks.onError = (error) => {
+  console.log('Error in login page', error);
   Notify.create({
     type: 'negative',
     message: otpSent.value
