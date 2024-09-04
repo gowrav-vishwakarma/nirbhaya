@@ -432,6 +432,11 @@ const formatRelativeTime = (dateString: string) => {
   const diffInYears = Math.floor(diffInDays / 365);
   return `${diffInYears} ${diffInYears === 1 ? t('yearAgo') : t('yearsAgo')}`;
 };
+
+const refreshNotifications = async () => {
+  await validateAndSubmit(false);
+  await fetchUnreadNotificationCount();
+};
 </script>
 
 <style scoped>

@@ -14,7 +14,7 @@
             round
             icon="notifications"
             aria-label="Notifications"
-            @click="goToNotificationsPage"
+            @click="refreshNotifications"
           >
             <q-badge color="red" floating v-if="unreadNotificationCount > 0">
               {{ unreadNotificationCount }}
@@ -54,7 +54,8 @@ import { onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 const router = useRouter();
-const { unreadNotificationCount } = useBackgroundNotifications();
+const { unreadNotificationCount, fetchUnreadNotificationCount } =
+  useBackgroundNotifications();
 const userStore = useUserStore();
 const { locale } = useI18n();
 
@@ -68,6 +69,11 @@ const goToAccountPage = () => {
 
 const goToDashboardPage = () => {
   router.push('/dashboard');
+};
+
+const refreshNotifications = async () => {
+  await fetchUnreadNotificationCount();
+  goToNotificationsPage();
 };
 
 const goToNotificationsPage = () => {
