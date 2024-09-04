@@ -21,7 +21,7 @@ export interface UserLocation {
 export interface User {
   id: number;
   phoneNumber: string;
-  userType: 'child' | 'volunteer';
+  userType: string;
   name: string;
   email: string;
   lastLogin?: Date;
@@ -36,7 +36,7 @@ export interface User {
 const defaultUser: User = {
   id: 0,
   phoneNumber: '',
-  userType: 'child',
+  userType: 'Youth',
   name: '',
   email: '',
   token: '',
@@ -88,7 +88,7 @@ export const useUserStore = defineStore(
     }
 
     function clearUser() {
-      user.value = null;
+      user.value = defaultUser;
     }
 
     return {

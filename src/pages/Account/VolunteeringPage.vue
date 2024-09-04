@@ -79,25 +79,55 @@
         <q-toggle v-model="values.availableForCommunity" color="primary" />
       </div>
     </div>
+
+    <!-- Add save button at the bottom -->
+    <div class="q-mt-md">
+      <q-btn
+        :loading="isLoading"
+        @click="handleSubmit"
+        style="width: 100%"
+        class="bg-green text-white"
+      >
+        <b class="q-ml-xs q-my-md">{{ $t('saveChanges') }}</b>
+      </q-btn>
+    </div>
   </div>
 </template>
 
 <script lang="ts" setup>
+import { onMounted, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useQuasar } from 'quasar';
 import { Capacitor } from '@capacitor/core';
 import { Geolocation } from '@capacitor/geolocation';
 import { useUserStore } from 'src/stores/user-store';
+import { api } from 'src/boot/axios';
+import { useForm } from 'src/qnatk/composibles/use-form';
 
 const { t } = useI18n();
 const $q = useQuasar();
 const userStore = useUserStore();
 
-const values = userStore.user;
+const { values, errors, isLoading, validateAndSubmit, callbacks } = useForm(
+  api,
+  'auth/user-profile-update',
+  {
+    locations: [],
+    availableForCommunity: false,
+  }
+);
+
+const loadUserData = () => {
+  const userData = userStore.user;
+  values.value.locations = userData.locations || [];
+  values.value.availableForCommunity = userData.availableForCommunity || false;
+};
+
+onMounted(loadUserData);
 
 const addNotificationLocation = () => {
-  if (values.locations.length < 2) {
-    values.locations.push({
+  if (values.value.locations.length < 2) {
+    values.value.locations.push({
       name: '',
       location: {
         type: 'Point',
@@ -108,7 +138,7 @@ const addNotificationLocation = () => {
 };
 
 const removeNotificationLocation = (index: number) => {
-  values.locations.splice(index, 1);
+  values.value.locations.splice(index, 1);
 };
 
 const updateLocationCoordinates = async (index: number) => {
@@ -129,10 +159,11 @@ const updateLocationCoordinates = async (index: number) => {
       });
     }
 
-    values.locations[index].location.coordinates = [
+    values.value.locations[index].location.coordinates = [
       position.coords.longitude,
       position.coords.latitude,
     ];
+
     $q.notify({
       color: 'positive',
       message: t('locationUpdated'),
@@ -158,5 +189,40 @@ const getLocationHint = (location: {
     )}`;
   }
   return t('noLocationSet');
+};
+
+callbacks.onSuccess = (data) => {
+  userStore.updateUser(data.user);
+  loadUserData(); // Reload user data from the store
+  $q.notify({
+    color: 'positive',
+    message: t('volunteeringUpdateSuccess'),
+    icon: 'check',
+  });
+};
+
+// Watch for changes in the userStore and update local values
+watch(
+  () => userStore.user,
+  (newUserData) => {
+    values.value.locations = newUserData.locations || [];
+    values.value.availableForCommunity =
+      newUserData.availableForCommunity || false;
+  },
+  { deep: true }
+);
+
+callbacks.onError = (error) => {
+  console.error('Error updating volunteering info', error);
+  $q.notify({
+    color: 'negative',
+    message: t('volunteeringUpdateError'),
+    icon: 'error',
+  });
+};
+
+// Modify the validateAndSubmit call to prevent form reset
+const handleSubmit = () => {
+  validateAndSubmit(false); // Pass false to prevent form reset
 };
 </script>
