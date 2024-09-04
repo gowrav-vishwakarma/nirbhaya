@@ -46,9 +46,11 @@
             />
             <q-btn
               round
-              color="primary"
-              :icon="$t('icons.mic')"
-              @click="connectAudio(notification.sosEvent.id)"
+              :color="
+                isAudioOpen[notification.sosEvent.id] ? 'primary' : 'grey'
+              "
+              :icon="$t('icons.volumeUp')"
+              @click="toggleAudio(notification.sosEvent.id)"
             />
           </q-btn-group>
         </q-item-section>
@@ -67,7 +69,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, watch } from 'vue';
+import { ref, onMounted, onUnmounted, watch, reactive } from 'vue';
 import { useForm } from 'src/qnatk/composibles/use-form';
 import { api } from 'boot/axios';
 import { useQuasar } from 'quasar';
@@ -118,6 +120,8 @@ const audioContext = ref<AudioContext | null>(null);
 const audioSource = ref<AudioBufferSourceNode | null>(null);
 
 const { t } = useI18n();
+
+const isAudioOpen = reactive({});
 
 onMounted(async () => {
   await validateAndSubmit(false);
@@ -226,6 +230,15 @@ const closeWebSocket = () => {
   }
 };
 
+const toggleAudio = async (sosEventId: number) => {
+  if (isAudioOpen[sosEventId]) {
+    await disconnectAudio(sosEventId);
+  } else {
+    await connectAudio(sosEventId);
+  }
+  isAudioOpen[sosEventId] = !isAudioOpen[sosEventId];
+};
+
 const connectAudio = async (sosEventId: number) => {
   try {
     console.log('Connecting audio for SOS event:', sosEventId);
@@ -238,7 +251,7 @@ const connectAudio = async (sosEventId: number) => {
     $q.notify({
       color: 'positive',
       message: t('audioConnectedSuccess'),
-      icon: 'mic',
+      icon: 'volume_up',
     });
   } catch (error) {
     console.error('Error connecting audio:', error);
@@ -248,6 +261,15 @@ const connectAudio = async (sosEventId: number) => {
       icon: 'error',
     });
   }
+};
+
+const disconnectAudio = async (sosEventId: number) => {
+  // Implement disconnection logic here
+  closePeerConnection();
+  if (socket) {
+    socket.emit('leave_sos_room', sosEventId);
+  }
+  console.log('Audio disconnected');
 };
 
 const connectNativeAudio = async (sosEventId: number) => {

@@ -33,6 +33,7 @@ export default {
     myLocation: 'my_location',
     locationOn: 'location_on',
     mic: 'mic',
+    volumeUp: 'volume_up',
   },
 
   // Navigation
