@@ -1,6 +1,6 @@
 export default {
   // App-wide
-  'app.name': 'નિર્ભયા એસઓએસ',
+  'app.name': 'શોઉટ આઉટ',
   login: 'લૉગ ઇન કરો',
   logout: 'લૉગ આઉટ કરો',
   cancel: 'રદ કરો',
@@ -179,4 +179,7 @@ export default {
     accepted: 'સ્વીકારાયું',
     ignored: 'અવગણવામાં આવ્યું',
   },
+
+  audioConnectedSuccess: 'ઓડિયો સફળતાપૂર્વક જોડાયું',
+  audioConnectedError: 'ઓડિયો જોડવામાં ભૂલ',
 };

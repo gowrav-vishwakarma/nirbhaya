@@ -27,7 +27,7 @@
             caption
           >
             {{ $t('threat') }}:
-            {{ $t(`threatTypes.${notification.sosEvent.threat}`) }}
+            {{ $t(notification.sosEvent.threat) }}
           </q-item-label>
         </q-item-section>
         <q-item-section side v-if="notification.status === 'sent'">
@@ -151,11 +151,11 @@ const getNotificationTitle = (notification: Notification) => {
   const eventType = notification.sosEvent?.threat || 'SOS';
   if (notification.recipientType === 'volunteer') {
     return t('notificationTitles.volunteerNearby', {
-      eventType: t(`threatTypes.${eventType}`),
+      eventType: t(`${eventType}`),
     });
   } else {
     return t('notificationTitles.emergencyContact', {
-      eventType: t(`threatTypes.${eventType}`),
+      eventType: t(`${eventType}`),
     });
   }
 };

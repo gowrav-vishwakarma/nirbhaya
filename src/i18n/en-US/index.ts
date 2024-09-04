@@ -3,7 +3,7 @@
 
 export default {
   // App-wide
-  'app.name': 'Nirbhaya SOS',
+  'app.name': 'Shoutout',
   login: 'Login',
   logout: 'Logout',
   cancel: 'Cancel',
@@ -182,4 +182,7 @@ export default {
     accepted: 'Accepted',
     ignored: 'Ignored',
   },
+
+  audioConnectedSuccess: 'Audio connected successfully',
+  audioConnectedError: 'Error connecting audio',
 };

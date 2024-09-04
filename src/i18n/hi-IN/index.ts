@@ -1,6 +1,6 @@
 export default {
   // App-wide
-  'app.name': 'निर्भया एसओएस',
+  'app.name': 'शॉउटआउट',
   login: 'लॉग इन करें',
   logout: 'लॉग आउट करें',
   cancel: 'रद्द करें',
@@ -178,4 +178,7 @@ export default {
     accepted: 'स्वीकार किया गया',
     ignored: 'अनदेखा किया गया',
   },
+
+  audioConnectedSuccess: 'ऑडियो सफलतापूर्वक जोड़ा गया',
+  audioConnectedError: 'ऑडियो जोड़ने में त्रुटि',
 };
