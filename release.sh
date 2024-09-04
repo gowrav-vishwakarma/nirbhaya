@@ -17,6 +17,13 @@ fi
 sed -i.bak 's/^#\(.*https:\/\/.*\)/\1/' .env && rm .env.bak
 sed -i.bak 's/^\(API_BASE_URL=http:\/\/.*\)/#\1/' .env && rm .env.bak
 
+# lets try to build the app in develop only
+npx quasar build -m pwa
+if [ $? -ne 0 ]; then
+  echo "Error: Failed to build PWA."
+  exit 1
+fi
+
 # Checkout to master and merge develop
 git checkout master
 if [ $? -ne 0 ]; then
