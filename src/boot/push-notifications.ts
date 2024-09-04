@@ -4,7 +4,7 @@ import { Capacitor } from '@capacitor/core';
 import { PushNotifications } from '@capacitor/push-notifications';
 import { useUserStore } from 'src/stores/user-store';
 
-export default boot(async ({ app, router }) => {
+export default boot(async ({ router }) => {
   const userStore = useUserStore();
   console.log('Initializing push notifications');
 

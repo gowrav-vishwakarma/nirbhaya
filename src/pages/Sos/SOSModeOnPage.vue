@@ -3,9 +3,9 @@
     <q-card class="sos-card q-pa-lg">
       <div class="row q-col-gutter-md">
         <div class="col-12">
-          <h6 class="text-h6 text-weight-bold text-red">
+          <div class="text-h6 text-weight-bold text-red text-center">
             {{ $t('sosWarning') }}
-          </h6>
+          </div>
         </div>
 
         <template v-if="!sosSent">
@@ -31,7 +31,17 @@
         </template>
 
         <div v-else class="col-12 text-center">
-          <h4 class="text-red text-weight-bold">SOS Sent</h4>
+          <div class="text-h6 text-red text-weight-bold">SOS Sent</div>
+          <q-btn
+            round
+            size="xl"
+            :color="isAudioOpen ? 'primary' : 'grey'"
+            :icon="$t('icons.mic')"
+            @click="toggleAudio"
+          />
+          <p class="q-mt-sm">
+            {{ isAudioOpen ? 'Audio Connected' : 'Click to Open Audio' }}
+          </p>
         </div>
 
         <div v-if="sosSent" class="col-12">
@@ -108,19 +118,6 @@
           >
             <b>{{ $t('resolveSOSIssue') }}</b>
           </q-btn>
-        </div>
-
-        <div v-if="sosSent" class="col-12 q-mt-md text-center">
-          <q-btn
-            round
-            size="xl"
-            :color="isAudioOpen ? 'primary' : 'grey'"
-            :icon="$t('icons.mic')"
-            @click="toggleAudio"
-          />
-          <p class="q-mt-sm">
-            {{ isAudioOpen ? 'Audio Open' : 'Click to Open Audio' }}
-          </p>
         </div>
       </div>
     </q-card>
@@ -681,7 +678,6 @@ const toggleWebAudio = async () => {
     await createPeerConnection();
     console.log('Web audio opened');
   }
-  isAudioOpen.value = !isAudioOpen.value;
 };
 
 const createPeerConnection = async () => {

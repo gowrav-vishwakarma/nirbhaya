@@ -1,104 +1,185 @@
-// This is just an example,
-// so you can safely delete all default props below
-
 export default {
-  name: 'नाम',
-  mobileNumber: 'मोबाइल नंबर',
-  city: 'शहर',
-  emergencyContacts: 'आपातकालीन संपर्क',
-  emergencyContactsHelp:
-    'SOS की स्थिति में सूचित किए जाने वाले 3 आपातकालीन संपर्क जोड़ें।',
-  number: 'नंबर',
-  addEmergencyContact: 'आपातकालीन संपर्क जोड़ें',
-  locationSharing: 'स्थान साझाकरण',
-  locationSharingHelp:
-    'सुरक्षा उद्देश्यों के लिए अपना स्थान कैसे साझा करना चाहते हैं, चुनें।',
-  notificationLocations: 'आप जिन स्थानों का अपडेट चाहते हैं, please add those',
-  notificationLocationsHelp:
-    '2 स्थान जोड़ें जहां आप सूचनाएं प्राप्त करना चाहते हैं।',
-  locationName: 'स्थान का नाम',
-  address: 'पता',
-  addNotificationLocation: 'अधिसूचना स्थान जोड़ें',
-  saveChanges: 'परिवर्तन सहेजें',
-  alwaysLive: 'हमेशा लाइव (हर 5 मिनट में स्थान साझा करें)',
-  fetchSOS: 'हर 5 मिनट में SOS घटनाओं को प्राप्त करें',
-  noLocationSharing: 'स्थान साझा न करें',
-  volunteerLocationSharing: 'स्वयंसेवक उपलब्धता',
-  volunteerLocationSharingHelp:
-    'चुनें कि आप जरूरतमंदों की मदद के लिए स्वयंसेवक के रूप में कैसे उपलब्ध होना चाहते हैं।',
-  volunteerLocationSharingDescription:
-    'एक स्वयंसेवक के रूप में, आप आपातकालीन स्थितियों में दूसरों की मदद करने के लिए अपना स्थान साझा करना चुन सकते हैं। नीचे अपना पसंदीदा उपलब्धता विकल्प चुनें।',
+  // App-wide
+  'app.name': 'शॉउटआउट',
+  login: 'लॉग इन करें',
+  logout: 'लॉग आउट करें',
+  cancel: 'रद्द करें',
+  save: 'सहेजें',
+  confirm: 'पुष्टि करें',
+  back: 'वापस',
+  next: 'अगला',
+  done: 'पूर्ण',
+  error: 'त्रुटि',
+  success: 'सफलता',
+  warning: 'चेतावनी',
+  info: 'जानकारी',
 
-  sosWarning: 'SOS चेतावनी',
-  cancelSOS: 'SOS रद्द करें',
-  sosSent: 'SOS भेजा गया',
-  notificationSentTo: 'सूचना {count} निकटवर्ती व्यक्तियों को भेजी गई',
-  acceptedBy: '{count} व्यक्तियों द्वारा स्वीकार किया गया',
-  emergencyContactsInformed: 'आपातकालीन संपर्कों को सूचित किया गया',
-  helpUsMore: 'हमें और मदद करें',
-  followedBySomeone: 'पीछा किया जा रहा है',
-  currentLocation: 'वर्तमान स्थान',
-  useCurrentLocation: 'वर्तमान स्थान वापरें',
-  nearbyPoliceStations: 'निकटवर्ती पुलिस स्टेशन',
-  contactPoliceStation: 'पुलिस स्टेशन से संपर्क करें',
-  verbalHarassment: 'मौखिक उत्पीड़न',
-  physicalThreat: 'शारीरिक धमकी',
-  attemptedKidnapping: 'अपहरण का प्रया',
-  sexualAssault: 'यौन हमला',
-  domesticViolence: 'घरेलू हिंसा',
-  welcome: 'स्वागत है, {name}',
-  coordinates: 'निर्देशांक',
-  noLocationSet: 'स्थान सेट नहीं है',
   language: 'भाषा',
   languages: {
     'en-US': 'अंग्रेजी',
     'hi-IN': 'हिंदी',
     'gu-IN': 'गुजराती',
   },
-  gettingLocation: 'स्थान प्राप्त किया जा रहा है...',
-  liveSosEventChecking: 'लाइव SOS इवेंट जांच',
-  liveSosEventCheckingDescription:
-    'अपने क्षेत्र में लाइव SOS घटनाओं की जांच के लिए नियमित अंतराल पर सक्षम करें।',
-  notAMember: 'संपर्क {contactPhone} ऐप का सदस्य नहीं है',
-  profileUpdateSuccess: 'प्रोफ़ाइल सफलतापूर्वक अपडेट करें',
+
+  icons: {
+    phone: 'phone',
+    lock: 'lock',
+    help: 'help',
+    delete: 'delete',
+    addCircle: 'add_circle',
+    myLocation: 'my_location',
+    locationOn: 'location_on',
+    mic: 'mic',
+    volumeUp: 'volume_up',
+  },
+
+  // Navigation
+  dashboard: 'डैशबोर्ड',
+  account: 'खाता',
+  notifications: 'सूचनाएं',
+  help: 'मदद',
+
+  // Login Page
+  mobileNumber: 'मोबाइल नंबर',
+  enterOTP: 'ओटीपी दर्ज करें',
+  sendOTP: 'ओटीपी भेजें',
+  loginFailed: 'लॉगिन विफल। कृपया अपना ओटीपी जांचें और पुनः प्रयास करें।',
+  otpSendFailed: 'ओटीपी भेजने में विफल। कृपया पुनः प्रयास करें।',
+
+  // Dashboard Page
+  welcome: 'स्वागत है, {name}!',
+  sosButton: 'एसओएस',
+  missingPermissions: 'कुछ अनुमतियाँ गायब हैं',
+  request: '{permission} का अनुरोध करें',
+  helpFor: '{permission} के लिए मदद',
+
+  // Account Page
+  name: 'नाम',
+  city: 'शहर',
   userType: 'उपयोगकर्ता प्रकार',
-  pwaBackgroundLocationLimited:
-    'पेजों में पछाड़े स्थान ट्रैकिंग सामान्य है। साधन अप्लिकेशन का उपयोग करने के लिए जरूरी है।',
-  appPermissions: 'ऐप अनुमतियाँ',
+  emergencyContacts: 'आपातकालीन संपर्क',
+  emergencyContactsHelp:
+    'आपातकाल की स्थिति में सूचित किए जाने वाले 3 आपातकालीन संपर्क जोड़ें।',
+  addEmergencyContact: 'आपातकालीन संपर्क जोड़ें',
+  contactName: 'संपर्क नाम',
+  contactNumber: 'संपर्क नंबर',
+  removeContact: 'संपर्क हटाएं',
+  atLeastOneEmergencyContactRequired: 'कम से कम एक आपातकालीन संपर्क आवश्यक है।',
+  saveChanges: 'परिवर्तन सहेजें',
+  profileUpdateSuccess: 'प्रोफ़ाइल सफलतापूर्वक अपडेट की गई',
+  profileUpdateError: 'प्रोफ़ाइल अपडेट करने में विफल',
+  pleaseSelectLocation: 'कृपया स्थान चुनें',
+
+  // Permissions
+  appPermissions: 'ऐप अनुमतियां',
   location: 'स्थान',
   camera: 'कैमरा',
   microphone: 'माइक्रोफोन',
-  granted: 'प्रदान किया गया',
-  requestPermission: 'अनुमति माँगें',
+  granted: 'प्रदान की गई',
+  requestPermission: 'अनुमति का अनुरोध करें',
   permissionGranted: '{permission} अनुमति प्रदान की गई',
   permissionDenied: '{permission} अनुमति अस्वीकृत',
-  backgroundLocationPermissionRequired:
-    'इस सुविधा के लिए पृष्ठभूमि स्थान अनुमति आवश्यक है',
-  profileUpdateError: 'प्रोफ़ाइल अपडेट करने में त्रुटि',
-  locationUpdated: 'स्थान अपडート किया गया',
-  locationError: 'स्थान प्राप्त करने में त्रुटि',
-  missingPermissions: 'अनुपस्थित अनुमतियाँ',
-  request: '{permission} अनुरोध करें',
-  helpFor: '{permission} के लिए सहायता',
-  help: 'सहायता',
 
+  // SOS Mode
+  sosWarning: 'एसओएस मोड सक्रिय',
+  cancelSOS: 'एसओएस रद्द करें',
+  sosSent: 'एसओएस भेजा गया',
+  sosNotified: '{count} आस-पास के व्यक्तियों को सूचित किया गया',
+  sosAccepted: '{count} व्यक्तियों द्वारा स्वीकार किया गया',
+  emergencyContactsInformed: 'आपातकालीन संपर्कों को सूचित किया गया',
+  helpUsMore: 'स्थिति को बेहतर समझने में हमारी मदद करें',
+  currentLocation: 'वर्तमान स्थान',
+  gettingLocation: 'आपका स्थान प्राप्त कर रहे हैं...',
+  coordinates: 'निर्देशांक',
+  nearbyPoliceStations: 'नजदीकी पुलिस स्टेशन',
+  contactPoliceStation: 'पुलिस स्टेशन से संपर्क करें',
+  resolveSOSIssue: 'एसओएस मुद्दे को हल करें',
+  audioOpen: 'ऑडियो खुला है',
+  clickToOpenAudio: 'ऑडियो खोलने के लिए क्लिक करें',
+
+  // Threat Types
+  followedBySomeone: 'किसी का पीछा किया जा रहा है',
+  verbalHarassment: 'मौखिक उत्पीड़न',
+  physicalThreat: 'शारीरिक खतरा',
+  attemptedKidnapping: 'अपहरण का प्रयास',
+  sexualAssault: 'यौन उत्पीड़न',
+  domesticViolence: 'घरेलू हिंसा',
+
+  // Help Page
   locationPermission: 'स्थान अनुमति',
   locationPermissionHelp:
-    'सटीक SOS सेवाएं प्रदान करने के लिए इस ऐप को आपके स्थान तक पहुंच की आवश्यकता है।',
-  requestLocationPermission: 'स्थान अनुमति का अनुरोध करें',
-
+    'स्थान पहुंच की अनुमति देने से हमें आपातकाल की स्थिति में आपके सटीक स्थान पर मदद भेजने में मदद मिलती है। याद रखें, आपका स्थान कभी भी सहेजा नहीं जाता जब तक आप एसओएस भेजते हैं। यहां तक कि जब आप समुदाय की मदद करने के लिए तैयार हैं, आपका स्थान सहेजा नहीं जाता।',
   cameraPermission: 'कैमरा अनुमति',
   cameraPermissionHelp:
-    'आपातकाल के दौरान फोटो या वीडियो कैप्चर करने के लिए कैमरा एक्सेस आवश्यक है।',
-  requestCameraPermission: 'कैमरा अनुमति का अनुरोध करें',
-
+    'कैमरा पहुंच आपको आपातकाल के दौरान दृश्य साक्ष्य कैप्चर करने और भेजने की अनुमति देती है।',
   microphonePermission: 'माइक्रोफोन अनुमति',
   microphonePermissionHelp:
-    'आपातकाल के दौरान ऑडियो रिकॉर्ड करने के लिए माइक्रोफोन एक्सेस आवश्यक है।',
-  requestMicrophonePermission: 'माइक्रोफोन अनुमति का अनुरोध करें',
-
-  notificationPermission: 'अधिसूचना अनुमति',
+    'माइक्रोफोन पहुंच बेहतर सहायता के लिए आपातकाल के दौरान ऑडियो रिकॉर्डिंग को सक्षम करती है।',
+  notificationPermission: 'सूचना अनुमति',
   notificationPermissionHelp:
-    'आस-पास के SOS घटनाओं के बारे में आपको सूचित करने के लिए सूचनाएं आवश्यक हैं।',
-  requestNotificationPermission: 'अधिसूचना अनुमति का अनुरोध करें',
+    'सूचनाएं आपको महत्वपूर्ण चेतावनियों और अपडेट के बारे में सूचित रखती हैं।',
+
+  // Errors and Validations
+  nameRequired: 'नाम आवश्यक है',
+  invalidMobileNumber: 'कृपया एक मान्य 10-अंकीय मोबाइल नंबर दर्ज करें',
+  invalidOTP: 'कृपया एक मान्य 4-अंकीय ओटीपी दर्ज करें',
+  phoneNumberNotInSystem: 'यह फोन नंबर हमारे सिस्टम में पंजीकृत नहीं है',
+  phoneValidationError: 'फोन नंबर सत्यापित करने में त्रुटि',
+  pleaseFixErrors: 'कृपया जमा करने से पहले त्रुटियों को ठीक करें',
+
+  // Volunteering
+  notificationLocations: 'सूचना स्थान',
+  notificationLocationsHelp:
+    'वे स्थान जोड़ें जहाँ आप एसओएस सूचनाएँ प्राप्त करना चाहते हैं',
+  locationName: 'स्थान नाम',
+  useCurrentLocation: 'वर्तमान स्थान का उपयोग करें',
+  addNotificationLocation: 'सूचना स्थान जोड़ें',
+  availableForCommunity: 'समुदाय सहायता के लिए उपलब्ध',
+  availableForCommunityDescription:
+    'आपातकाल में दूसरों की मदद करने के लिए अपनी उपलब्धता दर्शाने के लिए इसे टॉगल करें',
+  volunteeringUpdateSuccess: 'स्वयंसेवा जानकारी सफलतापूर्वक अपडेट की गई',
+  volunteeringUpdateError: 'स्वयंसेवा जानकारी अपडेट करने में विफल',
+  pleaseSelectAllLocations: 'कृपया सहेजने से पहले सभी स्थान चुनें',
+
+  // Misc
+  noLocationSet: 'कोई स्थान सेट नहीं',
+  locationUpdated: 'स्थान अपडेट किया गया',
+  locationError: 'स्थान प्राप्त करने में त्रुटि',
+  locationWatchError: 'स्थान की निगरानी में त्रुटि',
+
+  // Account Page
+  profile: 'प्रोफ़ाइल',
+  volunteering: 'स्वयंसेवा',
+  logoutSuccess: 'सफलतापूर्वक लॉग आउट करें',
+  logoutError: 'लॉग आउट में त्रुटि',
+
+  // Notifications Page
+  noNotificationsFound: 'कोई सूचनाएँ नहीं मिलीं।',
+  status: 'स्थिति',
+  threat: 'खतरा',
+  accept: 'स्वीकार करें',
+  follow: 'फॉलो करें',
+  notificationAcceptedSuccess: 'सूचना सफलतापूर्वक स्वीकार की गई',
+  notificationAcceptedError: 'सूचना स्वीकार करने में विफल',
+
+  notificationTitles: {
+    volunteerNearby: 'आस-पास {eventType} अलर्ट',
+    emergencyContact: 'आपातकालीन संपर्क {eventType} अलर्ट',
+  },
+
+  sosStatus: {
+    active: 'सक्रिय',
+    resolved: 'हल किया गया',
+    cancelled: 'रद्द किया गया',
+  },
+
+  notificationStatus: {
+    sent: 'भेजा गया',
+    received: 'प्राप्त हुआ',
+    accepted: 'स्वीकार किया गया',
+    ignored: 'अनदेखा किया गया',
+  },
+
+  audioConnectedSuccess: 'ऑडियो सफलतापूर्वक जोड़ा गया',
+  audioConnectedError: 'ऑडियो जोड़ने में त्रुटि',
 };

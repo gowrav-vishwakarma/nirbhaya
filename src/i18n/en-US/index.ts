@@ -3,7 +3,7 @@
 
 export default {
   // App-wide
-  'app.name': 'Nirbhaya SOS',
+  'app.name': 'Shoutout',
   login: 'Login',
   logout: 'Logout',
   cancel: 'Cancel',
@@ -33,6 +33,7 @@ export default {
     myLocation: 'my_location',
     locationOn: 'location_on',
     mic: 'mic',
+    volumeUp: 'volume_up',
   },
 
   // Navigation
@@ -111,7 +112,7 @@ export default {
   // Help Page
   locationPermission: 'Location Permission',
   locationPermissionHelp:
-    'Allowing location access helps us to send help to your exact location in case of an emergency.',
+    'Allowing location access helps us to send help to your exact location in case of an emergency. Remember, your location is never saved unless you send SOS. Even when you are ready to help community, your location is not saved.',
   cameraPermission: 'Camera Permission',
   cameraPermissionHelp:
     'Camera access allows you to capture and send visual evidence during an emergency.',
@@ -149,4 +150,40 @@ export default {
   locationUpdated: 'Location updated',
   locationError: 'Error getting location',
   locationWatchError: 'Error watching location',
+
+  // Account Page
+  profile: 'Profile',
+  volunteering: 'Volunteering',
+  logoutSuccess: 'Logged out successfully',
+  logoutError: 'Error logging out',
+
+  // Notifications Page
+  noNotificationsFound: 'No notifications found.',
+  status: 'Status',
+  threat: 'Threat',
+  accept: 'Accept',
+  follow: 'Follow',
+  notificationAcceptedSuccess: 'Notification accepted successfully',
+  notificationAcceptedError: 'Failed to accept notification',
+
+  notificationTitles: {
+    volunteerNearby: 'Nearby {eventType} alert',
+    emergencyContact: 'Emergency contact {eventType} alert',
+  },
+
+  sosStatus: {
+    active: 'Active',
+    resolved: 'Resolved',
+    cancelled: 'Cancelled',
+  },
+
+  notificationStatus: {
+    sent: 'Sent',
+    received: 'Received',
+    accepted: 'Accepted',
+    ignored: 'Ignored',
+  },
+
+  audioConnectedSuccess: 'Audio connected successfully',
+  audioConnectedError: 'Error connecting audio',
 };

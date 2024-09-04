@@ -26,7 +26,7 @@ import { ref, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { useQuasar } from 'quasar';
 import { useI18n } from 'vue-i18n';
-import { Capacitor, Plugins } from '@capacitor/core';
+import { Capacitor } from '@capacitor/core';
 import { Geolocation } from '@capacitor/geolocation';
 import { Camera } from '@capacitor/camera';
 
@@ -117,9 +117,22 @@ const requestPermission = async (permissionName: string) => {
       switch (permissionName) {
         case 'location':
           result = await Geolocation.requestPermissions();
+          console.log('Location permission result:', result);
           break;
         case 'camera':
           result = await Camera.requestPermissions();
+          console.log('Camera permission result:', result);
+          break;
+        case 'microphone':
+          result = await navigator.mediaDevices.getUserMedia({
+            video: false,
+            audio: true,
+          });
+          console.log('Microphone permission result:', result);
+          break;
+        case 'notifications':
+          result = await PushNotifications.requestPermissions();
+          console.log('Notifications permission result:', result);
           break;
         // ... other cases ...
       }

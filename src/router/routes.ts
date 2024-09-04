@@ -26,20 +26,6 @@ const routes: RouteRecordRaw[] = [
         component: () => import('pages/Sos/SOSModeOnPage.vue'),
       },
       {
-        path: 'sos-request',
-        component: () => import('pages/Sos/SOSRequestPage.vue'),
-      },
-      {
-        path: 'sos-location-change',
-        component: () => import('pages/Sos/SOSLocationChangePage.vue'),
-      },
-      {
-        path: 'sos-page/:sosEventId/:location',
-        name: 'sos-page',
-        component: () => import('pages/Sos/SOSPage.vue'),
-        props: true,
-      },
-      {
         path: 'notifications',
         component: () => import('pages/NotificationsPage.vue'),
       },

@@ -112,7 +112,7 @@ const { t } = useI18n();
 const $q = useQuasar();
 const userStore = useUserStore();
 
-const { values, errors, isLoading, validateAndSubmit, callbacks } = useForm(
+const { values, isLoading, validateAndSubmit, callbacks } = useForm(
   api,
   'auth/user-profile-update',
   {

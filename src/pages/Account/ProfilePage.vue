@@ -229,6 +229,7 @@ const requestPermission = async (permissionName: string) => {
       switch (permissionName) {
         case 'location':
           result = await navigator.permissions.query({ name: 'geolocation' });
+          console.log('Location permission result:', result);
           break;
         case 'camera':
         case 'microphone':
@@ -236,6 +237,10 @@ const requestPermission = async (permissionName: string) => {
             video: permissionName === 'camera',
             audio: permissionName === 'microphone',
           });
+          console.log(
+            'Media (camera and microphone) permission result:',
+            result
+          );
           break;
       }
     }

@@ -49,9 +49,18 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router';
 import { useBackgroundNotifications } from 'src/composables/useBackgroundNotifications';
+import { useUserStore } from 'src/stores/user-store';
+import { onMounted } from 'vue';
+import { useI18n } from 'vue-i18n';
 
 const router = useRouter();
 const { unreadNotificationCount } = useBackgroundNotifications();
+const userStore = useUserStore();
+const { locale } = useI18n();
+
+onMounted(() => {
+  locale.value = userStore.language;
+});
 
 const goToAccountPage = () => {
   router.push('/account');
