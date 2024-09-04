@@ -14,254 +14,69 @@
       "
       v-if="userStore?.user"
     >
-      <div class="row q-pa-md">
-        <!-- Language switcher -->
-        <div class="col-12 q-mb-md">
-          <LanguageSelector />
-        </div>
+      <q-tabs
+        v-model="tab"
+        dense
+        class="text-grey"
+        active-color="primary"
+        indicator-color="primary"
+        align="justify"
+        narrow-indicator
+      >
+        <q-tab name="profile" label="Profile" />
+        <q-tab name="volunteering" label="Volunteering" />
+      </q-tabs>
 
-        <!-- Basic profile information -->
-        <div class="col-12 q-mb-md">
-          <h6 class="q-ma-none q-ml-xs">{{ $t('name') }}</h6>
-          <q-input
-            class="q-mt-sm"
-            outlined
-            v-model="values.name"
-            :label="$t('name')"
-            style="border-radius: 20px"
-          />
-        </div>
-        <div class="col-12 q-mb-md">
-          <h6 class="q-ma-none q-ml-xs">{{ $t('mobileNumber') }}</h6>
-          <q-input
-            readonly
-            disable
-            class="q-mt-sm"
-            outlined
-            v-model="values.phoneNumber"
-            :label="$t('mobileNumber')"
-            style="border-radius: 20px"
-          />
-        </div>
-        <div class="col-12 q-mb-md">
-          <h6 class="q-ma-none q-ml-xs">{{ $t('city') }}</h6>
-          <q-input
-            class="q-mt-sm"
-            outlined
-            v-model="values.city"
-            :label="$t('city')"
-            style="border-radius: 20px"
-          />
-        </div>
+      <q-separator />
 
-        <!-- New user type dropdown -->
-        <div class="col-12 q-mb-md">
-          <h6 class="q-ma-none q-ml-xs">{{ $t('userType') }}</h6>
-          <q-select
-            class="q-mt-sm"
-            outlined
-            v-model="values.userType"
-            :options="userTypeOptions"
-            :label="$t('userType')"
-            style="border-radius: 20px"
-          />
-        </div>
+      <q-tab-panels v-model="tab" animated>
+        <q-tab-panel name="profile">
+          <ProfilePage />
+        </q-tab-panel>
 
-        <!-- Emergency contacts -->
-        <div class="col-12 q-mb-md">
-          <div class="flex items-center">
-            <h6 class="q-ma-none q-ml-xs">{{ $t('emergencyContacts') }}</h6>
-            <q-icon name="help" size="xs" class="q-ml-sm">
-              <q-tooltip>{{ $t('emergencyContactsHelp') }}</q-tooltip>
-            </q-icon>
-          </div>
-          <div
-            v-for="(contact, index) in values.emergencyContacts"
-            :key="index"
-            class="q-mt-sm"
-          >
-            <q-input
-              outlined
-              v-model="contact.contactName"
-              :label="$t('name')"
-              class="q-mb-sm"
-              style="border-radius: 20px"
-            />
-            <q-input
-              outlined
-              v-model="contact.contactPhone"
-              :label="$t('number')"
-              class="q-mb-sm"
-              style="border-radius: 20px"
-            />
+        <q-tab-panel name="volunteering">
+          <VolunteeringPage />
+        </q-tab-panel>
+      </q-tab-panels>
 
-            <q-btn
-              flat
-              round
-              color="negative"
-              icon="delete"
-              @click="removeEmergencyContact(index)"
-            />
-          </div>
-          <q-btn
-            v-if="values.emergencyContacts?.length < 3"
-            @click="addEmergencyContact"
-            class="q-mt-sm primaryBackGroundColor text-white"
-            icon="add_circle"
-          >
-            <span class="q-ml-xs">{{ $t('addEmergencyContact') }}</span>
-          </q-btn>
-        </div>
+      <!-- Save button -->
+      <div class="q-pa-md">
+        <q-btn
+          :loading="updateProfileIsLoading"
+          @click="saveChanges"
+          style="width: 100%"
+          class="bg-green text-white"
+        >
+          <b class="q-ml-xs q-my-md">{{ $t('saveChanges') }}</b>
+        </q-btn>
+      </div>
 
-        <!-- Notification locations -->
-        <div class="col-12 q-mb-md">
-          <div class="flex items-center">
-            <h6 class="q-ma-none q-ml-xs">{{ $t('notificationLocations') }}</h6>
-            <q-icon name="help" size="xs" class="q-ml-sm">
-              <q-tooltip>{{ $t('notificationLocationsHelp') }}</q-tooltip>
-            </q-icon>
-          </div>
-          <div
-            v-for="(location, index) in values.locations"
-            :key="index"
-            class="q-mt-sm"
-          >
-            <div class="row q-col-gutter-sm">
-              <div class="col">
-                <q-input
-                  outlined
-                  v-model="location.name"
-                  :label="$t('locationName')"
-                  :hint="getLocationHint(location)"
-                  class="q-mb-sm"
-                  style="border-radius: 20px"
-                />
-              </div>
-              <div class="col-auto">
-                <q-btn
-                  flat
-                  round
-                  color="primary"
-                  icon="my_location"
-                  @click="updateLocationCoordinates(index)"
-                >
-                  <q-tooltip>{{ $t('useCurrentLocation') }}</q-tooltip>
-                </q-btn>
-              </div>
-              <div class="col-auto">
-                <q-btn
-                  flat
-                  round
-                  color="negative"
-                  icon="delete"
-                  @click="removeNotificationLocation(index)"
-                />
-              </div>
-            </div>
-            <p
-              v-if="
-                location.location.coordinates[1] &&
-                location.location.coordinates[0]
-              "
-              class="text-caption q-mt-sm"
-            >
-              {{ $t('coordinates') }}: {{ location.location.coordinates[1] }},
-              {{ location.location.coordinates[0] }}
-            </p>
-          </div>
-          <q-btn
-            v-if="values.locations.length < 2"
-            @click="addNotificationLocation"
-            class="q-mt-sm primaryBackGroundColor text-white"
-            icon="add_circle"
-          >
-            <span class="q-ml-xs">{{ $t('addNotificationLocation') }}</span>
-          </q-btn>
-        </div>
-
-        <!-- Live SOS event checking toggle -->
-        <div class="col-12 q-mb-md">
-          <div class="flex items-center justify-between">
-            <div>
-              <h6 class="q-ma-none q-ml-xs">
-                {{ $t('liveSosEventChecking') }}
-              </h6>
-              <p class="text-caption q-mb-sm">
-                {{ $t('liveSosEventCheckingDescription') }}
-              </p>
-            </div>
-            <q-toggle
-              v-model="values.liveSosEventChecking"
-              color="primary"
-              @update:model-value="handleLiveSosToggle"
-            />
-          </div>
-        </div>
-
-        <!-- Permissions section -->
-        <div class="col-12 q-mb-md">
-          <h6 class="q-ma-none q-ml-xs">{{ $t('appPermissions') }}</h6>
-          <div
-            v-for="(permission, index) in permissions"
-            :key="index"
-            class="q-mt-sm"
-          >
-            <div class="flex items-center justify-between">
-              <span>{{ $t(permission.name) }}</span>
-              <q-btn
-                :label="
-                  $t(permission.granted ? 'granted' : 'requestPermission')
-                "
-                :color="permission.granted ? 'positive' : 'primary'"
-                @click="requestPermission(permission.name)"
-                :disable="permission.granted"
-              />
-            </div>
-          </div>
-        </div>
-
-        <!-- Save button -->
-        <div class="col-12 q-mt-lg">
-          <q-btn
-            :loading="updateProfileIsLoading"
-            @click="saveChanges"
-            style="width: 100%"
-            class="bg-green text-white"
-          >
-            <b class="q-ml-xs q-my-md">{{ $t('saveChanges') }}</b>
-          </q-btn>
-        </div>
-
-        <!-- Logout button -->
-        <div class="col-12 q-mt-md">
-          <q-btn @click="logout" style="width: 100%" class="bg-red text-white">
-            <b class="q-ml-xs q-my-md">{{ $t('logout') }}</b>
-          </q-btn>
-        </div>
+      <!-- Logout button -->
+      <div class="q-pa-md">
+        <q-btn @click="logout" style="width: 100%" class="bg-red text-white">
+          <b class="q-ml-xs q-my-md">{{ $t('logout') }}</b>
+        </q-btn>
       </div>
     </q-card>
   </q-page>
 </template>
 
 <script lang="ts" setup>
-import { computed, onMounted, ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { useLanguageStore } from 'src/stores/languageStore';
-import { Capacitor, Plugins } from '@capacitor/core';
-import { Geolocation } from '@capacitor/geolocation';
-import { Camera } from '@capacitor/camera';
 import { useQuasar } from 'quasar';
+import { useRouter } from 'vue-router';
+import { useUserStore } from 'src/stores/user-store';
 import { api } from 'src/boot/axios';
 import { useForm } from 'src/qnatk/composibles/use-form';
-import { useUserStore } from 'src/stores/user-store';
-import { useRouter } from 'vue-router';
-import LanguageSelector from 'src/components/LanguageSelector.vue';
+import ProfilePage from './ProfilePage.vue';
+import VolunteeringPage from './VolunteeringPage.vue';
 
 const { t } = useI18n();
-const languageStore = useLanguageStore();
 const $q = useQuasar();
 const router = useRouter();
 const userStore = useUserStore();
+const tab = ref('profile');
 
 // Add this block to check user authentication
 onMounted(() => {
@@ -284,7 +99,6 @@ const userTypeOptions = [
   // Add more options as needed
 ];
 
-// Modify the useForm hook to include userType
 const {
   values,
   isLoading: updateProfileIsLoading,
@@ -294,7 +108,7 @@ const {
   name: userStore?.user?.name,
   phoneNumber: userStore?.user?.phoneNumber,
   city: userStore?.user?.city,
-  userType: userStore?.user?.userType, // Add this line
+  userType: userStore?.user?.userType,
   emergencyContacts: userStore?.user?.emergencyContacts,
   locations: userStore?.user?.locations,
   liveSosEventChecking: userStore?.user?.liveSosEventChecking,
@@ -411,7 +225,7 @@ onMounted(async () => {
   values.name = userStore.user.name;
   values.phoneNumber = userStore.user.phoneNumber;
   values.city = userStore.user.city;
-  values.userType = userStore.user.userType; // Add this line
+  values.userType = userStore.user.userType;
   values.emergencyContacts = userStore.user.emergencyContacts;
   values.locations = userStore.user.locations;
   values.liveSosEventChecking = userStore.user.liveSosEventChecking;
@@ -464,7 +278,7 @@ updateProfileCallbacks.onSuccess = (updatedUser) => {
   userStore.updateUser({
     name: updatedUser.name,
     city: updatedUser.city,
-    userType: updatedUser.userType, // Add this line
+    userType: updatedUser.userType,
     liveSosEventChecking: updatedUser.liveSosEventChecking,
     emergencyContacts: updatedUser.emergencyContacts,
     locations: updatedUser.locations,

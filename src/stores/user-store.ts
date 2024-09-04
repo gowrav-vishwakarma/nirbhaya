@@ -28,7 +28,7 @@ export interface User {
   token: string;
   isVerified: boolean;
   city: string;
-  liveSosEventChecking: boolean;
+  availableForCommunity: boolean; // Changed from liveSosEventChecking
   emergencyContacts: EmergencyContact[];
   locations: UserLocation[];
 }
@@ -42,7 +42,7 @@ const defaultUser: User = {
   token: '',
   isVerified: false,
   city: '',
-  liveSosEventChecking: false,
+  availableForCommunity: false, // Changed from liveSosEventChecking
   emergencyContacts: [],
   locations: [],
 };
