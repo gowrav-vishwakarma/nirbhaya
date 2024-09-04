@@ -182,4 +182,9 @@ export default {
 
   audioConnectedSuccess: 'ऑडियो सफलतापूर्वक जोड़ा गया',
   audioConnectedError: 'ऑडियो जोड़ने में त्रुटि',
+  justNow: 'बस अब',
+  minutesAgo: 'मिनटों में',
+  hoursAgo: 'घंटों में',
+  daysAnd: 'दिनों और',
+  hoursAnd: 'घंटों और',
 };

@@ -186,4 +186,9 @@ export default {
 
   audioConnectedSuccess: 'Audio connected successfully',
   audioConnectedError: 'Error connecting audio',
+  justNow: 'Just now',
+  minutesAgo: 'minutes ago',
+  hoursAgo: 'hours ago',
+  daysAnd: 'days and',
+  hoursAnd: 'hours and',
 };

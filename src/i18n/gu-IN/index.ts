@@ -183,4 +183,9 @@ export default {
 
   audioConnectedSuccess: 'ઓડિયો સફળતાપૂર્વક જોડાયું',
   audioConnectedError: 'ઓડિયો જોડવામાં ભૂલ',
+  justNow: 'તમામ જાણવામાં આવી',
+  minutesAgo: 'મિનિટોમાં',
+  hoursAgo: 'કલામાં',
+  daysAnd: 'દિવસો અને',
+  hoursAnd: 'કલામાં',
 };
