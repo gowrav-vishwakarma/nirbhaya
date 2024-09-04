@@ -2,67 +2,78 @@
 // so you can safely delete all default props below
 
 export default {
-  name: 'Name',
-  mobileNumber: 'Mobile Number',
-  city: 'City',
-  emergencyContacts: 'Emergency Contacts',
-  emergencyContactsHelp:
-    'Add up to 3 emergency contacts who will be notified in case of an SOS.',
-  number: 'Number',
-  addEmergencyContact: 'Add Emergency Contact',
-  locationSharing: 'Location Sharing',
-  locationSharingHelp:
-    'Choose how you want to share your location for safety purposes.',
-  notificationLocations: 'Get Notified for following locations',
-  notificationLocationsHelp:
-    'Add up to 2 locations where you want to receive notifications.',
-  locationName: 'Location Name',
-  address: 'Address',
-  addNotificationLocation: 'Add Notification Location',
-  saveChanges: 'Save Changes',
-  alwaysLive: 'Always Live (Share location every 5 minutes)',
-  fetchSOS: 'Fetch SOS events every 5 minutes',
-  noLocationSharing: 'Do not share location',
-  volunteerLocationSharing: 'Volunteer Availability',
-  volunteerLocationSharingHelp:
-    'Choose how you want to make yourself available as a volunteer to help others in need.',
-  volunteerLocationSharingDescription:
-    'As a volunteer, you can choose to share your location to help others in emergency situations. Select your preferred availability option below.',
-  alwaysAvailable: 'Always Available (Update my location every 5 minutes)',
-  cancelSOS: 'Cancel SOS',
-  sosSent: 'SOS Sent',
-  notificationSentTo: 'Notification sent to {count} nearby persons',
-  acceptedBy: 'Accepted by {count} persons',
-  emergencyContactsInformed: 'Emergency contacts informed',
-  helpUsMore: 'Help us more',
-  followedBySomeone: 'Being Followed',
-  verbalHarassment: 'Verbal Harassment',
-  physicalThreat: 'Physical Threat',
-  attemptedKidnapping: 'Attempted Kidnapping',
-  sexualAssault: 'Sexual Assault',
-  domesticViolence: 'Domestic Violence',
-  currentLocation: 'Current Location',
-  useCurrentLocation: 'Use Current Location',
-  nearbyPoliceStations: 'Nearby Police Stations',
-  gettingLocation: 'Getting location...',
-  contactPoliceStation: 'Contact Police Station',
-  welcome: 'Welcome, {name}',
-  coordinates: 'Coordinates',
-  noLocationSet: 'No location set',
+  // App-wide
+  'app.name': 'Nirbhaya SOS',
+  login: 'Login',
+  logout: 'Logout',
+  cancel: 'Cancel',
+  save: 'Save',
+  confirm: 'Confirm',
+  back: 'Back',
+  next: 'Next',
+  done: 'Done',
+  error: 'Error',
+  success: 'Success',
+  warning: 'Warning',
+  info: 'Information',
+
   language: 'Language',
   languages: {
     'en-US': 'English',
     'hi-IN': 'Hindi',
     'gu-IN': 'Gujarati',
   },
-  liveSosEventChecking: 'Live SOS Event Checking',
-  liveSosEventCheckingDescription:
-    'Enable to check for live SOS events in your area at frequent intervals.',
-  notAMember: 'Contact {contactPhone} is not a member of the app',
-  profileUpdateSuccess: 'Profile updated successfully',
+
+  icons: {
+    phone: 'phone',
+    lock: 'lock',
+    help: 'help',
+    delete: 'delete',
+    addCircle: 'add_circle',
+    myLocation: 'my_location',
+    locationOn: 'location_on',
+    mic: 'mic',
+  },
+
+  // Navigation
+  dashboard: 'Dashboard',
+  account: 'Account',
+  notifications: 'Notifications',
+  help: 'Help',
+
+  // Login Page
+  mobileNumber: 'Mobile Number',
+  enterOTP: 'Enter OTP',
+  sendOTP: 'Send OTP',
+  loginFailed: 'Login failed. Please check your OTP and try again.',
+  otpSendFailed: 'Failed to send OTP. Please try again.',
+
+  // Dashboard Page
+  welcome: 'Welcome, {name}!',
+  sosButton: 'SOS',
+  missingPermissions: 'Some permissions are missing',
+  request: 'Request {permission}',
+  helpFor: 'Help for {permission}',
+
+  // Account Page
+  name: 'Name',
+  city: 'City',
   userType: 'User Type',
-  pwaBackgroundLocationLimited:
-    'Background location tracking is limited in PWAs. Please use the native app for better experience.',
+  emergencyContacts: 'Emergency Contacts',
+  emergencyContactsHelp:
+    'Add up to 3 emergency contacts who will be notified in case of an emergency.',
+  addEmergencyContact: 'Add Emergency Contact',
+  contactName: 'Contact Name',
+  contactNumber: 'Contact Number',
+  removeContact: 'Remove Contact',
+  atLeastOneEmergencyContactRequired:
+    'At least one emergency contact is required.',
+  saveChanges: 'Save Changes',
+  profileUpdateSuccess: 'Profile updated successfully',
+  profileUpdateError: 'Failed to update profile',
+  pleaseSelectLocation: 'Please select location',
+
+  // Permissions
   appPermissions: 'App Permissions',
   location: 'Location',
   camera: 'Camera',
@@ -71,34 +82,71 @@ export default {
   requestPermission: 'Request Permission',
   permissionGranted: '{permission} permission granted',
   permissionDenied: '{permission} permission denied',
-  backgroundLocationPermissionRequired:
-    'Background location permission is required for this feature',
-  profileUpdateError: 'Error updating profile',
-  locationUpdated: 'Location updated',
-  locationError: 'Error getting location',
-  missingPermissions: 'Missing Permissions',
-  request: 'Request {permission}',
-  helpFor: 'Help for {permission}',
-  help: 'Help',
 
-  // Add these new keys if they're not already present
+  // SOS Mode
+  sosWarning: 'SOS Mode Activated',
+  cancelSOS: 'Cancel SOS',
+  sosSent: 'SOS Sent',
+  sosNotified: 'Notified {count} nearby persons',
+  sosAccepted: 'Accepted by {count} persons',
+  emergencyContactsInformed: 'Emergency contacts informed',
+  helpUsMore: 'Help us understand the situation better',
+  currentLocation: 'Current Location',
+  gettingLocation: 'Getting your location...',
+  coordinates: 'Coordinates',
+  nearbyPoliceStations: 'Nearby Police Stations',
+  contactPoliceStation: 'Contact Police Station',
+  resolveSOSIssue: 'Resolve SOS Issue',
+  audioOpen: 'Audio Open',
+  clickToOpenAudio: 'Click to Open Audio',
+
+  // Threat Types
+  followedBySomeone: 'Followed by Someone',
+  verbalHarassment: 'Verbal Harassment',
+  physicalThreat: 'Physical Threat',
+  attemptedKidnapping: 'Attempted Kidnapping',
+  sexualAssault: 'Sexual Assault',
+  domesticViolence: 'Domestic Violence',
+
+  // Help Page
   locationPermission: 'Location Permission',
   locationPermissionHelp:
-    'This app needs access to your location to provide accurate SOS services.',
-  requestLocationPermission: 'Request Location Permission',
-
+    'Allowing location access helps us to send help to your exact location in case of an emergency.',
   cameraPermission: 'Camera Permission',
   cameraPermissionHelp:
-    'Camera access is required to capture photos or videos during emergencies.',
-  requestCameraPermission: 'Request Camera Permission',
-
+    'Camera access allows you to capture and send visual evidence during an emergency.',
   microphonePermission: 'Microphone Permission',
   microphonePermissionHelp:
-    'Microphone access is needed to record audio during emergencies.',
-  requestMicrophonePermission: 'Request Microphone Permission',
-
+    'Microphone access enables audio recording during emergencies for better assistance.',
   notificationPermission: 'Notification Permission',
   notificationPermissionHelp:
-    'Notifications are essential to alert you about nearby SOS events.',
-  requestNotificationPermission: 'Request Notification Permission',
+    'Notifications keep you informed about important alerts and updates.',
+
+  // Errors and Validations
+  nameRequired: 'Name is required',
+  invalidMobileNumber: 'Please enter a valid 10-digit mobile number',
+  invalidOTP: 'Please enter a valid 4-digit OTP',
+  phoneNumberNotInSystem: 'This phone number is not registered in our system',
+  phoneValidationError: 'Error validating phone number',
+  pleaseFixErrors: 'Please fix the errors before submitting',
+
+  // Volunteering
+  notificationLocations: 'Notification Locations',
+  notificationLocationsHelp:
+    "Add locations where you'd like to receive SOS notifications",
+  locationName: 'Location Name',
+  useCurrentLocation: 'Use Current Location',
+  addNotificationLocation: 'Add Notification Location',
+  availableForCommunity: 'Available for Community Assistance',
+  availableForCommunityDescription:
+    'Toggle this to indicate your availability to help others in emergencies',
+  volunteeringUpdateSuccess: 'Volunteering information updated successfully',
+  volunteeringUpdateError: 'Failed to update volunteering information',
+  pleaseSelectAllLocations: 'Please select all locations before saving',
+
+  // Misc
+  noLocationSet: 'No location set',
+  locationUpdated: 'Location updated',
+  locationError: 'Error getting location',
+  locationWatchError: 'Error watching location',
 };

@@ -2,18 +2,9 @@
   <q-layout view="lHh Lpr lFf" class="bg-grey-1">
     <q-header elevated class="bg-primary text-white">
       <q-toolbar>
-        <q-btn
-          flat
-          dense
-          round
-          icon="home"
-          aria-label="Home"
-          @click="goToDashboardPage"
-        />
-
-        <q-toolbar-title class="text-h6">
-          <q-icon name="shout" />
-          <span class="text-weight-bold">Shout out</span>
+        <q-toolbar-title class="text-h6" @click="goToDashboardPage">
+          <q-icon name="campaign" size="2em" />
+          <span class="text-weight-bold">{{ $t('app.name') }}</span>
         </q-toolbar-title>
 
         <div>

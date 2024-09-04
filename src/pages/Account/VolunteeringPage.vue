@@ -4,7 +4,7 @@
     <div class="q-mb-md">
       <div class="flex items-center">
         <h6 class="q-ma-none q-ml-xs">{{ $t('notificationLocations') }}</h6>
-        <q-icon name="help" size="xs" class="q-ml-sm">
+        <q-icon :name="$t('icons.help')" size="xs" class="q-ml-sm">
           <q-tooltip>{{ $t('notificationLocationsHelp') }}</q-tooltip>
         </q-icon>
       </div>
@@ -31,7 +31,7 @@
               flat
               round
               color="primary"
-              icon="my_location"
+              :icon="$t('icons.myLocation')"
               @click="updateLocationCoordinates(index)"
               :loading="locationLoading[index]"
             >
@@ -43,7 +43,7 @@
               flat
               round
               color="negative"
-              icon="delete"
+              :icon="$t('icons.delete')"
               @click="removeNotificationLocation(index)"
             />
           </div>
@@ -62,7 +62,7 @@
         v-if="values.locations.length < 10"
         @click="addNotificationLocation"
         class="q-mt-sm bg-primary text-white"
-        icon="add_circle"
+        :icon="$t('icons.addCircle')"
       >
         <span class="q-ml-xs">{{ $t('addNotificationLocation') }}</span>
       </q-btn>

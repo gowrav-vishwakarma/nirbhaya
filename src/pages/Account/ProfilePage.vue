@@ -62,7 +62,7 @@
       <div class="q-mb-md">
         <div class="flex items-center">
           <h6 class="q-ma-none q-ml-xs">{{ $t('emergencyContacts') }}</h6>
-          <q-icon name="help" size="xs" class="q-ml-sm">
+          <q-icon :name="$t('icons.help')" size="xs" class="q-ml-sm">
             <q-tooltip>{{ $t('emergencyContactsHelp') }}</q-tooltip>
           </q-icon>
         </div>
@@ -81,7 +81,7 @@
           />
           <q-input
             v-model="contact.contactPhone"
-            :label="$t('number')"
+            :label="$t('mobileNumber')"
             outlined
             class="q-mb-sm"
             style="border-radius: 20px"
@@ -94,7 +94,7 @@
             flat
             round
             color="negative"
-            icon="delete"
+            :icon="$t('icons.delete')"
             @click="removeEmergencyContact(index)"
           />
         </div>
@@ -102,7 +102,7 @@
           v-if="values.emergencyContacts.length < 3"
           @click="addEmergencyContact"
           class="q-mt-sm bg-primary text-white"
-          icon="add_circle"
+          :icon="$t('icons.addCircle')"
         >
           <span class="q-ml-xs">{{ $t('addEmergencyContact') }}</span>
         </q-btn>

@@ -20,7 +20,7 @@
             :disable="otpSent"
           >
             <template v-slot:prepend>
-              <q-icon name="phone" />
+              <q-icon :name="$t('icons.phone')" />
             </template>
           </q-input>
 
@@ -34,7 +34,7 @@
             mask="####"
           >
             <template v-slot:prepend>
-              <q-icon name="lock" />
+              <q-icon :name="$t('icons.lock')" />
             </template>
           </q-input>
 

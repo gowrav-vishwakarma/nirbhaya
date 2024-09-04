@@ -66,7 +66,7 @@
             {{ $t('currentLocation') }}
           </h6>
           <div class="text-body1">
-            <q-icon name="my_location" color="primary" size="sm" />
+            <q-icon :name="$t('icons.myLocation')" color="primary" size="sm" />
             <span class="q-ml-sm">
               {{ currentLocationName || $t('gettingLocation') }}
             </span>
@@ -85,7 +85,7 @@
             {{ $t('nearbyPoliceStations') }}
           </h6>
           <div class="text-body1">
-            <q-icon name="location_on" color="primary" size="sm" />
+            <q-icon :name="$t('icons.locationOn')" color="primary" size="sm" />
             <span class="q-ml-sm">South Bopal Ahmedabad</span>
           </div>
         </div>
@@ -115,7 +115,7 @@
             round
             size="xl"
             :color="isAudioOpen ? 'primary' : 'grey'"
-            icon="mic"
+            :icon="$t('icons.mic')"
             @click="toggleAudio"
           />
           <p class="q-mt-sm">

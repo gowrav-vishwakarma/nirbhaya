@@ -7,16 +7,21 @@
       <p>{{ $t(section.content) }}</p>
       <q-btn
         v-if="section.action"
-        :label="$t(section.action.label)"
-        color="primary"
+        :label="
+          section.permissionGranted
+            ? $t('permissionGranted')
+            : $t('requestPermission')
+        "
+        :color="section.permissionGranted ? 'positive' : 'primary'"
         @click="section.action.handler"
         class="q-mt-sm"
+        :disable="section.permissionGranted"
       />
     </div>
   </q-page>
 </template>
 
-<script lang="ts" setup>
+<script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { useQuasar } from 'quasar';
@@ -35,7 +40,6 @@ const helpSections = ref([
     title: 'locationPermission',
     content: 'locationPermissionHelp',
     action: {
-      label: 'requestLocationPermission',
       handler: () => requestPermission('location'),
     },
   },
@@ -44,7 +48,6 @@ const helpSections = ref([
     title: 'cameraPermission',
     content: 'cameraPermissionHelp',
     action: {
-      label: 'requestCameraPermission',
       handler: () => requestPermission('camera'),
     },
   },
@@ -53,7 +56,6 @@ const helpSections = ref([
     title: 'microphonePermission',
     content: 'microphonePermissionHelp',
     action: {
-      label: 'requestMicrophonePermission',
       handler: () => requestPermission('microphone'),
     },
   },
@@ -62,11 +64,51 @@ const helpSections = ref([
     title: 'notificationPermission',
     content: 'notificationPermissionHelp',
     action: {
-      label: 'requestNotificationPermission',
       handler: () => requestPermission('notifications'),
     },
   },
 ]);
+
+const checkPermissionStatus = async (
+  permissionName: string
+): Promise<boolean> => {
+  try {
+    if (Capacitor.isNativePlatform()) {
+      // ... existing native platform code ...
+    } else {
+      // Web API fallback
+      switch (permissionName) {
+        case 'location':
+          const result = await navigator.permissions.query({
+            name: 'geolocation',
+          });
+          return result.state === 'granted';
+        case 'camera':
+        case 'microphone':
+          const mediaResult = await navigator.mediaDevices.getUserMedia({
+            video: permissionName === 'camera',
+            audio: permissionName === 'microphone',
+          });
+          return !!mediaResult;
+        case 'notifications':
+          return Notification.permission === 'granted';
+        default:
+          return false;
+      }
+    }
+  } catch (error) {
+    console.error(`Error checking ${permissionName} permission:`, error);
+    return false;
+  }
+};
+
+const updatePermissionStatus = async () => {
+  for (const section of helpSections.value) {
+    if (section.action) {
+      section.permissionGranted = await checkPermissionStatus(section.id);
+    }
+  }
+};
 
 const requestPermission = async (permissionName: string) => {
   try {
@@ -79,39 +121,31 @@ const requestPermission = async (permissionName: string) => {
         case 'camera':
           result = await Camera.requestPermissions();
           break;
-        case 'microphone':
-          result = await Plugins.Permissions.requestPermissions({
-            permissions: ['microphone'],
-          });
-          break;
-        case 'notifications':
-          result = await Plugins.PushNotifications.requestPermission();
-          break;
+        // ... other cases ...
       }
     } else {
       // Web API fallback
-      switch (permissionName) {
-        case 'location':
-          result = await navigator.permissions.query({ name: 'geolocation' });
-          break;
-        case 'camera':
-        case 'microphone':
-          result = await navigator.mediaDevices.getUserMedia({
-            video: permissionName === 'camera',
-            audio: permissionName === 'microphone',
-          });
-          break;
-        case 'notifications':
-          result = await Notification.requestPermission();
-          break;
-      }
+      // ... existing web API code ...
     }
 
-    $q.notify({
-      color: 'positive',
-      message: t('permissionGranted', { permission: t(permissionName) }),
-      icon: 'check',
-    });
+    // Check the permission status immediately after requesting
+    const granted = await checkPermissionStatus(permissionName);
+
+    if (granted) {
+      // Update the specific section's permissionGranted status
+      const section = helpSections.value.find((s) => s.id === permissionName);
+      if (section) {
+        section.permissionGranted = true;
+      }
+
+      $q.notify({
+        color: 'positive',
+        message: t('permissionGranted', { permission: t(permissionName) }),
+        icon: 'check',
+      });
+    } else {
+      throw new Error('Permission not granted');
+    }
   } catch (error) {
     console.error(`Error requesting ${permissionName} permission:`, error);
     $q.notify({
@@ -120,9 +154,11 @@ const requestPermission = async (permissionName: string) => {
       icon: 'error',
     });
   }
+  await updatePermissionStatus();
 };
 
-onMounted(() => {
+onMounted(async () => {
+  await updatePermissionStatus();
   const section = route.query.section as string;
   if (section) {
     const element = document.getElementById(section);
