@@ -4,19 +4,26 @@ import { io, Socket } from 'socket.io-client';
 let socket: Socket | null = null;
 
 export default boot(({ app }) => {
-  const API_BASE_URL = 'ws://127.0.0.1:3000/sos';
+  const API_BASE_URL = 'http://localhost:3000';
 
-  socket = io(API_BASE_URL, {
-    autoConnect: false,
+  console.log('Attempting to connect to WebSocket');
+  socket = io(`${API_BASE_URL}/sos`, {
+    autoConnect: true,
     withCredentials: true,
+    transports: ['websocket', 'polling'], // Try WebSocket first, then fallback to polling
   });
 
   socket.on('connect', () => {
     console.log('Connected to WebSocket');
+    console.log('Socket ID:', socket?.id);
   });
 
-  socket.on('disconnect', () => {
-    console.log('Disconnected from WebSocket');
+  socket.on('connect_error', (error) => {
+    console.error('Connection error:', error);
+  });
+
+  socket.on('disconnect', (reason) => {
+    console.log('Disconnected from WebSocket. Reason:', reason);
   });
 
   // Make socket available globally
