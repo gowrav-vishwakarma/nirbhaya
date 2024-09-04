@@ -112,7 +112,7 @@ export default {
   // Help Page
   locationPermission: 'Location Permission',
   locationPermissionHelp:
-    'Allowing location access helps us to send help to your exact location in case of an emergency.',
+    'Allowing location access helps us to send help to your exact location in case of an emergency. Remember, your location is never saved unless you send SOS. Even when you are ready to help community, your location is not saved.',
   cameraPermission: 'Camera Permission',
   cameraPermissionHelp:
     'Camera access allows you to capture and send visual evidence during an emergency.',
