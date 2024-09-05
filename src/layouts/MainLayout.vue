@@ -49,7 +49,7 @@
         <q-btn
           flat
           round
-          icon="person"
+          :icon="$q.platform.is.ios ? 'settings' : 'ion-ios-gear-outline'"
           aria-label="Profile"
           @click="goToAccountPage"
         />

@@ -69,6 +69,10 @@
           style="border-radius: 20px"
           :error="!!errors.profession"
           :error-message="errors.profession?.join('; ')"
+          map-options
+          emit-value
+          option-value="value"
+          option-label="label"
         />
       </div>
 
@@ -178,13 +182,14 @@ const userStore = useUserStore();
 const userTypeOptions = ['Girl', 'Child', 'Elder Woman', 'Elder Man', 'Youth'];
 
 const professionOptions = [
-  'Doctor General',
-  'Doctor Emergency',
-  '2 Wheeler Mechanic',
-  '4 Wheeler Mechanic',
-  '2&4 Wheeler Mechanic',
-  'Nurse',
-  'Other',
+  { label: t('hospital'), value: 'hospital' },
+  { label: t('doctorGeneral'), value: 'doctorGeneral' },
+  { label: t('doctorEmergency'), value: 'doctorEmergency' },
+  { label: t('mechanic2Wheeler'), value: 'mechanic2Wheeler' },
+  { label: t('mechanic4Wheeler'), value: 'mechanic4Wheeler' },
+  { label: t('mechanicBoth'), value: 'mechanicBoth' },
+  { label: t('nurse'), value: 'nurse' },
+  { label: t('other'), value: 'other' },
 ];
 
 const { values, errors, isLoading, validateAndSubmit, callbacks } = useForm(

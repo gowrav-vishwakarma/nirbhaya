@@ -34,6 +34,8 @@ export default {
     locationOn: 'location_on',
     mic: 'mic',
     volumeUp: 'volume_up',
+    hospital: 'local_hospital',
+    build: 'build',
   },
 
   // Navigation
@@ -76,6 +78,14 @@ export default {
   contactNumberRequired: 'Contact number is required',
   contactNameRequired: 'Contact name is required',
   profession: 'Profession',
+  hospital: 'Hospital',
+  doctorGeneral: 'Doctor General',
+  doctorEmergency: 'Doctor Emergency',
+  mechanic2Wheeler: '2 Wheeler Mechanic',
+  mechanic4Wheeler: '4 Wheeler Mechanic',
+  mechanicBoth: '2&4 Wheeler Mechanic',
+  nurse: 'Nurse',
+  other: 'Other',
 
   // Permissions
   appPermissions: 'App Permissions',

@@ -31,6 +31,8 @@ export default {
     locationOn: 'location_on',
     mic: 'mic',
     volumeUp: 'volume_up',
+    hospital: 'local_hospital',
+    build: 'build',
   },
 
   // Navigation
@@ -64,8 +66,7 @@ export default {
   contactName: 'સંપર્કનું નામ',
   contactNumber: 'સંપર્ક નંબર',
   removeContact: 'સંપર્ક દૂર કરો',
-  atLeastOneEmergencyContactRequired:
-    'ઓછામા�� ઓછો એક કટોકટીનો સંપર્ક જરૂરી છે.',
+  atLeastOneEmergencyContactRequired: 'ઓછામા ઓછો એક કટોકટીનો સંપર્ક જરૂરી છે.',
   saveChanges: 'ફેરફારો સાચવો',
   profileUpdateSuccess: 'પ્રોફાઇલ સફળતાપૂર્વક અપડેટ થઈ',
   profileUpdateError: 'પ્રોફાઇલ અપડેટ કરવામાં નિષ્ફળ',
@@ -73,6 +74,14 @@ export default {
   contactNumberRequired: 'સંપર્ક નંબર જરૂરી છે',
   contactNameRequired: 'સંપર્કનું નામ જરૂરી છે',
   profession: 'વ્યવસાય',
+  hospital: 'હોસ્પિટલ',
+  doctorGeneral: 'ડોક્ટર જેનેરલ',
+  doctorEmergency: 'ડોક્ટર એમર્જેન્સ',
+  mechanic2Wheeler: '2 વેહિકલ મેકનિક',
+  mechanic4Wheeler: '4 વેહિકલ મેકનિક',
+  mechanicBoth: '2&4 વેહિકલ મેકનિક',
+  nurse: 'નિયુસ',
+  other: 'અન્ય',
 
   // Permissions
   appPermissions: 'એપ્લિકેશન પરવાનગીઓ',
@@ -89,7 +98,7 @@ export default {
   cancelSOS: 'એસઓએસ રદ કરો',
   sosSent: 'એસઓએસ મોકલવામાં આવ્યો',
   sosNotified: '{count} નજીકના લોકોને સૂચિત કરવામાં આવ્યા',
-  sosAccepted: '{count} લોકો દ્વાર��� સ્વીકારવામાં આવ્યું',
+  sosAccepted: '{count} લોકો દ્વારા સ્વીકારવામાં આવ્યું',
   emergencyContactsInformed: 'કટોકટીના સંપર્કોને જાણ કરવામાં આવી',
   helpUsMore: 'પરિસ્થિતિને વધુ સારી રીતે સમજવામાં અમારી મદદ કરો',
   currentLocation: 'વર્તમાન સ્થાન',
@@ -121,7 +130,7 @@ export default {
     'માઇક્રોફોન ઍક્સેસ વધુ સારી સહાય માટે કટોકટી દરમિયાન ઓડિયો રેકોર્ડિંગ સક્ષમ કરે છે.',
   notificationPermission: 'સૂચના પરવાનગી',
   notificationPermissionHelp:
-    'સૂચનાઓ તમને મહત્વપૂર્ણ ચેતવણીઓ અને અપડેટ્સ વિશે માહિતગાર રાખે ���ે.',
+    'સૂચનાઓ તમને મહત્વપૂર્ણ ચેતવણીઓ અને અપડેટ્સ વિશે માહિતગાર રાખે છે.',
 
   // Errors and Validations
   nameRequired: 'નામ આવશ્યક છે',
@@ -144,7 +153,7 @@ export default {
   volunteeringUpdateSuccess: 'સ્વયંસેવા માહિતી સફળતાપૂર્વક અપડેટ થઈ',
   volunteeringUpdateError: 'સ્વયંસેવા માહિતી અપડેટ કરવામાં નિષ્ફળ',
   pleaseSelectAllLocations: 'કૃપા કરીને સાચવતા પહેલા બધા સ્થાનો પસંદ કરો',
-  availableForPaidProfessionalService: 'ભુગतાન કરાયેલ પેશેવર સેવા માટે ઉપલબ્ધ',
+  availableForPaidProfessionalService: 'ભુગતાન કરાયેલ પેશેવર સેવા માટે ઉપલબ્ધ',
   availableForPaidProfessionalServiceDescription:
     'એસઓએસ કરતા તમારી ઉપલબ્ધતા દર્શાવવા માટે આ ટૉગલ કરો',
 

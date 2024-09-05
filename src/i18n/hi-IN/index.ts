@@ -31,6 +31,8 @@ export default {
     locationOn: 'location_on',
     mic: 'mic',
     volumeUp: 'volume_up',
+    hospital: 'local_hospital',
+    build: 'build',
   },
 
   // Navigation
@@ -72,6 +74,14 @@ export default {
   contactNumberRequired: 'संपर्क नंबर आवश्यक है',
   contactNameRequired: 'संपर्क नाम आवश्यक है',
   profession: 'व्यवसाय',
+  hospital: 'हॉस्पिटल',
+  doctorGeneral: 'डॉक्टर जेनरल',
+  doctorEmergency: 'डॉक्टर एमरजेंस',
+  mechanic2Wheeler: '2 व्हीलर मैकेनिक',
+  mechanic4Wheeler: '4 व्हीलर मैकेनिक',
+  mechanicBoth: '2&4 व्हीलर मैकेनिक',
+  nurse: 'नियुस',
+  other: 'अन्य',
 
   // Permissions
   appPermissions: 'ऐप अनुमतियां',

@@ -133,14 +133,17 @@ const getVolunteerPosition = (volunteer) => {
 };
 
 const getVolunteerIcon = (volunteer) => {
-  // Map professions to icons
   const professionIcons = {
-    doctor: 'local_hospital',
-    police: 'local_police',
-    firefighter: 'local_fire_department',
-    default: 'person',
+    hospital: 'local_hospital',
+    'Doctor General': 'local_hospital',
+    'Doctor Emergency': 'local_hospital',
+    '2 Wheeler Mechanic': 'build',
+    '4 Wheeler Mechanic': 'build',
+    '2&4 Wheeler Mechanic': 'build',
+    Nurse: 'local_hospital',
+    Other: 'person',
   };
-  return professionIcons[volunteer.profession] || professionIcons.default;
+  return professionIcons[volunteer.profession] || 'person';
 };
 
 const getVolunteerColor = (volunteer) => {
