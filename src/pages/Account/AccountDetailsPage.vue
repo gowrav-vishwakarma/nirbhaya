@@ -43,6 +43,7 @@ import { useRouter } from 'vue-router';
 import { useUserStore } from 'src/stores/user-store';
 import ProfilePage from './ProfilePage.vue';
 import VolunteeringPage from './VolunteeringPage.vue';
+import { api } from 'src/boot/axios';
 
 const { t } = useI18n();
 const $q = useQuasar();
@@ -63,6 +64,9 @@ onMounted(() => {
 
 const logout = async () => {
   try {
+    // Call the logout API to remove token and FCM token
+    await api.post('/auth/logout'); // {{ edit_1 }}
+
     userStore.clearUser();
     router.push('/login');
     $q.notify({
