@@ -80,6 +80,7 @@ import { Capacitor } from '@capacitor/core';
 import { VoiceRecorder } from 'capacitor-voice-recorder';
 import { socket } from 'boot/socket';
 import { useI18n } from 'vue-i18n';
+import { useRoute } from 'vue-router';
 
 interface SosEvent {
   id: number;
@@ -127,9 +128,16 @@ const { t } = useI18n();
 
 const isAudioOpen = reactive({});
 
+const route = useRoute();
+
 onMounted(async () => {
   await validateAndSubmit(false);
   initializeWebSocket();
+});
+
+// Watch for route changes to refresh notifications
+watch(route, async () => {
+  await validateAndSubmit(false);
 });
 
 onUnmounted(() => {
@@ -142,17 +150,27 @@ watch(unreadNotificationCount, async () => {
   await validateAndSubmit(false);
 });
 
+// Watch for changes in the query parameters to refresh notifications
+watch(
+  () => route.query.key,
+  async () => {
+    await validateAndSubmit(false);
+  }
+);
+
 const getNotificationTitle = (notification: Notification) => {
   const eventType = notification.sosEvent?.threat || 'SOS';
   if (notification.recipientType === 'volunteer') {
     return t('notificationTitles.volunteerNearby', {
       eventType: t(`${eventType}`),
     });
-  } else {
+  } else if (notification.recipientType === 'emergency_contact') {
     return t('notificationTitles.emergencyContact', {
       eventType: t(`${eventType}`),
+      victimName: notification.userLocationName, // Use victim's name here
     });
   }
+  return '';
 };
 
 const getStatusColor = (status: string) => {

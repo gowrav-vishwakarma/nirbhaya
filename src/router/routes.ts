@@ -33,6 +33,7 @@ const routes: RouteRecordRaw[] = [
       {
         path: 'notifications',
         component: () => import('pages/NotificationsPage.vue'),
+        name: 'notifications', // This is the named route
       },
       {
         path: 'help',

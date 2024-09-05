@@ -85,11 +85,16 @@ const goToDashboardPage = () => {
 
 const refreshNotifications = async () => {
   await fetchUnreadNotificationCount();
-  goToNotificationsPage();
+  goToNotificationsPage(true); // Pass a flag to indicate refresh
 };
 
 const goToNotificationsPage = () => {
-  router.push('/notifications');
+  const timestamp = Date.now(); // Generate a unique key
+  router
+    .push({ path: '/notifications', query: { key: timestamp } })
+    .catch(() => {
+      console.log('forced notification');
+    });
 };
 
 const goToHelpPage = () => {

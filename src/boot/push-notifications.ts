@@ -37,7 +37,7 @@ export default boot(async ({ router }) => {
             console.log('Push notification action performed', notification);
             const { sosEventId, location } = notification.notification.data;
             router.push({
-              name: 'sos-page',
+              name: 'notifications', // Updated to point to the notifications page
               params: { sosEventId, location },
             });
           }
@@ -83,7 +83,7 @@ export default boot(async ({ router }) => {
           notification.onclick = () => {
             window.focus();
             router.push({
-              name: 'sos-page',
+              name: 'notifications', // Updated to point to the notifications page
               params: { sosEventId, location },
             });
           };

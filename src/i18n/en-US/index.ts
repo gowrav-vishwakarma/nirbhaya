@@ -175,7 +175,7 @@ export default {
 
   notificationTitles: {
     volunteerNearby: 'Nearby {eventType} alert',
-    emergencyContact: 'Emergency contact {eventType} alert',
+    emergencyContact: 'Emergency contact "{victimName}" alert: {eventType}',
   },
 
   sosStatus: {
