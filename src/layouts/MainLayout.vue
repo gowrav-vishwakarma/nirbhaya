@@ -28,14 +28,6 @@
             aria-label="Help"
             @click="goToHelpPage"
           />
-          <q-btn
-            flat
-            dense
-            round
-            icon="person"
-            aria-label="Profile"
-            @click="goToAccountPage"
-          />
         </div>
       </q-toolbar>
     </q-header>
@@ -43,6 +35,26 @@
     <q-page-container>
       <router-view />
     </q-page-container>
+
+    <q-footer class="bg-primary text-white">
+      <q-toolbar>
+        <q-btn
+          flat
+          round
+          icon="people"
+          aria-label="Nearby Volunteers"
+          @click="goToVolunteersPage"
+        />
+        <q-space />
+        <q-btn
+          flat
+          round
+          icon="person"
+          aria-label="Profile"
+          @click="goToAccountPage"
+        />
+      </q-toolbar>
+    </q-footer>
   </q-layout>
 </template>
 
@@ -82,6 +94,11 @@ const goToNotificationsPage = () => {
 
 const goToHelpPage = () => {
   router.push('/help');
+};
+
+const goToVolunteersPage = () => {
+  // New method for navigation
+  router.push('/volunteers');
 };
 </script>
 

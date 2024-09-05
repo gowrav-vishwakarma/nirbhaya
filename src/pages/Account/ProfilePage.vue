@@ -58,6 +58,20 @@
         />
       </div>
 
+      <div class="q-mb-md">
+        <h6 class="q-ma-none q-ml-xs">{{ $t('profession') }}</h6>
+        <q-select
+          v-model="values.profession"
+          :options="professionOptions"
+          :label="$t('profession')"
+          outlined
+          class="q-mt-sm"
+          style="border-radius: 20px"
+          :error="!!errors.profession"
+          :error-message="errors.profession?.join('; ')"
+        />
+      </div>
+
       <!-- Emergency contacts -->
       <div class="q-mb-md">
         <div class="flex items-center">
@@ -163,6 +177,16 @@ const userStore = useUserStore();
 
 const userTypeOptions = ['Girl', 'Child', 'Elder Woman', 'Elder Man', 'Youth'];
 
+const professionOptions = [
+  'Doctor General',
+  'Doctor Emergency',
+  '2 Wheeler Mechanic',
+  '4 Wheeler Mechanic',
+  '2&4 Wheeler Mechanic',
+  'Nurse',
+  'Other',
+];
+
 const { values, errors, isLoading, validateAndSubmit, callbacks } = useForm(
   api,
   'auth/user-profile-update',
@@ -171,6 +195,7 @@ const { values, errors, isLoading, validateAndSubmit, callbacks } = useForm(
     phoneNumber: '',
     city: '',
     userType: '',
+    profession: '', // Add profession here
     emergencyContacts: [],
   }
 );

@@ -1,4 +1,5 @@
 import { RouteRecordRaw } from 'vue-router';
+import VolunteersNearByPage from 'pages/VolunteersNearByPage.vue';
 
 const routes: RouteRecordRaw[] = [
   {
@@ -26,6 +27,10 @@ const routes: RouteRecordRaw[] = [
         component: () => import('pages/Sos/SOSModeOnPage.vue'),
       },
       {
+        path: 'volunteers',
+        component: () => import('pages/VolunteersNearByPage.vue'),
+      },
+      {
         path: 'notifications',
         component: () => import('pages/NotificationsPage.vue'),
       },
@@ -45,6 +50,12 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/:catchAll(.*)*',
     component: () => import('pages/ErrorNotFound.vue'),
+  },
+
+  {
+    path: '/volunteers-nearby',
+    component: VolunteersNearByPage,
+    meta: { requiresAuth: true },
   },
 ];
 

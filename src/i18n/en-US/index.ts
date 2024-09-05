@@ -73,6 +73,9 @@ export default {
   profileUpdateSuccess: 'Profile updated successfully',
   profileUpdateError: 'Failed to update profile',
   pleaseSelectLocation: 'Please select location',
+  contactNumberRequired: 'Contact number is required',
+  contactNameRequired: 'Contact name is required',
+  profession: 'Profession',
 
   // Permissions
   appPermissions: 'App Permissions',
@@ -144,6 +147,10 @@ export default {
   volunteeringUpdateSuccess: 'Volunteering information updated successfully',
   volunteeringUpdateError: 'Failed to update volunteering information',
   pleaseSelectAllLocations: 'Please select all locations before saving',
+  availableForPaidProfessionalService:
+    'Available for Paid Professional Service',
+  availableForPaidProfessionalServiceDescription:
+    'Toggle this to indicate your availability to provide paid professional services in case of an emergency',
 
   // Misc
   noLocationSet: 'No location set',

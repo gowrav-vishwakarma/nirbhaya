@@ -1,9 +1,9 @@
 <template>
   <q-page class="q-pa-md bg-grey-1">
     <q-card class="dashboard-card q-pa-lg">
-      <h2 class="text-center text-primary q-mb-xl">
+      <h5 class="text-primary q-mb-xl">
         {{ $t('welcome', { name: userName }) }}
-      </h2>
+      </h5>
 
       <div class="flex justify-center q-mb-xl">
         <q-btn

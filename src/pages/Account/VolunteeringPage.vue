@@ -83,6 +83,24 @@
       </div>
     </div>
 
+    <!-- Available for paid professional service toggle -->
+    <div class="q-mb-md">
+      <div class="flex items-center justify-between">
+        <div>
+          <h6 class="q-ma-none q-ml-xs">
+            {{ $t('availableForPaidProfessionalService') }}
+          </h6>
+          <p class="text-caption q-mb-sm">
+            {{ $t('availableForPaidProfessionalServiceDescription') }}
+          </p>
+        </div>
+        <q-toggle
+          v-model="values.availableForPaidProfessionalService"
+          color="primary"
+        />
+      </div>
+    </div>
+
     <!-- Add save button at the bottom -->
     <div class="q-mt-md">
       <q-btn
@@ -127,6 +145,8 @@ const loadUserData = () => {
   const userData = userStore.user;
   values.value.locations = userData.locations || [];
   values.value.availableForCommunity = userData.availableForCommunity || false;
+  values.value.availableForPaidProfessionalService =
+    userData.availableForPaidProfessionalService || false;
   locationLoading.value = new Array(values.value.locations.length).fill(false);
 };
 

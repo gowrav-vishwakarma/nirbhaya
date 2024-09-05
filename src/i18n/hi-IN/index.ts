@@ -69,6 +69,9 @@ export default {
   profileUpdateSuccess: 'प्रोफ़ाइल सफलतापूर्वक अपडेट की गई',
   profileUpdateError: 'प्रोफ़ाइल अपडेट करने में विफल',
   pleaseSelectLocation: 'कृपया स्थान चुनें',
+  contactNumberRequired: 'संपर्क नंबर आवश्यक है',
+  contactNameRequired: 'संपर्क नाम आवश्यक है',
+  profession: 'व्यवसाय',
 
   // Permissions
   appPermissions: 'ऐप अनुमतियां',
@@ -140,6 +143,10 @@ export default {
   volunteeringUpdateSuccess: 'स्वयंसेवा जानकारी सफलतापूर्वक अपडेट की गई',
   volunteeringUpdateError: 'स्वयंसेवा जानकारी अपडेट करने में विफल',
   pleaseSelectAllLocations: 'कृपया सहेजने से पहले सभी स्थान चुनें',
+  availableForPaidProfessionalService:
+    'भुगतान किए जाने वाले पेशेवर सेवा के लिए उपलब्ध',
+  availableForPaidProfessionalServiceDescription:
+    'एसओएस के दौरान आपातकाल के मामले में भुगतान किए जाने वाले पेशेवर सेवा प्रदान करने के लिए अपनी उपलब्धता दर्शाने के लिए इसे टॉगल करें',
 
   // Misc
   noLocationSet: 'कोई स्थान सेट नहीं',

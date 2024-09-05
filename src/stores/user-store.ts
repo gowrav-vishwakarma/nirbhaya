@@ -31,6 +31,7 @@ export interface User {
   availableForCommunity: boolean; // Changed from liveSosEventChecking
   emergencyContacts: EmergencyContact[];
   locations: UserLocation[];
+  availableForPaidProfessionalService: boolean; // Added new field
 }
 
 const defaultUser: User = {
@@ -45,6 +46,7 @@ const defaultUser: User = {
   availableForCommunity: false, // Changed from liveSosEventChecking
   emergencyContacts: [],
   locations: [],
+  availableForPaidProfessionalService: false, // Added new field
 };
 
 export const useUserStore = defineStore(

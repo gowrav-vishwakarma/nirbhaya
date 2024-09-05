@@ -70,6 +70,9 @@ export default {
   profileUpdateSuccess: 'પ્રોફાઇલ સફળતાપૂર્વક અપડેટ થઈ',
   profileUpdateError: 'પ્રોફાઇલ અપડેટ કરવામાં નિષ્ફળ',
   pleaseSelectLocation: 'કૃપા કરીને સ્થાન પસંદ કરો',
+  contactNumberRequired: 'સંપર્ક નંબર જરૂરી છે',
+  contactNameRequired: 'સંપર્કનું નામ જરૂરી છે',
+  profession: 'વ્યવસાય',
 
   // Permissions
   appPermissions: 'એપ્લિકેશન પરવાનગીઓ',
@@ -141,6 +144,9 @@ export default {
   volunteeringUpdateSuccess: 'સ્વયંસેવા માહિતી સફળતાપૂર્વક અપડેટ થઈ',
   volunteeringUpdateError: 'સ્વયંસેવા માહિતી અપડેટ કરવામાં નિષ્ફળ',
   pleaseSelectAllLocations: 'કૃપા કરીને સાચવતા પહેલા બધા સ્થાનો પસંદ કરો',
+  availableForPaidProfessionalService: 'ભુગतાન કરાયેલ પેશેવર સેવા માટે ઉપલબ્ધ',
+  availableForPaidProfessionalServiceDescription:
+    'એસઓએસ કરતા તમારી ઉપલબ્ધતા દર્શાવવા માટે આ ટૉગલ કરો',
 
   // Misc
   noLocationSet: 'કોઈ સ્થાન સેટ નથી',
