@@ -106,13 +106,3 @@ const goToVolunteersPage = () => {
   router.push('/volunteers');
 };
 </script>
-
-<style>
-.bg-primary {
-  background-color: #1976d2 !important;
-}
-
-.text-primary {
-  color: #1976d2 !important;
-}
-</style>

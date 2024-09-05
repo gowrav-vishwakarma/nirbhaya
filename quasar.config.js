@@ -110,14 +110,16 @@ module.exports = configure(function (/* ctx */) {
     framework: {
       config: {
         brand: {
-          primary: '#1976D2',
-          secondary: '#26A69A',
-          accent: '#9C27B0',
-          dark: '#1D1D1D',
-          positive: '#21BA45',
-          negative: '#C10015',
-          info: '#31CCEC',
-          warning: '#F2C037',
+          primary: '#E91E63', // Pink 500 from Material Colors
+          secondary: '#FFC107', // Amber 500 from Material Colors
+          accent: '#9C27B0', // Purple 500 from Material Colors
+
+          dark: '#1D1D1D', // Keeping dark as is for better contrast
+
+          positive: '#4CAF50', // Green 500 from Material Colors
+          negative: '#F44336', // Red 500 from Material Colors
+          info: '#2196F3', // Blue 500 from Material Colors
+          warning: '#FFEB3B', // Yellow 500 from Material Colors
         },
       },
 
