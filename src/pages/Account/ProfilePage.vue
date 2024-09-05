@@ -341,7 +341,8 @@ const hasEmergencyContacts = computed(
 const isFormValid = computed(() => {
   return (
     !!values.value.name &&
-    hasEmergencyContacts.value &&
+    (hasEmergencyContacts.value ||
+      values.value.emergencyContacts.length === 0) && // Allow submission if no emergency contacts
     values.value.emergencyContacts.every(
       (contact) => contact.contactName && contact.contactPhone
     ) &&
@@ -364,15 +365,17 @@ const validatePhoneNumber = async (phoneNumber: string, index: number) => {
 };
 
 const handleSubmit = async () => {
-  // Validate all phone numbers before submitting
-  for (let i = 0; i < values.value.emergencyContacts.length; i++) {
-    await validatePhoneNumber(
-      values.value.emergencyContacts[i].contactPhone,
-      i
-    );
+  // Validate phone numbers only if emergency contacts are present
+  if (values.value.emergencyContacts.length > 0) {
+    for (let i = 0; i < values.value.emergencyContacts.length; i++) {
+      await validatePhoneNumber(
+        values.value.emergencyContacts[i].contactPhone,
+        i
+      );
+    }
   }
 
-  if (isFormValid.value) {
+  if (isFormValid.value || values.value.emergencyContacts.length === 0) {
     validateAndSubmit(false);
   } else {
     $q.notify({
@@ -388,12 +391,10 @@ callbacks.beforeSubmit = (formValues) => {
     errors.value.name = [t('nameRequired')];
   }
 
-  if (formValues.emergencyContacts.length === 0) {
-    errors.value.emergencyContacts = [t('atLeastOneEmergencyContactRequired')];
-  }
-
-  if (Object.keys(errors.value).length > 0) {
-    throw new Error('Validation failed');
+  if (formValues.emergencyContacts.length > 0) {
+    if (Object.keys(errors.value).length > 0) {
+      throw new Error('Validation failed');
+    }
   }
 
   return formValues;
