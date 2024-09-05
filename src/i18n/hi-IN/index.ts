@@ -49,7 +49,7 @@ export default {
   otpSendFailed: 'ओटीपी भेजने में विफल। कृपया पुनः प्रयास करें।',
 
   // Dashboard Page
-  welcome: 'स्वागत है, {name}!',
+  welcome: 'क्या हुआ {name}?',
   sosButton: 'एसओएस',
   missingPermissions: 'कुछ अनुमतियाँ गायब हैं',
   request: '{permission} का अनुरोध करें',

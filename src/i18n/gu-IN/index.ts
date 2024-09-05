@@ -49,7 +49,7 @@ export default {
   otpSendFailed: 'ઓટીપી મોકલવામાં નિષ્ફળ. કૃપા કરીને ફરી પ્રયાસ કરો.',
 
   // Dashboard Page
-  welcome: 'સ્વાગત છે, {name}!',
+  welcome: 'શું થયું {name}?',
   sosButton: 'એસઓએસ',
   missingPermissions: 'કેટલીક પરવાનગીઓ ખૂટે છે',
   request: '{permission} માટે વિનંતી કરો',
@@ -74,7 +74,7 @@ export default {
   contactNumberRequired: 'સંપર્ક નંબર જરૂરી છે',
   contactNameRequired: 'સંપર્કનું નામ જરૂરી છે',
   profession: 'વ્યવસાય',
-  hospital: 'હોસ્પિટલ',
+  hospital: 'આસ્પતાલ',
   doctorGeneral: 'ડોક્ટર જેનેરલ',
   doctorEmergency: 'ડોક્ટર એમર્જેન્સ',
   mechanic2Wheeler: '2 વેહિકલ મેકનિક',

@@ -41,7 +41,7 @@
         <q-btn
           flat
           round
-          icon="people"
+          icon="engineering"
           aria-label="Nearby Volunteers"
           @click="goToVolunteersPage"
         />
@@ -49,7 +49,7 @@
         <q-btn
           flat
           round
-          :icon="$q.platform.is.ios ? 'settings' : 'ion-ios-gear-outline'"
+          icon="person"
           aria-label="Profile"
           @click="goToAccountPage"
         />

@@ -52,7 +52,7 @@ export default {
   otpSendFailed: 'Failed to send OTP. Please try again.',
 
   // Dashboard Page
-  welcome: 'Welcome, {name}!',
+  welcome: 'What Happened {name}?',
   sosButton: 'SOS',
   missingPermissions: 'Some permissions are missing',
   request: 'Request {permission}',
