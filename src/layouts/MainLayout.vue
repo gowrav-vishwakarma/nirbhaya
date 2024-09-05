@@ -44,6 +44,16 @@
           icon="engineering"
           aria-label="Nearby Volunteers"
           @click="goToVolunteersPage"
+          label="Nearby Volunteers"
+        />
+        <q-space />
+        <q-btn
+          flat
+          round
+          icon="notifications"
+          aria-label="Notifications"
+          @click="refreshNotifications"
+          label="Notifications"
         />
         <q-space />
         <q-btn
@@ -52,6 +62,7 @@
           icon="person"
           aria-label="Profile"
           @click="goToAccountPage"
+          label="Profile"
         />
       </q-toolbar>
     </q-footer>
