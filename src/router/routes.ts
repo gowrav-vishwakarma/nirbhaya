@@ -42,6 +42,10 @@ const routes: RouteRecordRaw[] = [
       },
       {
         path: 'community',
+        component: () => import('pages/CommunityOfferPage.vue'),
+      },
+      {
+        path: 'joined-community',
         component: () => import('pages/CommunityPage.vue'),
       },
       {

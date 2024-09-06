@@ -32,6 +32,7 @@ export interface User {
   emergencyContacts: EmergencyContact[];
   locations: UserLocation[];
   availableForPaidProfessionalService: boolean; // Added new field
+  hasJoinedCommunity: boolean;
 }
 
 const defaultUser: User = {
@@ -47,6 +48,7 @@ const defaultUser: User = {
   emergencyContacts: [],
   locations: [],
   availableForPaidProfessionalService: false, // Added new field
+  hasJoinedCommunity: false,
 };
 
 export const useUserStore = defineStore(

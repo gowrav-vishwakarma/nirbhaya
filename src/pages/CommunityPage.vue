@@ -1,136 +1,69 @@
 <template>
-  <q-page>
-    <q-banner class="bg-primary text-white">
-      <h4>Be a Part of the New Bharat Revolution</h4>
-      <h6>Your skills, your passion, our future</h6>
-      <h6>
-        This app is also made, promoted and funded by community, lets make many
-        more projects like this.
-      </h6>
-    </q-banner>
+  <q-page class="flex flex-center">
+    <div class="column items-center q-pa-md">
+      <h1 class="text-h2 text-weight-bold q-mb-md text-center">
+        Community Hub: Coming Soon!
+      </h1>
 
-    <q-card class="q-mt-md">
-      <q-card-section>
-        <p>
-          India is on the cusp of a great transformation, and we need YOU to
-          make it happen. Join our community of changemakers who are working
-          together to build a safer, stronger, and more prosperous Bharat.
-          Whether you're a student, professional, homemaker, or retiree, your
-          unique skills and experiences are valuable in shaping our nation's
-          future.
-        </p>
-      </q-card-section>
+      <q-card class="q-pa-lg q-mb-md" style="max-width: 600px; width: 100%">
+        <q-card-section>
+          <p class="text-body1 q-mb-md">
+            Thank you for joining our mission to create a New Bharat! We're
+            excited to have you on board.
+          </p>
+          <p class="text-body1 q-mb-md">
+            Our community hub is under construction, but great things are coming
+            soon. Stay tuned for updates, events, and opportunities to
+            contribute!
+          </p>
+          <p class="text-body1 q-mb-md">
+            As this is primarily an SOS app, we respect your privacy and will
+            only send notifications when absolutely necessary for emergency
+            situations.
+          </p>
+        </q-card-section>
+      </q-card>
 
-      <q-card-section>
-        <form>
-          <q-input
-            filled
-            v-model="inspiration"
-            label="What inspires you about India's future?"
-          />
-          <q-select
-            filled
-            v-model="contribution"
-            label="How do you see yourself contributing to a better Bharat?"
-            :options="contributionOptions"
-          />
-          <q-input
-            filled
-            type="textarea"
-            v-model="skills"
-            label="What specific skills or experiences can you bring to our community?"
-          />
-          <q-select
-            filled
-            v-model="time"
-            label="How much time can you dedicate to community activities per week?"
-            :options="timeOptions"
-          />
-          <q-card-actions>
-            <q-btn
-              @click="joinMovement"
-              label="Join the Movement"
-              color="primary"
-              class="q-mx-auto"
-            />
-          </q-card-actions>
-          <q-banner class="q-mt-md">
-            <p>
-              Remember, every skill is valuable, and every contribution matters.
-              Together, we can create a New Bharat that we're proud to call
-              home. Join us in this exciting journey of transformation!
-            </p>
-            <p>
-              Your information is safe with us and will only be used for
-              community purposes.
-            </p>
-          </q-banner>
-        </form>
-      </q-card-section>
-    </q-card>
-
-    <q-card class="q-mt-md">
-      <q-card-section>
-        <h3>Testimonials</h3>
-        <p>
-          "Being part of this community has changed my life!" - Community Member
-          1
-        </p>
-        <p>
-          "I love contributing to something bigger than myself." - Community
-          Member 2
-        </p>
-        <!-- Add more testimonials as needed -->
-      </q-card-section>
-    </q-card>
+      <q-card class="q-pa-lg" style="max-width: 600px; width: 100%">
+        <q-card-section>
+          <h2 class="text-h5 q-mb-md">Stay Connected</h2>
+          <p class="text-body1 q-mb-md">
+            To stay updated and engaged with our community:
+          </p>
+          <ul>
+            <li class="q-mb-sm">
+              <q-icon
+                name="fab fa-whatsapp"
+                color="green"
+                size="sm"
+                class="q-mr-sm"
+              />
+              Join our WhatsApp community:
+              <a href="#" class="text-primary">WhatsApp Link</a>
+            </li>
+            <li class="q-mb-sm">
+              <q-icon
+                name="fab fa-instagram"
+                color="purple"
+                size="sm"
+                class="q-mr-sm"
+              />
+              Follow us on Instagram:
+              <a href="#" class="text-primary">@NewBharatCommunity</a>
+            </li>
+            <li class="q-mb-sm">
+              <q-icon
+                name="fab fa-twitter"
+                color="blue"
+                size="sm"
+                class="q-mr-sm"
+              />
+              Follow us on Twitter:
+              <a href="#" class="text-primary">@NewBharatCommunity</a>
+            </li>
+          </ul>
+        </q-card-section>
+      </q-card>
+    </div>
   </q-page>
 </template>
-
-<script setup lang="ts">
-import { ref, onMounted } from 'vue';
-import { useUserStore } from 'src/stores/user-store'; // Adjust the import based on your project structure
-import { useRouter } from 'vue-router';
-
-const router = useRouter();
-const userStore = useUserStore();
-
-onMounted(() => {
-  if (userStore.user.hasJoinedCommunity) {
-    router.push('/joined-community'); // Redirect to the different page if already joined
-  }
-});
-
-const inspiration = ref('');
-const contribution = ref('');
-const skills = ref('');
-const time = ref('');
-
-const contributionOptions = [
-  'Technology and Innovation',
-  'Education and Skill Development',
-  'Community Service and Social Work',
-  'Arts, Culture, and Heritage Preservation',
-  'Social Media and Digital Marketing',
-  'Business and Entrepreneurship',
-  'Health and Wellness',
-  'Environmental Conservation',
-  'Other (Please specify)',
-];
-
-const timeOptions = [
-  'Less than 1 hour',
-  '1-3 hours',
-  '3-5 hours',
-  '5+ hours',
-  'Flexible, based on project needs',
-];
-
-// Logic for joining the movement
-const joinMovement = () => {
-  // Add your logic here
-};
-</script>
-
-<style scoped>
-/* Add styles specific to the community page here */
-</style>
