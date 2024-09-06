@@ -1,7 +1,8 @@
 <template>
   <q-page padding>
     <h1 class="text-h4 q-mb-md">{{ $t('notifications') }}</h1>
-    <q-list v-if="responseData.length > 0" bordered separator>
+    <q-spinner v-if="isLoading" color="primary" />
+    <q-list v-if="!isLoading && responseData.length > 0" bordered separator>
       <q-item
         v-for="notification in responseData"
         :key="notification.id"
@@ -114,12 +115,12 @@ const $q = useQuasar();
 const { unreadNotificationCount, fetchUnreadNotificationCount } =
   useBackgroundNotifications();
 
-const { responseData, validateAndSubmit } = useForm<Notification>(
-  api,
-  '/auth/notifications',
-  {},
-  'get'
-);
+const { responseData, validateAndSubmit, callbacks, isLoading } =
+  useForm<Notification>(api, '/auth/notifications', {}, 'get');
+
+callbacks.onSuccess = () => {
+  console.log('Notification accepted');
+};
 
 const peer = ref<Peer | null>(null);
 const isAudioOpen = reactive({});
