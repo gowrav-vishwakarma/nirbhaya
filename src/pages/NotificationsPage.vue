@@ -81,6 +81,7 @@ import { VoiceRecorder } from 'capacitor-voice-recorder';
 import { socket } from 'boot/socket';
 import { useI18n } from 'vue-i18n';
 import { useRoute } from 'vue-router';
+import Peer from 'peerjs';
 
 interface SosEvent {
   id: number;
@@ -120,24 +121,17 @@ const { responseData, validateAndSubmit } = useForm<Notification>(
   'get'
 );
 
-const peerConnection = ref<RTCPeerConnection | null>(null);
-const audioContext = ref<AudioContext | null>(null);
-const audioSource = ref<AudioBufferSourceNode | null>(null);
+const peer = ref<Peer | null>(null);
+const isAudioOpen = reactive({});
 
 const { t } = useI18n();
-
-const isAudioOpen = reactive({});
 
 const route = useRoute();
 
 onMounted(async () => {
   await validateAndSubmit(false);
-  initializeWebSocket();
-});
-
-// Watch for route changes to refresh notifications
-watch(route, async () => {
   await validateAndSubmit(false);
+  initializePeer();
 });
 
 onUnmounted(() => {
@@ -201,6 +195,7 @@ const acceptNotification = async (notificationId: number) => {
       icon: 'check',
     });
     await fetchUnreadNotificationCount();
+    await connectAudio(responseData.value[index].sosEvent.id); // Connect audio when notification is accepted
   } catch (error) {
     console.error('Error accepting notification:', error);
     $q.notify({
@@ -225,18 +220,27 @@ const followLocation = (location: { type: string; coordinates: number[] }) => {
   }
 };
 
-const initializeWebSocket = () => {
-  if (socket) {
-    socket.on('webrtc_signal', handleWebRTCSignal);
-    socket.on('audio_data', handleAudioData);
-  }
-};
+const initializePeer = () => {
+  peer.value = new Peer();
 
-const closeWebSocket = () => {
-  if (socket) {
-    socket.off('webrtc_signal', handleWebRTCSignal);
-    socket.off('audio_data', handleAudioData);
-  }
+  peer.value.on('open', (id) => {
+    console.log('My peer ID is: ' + id);
+  });
+
+  peer.value.on('call', (call) => {
+    navigator.mediaDevices
+      .getUserMedia({ audio: true })
+      .then((stream) => {
+        call.answer(stream);
+        call.on('stream', (remoteStream) => {
+          // Play the remote audio stream
+          const audio = new Audio();
+          audio.srcObject = remoteStream;
+          audio.play();
+        });
+      })
+      .catch((err) => console.error('Failed to get local stream', err));
+  });
 };
 
 const toggleAudio = async (sosEventId: number) => {
@@ -249,27 +253,9 @@ const toggleAudio = async (sosEventId: number) => {
 };
 
 const connectAudio = async (sosEventId: number) => {
-  try {
-    console.log('Connecting audio for SOS event:', sosEventId);
-    if (Capacitor.isNativePlatform()) {
-      await connectNativeAudio(sosEventId);
-    } else {
-      await connectWebAudio(sosEventId);
-    }
-    console.log('Audio connection successful');
-    $q.notify({
-      color: 'positive',
-      message: t('audioConnectedSuccess'),
-      icon: 'volume_up',
-    });
-  } catch (error) {
-    console.error('Error connecting audio:', error);
-    $q.notify({
-      color: 'negative',
-      message: t('audioConnectedError'),
-      icon: 'error',
-    });
-  }
+  socket.emit('join_sos_room', sosEventId);
+  socket.emit('register_peer', { peerId: peer.value?.id, sosEventId });
+  socket.emit('get_peers_in_room', sosEventId);
 };
 
 const disconnectAudio = async (sosEventId: number) => {
@@ -281,126 +267,10 @@ const disconnectAudio = async (sosEventId: number) => {
   console.log('Audio disconnected');
 };
 
-const connectNativeAudio = async (sosEventId: number) => {
-  console.log('Connecting native audio');
-  if (socket) {
-    socket.emit('join_sos_room', sosEventId);
-  }
-  audioContext.value = new (window.AudioContext ||
-    (window as any).webkitAudioContext)();
-  console.log('Native audio context created');
-};
-
-const connectWebAudio = async (sosEventId: number) => {
-  console.log('Connecting web audio');
-  if (socket) {
-    socket.emit('join_sos_room', sosEventId);
-  }
-  await createPeerConnection(sosEventId);
-  console.log('Web audio peer connection created');
-};
-
-const createPeerConnection = async (sosEventId: number) => {
-  console.log('Creating peer connection');
-  peerConnection.value = new RTCPeerConnection();
-
-  peerConnection.value.ontrack = (event) => {
-    console.log('Received audio track');
-    const audioElement = new Audio();
-    audioElement.srcObject = event.streams[0];
-    audioElement.play();
-  };
-
-  peerConnection.value.onicecandidate = (event) => {
-    if (event.candidate && socket) {
-      console.log('Sending ICE candidate');
-      socket.emit('webrtc_signal', {
-        sosEventId,
-        signal: { type: 'ice_candidate', candidate: event.candidate },
-      });
-    }
-  };
-
-  const offer = await peerConnection.value.createOffer();
-  await peerConnection.value.setLocalDescription(offer);
-
-  if (socket) {
-    console.log('Sending offer');
-    socket.emit('webrtc_signal', {
-      sosEventId,
-      signal: { type: 'offer', sdp: offer },
-    });
-  }
-};
-
-const handleWebRTCSignal = async (data: {
-  sosEventId: string;
-  signal: {
-    type: string;
-    sdp?: RTCSessionDescriptionInit;
-    candidate?: RTCIceCandidate;
-  };
-}) => {
-  console.log('Received WebRTC signal:', data);
-
-  if (!peerConnection.value) {
-    console.log('Creating new peer connection');
-    peerConnection.value = new RTCPeerConnection();
-
-    peerConnection.value.ontrack = (event) => {
-      console.log('Received track:', event.track.kind);
-      const audioElement = new Audio();
-      audioElement.srcObject = event.streams[0];
-      audioElement.play().catch(console.error);
-      console.log('Started playing audio');
-    };
-  }
-
-  if (data.signal.type === 'offer' && data.signal.sdp) {
-    console.log('Received offer, setting remote description');
-    await peerConnection.value.setRemoteDescription(
-      new RTCSessionDescription(data.signal.sdp)
-    );
-    console.log('Creating answer');
-    const answer = await peerConnection.value.createAnswer();
-    await peerConnection.value.setLocalDescription(answer);
-    console.log('Sending answer');
-    if (socket) {
-      socket.emit('webrtc_signal', {
-        sosEventId: data.sosEventId,
-        signal: { type: 'answer', sdp: answer },
-      });
-    }
-  } else if (data.signal.type === 'ice_candidate' && data.signal.candidate) {
-    console.log('Received ICE candidate, adding to peer connection');
-    await peerConnection.value.addIceCandidate(
-      new RTCIceCandidate(data.signal.candidate)
-    );
-  }
-};
-
-const handleAudioData = async (data: { audioData: string }) => {
-  if (Capacitor.isNativePlatform() && audioContext.value) {
-    const arrayBuffer = Uint8Array.from(atob(data.audioData), (c) =>
-      c.charCodeAt(0)
-    ).buffer;
-    const audioBuffer = await audioContext.value.decodeAudioData(arrayBuffer);
-
-    if (audioSource.value) {
-      audioSource.value.stop();
-    }
-
-    audioSource.value = audioContext.value.createBufferSource();
-    audioSource.value.buffer = audioBuffer;
-    audioSource.value.connect(audioContext.value.destination);
-    audioSource.value.start();
-  }
-};
-
 const closePeerConnection = () => {
-  if (peerConnection.value) {
-    peerConnection.value.close();
-    peerConnection.value = null;
+  if (peer.value) {
+    peer.value.destroy();
+    peer.value = null;
   }
 };
 
@@ -455,6 +325,22 @@ const refreshNotifications = async () => {
   await validateAndSubmit(false);
   await fetchUnreadNotificationCount();
 };
+
+socket.on('peers_in_room', (peerIds: string[]) => {
+  navigator.mediaDevices
+    .getUserMedia({ audio: true })
+    .then((stream) => {
+      peerIds.forEach((peerId) => {
+        const call = peer.value?.call(peerId, stream);
+        call?.on('stream', (remoteStream) => {
+          const audio = new Audio();
+          audio.srcObject = remoteStream;
+          audio.play();
+        });
+      });
+    })
+    .catch((err) => console.error('Failed to get local stream', err));
+});
 </script>
 
 <style scoped>

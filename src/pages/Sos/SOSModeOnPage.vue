@@ -142,6 +142,7 @@ import { usePermissions } from 'src/composables/usePermissions';
 import { useQuasar } from 'quasar';
 import { VoiceRecorder } from 'capacitor-voice-recorder';
 import { socket } from 'boot/socket';
+import Peer from 'peerjs';
 
 const router = useRouter();
 const route = useRoute();
@@ -178,6 +179,8 @@ const locationSentToServer = ref(false);
 
 const isAudioOpen = ref(false);
 
+const peer = ref<Peer | null>(null);
+
 const peerConnection = ref<RTCPeerConnection | null>(null);
 
 const mediaRecorder = ref<MediaRecorder | null>(null);
@@ -198,7 +201,7 @@ onMounted(async () => {
   await activateSOSPermissions();
   startCountdown();
   await startLocationWatching();
-  initializeWebSocket();
+  initializePeer();
 });
 
 const showResolveConfirmation = () => {
@@ -264,7 +267,6 @@ onUnmounted(async () => {
   }
   await stopLocationWatching();
   await stopRecordingAndStreaming();
-  closeWebSocket();
   closePeerConnection();
 
   // Only show the confirmation if SOS has been sent and not manually resolving
@@ -640,80 +642,67 @@ const blobToBase64 = (blob: Blob): Promise<string> => {
   });
 };
 
-const initializeWebSocket = () => {
-  if (socket) {
-    socket.on('webrtc_signal', handleWebRTCSignal);
-  }
+// Initialize PeerJS
+const initializePeer = () => {
+  peer.value = new Peer();
+
+  peer.value.on('open', (id) => {
+    console.log('My peer ID is: ' + id);
+    socket.emit('register_peer', {
+      peerId: id,
+      sosEventId: createdSosId.value,
+    });
+  });
+
+  peer.value.on('call', (call) => {
+    navigator.mediaDevices
+      .getUserMedia({ audio: true })
+      .then((stream) => {
+        call.answer(stream);
+        call.on('stream', (remoteStream) => {
+          // Play the remote audio stream
+          const audio = new Audio();
+          audio.srcObject = remoteStream;
+          audio.play();
+        });
+      })
+      .catch((err) => console.error('Failed to get local stream', err));
+  });
 };
 
-const closeWebSocket = () => {
-  if (socket) {
-    socket.off('webrtc_signal', handleWebRTCSignal);
-  }
-};
+// Call initializePeer in onMounted
+onMounted(() => {
+  initializePeer();
+});
 
+// Modify toggleAudio function
 const toggleAudio = async () => {
-  if (Capacitor.isNativePlatform()) {
-    await toggleNativeAudio();
+  if (isAudioOpen.value) {
+    // Close existing connections
+    peer.value?.disconnect();
   } else {
-    await toggleWebAudio();
+    // Start a new call to all peers in the room
+    socket.emit('get_peers_in_room', createdSosId.value);
   }
   isAudioOpen.value = !isAudioOpen.value;
 };
 
-const toggleNativeAudio = async () => {
-  if (isAudioOpen.value) {
-    await VoiceRecorder.stopRecording();
-  } else {
-    await VoiceRecorder.startRecording();
-    VoiceRecorder.addListener('recordingData', handleRecordingData);
-  }
-};
-
-const toggleWebAudio = async () => {
-  if (isAudioOpen.value) {
-    closePeerConnection();
-    console.log('Web audio closed');
-  } else {
-    await createPeerConnection();
-    console.log('Web audio opened');
-  }
-};
-
-const createPeerConnection = async () => {
-  peerConnection.value = new RTCPeerConnection();
-  console.log('Peer connection created');
-
-  const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-  console.log('Got user media stream');
-
-  stream.getTracks().forEach((track) => {
-    peerConnection.value!.addTrack(track, stream);
-    console.log('Added track to peer connection:', track.kind);
-  });
-
-  peerConnection.value.onicecandidate = (event) => {
-    if (event.candidate && socket) {
-      console.log('Sending ICE candidate:', event.candidate);
-      socket.emit('webrtc_signal', {
-        sosEventId: createdSosId.value,
-        signal: { type: 'ice_candidate', candidate: event.candidate },
+// Add this event listener
+socket.on('peers_in_room', (peerIds: string[]) => {
+  navigator.mediaDevices
+    .getUserMedia({ audio: true })
+    .then((stream) => {
+      peerIds.forEach((peerId) => {
+        const call = peer.value?.call(peerId, stream);
+        call?.on('stream', (remoteStream) => {
+          const audio = new Audio();
+          audio.srcObject = remoteStream;
+          audio.play();
+        });
       });
-    }
-  };
-
-  const offer = await peerConnection.value.createOffer();
-  await peerConnection.value.setLocalDescription(offer);
-  console.log('Created and set local description');
-
-  if (socket) {
-    console.log('Sending offer:', offer);
-    socket.emit('webrtc_signal', {
-      sosEventId: createdSosId.value,
-      signal: { type: 'offer', sdp: offer },
-    });
-  }
-};
+    })
+    .catch((err) => console.error('Failed to get local stream', err));
+});
 
 const handleRecordingData = (data: { value: { recordDataBase64: string } }) => {
   if (socket) {
@@ -721,26 +710,6 @@ const handleRecordingData = (data: { value: { recordDataBase64: string } }) => {
       sosEventId: createdSosId.value,
       audioData: data.value.recordDataBase64,
     });
-  }
-};
-
-const handleWebRTCSignal = async (data: {
-  type: string;
-  sdp?: RTCSessionDescriptionInit;
-  candidate?: RTCIceCandidate;
-}) => {
-  if (!peerConnection.value) {
-    peerConnection.value = new RTCPeerConnection();
-  }
-
-  if (data.type === 'answer' && data.sdp) {
-    await peerConnection.value.setRemoteDescription(
-      new RTCSessionDescription(data.sdp)
-    );
-  } else if (data.type === 'ice_candidate' && data.candidate) {
-    await peerConnection.value.addIceCandidate(
-      new RTCIceCandidate(data.candidate)
-    );
   }
 };
 
