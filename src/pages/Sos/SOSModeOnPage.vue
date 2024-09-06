@@ -204,6 +204,7 @@ onMounted(async () => {
   await activateSOSPermissions();
   startCountdown();
   await startLocationWatching();
+  initializePeer();
 });
 
 const showResolveConfirmation = (): Promise<boolean> => {
@@ -521,7 +522,7 @@ callbacks.onSuccess = (data) => {
   informed.value = data.informed;
   accepted.value = data.accepted;
   createdSosId.value = data.sosEventId;
-  initializePeer();
+
   return data;
 };
 
