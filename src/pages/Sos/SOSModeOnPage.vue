@@ -143,6 +143,7 @@ import { useQuasar } from 'quasar';
 import { VoiceRecorder } from 'capacitor-voice-recorder';
 import { socket } from 'boot/socket';
 import Peer from 'peerjs';
+import { onBeforeRouteLeave } from 'vue-router';
 
 const router = useRouter();
 const route = useRoute();
@@ -156,7 +157,9 @@ const sosSent = ref(false);
 const isResolvingManually = ref(false);
 const notifiedPersons = ref(0);
 const acceptedPersons = ref(0);
-const createdSosId = ref(0);
+
+const createdSosId = ref(route.query.sosEventId || '');
+const contactsOnly = ref(route.query.contactsOnly === 'true');
 
 const initialRequestTime =
   Number(route.params.initialRequestTime) || Date.now();
@@ -203,64 +206,68 @@ onMounted(async () => {
   await startLocationWatching();
 });
 
-const showResolveConfirmation = () => {
-  isResolvingManually.value = true;
-  console.log('showResolveConfirmation');
-  const locationMessage = locationSentToServer.value
-    ? 'Your location has been sent to the server.'
-    : 'Your location has not been sent to the server yet.';
+const showResolveConfirmation = (): Promise<boolean> => {
+  return new Promise((resolve) => {
+    isResolvingManually.value = true;
+    console.log('showResolveConfirmation');
+    const locationMessage = locationSentToServer.value
+      ? 'Your location has been sent to the server.'
+      : 'Your location has not been sent to the server yet.';
 
-  $q.dialog({
-    title: 'SOS Event Options',
-    message: `What would you like to do with your SOS event? ${locationMessage}`,
-    options: {
-      type: 'radio',
-      model: 'close',
-      items: [
-        { label: 'Cancel the SOS event', value: 'cancel' },
-        { label: 'Resolve the SOS event', value: 'resolve' },
-        { label: 'Keep the SOS event active', value: 'keep' },
-      ],
-    },
-    cancel: true,
-    persistent: true,
-  })
-    .onOk(async (action) => {
-      switch (action) {
-        case 'cancel':
-          await updateSOSData({ status: 'cancelled' });
-          $q.notify({
-            message: 'Your SOS event has been closed.',
-            color: 'info',
-          });
-          router.push('/dashboard');
-          break;
-        case 'resolve':
-          await updateSOSData({ status: 'resolved' });
-          $q.notify({
-            message: 'Your SOS event has been resolved.',
-            color: 'positive',
-          });
-          router.push('/dashboard');
-          break;
-        case 'keep':
-          $q.notify({
-            message: 'Your SOS event remains active.',
-            color: 'warning',
-          });
-          break;
-      }
+    $q.dialog({
+      title: 'SOS Event Options',
+      message: `What would you like to do with your SOS event? ${locationMessage}`,
+      options: {
+        type: 'radio',
+        model: 'close',
+        items: [
+          { label: 'Cancel the SOS event', value: 'cancel' },
+          { label: 'Resolve the SOS event', value: 'resolve' },
+          { label: 'Keep the SOS event active', value: 'keep' },
+        ],
+      },
+      cancel: true,
+      persistent: true,
     })
-    .onCancel(() => {
-      $q.notify({
-        message: 'Action cancelled. Your SOS event remains active.',
-        color: 'warning',
+      .onOk(async (action) => {
+        switch (action) {
+          case 'cancel':
+            await updateSOSData({ status: 'cancelled' });
+            $q.notify({
+              message: 'Your SOS event has been closed.',
+              color: 'info',
+            });
+            resolve(true);
+            break;
+          case 'resolve':
+            await updateSOSData({ status: 'resolved' });
+            $q.notify({
+              message: 'Your SOS event has been resolved.',
+              color: 'positive',
+            });
+            resolve(true);
+            break;
+          case 'keep':
+            $q.notify({
+              message: 'Your SOS event remains active.',
+              color: 'warning',
+            });
+            resolve(false);
+            break;
+        }
+      })
+      .onCancel(() => {
+        $q.notify({
+          message: 'Action cancelled. Your SOS event remains active.',
+          color: 'warning',
+        });
+        resolve(false);
       });
-    });
+  });
 };
 
-onUnmounted(async () => {
-  console.log('Unmounting SOSModeOnPage');
+onBeforeRouteLeave(async (to, from, next) => {
+  console.log('Leaving SOSModeOnPage');
   if (countdownInterval) {
     clearInterval(countdownInterval);
   }
@@ -270,8 +277,19 @@ onUnmounted(async () => {
 
   // Only show the confirmation if SOS has been sent and not manually resolving
   if (sosSent.value && !isResolvingManually.value) {
-    showResolveConfirmation();
+    const shouldProceed = await showResolveConfirmation();
+    if (shouldProceed) {
+      next();
+    } else {
+      next(false);
+    }
+  } else {
+    next();
   }
+});
+
+onUnmounted(() => {
+  console.log('Unmounting SOSModeOnPage');
 });
 
 const startCountdown = () => {
@@ -337,6 +355,8 @@ const updateSOSData = async (data: {
     }
     if (data.status) values.value.status = data.status;
     if (data.threat) values.value.threat = data.threat;
+    values.value.contactsOnly = contactsOnly.value;
+    values.value.sosEventId = createdSosId.value;
 
     await validateAndSubmit();
     console.log('SOS data updated:', values.value);
@@ -489,6 +509,8 @@ const { values, validateAndSubmit, errors, callbacks, isLoading, updateUrl } =
     location: '',
     status: '',
     threat: '',
+    contactsOnly: contactsOnly.value,
+    sosEventId: createdSosId.value,
   });
 
 const informed = ref(0);

@@ -25,6 +25,11 @@ const routes: RouteRecordRaw[] = [
       {
         path: 'sos-mode',
         component: () => import('pages/Sos/SOSModeOnPage.vue'),
+        name: 'sos-mode',
+        props: (route) => ({
+          sosEventId: route.query.sosEventId,
+          contactsOnly: route.query.contactsOnly === 'true',
+        }),
       },
       {
         path: 'volunteers',
