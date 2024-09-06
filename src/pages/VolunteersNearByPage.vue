@@ -39,6 +39,9 @@
       <div class="map-center">
         <q-icon :name="$t('icons.myLocation')" size="24px" color="primary" />
       </div>
+      <div class="north-indicator">
+        <q-icon name="north" size="24px" color="red" />
+      </div>
       <div
         v-for="volunteer in volunteers"
         :key="volunteer.id"
@@ -124,8 +127,21 @@ watch(range, debouncedFetchVolunteers, { deep: true });
 const getVolunteerPosition = (volunteer) => {
   const mapWidth = volunteerMap.value?.offsetWidth || 300;
   const mapHeight = volunteerMap.value?.offsetHeight || 300;
-  const x = (volunteer.location.coordinates[0] + 180) * (mapWidth / 360);
-  const y = (90 - volunteer.location.coordinates[1]) * (mapHeight / 180);
+
+  // Use the current position as the center
+  const [latitude, longitude] = address.value.split(',').map(Number); // Your latitude and longitude
+
+  // Calculate the distance from the center to the volunteer's location
+  const distanceX = volunteer.location.coordinates[0] - longitude; // Longitude difference
+  const distanceY = volunteer.location.coordinates[1] - latitude; // Latitude difference
+
+  // Convert degrees to meters (approximate)
+  const scaleX = distanceX * 111320 * (mapWidth / (range.value * 2)); // Scale based on range
+  const scaleY = distanceY * 110574 * (mapHeight / (range.value * 2)); // Scale based on range
+
+  const x = mapWidth / 2 + scaleX; // Center the map
+  const y = mapHeight / 2 - scaleY; // Invert Y for correct positioning
+
   return {
     left: `${x}px`,
     top: `${y}px`,
@@ -177,6 +193,13 @@ onMounted(() => {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+}
+
+.north-indicator {
+  position: absolute;
+  top: 10px; /* Adjust as needed */
+  left: 50%;
+  transform: translateX(-50%);
 }
 
 .volunteer-icon {

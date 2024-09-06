@@ -51,9 +51,9 @@
           flat
           round
           icon="notifications"
-          aria-label="Notifications"
-          @click="refreshNotifications"
-          label="Notifications"
+          aria-label="Community"
+          @click="goToCommunityPage"
+          label="Community"
         />
         <q-space />
         <q-btn
@@ -115,5 +115,9 @@ const goToHelpPage = () => {
 const goToVolunteersPage = () => {
   // New method for navigation
   router.push('/volunteers');
+};
+
+const goToCommunityPage = () => {
+  router.push('/community');
 };
 </script>

@@ -180,21 +180,10 @@ const removeNotificationLocation = (index: number) => {
 const updateLocationCoordinates = async (index: number) => {
   locationLoading.value[index] = true;
   try {
-    let position;
-    if (Capacitor.isNativePlatform()) {
-      position = await Geolocation.getCurrentPosition({
-        enableHighAccuracy: true,
-        timeout: 10000,
-      });
-    } else {
-      // Fallback for web browsers
-      position = await new Promise((resolve, reject) => {
-        navigator.geolocation.getCurrentPosition(resolve, reject, {
-          enableHighAccuracy: true,
-          timeout: 10000,
-        });
-      });
-    }
+    const position = await Geolocation.getCurrentPosition({
+      enableHighAccuracy: true,
+      timeout: 10000,
+    });
 
     values.value.locations[index].location.coordinates = [
       position.coords.longitude,

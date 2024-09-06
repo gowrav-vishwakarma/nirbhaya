@@ -36,6 +36,10 @@ const routes: RouteRecordRaw[] = [
         name: 'notifications', // This is the named route
       },
       {
+        path: 'community',
+        component: () => import('pages/CommunityPage.vue'),
+      },
+      {
         path: 'help',
         component: () => import('pages/HelpPage.vue'),
       },
