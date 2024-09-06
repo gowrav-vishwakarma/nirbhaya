@@ -238,6 +238,7 @@ const showResolveConfirmation = (): Promise<boolean> => {
               message: 'Your SOS event has been closed.',
               color: 'info',
             });
+            router.push('/dashboard'); // Redirect to dashboard
             resolve(true);
             break;
           case 'resolve':
@@ -246,6 +247,7 @@ const showResolveConfirmation = (): Promise<boolean> => {
               message: 'Your SOS event has been resolved.',
               color: 'positive',
             });
+            router.push('/dashboard'); // Redirect to dashboard
             resolve(true);
             break;
           case 'keep':
@@ -280,12 +282,12 @@ onBeforeRouteLeave(async (to, from, next) => {
   if (sosSent.value && !isResolvingManually.value) {
     const shouldProceed = await showResolveConfirmation();
     if (shouldProceed) {
-      next();
+      next(); // Allow navigation
     } else {
-      next(false);
+      next(false); // Prevent navigation
     }
   } else {
-    next();
+    next(); // Allow navigation if SOS not sent or manually resolving
   }
 });
 
