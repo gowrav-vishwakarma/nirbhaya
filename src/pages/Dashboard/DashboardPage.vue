@@ -27,7 +27,9 @@
             }
           "
         >
-          <span class="text-h6 text-weight-bold">SOS: Contacts</span>
+          <span class="text-h6 text-weight-bold"
+            >Help: To Emergency Contacts</span
+          >
         </q-btn>
       </div>
 

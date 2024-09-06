@@ -24,27 +24,31 @@
       <q-card-section>
         <form>
           <q-input
-            filled
             v-model="inspiration"
             label="What inspires you about India's future?"
+            class="q-mb-md"
+            outlined
           />
           <q-select
-            filled
             v-model="contribution"
             label="How do you see yourself contributing to a better Bharat?"
             :options="contributionOptions"
+            class="q-mb-md"
+            outlined
           />
           <q-input
-            filled
             type="textarea"
             v-model="skills"
             label="What specific skills or experiences can you bring to our community?"
+            class="q-mb-md"
+            outlined
           />
           <q-select
-            filled
             v-model="time"
             label="How much time can you dedicate to community activities per week?"
             :options="timeOptions"
+            class="q-mb-md"
+            outlined
           />
           <q-card-actions>
             <q-btn
@@ -144,5 +148,11 @@ const joinMovement = async () => {
 </script>
 
 <style scoped>
-/* Add styles specific to the community page here */
+.input-field {
+  margin-bottom: 16px; /* Adds space between inputs */
+  border: 1px solid #ccc; /* Adds a border to inputs */
+  border-radius: 4px; /* Rounds the corners */
+  padding: 8px; /* Adds padding inside the inputs */
+  background-color: #f9f9f9; /* Light background color for inputs */
+}
 </style>

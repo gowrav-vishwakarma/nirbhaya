@@ -52,23 +52,29 @@
           v-if="
             location.location.coordinates[1] && location.location.coordinates[0]
           "
-          class="text-caption q-mt-sm"
+          class="text-caption q-mt-sm row"
         >
-          {{ $t('coordinates') }}: {{ location.location.coordinates[1] }},
-          {{ location.location.coordinates[0] }}
-          <q-btn
-            flat
-            icon="map"
-            label="Check: location"
-            @click="openGoogleMaps(location.location.coordinates)"
-            class="q-ml-sm"
-          />
+          <span class="col-auto">
+            {{ $t('coordinates') }}: {{ location.location.coordinates[1] }},
+            {{ location.location.coordinates[0] }}
+          </span>
+          <span class="col-auto">
+            <q-btn
+              icon="place"
+              outline
+              label="Check Location"
+              @click="openGoogleMaps(location.location.coordinates)"
+              class="q-ml-sm text-right"
+              color="primary"
+              size="xs"
+            />
+          </span>
         </p>
       </div>
       <q-btn
         v-if="values.locations.length < 10"
         @click="addNotificationLocation"
-        class="q-mt-sm bg-primary text-white"
+        class="q-mt-sm bg-primary text-white full-width"
         :icon="$t('icons.addCircle')"
       >
         <span class="q-ml-xs">{{ $t('addNotificationLocation') }}</span>
