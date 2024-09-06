@@ -3,6 +3,10 @@
     <q-banner class="bg-primary text-white">
       <h4>Be a Part of the New Bharat Revolution</h4>
       <h6>Your skills, your passion, our future</h6>
+      <h6>
+        This app is also made, promoted and funded by community, lets make many
+        more projects like this.
+      </h6>
     </q-banner>
 
     <q-card class="q-mt-md">
@@ -15,11 +19,6 @@
           unique skills and experiences are valuable in shaping our nation's
           future.
         </p>
-        <q-btn
-          @click="joinMovement"
-          label="Join the Movement"
-          color="primary"
-        />
       </q-card-section>
 
       <q-card-section>
@@ -47,6 +46,14 @@
             label="How much time can you dedicate to community activities per week?"
             :options="timeOptions"
           />
+          <q-card-actions>
+            <q-btn
+              @click="joinMovement"
+              label="Join the Movement"
+              color="primary"
+              class="q-mx-auto"
+            />
+          </q-card-actions>
           <q-banner class="q-mt-md">
             <p>
               Remember, every skill is valuable, and every contribution matters.
@@ -80,12 +87,18 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
+import { useUserStore } from 'src/stores/user-store'; // Adjust the import based on your project structure
+import { useRouter } from 'vue-router';
 
-// Add any necessary script logic here
-const joinMovement = () => {
-  // Logic for joining the movement
-};
+const router = useRouter();
+const userStore = useUserStore();
+
+onMounted(() => {
+  if (userStore.user.hasJoinedCommunity) {
+    router.push('/joined-community'); // Redirect to the different page if already joined
+  }
+});
 
 const inspiration = ref('');
 const contribution = ref('');
@@ -97,6 +110,7 @@ const contributionOptions = [
   'Education and Skill Development',
   'Community Service and Social Work',
   'Arts, Culture, and Heritage Preservation',
+  'Social Media and Digital Marketing',
   'Business and Entrepreneurship',
   'Health and Wellness',
   'Environmental Conservation',
@@ -110,6 +124,11 @@ const timeOptions = [
   '5+ hours',
   'Flexible, based on project needs',
 ];
+
+// Logic for joining the movement
+const joinMovement = () => {
+  // Add your logic here
+};
 </script>
 
 <style scoped>

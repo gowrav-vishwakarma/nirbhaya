@@ -16,6 +16,20 @@
           <span class="text-h5 text-weight-bold">SOS</span>
         </q-btn>
       </div>
+      <div class="flex justify-center q-mb-xl">
+        <q-btn
+          color="orange"
+          size="lg"
+          @click="
+            () => {
+              contactsOnly = true;
+              initiateSOSMode();
+            }
+          "
+        >
+          <span class="text-h6 text-weight-bold">SOS: Contacts</span>
+        </q-btn>
+      </div>
 
       <div v-if="!allPermissionsGranted" class="q-mt-lg">
         <h6 class="text-center text-grey-8">{{ $t('missingPermissions') }}</h6>
@@ -61,6 +75,7 @@ const { t } = useI18n();
 
 const userStore = useUserStore();
 const userName = ref('User');
+const contactsOnly = ref(false);
 
 const {
   permissions,
@@ -83,15 +98,20 @@ const initiateSOSMode = async () => {
   }
 };
 
-const { validateAndSubmit, callbacks } = useUserForm('auth/sos-update', {
-  status: 'created',
-});
+const { values, validateAndSubmit, callbacks } = useUserForm(
+  'auth/sos-update',
+  {
+    status: 'created',
+    contactsOnly: contactsOnly.value,
+  }
+);
 
 callbacks.onSuccess = () => {
   console.log('SOS log started');
 };
 
 const sendInitialSOSRequest = async () => {
+  values.value.contactsOnly = contactsOnly.value;
   validateAndSubmit();
   console.log('Sending initial SOS request');
 };
@@ -103,6 +123,30 @@ onMounted(async () => {
 
 const goToHelp = (permissionName: string) => {
   router.push({ path: '/help', query: { section: permissionName } });
+};
+
+const sendEmergencySOS = async () => {
+  try {
+    await sendEmergencySOSRequest();
+    $q.notify({
+      color: 'positive',
+      message: t('emergencySOSSent'),
+      icon: 'check',
+    });
+  } catch (error) {
+    console.error('Failed to send emergency SOS request:', error);
+    $q.notify({
+      color: 'negative',
+      message: t('emergencySOSFailed'),
+      icon: 'error',
+    });
+  }
+};
+
+const sendEmergencySOSRequest = async () => {
+  // Replace with your API call to send the specific key
+  console.log('Sending emergency SOS request');
+  // Example: await api.sendSOSKey('your_specific_key');
 };
 </script>
 
