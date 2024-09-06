@@ -135,7 +135,6 @@ onMounted(async () => {
 });
 
 onUnmounted(() => {
-  closeWebSocket();
   closePeerConnection();
 });
 
@@ -233,7 +232,6 @@ const initializePeer = () => {
       .then((stream) => {
         call.answer(stream);
         call.on('stream', (remoteStream) => {
-          // Play the remote audio stream
           const audio = new Audio();
           audio.srcObject = remoteStream;
           audio.play();
@@ -259,7 +257,6 @@ const connectAudio = async (sosEventId: number) => {
 };
 
 const disconnectAudio = async (sosEventId: number) => {
-  // Implement disconnection logic here
   closePeerConnection();
   if (socket) {
     socket.emit('leave_sos_room', sosEventId);
@@ -331,12 +328,14 @@ socket.on('peers_in_room', (peerIds: string[]) => {
     .getUserMedia({ audio: true })
     .then((stream) => {
       peerIds.forEach((peerId) => {
-        const call = peer.value?.call(peerId, stream);
-        call?.on('stream', (remoteStream) => {
-          const audio = new Audio();
-          audio.srcObject = remoteStream;
-          audio.play();
-        });
+        if (peerId !== peer.value?.id) {
+          const call = peer.value?.call(peerId, stream);
+          call?.on('stream', (remoteStream) => {
+            const audio = new Audio();
+            audio.srcObject = remoteStream;
+            audio.play();
+          });
+        }
       });
     })
     .catch((err) => console.error('Failed to get local stream', err));

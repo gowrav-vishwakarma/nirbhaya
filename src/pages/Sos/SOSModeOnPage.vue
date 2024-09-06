@@ -660,7 +660,6 @@ const initializePeer = () => {
       .then((stream) => {
         call.answer(stream);
         call.on('stream', (remoteStream) => {
-          // Play the remote audio stream
           const audio = new Audio();
           audio.srcObject = remoteStream;
           audio.play();
@@ -678,10 +677,10 @@ onMounted(() => {
 // Modify toggleAudio function
 const toggleAudio = async () => {
   if (isAudioOpen.value) {
-    // Close existing connections
-    peer.value?.disconnect();
+    closePeerConnection();
+    socket.emit('leave_sos_room', createdSosId.value);
   } else {
-    // Start a new call to all peers in the room
+    socket.emit('join_sos_room', createdSosId.value);
     socket.emit('get_peers_in_room', createdSosId.value);
   }
   isAudioOpen.value = !isAudioOpen.value;
@@ -689,19 +688,23 @@ const toggleAudio = async () => {
 
 // Add this event listener
 socket.on('peers_in_room', (peerIds: string[]) => {
-  navigator.mediaDevices
-    .getUserMedia({ audio: true })
-    .then((stream) => {
-      peerIds.forEach((peerId) => {
-        const call = peer.value?.call(peerId, stream);
-        call?.on('stream', (remoteStream) => {
-          const audio = new Audio();
-          audio.srcObject = remoteStream;
-          audio.play();
+  if (isAudioOpen.value) {
+    navigator.mediaDevices
+      .getUserMedia({ audio: true })
+      .then((stream) => {
+        peerIds.forEach((peerId) => {
+          if (peerId !== peer.value?.id) {
+            const call = peer.value?.call(peerId, stream);
+            call?.on('stream', (remoteStream) => {
+              const audio = new Audio();
+              audio.srcObject = remoteStream;
+              audio.play();
+            });
+          }
         });
-      });
-    })
-    .catch((err) => console.error('Failed to get local stream', err));
+      })
+      .catch((err) => console.error('Failed to get local stream', err));
+  }
 });
 
 const handleRecordingData = (data: { value: { recordDataBase64: string } }) => {
