@@ -201,7 +201,6 @@ onMounted(async () => {
   await activateSOSPermissions();
   startCountdown();
   await startLocationWatching();
-  initializePeer();
 });
 
 const showResolveConfirmation = () => {
@@ -499,6 +498,8 @@ callbacks.onSuccess = (data) => {
   console.log('data...........', data);
   informed.value = data.informed;
   accepted.value = data.accepted;
+  createdSosId.value = data.sosEventId;
+  initializePeer();
   return data;
 };
 
@@ -669,25 +670,22 @@ const initializePeer = () => {
   });
 };
 
-// Call initializePeer in onMounted
-onMounted(() => {
-  initializePeer();
-});
-
 // Modify toggleAudio function
 const toggleAudio = async () => {
+  const sosEventIdString = createdSosId.value.toString();
   if (isAudioOpen.value) {
     closePeerConnection();
-    socket.emit('leave_sos_room', createdSosId.value);
+    socket.emit('leave_sos_room', sosEventIdString);
   } else {
-    socket.emit('join_sos_room', createdSosId.value);
-    socket.emit('get_peers_in_room', createdSosId.value);
+    socket.emit('join_sos_room', sosEventIdString);
+    socket.emit('get_peers_in_room', sosEventIdString);
   }
   isAudioOpen.value = !isAudioOpen.value;
 };
 
 // Add this event listener
 socket.on('peers_in_room', (peerIds: string[]) => {
+  console.log('peerIds............', peerIds);
   if (isAudioOpen.value) {
     navigator.mediaDevices
       .getUserMedia({ audio: true })

@@ -130,7 +130,6 @@ const route = useRoute();
 
 onMounted(async () => {
   await validateAndSubmit(false);
-  await validateAndSubmit(false);
   initializePeer();
 });
 
@@ -251,9 +250,13 @@ const toggleAudio = async (sosEventId: number) => {
 };
 
 const connectAudio = async (sosEventId: number) => {
-  socket.emit('join_sos_room', sosEventId);
-  socket.emit('register_peer', { peerId: peer.value?.id, sosEventId });
-  socket.emit('get_peers_in_room', sosEventId);
+  const sosEventIdString = sosEventId.toString();
+  socket.emit('join_sos_room', sosEventIdString);
+  socket.emit('register_peer', {
+    peerId: peer.value?.id,
+    sosEventId: sosEventIdString,
+  });
+  socket.emit('get_peers_in_room', sosEventIdString);
 };
 
 const disconnectAudio = async (sosEventId: number) => {
