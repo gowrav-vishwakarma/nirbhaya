@@ -85,15 +85,12 @@ const {
 } = usePermissions();
 
 const initiateSOSMode = async () => {
-  try {
-    await sendInitialSOSRequest();
-    router.push('sos-mode');
-  } catch (error) {
-    console.error('Failed to send initial SOS request:', error);
-    $q.notify({
-      color: 'negative',
-      message: t('sosRequestFailed'),
-      icon: 'error',
+  const response = await sendInitialSOSRequest();
+  if (response && response.sosEventId) {
+    localStorage.setItem('sosEventId', response.sosEventId);
+    localStorage.setItem('contactsOnly', contactsOnly.value.toString());
+    router.push({
+      name: 'sos-mode',
     });
   }
 };
@@ -106,14 +103,23 @@ const { values, validateAndSubmit, callbacks } = useUserForm(
   }
 );
 
-callbacks.onSuccess = () => {
+callbacks.onSuccess = (response) => {
   console.log('SOS log started');
+  if (response && response.sosEventId) {
+    router.push({
+      name: 'sos-mode',
+      query: {
+        sosEventId: response.sosEventId,
+        contactsOnly: contactsOnly.value.toString(),
+      },
+    });
+  }
+  return response;
 };
 
 const sendInitialSOSRequest = async () => {
   values.value.contactsOnly = contactsOnly.value;
-  validateAndSubmit();
-  console.log('Sending initial SOS request');
+  await validateAndSubmit();
 };
 
 onMounted(async () => {

@@ -142,6 +142,8 @@ import { usePermissions } from 'src/composables/usePermissions';
 import { useQuasar } from 'quasar';
 import { VoiceRecorder } from 'capacitor-voice-recorder';
 import { socket } from 'boot/socket';
+import Peer from 'peerjs';
+import { onBeforeRouteLeave } from 'vue-router';
 
 const router = useRouter();
 const route = useRoute();
@@ -155,7 +157,9 @@ const sosSent = ref(false);
 const isResolvingManually = ref(false);
 const notifiedPersons = ref(0);
 const acceptedPersons = ref(0);
-const createdSosId = ref(0);
+
+const createdSosId = ref(route.query.sosEventId || '');
+const contactsOnly = ref(route.query.contactsOnly === 'true');
 
 const initialRequestTime =
   Number(route.params.initialRequestTime) || Date.now();
@@ -178,6 +182,8 @@ const locationSentToServer = ref(false);
 
 const isAudioOpen = ref(false);
 
+const peer = ref<Peer | null>(null);
+
 const peerConnection = ref<RTCPeerConnection | null>(null);
 
 const mediaRecorder = ref<MediaRecorder | null>(null);
@@ -198,79 +204,92 @@ onMounted(async () => {
   await activateSOSPermissions();
   startCountdown();
   await startLocationWatching();
-  initializeWebSocket();
 });
 
-const showResolveConfirmation = () => {
-  isResolvingManually.value = true;
-  console.log('showResolveConfirmation');
-  const locationMessage = locationSentToServer.value
-    ? 'Your location has been sent to the server.'
-    : 'Your location has not been sent to the server yet.';
+const showResolveConfirmation = (): Promise<boolean> => {
+  return new Promise((resolve) => {
+    isResolvingManually.value = true;
+    console.log('showResolveConfirmation');
+    const locationMessage = locationSentToServer.value
+      ? 'Your location has been sent to the server.'
+      : 'Your location has not been sent to the server yet.';
 
-  $q.dialog({
-    title: 'SOS Event Options',
-    message: `What would you like to do with your SOS event? ${locationMessage}`,
-    options: {
-      type: 'radio',
-      model: 'close',
-      items: [
-        { label: 'Cancel the SOS event', value: 'cancel' },
-        { label: 'Resolve the SOS event', value: 'resolve' },
-        { label: 'Keep the SOS event active', value: 'keep' },
-      ],
-    },
-    cancel: true,
-    persistent: true,
-  })
-    .onOk(async (action) => {
-      switch (action) {
-        case 'cancel':
-          await updateSOSData({ status: 'cancelled' });
-          $q.notify({
-            message: 'Your SOS event has been closed.',
-            color: 'info',
-          });
-          router.push('/dashboard');
-          break;
-        case 'resolve':
-          await updateSOSData({ status: 'resolved' });
-          $q.notify({
-            message: 'Your SOS event has been resolved.',
-            color: 'positive',
-          });
-          router.push('/dashboard');
-          break;
-        case 'keep':
-          $q.notify({
-            message: 'Your SOS event remains active.',
-            color: 'warning',
-          });
-          break;
-      }
+    $q.dialog({
+      title: 'SOS Event Options',
+      message: `What would you like to do with your SOS event? ${locationMessage}`,
+      options: {
+        type: 'radio',
+        model: 'close',
+        items: [
+          { label: 'Cancel the SOS event', value: 'cancel' },
+          { label: 'Resolve the SOS event', value: 'resolve' },
+          { label: 'Keep the SOS event active', value: 'keep' },
+        ],
+      },
+      cancel: true,
+      persistent: true,
     })
-    .onCancel(() => {
-      $q.notify({
-        message: 'Action cancelled. Your SOS event remains active.',
-        color: 'warning',
+      .onOk(async (action) => {
+        switch (action) {
+          case 'cancel':
+            await updateSOSData({ status: 'cancelled' });
+            $q.notify({
+              message: 'Your SOS event has been closed.',
+              color: 'info',
+            });
+            resolve(true);
+            break;
+          case 'resolve':
+            await updateSOSData({ status: 'resolved' });
+            $q.notify({
+              message: 'Your SOS event has been resolved.',
+              color: 'positive',
+            });
+            resolve(true);
+            break;
+          case 'keep':
+            $q.notify({
+              message: 'Your SOS event remains active.',
+              color: 'warning',
+            });
+            resolve(false);
+            break;
+        }
+      })
+      .onCancel(() => {
+        $q.notify({
+          message: 'Action cancelled. Your SOS event remains active.',
+          color: 'warning',
+        });
+        resolve(false);
       });
-    });
+  });
 };
 
-onUnmounted(async () => {
-  console.log('Unmounting SOSModeOnPage');
+onBeforeRouteLeave(async (to, from, next) => {
+  console.log('Leaving SOSModeOnPage');
   if (countdownInterval) {
     clearInterval(countdownInterval);
   }
   await stopLocationWatching();
   await stopRecordingAndStreaming();
-  closeWebSocket();
   closePeerConnection();
 
   // Only show the confirmation if SOS has been sent and not manually resolving
   if (sosSent.value && !isResolvingManually.value) {
-    showResolveConfirmation();
+    const shouldProceed = await showResolveConfirmation();
+    if (shouldProceed) {
+      next();
+    } else {
+      next(false);
+    }
+  } else {
+    next();
   }
+});
+
+onUnmounted(() => {
+  console.log('Unmounting SOSModeOnPage');
 });
 
 const startCountdown = () => {
@@ -336,6 +355,8 @@ const updateSOSData = async (data: {
     }
     if (data.status) values.value.status = data.status;
     if (data.threat) values.value.threat = data.threat;
+    values.value.contactsOnly = contactsOnly.value;
+    values.value.sosEventId = createdSosId.value;
 
     await validateAndSubmit();
     console.log('SOS data updated:', values.value);
@@ -488,6 +509,8 @@ const { values, validateAndSubmit, errors, callbacks, isLoading, updateUrl } =
     location: '',
     status: '',
     threat: '',
+    contactsOnly: contactsOnly.value,
+    sosEventId: createdSosId.value,
   });
 
 const informed = ref(0);
@@ -497,6 +520,8 @@ callbacks.onSuccess = (data) => {
   console.log('data...........', data);
   informed.value = data.informed;
   accepted.value = data.accepted;
+  createdSosId.value = data.sosEventId;
+  initializePeer();
   return data;
 };
 
@@ -640,80 +665,67 @@ const blobToBase64 = (blob: Blob): Promise<string> => {
   });
 };
 
-const initializeWebSocket = () => {
-  if (socket) {
-    socket.on('webrtc_signal', handleWebRTCSignal);
-  }
+// Initialize PeerJS
+const initializePeer = () => {
+  peer.value = new Peer();
+
+  peer.value.on('open', (id) => {
+    console.log('My peer ID is: ' + id);
+    socket.emit('register_peer', {
+      peerId: id,
+      sosEventId: createdSosId.value,
+    });
+  });
+
+  peer.value.on('call', (call) => {
+    navigator.mediaDevices
+      .getUserMedia({ audio: true })
+      .then((stream) => {
+        call.answer(stream);
+        call.on('stream', (remoteStream) => {
+          const audio = new Audio();
+          audio.srcObject = remoteStream;
+          audio.play();
+        });
+      })
+      .catch((err) => console.error('Failed to get local stream', err));
+  });
 };
 
-const closeWebSocket = () => {
-  if (socket) {
-    socket.off('webrtc_signal', handleWebRTCSignal);
-  }
-};
-
+// Modify toggleAudio function
 const toggleAudio = async () => {
-  if (Capacitor.isNativePlatform()) {
-    await toggleNativeAudio();
+  const sosEventIdString = createdSosId.value.toString();
+  if (isAudioOpen.value) {
+    closePeerConnection();
+    socket.emit('leave_sos_room', sosEventIdString);
   } else {
-    await toggleWebAudio();
+    socket.emit('join_sos_room', sosEventIdString);
+    socket.emit('get_peers_in_room', sosEventIdString);
   }
   isAudioOpen.value = !isAudioOpen.value;
 };
 
-const toggleNativeAudio = async () => {
+// Add this event listener
+socket.on('peers_in_room', (peerIds: string[]) => {
+  console.log('peerIds............', peerIds);
   if (isAudioOpen.value) {
-    await VoiceRecorder.stopRecording();
-  } else {
-    await VoiceRecorder.startRecording();
-    VoiceRecorder.addListener('recordingData', handleRecordingData);
+    navigator.mediaDevices
+      .getUserMedia({ audio: true })
+      .then((stream) => {
+        peerIds.forEach((peerId) => {
+          if (peerId !== peer.value?.id) {
+            const call = peer.value?.call(peerId, stream);
+            call?.on('stream', (remoteStream) => {
+              const audio = new Audio();
+              audio.srcObject = remoteStream;
+              audio.play();
+            });
+          }
+        });
+      })
+      .catch((err) => console.error('Failed to get local stream', err));
   }
-};
-
-const toggleWebAudio = async () => {
-  if (isAudioOpen.value) {
-    closePeerConnection();
-    console.log('Web audio closed');
-  } else {
-    await createPeerConnection();
-    console.log('Web audio opened');
-  }
-};
-
-const createPeerConnection = async () => {
-  peerConnection.value = new RTCPeerConnection();
-  console.log('Peer connection created');
-
-  const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-  console.log('Got user media stream');
-
-  stream.getTracks().forEach((track) => {
-    peerConnection.value!.addTrack(track, stream);
-    console.log('Added track to peer connection:', track.kind);
-  });
-
-  peerConnection.value.onicecandidate = (event) => {
-    if (event.candidate && socket) {
-      console.log('Sending ICE candidate:', event.candidate);
-      socket.emit('webrtc_signal', {
-        sosEventId: createdSosId.value,
-        signal: { type: 'ice_candidate', candidate: event.candidate },
-      });
-    }
-  };
-
-  const offer = await peerConnection.value.createOffer();
-  await peerConnection.value.setLocalDescription(offer);
-  console.log('Created and set local description');
-
-  if (socket) {
-    console.log('Sending offer:', offer);
-    socket.emit('webrtc_signal', {
-      sosEventId: createdSosId.value,
-      signal: { type: 'offer', sdp: offer },
-    });
-  }
-};
+});
 
 const handleRecordingData = (data: { value: { recordDataBase64: string } }) => {
   if (socket) {
@@ -721,26 +733,6 @@ const handleRecordingData = (data: { value: { recordDataBase64: string } }) => {
       sosEventId: createdSosId.value,
       audioData: data.value.recordDataBase64,
     });
-  }
-};
-
-const handleWebRTCSignal = async (data: {
-  type: string;
-  sdp?: RTCSessionDescriptionInit;
-  candidate?: RTCIceCandidate;
-}) => {
-  if (!peerConnection.value) {
-    peerConnection.value = new RTCPeerConnection();
-  }
-
-  if (data.type === 'answer' && data.sdp) {
-    await peerConnection.value.setRemoteDescription(
-      new RTCSessionDescription(data.sdp)
-    );
-  } else if (data.type === 'ice_candidate' && data.candidate) {
-    await peerConnection.value.addIceCandidate(
-      new RTCIceCandidate(data.candidate)
-    );
   }
 };
 
