@@ -56,6 +56,13 @@
         >
           {{ $t('coordinates') }}: {{ location.location.coordinates[1] }},
           {{ location.location.coordinates[0] }}
+          <q-btn
+            flat
+            icon="map"
+            label="Check: location"
+            @click="openGoogleMaps(location.location.coordinates)"
+            class="q-ml-sm"
+          />
         </p>
       </div>
       <q-btn
@@ -278,5 +285,11 @@ const handleSubmit = () => {
       icon: 'error',
     });
   }
+};
+
+const openGoogleMaps = (coordinates: [number, number]) => {
+  const [longitude, latitude] = coordinates;
+  const url = `https://www.google.com/maps/search/?api=1&query=${latitude},${longitude}`;
+  window.open(url, '_blank');
 };
 </script>

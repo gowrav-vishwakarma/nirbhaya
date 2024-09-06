@@ -1,1 +1,9 @@
 // app global css in SCSS form
+
+// Importing variables to ensure they are available
+@import 'quasar.variables';
+
+// Global style to apply primary color
+body {
+  background-color: $primary;
+}
