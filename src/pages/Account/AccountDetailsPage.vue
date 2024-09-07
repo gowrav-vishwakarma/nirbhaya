@@ -65,7 +65,8 @@ onMounted(() => {
 const logout = async () => {
   try {
     // Call the logout API to remove token and FCM token
-    userStore.clearUser();
+    console.log('userStore.user', userStore.user);
+    await userStore.logout();
     await api.post('/auth/logout');
     router.push('/login');
     $q.notify({

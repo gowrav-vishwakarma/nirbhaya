@@ -57,75 +57,50 @@ const defaultUser: User = {
   broadcastAudioOnSos: false,
 };
 
-export const useUserStore = defineStore(
-  'userStore',
-  () => {
-    // State
-    const user = ref<User>(defaultUser);
-    const language = ref(localStorage.getItem('userLanguage') || 'en-US');
-    const availableLanguages = ['en-US', 'hi-IN', 'gu-IN'];
-
-    // Getters
-    const isLoggedIn = computed(() => !!user.value?.token);
-    const userName = computed(() => user.value?.name ?? '');
-    const userMobileNumber = computed(() => user.value?.phoneNumber ?? '');
-
-    // Actions
-    function setUser(newUser: User) {
-      user.value = newUser;
-    }
-
-    function updateUser(updatedFields: Partial<User>) {
-      user.value = { ...user.value, ...updatedFields };
-    }
-
-    function logout() {
-      user.value = defaultUser;
-    }
-
-    async function sendFcmTokenToBackend(token: string) {
+export const useUserStore = defineStore('userStore', {
+  state: () => ({
+    user: defaultUser,
+    language: localStorage.getItem('userLanguage') || 'en-US',
+    availableLanguages: ['en-US', 'hi-IN', 'gu-IN'],
+  }),
+  actions: {
+    setUser(newUser: User) {
+      this.user = newUser;
+    },
+    updateUser(updatedFields: Partial<User>) {
+      this.user = { ...this.user, ...updatedFields };
+    },
+    logout() {
+      this.user = defaultUser;
+    },
+    sendFcmTokenToBackend(token: string) {
       try {
-        await api.post('/auth/update-fcm-token', { fcmToken: token });
+        api.post('/auth/update-fcm-token', { fcmToken: token });
         console.log('FCM token sent to backend successfully');
       } catch (error) {
         console.error('Error sending FCM token to backend:', error);
       }
-    }
-
-    async function sendTokenIfAvailable() {
+    },
+    sendTokenIfAvailable() {
       const token = localStorage.getItem('fcmToken');
       if (token) {
-        await sendFcmTokenToBackend(token);
+        this.sendFcmTokenToBackend(token);
       }
-    }
-
-    function clearUser() {
-      user.value = defaultUser;
-    }
-
-    function setLanguage(lang: string) {
-      language.value = lang;
-      localStorage.setItem('userLanguage', lang);
-    }
-
-    return {
-      user,
-      isLoggedIn,
-      userName,
-      userMobileNumber,
-      setUser,
-      updateUser,
-      logout,
-      sendTokenIfAvailable,
-      clearUser,
-      language,
-      availableLanguages,
-      setLanguage,
-    };
-  },
-  {
-    persist: {
-      key: 'nirdhaya-user',
     },
-  }
-);
+    clearUser() {
+      this.user = defaultUser;
+    },
+    setLanguage(lang: string) {
+      this.language = lang;
+      localStorage.setItem('userLanguage', lang);
+    },
+  },
+  getters: {
+    isLoggedIn: (state) => !!state.user.token,
+    userName: (state) => state.user.name ?? '',
+    userMobileNumber: (state) => state.user.phoneNumber ?? '',
+  },
+  persist: {
+    key: 'sos-user',
+  },
+});
