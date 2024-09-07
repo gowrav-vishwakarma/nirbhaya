@@ -158,6 +158,7 @@
           class="q-mt-sm"
         />
         <q-toggle
+          v-if="STREAM_SAVE"
           v-model="values.streamAudioVideoOnSos"
           :label="$t('streamAudioVideoOnSos')"
           class="q-mt-sm"
@@ -198,6 +199,8 @@ import { Camera } from '@capacitor/camera';
 const { t } = useI18n();
 const $q = useQuasar();
 const userStore = useUserStore();
+
+const STREAM_SAVE = computed(() => process.env.STREAM_SAVE);
 
 const userTypeOptions = ['Girl', 'Child', 'Elder Woman', 'Elder Man', 'Youth'];
 

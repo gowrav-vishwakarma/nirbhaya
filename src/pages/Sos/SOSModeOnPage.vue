@@ -144,11 +144,15 @@ import { VoiceRecorder } from 'capacitor-voice-recorder';
 import { socket } from 'boot/socket';
 import Peer from 'peerjs';
 import { onBeforeRouteLeave } from 'vue-router';
+import { useUserStore } from 'src/stores/user-store';
 
 const router = useRouter();
 const route = useRoute();
 const { t } = useI18n();
 const $q = useQuasar();
+const userStore = useUserStore();
+
+const STREAM_SAVE = process.env.STREAM_SAVE;
 
 const countdownDuration = 10; // seconds
 const timeLeft = ref(countdownDuration);
@@ -176,7 +180,11 @@ const selectedThreat = ref('');
 const { permissions, checkPermissions, requestPermission, activatePermission } =
   usePermissions();
 
-const shouldStream = computed(() => process.env.STREAM_SAVE === 'true');
+const shouldStream = computed(
+  () => STREAM_SAVE === 'true' && userStore.user.streamAudioVideoOnSos
+);
+
+const shouldRecord = computed(() => userStore.user.startAudioVideoRecordOnSos);
 
 const locationSentToServer = ref(false);
 
@@ -350,7 +358,9 @@ const updateSOSData = async (data: {
       sosSent.value = true;
       notifiedPersons.value = 10;
       acceptedPersons.value = 3;
-      startRecordingAndStreaming();
+      if (shouldRecord.value) {
+        startRecordingAndStreaming();
+      }
     }
 
     // Always update all available values
