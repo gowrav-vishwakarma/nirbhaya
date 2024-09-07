@@ -149,6 +149,26 @@
         </div>
       </div>
 
+      <!-- New SOS Settings -->
+      <div class="q-mb-md">
+        <h6 class="q-ma-none q-ml-xs">{{ $t('sosSettings') }}</h6>
+        <q-toggle
+          v-model="values.startAudioVideoRecordOnSos"
+          :label="$t('startAudioVideoRecordOnSos')"
+          class="q-mt-sm"
+        />
+        <q-toggle
+          v-model="values.streamAudioVideoOnSos"
+          :label="$t('streamAudioVideoOnSos')"
+          class="q-mt-sm"
+        />
+        <q-toggle
+          v-model="values.broadcastAudioOnSos"
+          :label="$t('broadcastAudioOnSos')"
+          class="q-mt-sm"
+        />
+      </div>
+
       <!-- Submit button -->
       <q-btn
         type="submit"
@@ -202,6 +222,9 @@ const { values, errors, isLoading, validateAndSubmit, callbacks } = useForm(
     userType: '',
     profession: '', // Add profession here
     emergencyContacts: [],
+    startAudioVideoRecordOnSos: false,
+    streamAudioVideoOnSos: false,
+    broadcastAudioOnSos: false,
   }
 );
 

@@ -33,6 +33,9 @@ export interface User {
   locations: UserLocation[];
   availableForPaidProfessionalService: boolean; // Added new field
   hasJoinedCommunity: boolean;
+  startAudioVideoRecordOnSos: boolean;
+  streamAudioVideoOnSos: boolean;
+  broadcastAudioOnSos: boolean;
 }
 
 const defaultUser: User = {
@@ -49,6 +52,9 @@ const defaultUser: User = {
   locations: [],
   availableForPaidProfessionalService: false, // Added new field
   hasJoinedCommunity: false,
+  startAudioVideoRecordOnSos: false,
+  streamAudioVideoOnSos: false,
+  broadcastAudioOnSos: false,
 };
 
 export const useUserStore = defineStore(

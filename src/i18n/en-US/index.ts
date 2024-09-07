@@ -86,6 +86,10 @@ export default {
   mechanicBoth: '2&4 Wheeler Mechanic',
   nurse: 'Nurse',
   other: 'Other',
+  sosSettings: 'SOS Settings',
+  startAudioVideoRecordOnSos: 'Start Audio/Video Record on SOS (local)',
+  streamAudioVideoOnSos: 'Stream Audio/Video on SOS (on server)',
+  broadcastAudioOnSos: 'Broadcast Audio on SOS (to volunteers)',
 
   // Permissions
   appPermissions: 'App Permissions',

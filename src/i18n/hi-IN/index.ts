@@ -82,6 +82,11 @@ export default {
   mechanicBoth: '2&4 व्हीलर मैकेनिक',
   nurse: 'नियुस',
   other: 'अन्य',
+  sosSettings: 'एसओएस सेटिंग्स',
+  startAudioVideoRecordOnSos: 'एसओएस पर ऑडियो/विडियो रिकॉर्ड शर्तें (स्थानीय)',
+  streamAudioVideoOnSos: 'एसओएस पर ऑडियो/विडियो स्ट्रीम शर्तें (सर्वर पर)',
+  broadcastAudioOnSos:
+    'एसओएस पर ऑडियो ब्रॉडकास्ट शर्तें (स्वयंसेवा के व्यक्तियों को)',
 
   // Permissions
   appPermissions: 'ऐप अनुमतियां',

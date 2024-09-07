@@ -82,6 +82,11 @@ export default {
   mechanicBoth: '2&4 વેહિકલ મેકનિક',
   nurse: 'નિયુસ',
   other: 'અન્ય',
+  sosSettings: 'એસઓએસ સેટિંગ્સ',
+  startAudioVideoRecordOnSos: 'એસઓએસ પર ઓડિયો/વિડિઓ રેકોર્ડ શરતો (સ્થાનીય)',
+  streamAudioVideoOnSos: 'એસઓએસ પર ઓડિયો/વિડિઓ સ્ટ્રીમ શરતો (સર્વર પર)',
+  broadcastAudioOnSos:
+    'એસઓએસ પર ઓડિયો બ્રોડ્કાસ્ટ શરતો (સ્વયંસેવાના વ્યક્તિઓને)',
 
   // Permissions
   appPermissions: 'એપ્લિકેશન પરવાનગીઓ',
