@@ -248,6 +248,7 @@ const showResolveConfirmation = (): Promise<boolean> => {
               message: 'Your SOS event has been closed.',
               color: 'info',
             });
+            sosSent.value = false; // Reset sosSent
             router.push('/dashboard'); // Redirect to dashboard
             resolve(true);
             break;
@@ -257,6 +258,7 @@ const showResolveConfirmation = (): Promise<boolean> => {
               message: 'Your SOS event has been resolved.',
               color: 'positive',
             });
+            sosSent.value = false; // Reset sosSent
             router.push('/dashboard'); // Redirect to dashboard
             resolve(true);
             break;
@@ -275,6 +277,9 @@ const showResolveConfirmation = (): Promise<boolean> => {
           color: 'warning',
         });
         resolve(false);
+      })
+      .finally(() => {
+        isResolvingManually.value = false;
       });
   });
 };
@@ -288,16 +293,16 @@ onBeforeRouteLeave(async (to, from, next) => {
   await stopRecordingAndStreaming();
   closePeerConnection();
 
-  // Only show the confirmation if SOS has been sent and not manually resolving
-  if (sosSent.value && !isResolvingManually.value) {
+  // Only show the confirmation if SOS is still active
+  if (sosSent.value) {
     const shouldProceed = await showResolveConfirmation();
     if (shouldProceed) {
-      next(); // Allow navigation
+      next(); // Allow navigation only if the user chose to cancel or resolve
     } else {
       next(false); // Prevent navigation
     }
   } else {
-    next(); // Allow navigation if SOS not sent or manually resolving
+    next(); // Allow navigation if SOS not sent or already resolved/cancelled
   }
 });
 
