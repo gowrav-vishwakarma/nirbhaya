@@ -3,9 +3,9 @@ PODS:
     - CapacitorCordova
   - CapacitorApp (5.0.8):
     - Capacitor
-  - CapacitorBackgroundRunner (1.1.0):
-    - Capacitor
   - CapacitorCordova (5.7.8)
+  - CapacitorDevice (5.0.8):
+    - Capacitor
   - CapacitorGeolocation (5.0.8):
     - Capacitor
   - CapacitorNetwork (5.0.8):
@@ -16,8 +16,8 @@ PODS:
 DEPENDENCIES:
   - "Capacitor (from `../../node_modules/@capacitor/ios`)"
   - "CapacitorApp (from `../../node_modules/@capacitor/app`)"
-  - "CapacitorBackgroundRunner (from `../../node_modules/@capacitor/background-runner`)"
   - "CapacitorCordova (from `../../node_modules/@capacitor/ios`)"
+  - "CapacitorDevice (from `../../node_modules/@capacitor/device`)"
   - "CapacitorGeolocation (from `../../node_modules/@capacitor/geolocation`)"
   - "CapacitorNetwork (from `../../node_modules/@capacitor/network`)"
   - "CapacitorPushNotifications (from `../../node_modules/@capacitor/push-notifications`)"
@@ -27,10 +27,10 @@ EXTERNAL SOURCES:
     :path: "../../node_modules/@capacitor/ios"
   CapacitorApp:
     :path: "../../node_modules/@capacitor/app"
-  CapacitorBackgroundRunner:
-    :path: "../../node_modules/@capacitor/background-runner"
   CapacitorCordova:
     :path: "../../node_modules/@capacitor/ios"
+  CapacitorDevice:
+    :path: "../../node_modules/@capacitor/device"
   CapacitorGeolocation:
     :path: "../../node_modules/@capacitor/geolocation"
   CapacitorNetwork:
@@ -41,12 +41,12 @@ EXTERNAL SOURCES:
 SPEC CHECKSUMS:
   Capacitor: 747aadb4fa786f460d8cd9d0557cb81440a13747
   CapacitorApp: 102e553c3b1fdc255969c39aa19b529675690ef4
-  CapacitorBackgroundRunner: 270b88dd7ba6631b22f17ab4f10422834d82c1aa
   CapacitorCordova: 31ab98dca2ddcee051027a1afe7e8c85c82f7297
+  CapacitorDevice: 5f5951e4839ff4e0cbdd50d0865f50933f2b117a
   CapacitorGeolocation: 0572212732f7ee65828d069a9663a274be89b9fc
   CapacitorNetwork: eac95b6a8eb5be7ad1ee8faa2e26a577acd5d625
   CapacitorPushNotifications: 18108623c4f6a2629e7560c07c157820a511bcdd
 
-PODFILE CHECKSUM: 755aafa57303ce56bbf0c45c791de76c7c400187
+PODFILE CHECKSUM: 7110c5a55f3630f0e09f9a339b69c301a2322143
 
-COCOAPODS: 1.15.0
+COCOAPODS: 1.15.2
