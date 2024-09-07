@@ -15,7 +15,6 @@
   },
   "dependencies": {
     "@capacitor-firebase/messaging": "^5.1.0",
-    "@capacitor/background-runner": "^1.1.0",
     "@capacitor/camera": "^5.0.9",
     "@capacitor/core": "^5.7.8",
     "@capacitor/device": "^5.0.8",

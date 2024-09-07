@@ -125,7 +125,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted, onUnmounted, watch, computed } from 'vue';
+import { ref, onMounted, onUnmounted, watch, computed, reactive } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import {
@@ -198,6 +198,8 @@ const threats = [
   'sexualAssault',
   'domesticViolence',
 ];
+
+const audioElements = reactive({}); // Store audio elements by peer ID
 
 onMounted(async () => {
   await checkPermissions();
@@ -700,7 +702,7 @@ const toggleAudio = async () => {
   const sosEventIdString = createdSosId.value.toString();
   if (isAudioOpen.value) {
     closePeerConnection();
-    socket.emit('leave_sos_room', sosEventIdString);
+    socket.emit('leave_sos_room', sosEventIdString); // Ensure to leave the room
   } else {
     socket.emit('join_sos_room', sosEventIdString);
     socket.emit('get_peers_in_room', sosEventIdString);
@@ -722,6 +724,7 @@ socket.on('peers_in_room', (peerIds: string[]) => {
               const audio = new Audio();
               audio.srcObject = remoteStream;
               audio.play();
+              audioElements[peerId] = audio; // Store the audio element
             });
           }
         });
@@ -745,6 +748,19 @@ const closePeerConnection = () => {
     peerConnection.value = null;
   }
 };
+
+// Listen for the peer_left event
+socket.on('peer_left', (peerId: string) => {
+  // Logic to stop audio for the peer that left
+  if (peerId !== peer.value?.id) {
+    // Stop the audio stream for the peer that left
+    console.log(`Peer ${peerId} has left the room. Stopping audio.`);
+    if (audioElements[peerId]) {
+      audioElements[peerId].pause(); // Stop the audio
+      delete audioElements[peerId]; // Remove the reference
+    }
+  }
+});
 </script>
 
 <style scoped>

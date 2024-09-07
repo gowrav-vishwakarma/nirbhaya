@@ -124,6 +124,7 @@ callbacks.onSuccess = () => {
 
 const peer = ref<Peer | null>(null);
 const isAudioOpen = reactive({});
+const audioElements = reactive({}); // Store audio elements by peer ID
 
 const { t } = useI18n();
 
@@ -243,7 +244,7 @@ const initializePeer = () => {
 
 const toggleAudio = async (sosEventId: number) => {
   if (isAudioOpen[sosEventId]) {
-    await disconnectAudio(sosEventId);
+    await disconnectAudio(sosEventId); // Ensure to disconnect audio
   } else {
     await connectAudio(sosEventId);
   }
@@ -338,11 +339,22 @@ socket.on('peers_in_room', (peerIds: string[]) => {
             const audio = new Audio();
             audio.srcObject = remoteStream;
             audio.play();
+            audioElements[peerId] = audio; // Store the audio element
           });
         }
       });
     })
     .catch((err) => console.error('Failed to get local stream', err));
+});
+
+socket.on('peer_left', (peerId: string) => {
+  if (peerId !== peer.value?.id) {
+    console.log(`Peer ${peerId} has left the room. Stopping audio.`);
+    if (audioElements[peerId]) {
+      audioElements[peerId].pause(); // Stop the audio
+      delete audioElements[peerId]; // Remove the reference
+    }
+  }
 });
 </script>
 

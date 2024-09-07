@@ -1,7 +1,5 @@
 import { ref, onMounted, onUnmounted } from 'vue';
 import { api } from 'boot/axios';
-import { Capacitor } from '@capacitor/core';
-import { BackgroundRunner } from '@capacitor/background-runner';
 import { useUserStore } from 'src/stores/user-store';
 
 const userStore = useUserStore();
@@ -33,30 +31,9 @@ export function useBackgroundNotifications() {
     }
   };
 
-  const setupBackgroundRunner = async () => {
-    if (Capacitor.isNativePlatform()) {
-      try {
-        await BackgroundRunner.requestPermissions();
-
-        // The actual background task will be defined in a separate file
-        // as specified in the capacitor.config.ts
-
-        // We can dispatch the event manually if needed
-        await BackgroundRunner.dispatchEvent({
-          label: 'com.example.notifications',
-          event: 'fetchNotifications',
-          details: {},
-        });
-      } catch (error) {
-        console.error('Error setting up background runner:', error);
-      }
-    }
-  };
-
   onMounted(() => {
     if (userStore.user) {
       startNotificationCountRefresh();
-      setupBackgroundRunner();
     }
   });
 
@@ -69,6 +46,5 @@ export function useBackgroundNotifications() {
     fetchUnreadNotificationCount,
     startNotificationCountRefresh,
     stopNotificationCountRefresh,
-    setupBackgroundRunner,
   };
 }

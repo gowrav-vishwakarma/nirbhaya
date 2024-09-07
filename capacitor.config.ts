@@ -1,8 +1,14 @@
 import { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  // ... existing configuration ...
+  server: {
+    url: 'http://127.0.0.1:3000',
+    cleartext: true,
+  },
   plugins: {
+    Geolocation: {
+      permissions: ['location'],
+    },
     PushNotifications: {
       presentationOptions: ['badge', 'sound', 'alert'],
     },
