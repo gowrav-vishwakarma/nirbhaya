@@ -9,61 +9,63 @@
         class="q-py-md"
       >
         <q-item-section>
-          <q-item-label class="text-weight-bold">
-            {{ getNotificationTitle(notification) }}
-          </q-item-label>
-          <q-item-label caption>
-            {{ formatRelativeTime(notification.createdAt) }}
-          </q-item-label>
-          <q-item-label v-if="notification.sosEvent" caption>
-            {{ $t('status') }}:
-            {{ $t(`sosStatus.${notification.sosEvent.status}`) }}
-          </q-item-label>
-          <q-item-label
-            v-if="notification.sosEvent && notification.sosEvent.threat"
-            caption
-          >
-            {{ $t('threat') }}: {{ $t(notification.sosEvent.threat) }}
-          </q-item-label>
-          <q-item-label
-            v-if="notification.userLocationName && notification.distanceToEvent"
-            caption
-          >
-            {{ formatDistance(notification.distanceToEvent) }}
-            {{ $t('awayFrom') }} {{ notification.userLocationName }}
-          </q-item-label>
-        </q-item-section>
-        <q-item-section side v-if="notification.status === 'sent'">
-          <q-btn
-            color="primary"
-            :label="$t('accept')"
-            @click="acceptNotification(notification.id)"
-          />
-        </q-item-section>
-        <q-item-section side v-else-if="notification.status === 'accepted'">
-          <q-btn-group spread>
-            <q-btn
-              color="secondary"
-              :label="$t('follow')"
-              @click="followLocation(notification.sosEvent.location)"
-            />
-            <q-btn
-              round
-              :color="
-                isAudioOpen[notification.sosEvent.id] ? 'primary' : 'grey'
-              "
-              :icon="$t('icons.volumeUp')"
-              @click="toggleAudio(notification.sosEvent.id)"
-            />
-          </q-btn-group>
-        </q-item-section>
-        <q-item-section side v-else>
-          <q-chip
-            :color="getStatusColor(notification.status)"
-            text-color="white"
-          >
-            {{ $t(`notificationStatus.${notification.status}`) }}
-          </q-chip>
+          <q-card>
+            <q-card-section>
+              <q-item-label class="text-weight-bold">
+                #{{ notification.id }} {{ getNotificationTitle(notification) }}
+              </q-item-label>
+              <q-item-label caption>
+                {{ formatRelativeTime(notification.createdAt) }}
+              </q-item-label>
+              <q-item-label v-if="notification.sosEvent" caption>
+                {{ $t('status') }}:
+                {{ $t(`sosStatus.${notification.sosEvent.status}`) }}
+              </q-item-label>
+              <q-item-label
+                v-if="notification.sosEvent && notification.sosEvent.threat"
+                caption
+              >
+                {{ $t('threat') }}: {{ $t(notification.sosEvent.threat) }}
+              </q-item-label>
+              <q-item-label
+                v-if="
+                  notification.userLocationName && notification.distanceToEvent
+                "
+                caption
+              >
+                {{ formatDistance(notification.distanceToEvent) }}
+                {{ $t('awayFrom') }} {{ notification.userLocationName }}
+              </q-item-label>
+            </q-card-section>
+            <q-card-actions align="right" class="q-gutter-md">
+              <q-btn
+                v-if="notification.status === 'sent'"
+                color="primary"
+                :label="$t('accept')"
+                @click="acceptNotification(notification.id)"
+              />
+              <q-btn
+                v-else-if="notification.status === 'accepted'"
+                color="secondary"
+                :label="$t('follow')"
+                @click="followLocation(notification.sosEvent.location)"
+              />
+              <q-btn
+                round
+                v-if="notification.status === 'accepted'"
+                :color="
+                  isAudioOpen[notification.sosEvent.id] ? 'primary' : 'grey'
+                "
+                :icon="$t('icons.volumeUp')"
+                @click="toggleAudio(notification.sosEvent.id)"
+              />
+              <q-btn
+                color="negative"
+                :label="$t('discard')"
+                @click="discardNotification(notification.id)"
+              />
+            </q-card-actions>
+          </q-card>
         </q-item-section>
       </q-item>
     </q-list>
@@ -159,10 +161,15 @@ const getNotificationTitle = (notification: Notification) => {
       eventType: t(`${eventType}`),
     });
   } else if (notification.recipientType === 'emergency_contact') {
-    return t('notificationTitles.emergencyContact', {
-      eventType: t(`${eventType}`),
-      victimName: notification.userLocationName, // Use victim's name here
-    });
+    return t(
+      notification.sosEvent.contactsOnly
+        ? 'notificationTitles.contactsOnly'
+        : 'notificationTitles.emergencyContact',
+      {
+        eventType: t(`${eventType}`),
+        victimName: notification.userLocationName, // Use victim's name here
+      }
+    );
   }
   return '';
 };
@@ -356,6 +363,27 @@ socket.on('peer_left', (peerId: string) => {
     }
   }
 });
+
+const discardNotification = async (notificationId: number) => {
+  try {
+    await api.post(`/auth/notifications/${notificationId}/discard`); // Call the discard API
+    responseData.value = responseData.value.filter(
+      (n) => n.id !== notificationId
+    ); // Remove the discarded notification from the list
+    $q.notify({
+      color: 'positive',
+      message: t('notificationDiscardedSuccess'),
+      icon: 'check',
+    });
+  } catch (error) {
+    console.error('Error discarding notification:', error);
+    $q.notify({
+      color: 'negative',
+      message: t('notificationDiscardedError'),
+      icon: 'error',
+    });
+  }
+};
 </script>
 
 <style scoped>

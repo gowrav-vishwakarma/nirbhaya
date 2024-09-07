@@ -190,6 +190,7 @@ export default {
   notificationTitles: {
     volunteerNearby: 'Nearby {eventType} alert',
     emergencyContact: 'Emergency contact "{victimName}" alert: {eventType}',
+    contactsOnly: 'Help needed by "{victimName}"',
   },
 
   sosStatus: {

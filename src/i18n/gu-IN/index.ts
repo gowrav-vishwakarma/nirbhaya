@@ -186,6 +186,7 @@ export default {
   notificationTitles: {
     volunteerNearby: 'નજીકના {eventType} એલર્ટ',
     emergencyContact: 'કટોકટી સંપર્ક {eventType} એલર્ટ',
+    contactsOnly: 'કટોકટી સંપર્ક "{victimName}" માટે મદદ જરૂરી',
   },
 
   sosStatus: {
