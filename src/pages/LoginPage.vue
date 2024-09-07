@@ -58,6 +58,7 @@ import { useForm } from 'src/qnatk/composibles/use-form';
 import { api } from 'src/boot/axios';
 import { Notify } from 'quasar';
 import LanguageSelector from 'src/components/LanguageSelector.vue';
+import { Device } from '@capacitor/device'; // Import Device API
 
 const userStore = useUserStore();
 const router = useRouter();
@@ -69,10 +70,14 @@ const { values, errors, validateAndSubmit, updateUrl, callbacks } = useForm(
   {
     mobileNumber: '',
     otp: '',
+    deviceId: '',
   }
 );
 
-const handleSubmit = () => {
+const handleSubmit = async () => {
+  const { identifier } = await Device.getId(); // Retrieve deviceId
+  values.value.deviceId = identifier;
+
   validateAndSubmit(false); // Pass false to prevent form reset
 };
 
