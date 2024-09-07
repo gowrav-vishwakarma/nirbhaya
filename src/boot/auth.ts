@@ -8,6 +8,7 @@ export default boot(async ({ redirect, store, urlPath }) => {
 
   // Check if the user is not logged in and accessing a protected route
   if (!loggedIn && !urlPath.endsWith('/login')) {
+    userStore.clearUser();
     redirect('/login');
   }
 });
