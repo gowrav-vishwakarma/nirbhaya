@@ -29,6 +29,7 @@ import { useI18n } from 'vue-i18n';
 import { Capacitor } from '@capacitor/core';
 import { Geolocation } from '@capacitor/geolocation';
 import { Camera } from '@capacitor/camera';
+import { PushNotifications } from '@capacitor/push-notifications';
 
 const route = useRoute();
 const $q = useQuasar();
@@ -42,6 +43,7 @@ const helpSections = ref([
     action: {
       handler: () => requestPermission('location'),
     },
+    permissionGranted: false,
   },
   {
     id: 'camera',
@@ -50,6 +52,7 @@ const helpSections = ref([
     action: {
       handler: () => requestPermission('camera'),
     },
+    permissionGranted: false,
   },
   {
     id: 'microphone',
@@ -58,6 +61,7 @@ const helpSections = ref([
     action: {
       handler: () => requestPermission('microphone'),
     },
+    permissionGranted: false,
   },
   {
     id: 'notifications',
@@ -66,6 +70,7 @@ const helpSections = ref([
     action: {
       handler: () => requestPermission('notifications'),
     },
+    permissionGranted: false,
   },
 ]);
 
@@ -73,28 +78,21 @@ const checkPermissionStatus = async (
   permissionName: string
 ): Promise<boolean> => {
   try {
-    if (Capacitor.isNativePlatform()) {
-      // ... existing native platform code ...
-    } else {
-      // Web API fallback
-      switch (permissionName) {
-        case 'location':
-          const result = await navigator.permissions.query({
-            name: 'geolocation',
-          });
-          return result.state === 'granted';
-        case 'camera':
-        case 'microphone':
-          const mediaResult = await navigator.mediaDevices.getUserMedia({
-            video: permissionName === 'camera',
-            audio: permissionName === 'microphone',
-          });
-          return !!mediaResult;
-        case 'notifications':
-          return Notification.permission === 'granted';
-        default:
-          return false;
-      }
+    switch (permissionName) {
+      case 'location':
+        const { location } = await Geolocation.checkPermissions();
+        return location === 'granted';
+      case 'camera':
+        const { camera } = await Camera.checkPermissions();
+        return camera === 'granted';
+      case 'microphone':
+        const { microphone } = await Camera.checkPermissions();
+        return microphone === 'granted';
+      case 'notifications':
+        const { receive } = await PushNotifications.checkPermissions();
+        return receive === 'granted';
+      default:
+        return false;
     }
   } catch (error) {
     console.error(`Error checking ${permissionName} permission:`, error);
@@ -113,39 +111,24 @@ const updatePermissionStatus = async () => {
 const requestPermission = async (permissionName: string) => {
   try {
     let result;
-    if (Capacitor.isNativePlatform()) {
-      switch (permissionName) {
-        case 'location':
-          result = await Geolocation.requestPermissions();
-          console.log('Location permission result:', result);
-          break;
-        case 'camera':
-          result = await Camera.requestPermissions();
-          console.log('Camera permission result:', result);
-          break;
-        case 'microphone':
-          result = await navigator.mediaDevices.getUserMedia({
-            video: false,
-            audio: true,
-          });
-          console.log('Microphone permission result:', result);
-          break;
-        case 'notifications':
-          result = await PushNotifications.requestPermissions();
-          console.log('Notifications permission result:', result);
-          break;
-        // ... other cases ...
-      }
-    } else {
-      // Web API fallback
-      // ... existing web API code ...
+    switch (permissionName) {
+      case 'location':
+        result = await Geolocation.requestPermissions();
+        break;
+      case 'camera':
+      case 'microphone':
+        result = await Camera.requestPermissions();
+        break;
+      case 'notifications':
+        result = await PushNotifications.requestPermissions();
+        break;
+      default:
+        throw new Error('Invalid permission name');
     }
 
-    // Check the permission status immediately after requesting
     const granted = await checkPermissionStatus(permissionName);
 
     if (granted) {
-      // Update the specific section's permissionGranted status
       const section = helpSections.value.find((s) => s.id === permissionName);
       if (section) {
         section.permissionGranted = true;

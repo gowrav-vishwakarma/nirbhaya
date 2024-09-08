@@ -196,6 +196,13 @@ module.exports = configure(function (/* ctx */) {
     // Full list of options: https://v2.quasar.dev/quasar-cli-vite/developing-capacitor-apps/configuring-capacitor
     capacitor: {
       hideSplashscreen: true,
+      appName: 'Shoutout',
+      appId: 'com.xavoc.shoutout',
+      webDir: 'www',
+      server: {
+        androidScheme: 'https',
+        url: 'https://192.168.1.3:9500',
+      },
     },
 
     // Full list of options: https://v2.quasar.dev/quasar-cli-vite/developing-electron-apps/configuring-electron

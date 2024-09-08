@@ -1,5 +1,5 @@
 {
-  "name": "SOS: Shoutout",
+  "name": "Shoutout",
   "version": "0.0.1",
   "description": "A power tool for every girl and child",
   "author": "Gowrav Vishwakarma <gowravvishwkarma@gmail.com>",
@@ -7,6 +7,7 @@
   "dependencies": {
     "@capacitor/android": "^5.7.8",
     "@capacitor/app": "^5.0.7",
+    "@capacitor/camera": "^5.0.10",
     "@capacitor/cli": "^5.7.8",
     "@capacitor/core": "^5.7.8",
     "@capacitor/device": "^5.0.8",

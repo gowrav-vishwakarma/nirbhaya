@@ -134,8 +134,6 @@ import {
   WatchPositionCallback,
 } from '@capacitor/geolocation';
 import { Capacitor } from '@capacitor/core';
-import { Camera, CameraResultType } from '@capacitor/camera';
-import { Filesystem, Directory } from '@capacitor/filesystem';
 import { Network } from '@capacitor/network';
 import { useUserForm } from 'src/composables/use-user-form';
 import { usePermissions } from 'src/composables/usePermissions';
@@ -557,62 +555,40 @@ const updateCurrentLocation = async (): Promise<void> => {
 
 const startRecordingAndStreaming = async () => {
   try {
-    if (Capacitor.isNativePlatform()) {
-      // For mobile platforms (iOS and Android)
-      const image = await Camera.getPhoto({
-        quality: 90,
-        allowEditing: false,
-        resultType: CameraResultType.Uri,
+    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+      mediaStream.value = await navigator.mediaDevices.getUserMedia({
+        video: true,
+        audio: true,
       });
 
-      // Save the image file
-      const fileName = `sos_image_${Date.now()}.jpeg`;
-      await Filesystem.writeFile({
-        path: fileName,
-        data: image.path!,
-        directory: Directory.Data,
+      const mimeType = getSupportedMimeType([
+        'video/webm',
+        'video/mp4',
+        'video/x-matroska',
+        'video/quicktime',
+      ]);
+
+      if (!mimeType) {
+        throw new Error('No supported mime type found for video recording');
+      }
+
+      mediaRecorder.value = new MediaRecorder(mediaStream.value, {
+        mimeType,
       });
 
-      console.log('Image saved:', fileName);
+      mediaRecorder.value.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          recordedChunks.value.push(event.data);
+          if (shouldStream.value) {
+            socket.emit('stream-chunk', event.data);
+          }
+        }
+      };
+
+      mediaRecorder.value.start(1000); // Capture data every second
       isRecording.value = true;
     } else {
-      // For web platform (PWA mode)
-      if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-        mediaStream.value = await navigator.mediaDevices.getUserMedia({
-          video: true,
-          audio: true,
-        });
-
-        // Try to use a more widely supported format
-        const mimeType = getSupportedMimeType([
-          'video/webm',
-          'video/mp4',
-          'video/x-matroska',
-          'video/quicktime',
-        ]);
-
-        if (!mimeType) {
-          throw new Error('No supported mime type found for video recording');
-        }
-
-        mediaRecorder.value = new MediaRecorder(mediaStream.value, {
-          mimeType,
-        });
-
-        mediaRecorder.value.ondataavailable = (event) => {
-          if (event.data.size > 0) {
-            recordedChunks.value.push(event.data);
-            if (shouldStream.value) {
-              socket.emit('stream-chunk', event.data);
-            }
-          }
-        };
-
-        mediaRecorder.value.start(1000); // Capture data every second
-        isRecording.value = true;
-      } else {
-        throw new Error('Media Devices API not available');
-      }
+      throw new Error('Media Devices API not available');
     }
   } catch (error) {
     console.error('Failed to start recording:', error);
@@ -631,11 +607,7 @@ const getSupportedMimeType = (types: string[]): string | null => {
 };
 
 const stopRecordingAndStreaming = async () => {
-  if (Capacitor.isNativePlatform()) {
-    isRecording.value = false;
-    // For mobile platforms, we don't need to do anything here
-    // as we've already saved the image in startRecordingAndStreaming
-  } else if (mediaRecorder.value && isRecording.value) {
+  if (mediaRecorder.value && isRecording.value) {
     mediaRecorder.value.stop();
     isRecording.value = false;
 
@@ -654,22 +626,35 @@ const stopRecordingAndStreaming = async () => {
 };
 
 const saveRecording = async () => {
-  if (!Capacitor.isNativePlatform() && mediaRecorder.value) {
+  if (mediaRecorder.value) {
     try {
       const mimeType = mediaRecorder.value.mimeType;
       const fileExtension = mimeType.split('/')[1].split(';')[0];
       const videoBlob = new Blob(recordedChunks.value, { type: mimeType });
       const fileName = `sos_recording_${Date.now()}.${fileExtension}`;
 
-      const url = URL.createObjectURL(videoBlob);
-      const a = document.createElement('a');
-      a.style.display = 'none';
-      a.href = url;
-      a.download = fileName;
-      document.body.appendChild(a);
-      a.click();
-      URL.revokeObjectURL(url);
-      console.log('Recording downloaded in browser:', fileName);
+      if (Capacitor.isNativePlatform()) {
+        // For mobile platforms, use Capacitor's Filesystem API
+        const { Filesystem, Directory } = await import('@capacitor/filesystem');
+        const base64Data = await blobToBase64(videoBlob);
+        await Filesystem.writeFile({
+          path: fileName,
+          data: base64Data,
+          directory: Directory.Data,
+        });
+        console.log('Recording saved on device:', fileName);
+      } else {
+        // For web platform (PWA mode)
+        const url = URL.createObjectURL(videoBlob);
+        const a = document.createElement('a');
+        a.style.display = 'none';
+        a.href = url;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        URL.revokeObjectURL(url);
+        console.log('Recording downloaded in browser:', fileName);
+      }
     } catch (error) {
       console.error('Failed to save recording:', error);
     }
