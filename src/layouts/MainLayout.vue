@@ -2,7 +2,10 @@
   <q-layout view="lHh Lpr lFf" class="bg-grey-1">
     <q-header elevated class="bg-primary text-white">
       <q-toolbar>
-        <q-toolbar-title class="text-h6" @click="goToDashboardPage">
+        <q-toolbar-title
+          class="text-h6"
+          @click="userStore.isLoggedIn ? goToDashboardPage() : goToLoginPage()"
+        >
           <q-icon name="campaign" size="2em" />
           <span class="text-weight-bold">{{ $t('app.name') }}</span>
         </q-toolbar-title>
@@ -15,6 +18,7 @@
             icon="notifications"
             aria-label="Notifications"
             @click="refreshNotifications"
+            :disabled="!userStore.isLoggedIn"
           >
             <q-badge color="red" floating v-if="unreadNotificationCount > 0">
               {{ unreadNotificationCount }}
@@ -45,6 +49,7 @@
           aria-label="Nearby Volunteers"
           @click="goToVolunteersPage"
           label="Nearby Volunteers"
+          :disabled="!userStore.isLoggedIn"
         />
         <q-space />
         <q-btn
@@ -54,6 +59,7 @@
           aria-label="Community"
           @click="goToCommunityPage"
           label="Community"
+          :disabled="!userStore.isLoggedIn"
         />
         <q-space />
         <q-btn
@@ -63,6 +69,7 @@
           aria-label="Profile"
           @click="goToAccountPage"
           label="Profile"
+          :disabled="!userStore.isLoggedIn"
         />
       </q-toolbar>
     </q-footer>
@@ -92,6 +99,10 @@ const goToAccountPage = () => {
 
 const goToDashboardPage = () => {
   router.push('/dashboard');
+};
+
+const goToLoginPage = () => {
+  router.push('/login');
 };
 
 const refreshNotifications = async () => {

@@ -71,9 +71,14 @@ import { useQuasar, debounce } from 'quasar'; // Import debounce from Quasar
 import { useI18n } from 'vue-i18n';
 import { api } from 'src/boot/axios';
 import { Geolocation } from '@capacitor/geolocation';
+import { useUserStore } from 'src/stores/user-store';
+import { useRouter } from 'vue-router';
 
 const $q = useQuasar();
 const { t } = useI18n();
+const userStore = useUserStore();
+
+const router = useRouter();
 
 const address = ref('');
 const range = ref(500);
@@ -174,7 +179,16 @@ const getVolunteerColor = (volunteer) => {
 };
 
 onMounted(() => {
-  getCurrentLocation();
+  if (!userStore.isLoggedIn) {
+    $q.notify({
+      color: 'negative',
+      message: t('loginToViewVolunteers'),
+      icon: 'error',
+    });
+    router.push('/login');
+  } else {
+    getCurrentLocation();
+  }
 });
 </script>
 

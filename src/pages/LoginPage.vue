@@ -2,6 +2,10 @@
   <q-page class="flex flex-center bg-grey-1">
     <q-card class="login-card q-pa-lg">
       <q-card-section class="text-center">
+        <div class="text-h4 text-weight-bold text-primary q-mb-md">
+          Shoutout<br />
+          <small><u>Community SOS</u></small>
+        </div>
         <div class="text-h5 text-weight-bold text-primary q-mb-md">
           {{ $t('login') }}
         </div>
