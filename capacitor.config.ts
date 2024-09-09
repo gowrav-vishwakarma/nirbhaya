@@ -3,7 +3,9 @@ import { CapacitorConfig } from '@capacitor/cli';
 const config: CapacitorConfig = {
   server: {
     androidScheme: 'https',
-    url: 'https://192.168.1.3:9500',
+    cleartext: true,
+    allowNavigation: ['*'],
+    hostname: 'localhost',
   },
   plugins: {
     Geolocation: {

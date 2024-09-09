@@ -32,16 +32,18 @@
 
         <div v-else class="col-12 text-center">
           <div class="text-h6 text-red text-weight-bold">SOS Sent</div>
-          <q-btn
-            round
-            size="xl"
-            :color="isAudioOpen ? 'primary' : 'grey'"
-            :icon="$t('icons.mic')"
-            @click="toggleAudio"
-          />
-          <p class="q-mt-sm">
-            {{ isAudioOpen ? 'Audio Connected' : 'Click to Open Audio' }}
-          </p>
+          <div v-if="isNavigatorMediaSupported">
+            <q-btn
+              round
+              size="xl"
+              :color="isAudioOpen ? 'primary' : 'grey'"
+              :icon="$t('icons.mic')"
+              @click="toggleAudio"
+            />
+            <p class="q-mt-sm">
+              {{ isAudioOpen ? 'Audio Connected' : 'Click to Open Audio' }}
+            </p>
+          </div>
         </div>
 
         <div v-if="sosSent" class="col-12">
@@ -195,6 +197,10 @@ const peerConnection = ref<RTCPeerConnection | null>(null);
 const mediaRecorder = ref<MediaRecorder | null>(null);
 const mediaStream = ref<MediaStream | null>(null);
 const recordedChunks = ref<Blob[]>([]);
+
+const isNavigatorMediaSupported = computed(() => {
+  return !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
+});
 
 const threats = [
   'followedBySomeone',

@@ -150,24 +150,26 @@
       </div>
 
       <!-- New SOS Settings -->
-      <div class="q-mb-md">
-        <h6 class="q-ma-none q-ml-xs">{{ $t('sosSettings') }}</h6>
-        <q-toggle
-          v-model="values.startAudioVideoRecordOnSos"
-          :label="$t('startAudioVideoRecordOnSos')"
-          class="q-mt-sm"
-        />
-        <q-toggle
-          v-if="STREAM_SAVE"
-          v-model="values.streamAudioVideoOnSos"
-          :label="$t('streamAudioVideoOnSos')"
-          class="q-mt-sm"
-        />
-        <q-toggle
-          v-model="values.broadcastAudioOnSos"
-          :label="$t('broadcastAudioOnSos')"
-          class="q-mt-sm"
-        />
+      <div v-if="isNavigatorMediaSupported">
+        <div class="q-mb-md">
+          <h6 class="q-ma-none q-ml-xs">{{ $t('sosSettings') }}</h6>
+          <q-toggle
+            v-model="values.startAudioVideoRecordOnSos"
+            :label="$t('startAudioVideoRecordOnSos')"
+            class="q-mt-sm"
+          />
+          <q-toggle
+            v-if="STREAM_SAVE"
+            v-model="values.streamAudioVideoOnSos"
+            :label="$t('streamAudioVideoOnSos')"
+            class="q-mt-sm"
+          />
+          <q-toggle
+            v-model="values.broadcastAudioOnSos"
+            :label="$t('broadcastAudioOnSos')"
+            class="q-mt-sm"
+          />
+        </div>
       </div>
 
       <!-- Submit button -->
@@ -203,6 +205,10 @@ const userStore = useUserStore();
 const STREAM_SAVE = computed(() => process.env.STREAM_SAVE);
 
 const userTypeOptions = ['Girl', 'Child', 'Elder Woman', 'Elder Man', 'Youth'];
+
+const isNavigatorMediaSupported = computed(() => {
+  return !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
+});
 
 const professionOptions = [
   { label: t('hospital'), value: 'hospital' },
