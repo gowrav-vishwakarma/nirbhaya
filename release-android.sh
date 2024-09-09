@@ -26,6 +26,6 @@ fi
 
 # Revert the changes in .env
 sed -i.bak 's/^\s*\(API_BASE_URL=https:\/\/.*\)/#\1/' .env && rm .env.bak
-sed -i.bak 's/^\s*\(API_BASE_URL=http:\/\/.*\)/#\1/' .env && rm .env.bak
+sed -i.bak 's/^\s*#\(API_BASE_URL=http:\/\/.*\)/\1/' .env && rm .env.bak
 
 echo "Android release successful!"
