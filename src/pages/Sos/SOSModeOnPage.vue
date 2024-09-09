@@ -248,6 +248,7 @@ const showResolveConfirmation = (): Promise<boolean> => {
         switch (action) {
           case 'cancel':
             await updateSOSData({ status: 'cancelled' });
+            closeAudioConnection(); // Close audio connection
             $q.notify({
               message: 'Your SOS event has been closed.',
               color: 'info',
@@ -258,6 +259,7 @@ const showResolveConfirmation = (): Promise<boolean> => {
             break;
           case 'resolve':
             await updateSOSData({ status: 'resolved' });
+            closeAudioConnection(); // Close audio connection
             $q.notify({
               message: 'Your SOS event has been resolved.',
               color: 'positive',
@@ -770,6 +772,13 @@ const handleRecordingData = (data: { value: { recordDataBase64: string } }) => {
 
 const closePeerConnection = () => {
   if (peerConnection.value) {
+    // stop all tracks
+    if (mediaStream.value) {
+      mediaStream.value.getTracks().forEach((track) => track.stop());
+    }
+    if (mediaRecorder.value) {
+      mediaRecorder.value.stop();
+    }
     peerConnection.value.close();
     peerConnection.value = null;
   }
@@ -787,6 +796,12 @@ socket.on('peer_left', (peerId: string) => {
     }
   }
 });
+
+const closeAudioConnection = () => {
+  closePeerConnection();
+  socket.emit('leave_sos_room', createdSosId.value.toString());
+  isAudioOpen.value = false;
+};
 </script>
 
 <style scoped>
