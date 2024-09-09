@@ -282,7 +282,7 @@ const showResolveConfirmation = (): Promise<boolean> => {
         });
         resolve(false);
       })
-      .finally(() => {
+      .onDismiss(() => {
         isResolvingManually.value = false;
       });
   });
