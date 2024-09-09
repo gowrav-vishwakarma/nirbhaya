@@ -121,6 +121,19 @@
             <b>{{ $t('resolveSOSIssue') }}</b>
           </q-btn>
         </div>
+
+        <div class="col-12 q-mt-lg">
+          <q-expansion-item
+            label="Logs"
+            icon="mdi-clipboard-text"
+            class="text-h6 text-weight-bold"
+          >
+            <div v-for="(log, index) in logs" :key="index" class="text-body1">
+              {{ log }}
+              <q-separator v-if="index < logs.length - 1" class="q-my-sm" />
+            </div>
+          </q-expansion-item>
+        </div>
       </div>
     </q-card>
   </q-page>
@@ -212,6 +225,13 @@ const threats = [
 ];
 
 const audioElements = reactive({}); // Store audio elements by peer ID
+
+const logs = ref<string[]>([]); // Reactive array to store logs
+
+const logMessage = (message: string) => {
+  logs.value.push(message); // Add new log message
+  console.log(message); // Optional: log to console as well
+};
 
 onMounted(async () => {
   await checkPermissions();
@@ -337,10 +357,10 @@ const resetCountdown = () => {
 const cancelSOS = async () => {
   try {
     await sendCancelSOSRequest();
+    logMessage('SOS request cancelled.');
     router.push('/dashboard');
   } catch (error) {
-    console.error('Failed to cancel SOS request:', error);
-    // TODO: Show error message to user
+    logMessage('Failed to cancel SOS request: ' + error);
   }
 };
 
@@ -350,6 +370,7 @@ const activateSOSPermissions = async () => {
     const permission = permissions.value.find((p) => p.name === permissionName);
     if (permission && !permission.granted) {
       await requestPermission(permissionName);
+      logMessage(`${permissionName} permission granted.`);
     }
     await activatePermission(permissionName);
   }
@@ -371,6 +392,11 @@ const updateSOSData = async (data: {
       acceptedPersons.value = 3;
       if (shouldRecord.value) {
         startRecordingAndStreaming();
+        logMessage('Started recording and streaming.');
+      } else {
+        logMessage(
+          'Recording and streaming not started because recording is not set in profile.'
+        );
       }
     }
 
@@ -386,11 +412,26 @@ const updateSOSData = async (data: {
 
     await validateAndSubmit();
     console.log('SOS data updated:', values.value);
+    logMessage(
+      'SOS data updated: ' +
+        JSON.stringify(
+          {
+            location: currentLocation.value,
+            status: data.status,
+            threat: data.threat,
+            contactsOnly: contactsOnly.value,
+            sosEventId: createdSosId.value,
+          },
+          null,
+          2
+        )
+    );
 
     if (!isLocationReceived.value) {
       updateCurrentLocation();
     }
   } catch (error) {
+    logMessage('Failed to update SOS data: ' + error);
     console.error('Failed to update SOS data:', error);
   }
 };
@@ -402,6 +443,7 @@ const handleThreatButtonClick = (threatType: string) => {
 const sendCancelSOSRequest = async () => {
   // TODO: Implement actual API call
   await updateSOSData({ status: 'cancelled' });
+  logMessage('Sending cancel SOS request');
   console.log('Sending cancel SOS request');
 };
 
@@ -489,9 +531,10 @@ const startLocationWatching = async () => {
       },
       handleLocationUpdate
     );
-
+    logMessage('Started watching location');
     console.log('Started watching location');
   } catch (error) {
+    logMessage('Error starting location watch: ' + error);
     console.error('Error starting location watch:', error);
     currentLocationName.value = t('locationWatchError');
   }
@@ -502,9 +545,12 @@ const handleLocationUpdate: WatchPositionCallback = (
   err?: any
 ) => {
   if (err) {
+    logMessage('Error in location update: ' + err);
     console.error('Error in location update:', err);
     return;
   }
+
+  logMessage('Location updated: ' + JSON.stringify(position, null, 2));
 
   if (position) {
     currentLocation.value = {
@@ -518,6 +564,7 @@ const handleLocationUpdate: WatchPositionCallback = (
 
     if (sosSent.value) {
       updateSOSData({}).catch(console.error);
+      logMessage('Location updated and sent to server');
     }
   }
 };
@@ -595,10 +642,13 @@ const startRecordingAndStreaming = async () => {
 
       mediaRecorder.value.start(1000); // Capture data every second
       isRecording.value = true;
+      logMessage('Started recording and streaming.');
     } else {
+      logMessage('Media Devices API not available');
       throw new Error('Media Devices API not available');
     }
   } catch (error) {
+    logMessage('Failed to start recording: ' + error);
     console.error('Failed to start recording:', error);
     // You might want to show a user-friendly error message here
   }
@@ -608,6 +658,7 @@ const startRecordingAndStreaming = async () => {
 const getSupportedMimeType = (types: string[]): string | null => {
   for (const type of types) {
     if (MediaRecorder.isTypeSupported(type)) {
+      logMessage('Supported MIME type found: ' + type);
       return type;
     }
   }
@@ -630,6 +681,7 @@ const stopRecordingAndStreaming = async () => {
 
     // Save the recorded video locally
     await saveRecording();
+    logMessage('Recording stopped and saved.');
   }
 };
 
@@ -653,9 +705,10 @@ const saveRecording = async () => {
             data: base64Data,
             directory: Directory.External, // Save in external storage
           });
-          console.log('Recording saved in External storage:', fileName);
+          logMessage('Recording saved in External storage: ' + fileName);
           return; // Exit if successful
         } catch (error) {
+          logMessage('Failed to save in External storage: ' + error);
           console.error('Failed to save in External storage:', error);
         }
 
@@ -666,9 +719,10 @@ const saveRecording = async () => {
             data: base64Data,
             directory: Directory.Data, // Save in internal storage
           });
-          console.log('Recording saved in Internal storage:', fileName);
+          logMessage('Recording saved in Internal storage: ' + fileName);
           return; // Exit if successful
         } catch (error) {
+          logMessage('Failed to save in Internal storage: ' + error);
           console.error('Failed to save in Internal storage:', error);
         }
       } else {
@@ -681,9 +735,10 @@ const saveRecording = async () => {
         document.body.appendChild(a);
         a.click();
         URL.revokeObjectURL(url);
-        console.log('Recording downloaded in browser:', fileName);
+        logMessage('Recording downloaded in browser: ' + fileName);
       }
     } catch (error) {
+      logMessage('Failed to save recording: ' + error);
       console.error('Failed to save recording:', error);
     }
   }
