@@ -639,16 +639,36 @@ const saveRecording = async () => {
       const videoBlob = new Blob(recordedChunks.value, { type: mimeType });
       const fileName = `sos_recording_${Date.now()}.${fileExtension}`;
 
+      // Attempt to save in external storage first
       if (Capacitor.isNativePlatform()) {
-        // For mobile platforms, use Capacitor's Filesystem API
         const { Filesystem, Directory } = await import('@capacitor/filesystem');
         const base64Data = await blobToBase64(videoBlob);
-        await Filesystem.writeFile({
-          path: fileName,
-          data: base64Data,
-          directory: Directory.Data,
-        });
-        console.log('Recording saved on device:', fileName);
+
+        // Try saving to external storage
+        try {
+          await Filesystem.writeFile({
+            path: fileName,
+            data: base64Data,
+            directory: Directory.External, // Save in external storage
+          });
+          console.log('Recording saved in External storage:', fileName);
+          return; // Exit if successful
+        } catch (error) {
+          console.error('Failed to save in External storage:', error);
+        }
+
+        // If external storage fails, try saving in internal storage
+        try {
+          await Filesystem.writeFile({
+            path: fileName,
+            data: base64Data,
+            directory: Directory.Data, // Save in internal storage
+          });
+          console.log('Recording saved in Internal storage:', fileName);
+          return; // Exit if successful
+        } catch (error) {
+          console.error('Failed to save in Internal storage:', error);
+        }
       } else {
         // For web platform (PWA mode)
         const url = URL.createObjectURL(videoBlob);
