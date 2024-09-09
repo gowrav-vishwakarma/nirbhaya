@@ -63,6 +63,7 @@
     <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
     <uses-feature android:name="android.hardware.location.gps" />
 
+
     <!-- Add this permission for push notifications -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
 

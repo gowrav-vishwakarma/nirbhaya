@@ -2,10 +2,9 @@ import { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
   server: {
-    androidScheme: 'https',
-    cleartext: true,
-    allowNavigation: ['*'],
     hostname: 'localhost',
+    iosScheme: 'https',
+    androidScheme: 'https',
   },
   plugins: {
     Geolocation: {

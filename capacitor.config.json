@@ -2,6 +2,11 @@
   "appId": "com.xavoc.shoutout",
   "appName": "Shoutout",
   "webDir": "www",
+  "server": {
+    "hostname": "localhost",
+    "iosScheme": "https",
+    "androidScheme": "https"
+  },
   "plugins": {
     "Geolocation": {
       "permissions": [

@@ -240,7 +240,7 @@ const { values, errors, isLoading, validateAndSubmit, callbacks } = useForm(
 const permissions = ref([
   { name: 'location', granted: false },
   { name: 'camera', granted: false },
-  { name: 'microphone', granted: false },
+  // { name: 'microphone', granted: false },
 ]);
 
 const loadUserData = () => {
