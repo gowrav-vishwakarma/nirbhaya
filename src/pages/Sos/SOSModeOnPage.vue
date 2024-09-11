@@ -158,6 +158,8 @@ import { socket } from 'boot/socket';
 import Peer from 'peerjs';
 import { onBeforeRouteLeave } from 'vue-router';
 import { useUserStore } from 'src/stores/user-store';
+import { api } from 'boot/axios';
+import axios from 'axios';
 
 const router = useRouter();
 const route = useRoute();
@@ -197,6 +199,8 @@ const shouldStream = computed(
   () => STREAM_SAVE === 'true' && userStore.user.streamAudioVideoOnSos
 );
 
+const presignedUrl = ref<string | null>(null); // Create a ref for presigned URL
+
 const shouldRecord = computed(() => userStore.user.startAudioVideoRecordOnSos);
 
 const locationSentToServer = ref(false);
@@ -232,6 +236,10 @@ const logMessage = (message: string) => {
   logs.value.push(message); // Add new log message
   console.log(message); // Optional: log to console as well
 };
+
+const chunks = ref<Blob[]>([]);
+const partNumber = ref(1);
+const uploadedParts = ref<{ PartNumber: number; ETag: string }[]>([]);
 
 onMounted(async () => {
   await checkPermissions();
@@ -332,8 +340,10 @@ onBeforeRouteLeave(async (to, from, next) => {
   }
 });
 
-onUnmounted(() => {
+onUnmounted(async () => {
   console.log('Unmounting SOSModeOnPage');
+  await stopRecordingAndStreaming();
+  // No need to call complete-upload endpoint
 });
 
 const startCountdown = () => {
@@ -390,7 +400,7 @@ const updateSOSData = async (data: {
       sosSent.value = true;
       notifiedPersons.value = 10;
       acceptedPersons.value = 3;
-      if (shouldRecord.value) {
+      if (shouldRecord.value || shouldStream.value) {
         startRecordingAndStreaming();
         logMessage('Started recording and streaming.');
       } else {
@@ -594,7 +604,7 @@ callbacks.onSuccess = (data) => {
   informed.value = data.informed;
   accepted.value = data.accepted;
   createdSosId.value = data.sosEventId;
-
+  presignedUrl.value = data.presignedUrl; // Set the presigned URL
   return data;
 };
 
@@ -631,17 +641,18 @@ const startRecordingAndStreaming = async () => {
         mimeType,
       });
 
-      mediaRecorder.value.ondataavailable = (event) => {
-        if (event.data.size > 0) {
-          recordedChunks.value.push(event.data);
-          if (shouldStream.value) {
-            socket.emit('stream-chunk', event.data);
+      mediaRecorder.value.ondataavailable = async (event) => {
+        if (shouldStream.value && event.data.size > 0) {
+          chunks.value.push(event.data);
+          if (chunks.value.length >= 5) {
+            // Upload every 5 chunks
+            await uploadChunks();
           }
         }
       };
 
       mediaRecorder.value.start(1000); // Capture data every second
-      isRecording.value = true;
+      isRecording.value = shouldRecord.value && true;
       logMessage('Started recording and streaming.');
     } else {
       logMessage('Media Devices API not available');
@@ -650,7 +661,40 @@ const startRecordingAndStreaming = async () => {
   } catch (error) {
     logMessage('Failed to start recording: ' + error);
     console.error('Failed to start recording:', error);
-    // You might want to show a user-friendly error message here
+  }
+};
+
+const uploadChunks = async () => {
+  if (chunks.value.length === 0 || !presignedUrl.value) return;
+
+  const blob = new Blob(chunks.value, { type: 'application/octet-stream' });
+  chunks.value = []; // Clear the chunks array
+
+  try {
+    // Create a new axios instance for this request
+    const axiosInstance = axios.create();
+
+    // Upload the part without the Authorization header
+    const response = await axiosInstance.put(presignedUrl.value, blob, {
+      headers: {
+        'Content-Type': 'application/octet-stream',
+        'Access-Control-Allow-Origin': '*',
+      },
+    });
+
+    // Store the ETag from the response
+    const etag = response.headers['etag'];
+    if (etag) {
+      uploadedParts.value.push({ PartNumber: partNumber.value, ETag: etag });
+    }
+
+    // Increment part number for next chunk
+    partNumber.value++;
+
+    logMessage(`Uploaded part ${partNumber.value - 1} successfully.`);
+  } catch (error) {
+    console.error('Failed to upload chunk:', error);
+    logMessage('Failed to upload chunk: ' + error);
   }
 };
 
@@ -670,8 +714,9 @@ const stopRecordingAndStreaming = async () => {
     mediaRecorder.value.stop();
     isRecording.value = false;
 
-    if (shouldStream.value) {
-      socket.emit('end-stream');
+    // Upload any remaining chunks
+    if (chunks.value.length > 0) {
+      await uploadChunks();
     }
 
     // Stop all tracks
@@ -679,13 +724,13 @@ const stopRecordingAndStreaming = async () => {
       mediaStream.value.getTracks().forEach((track) => track.stop());
     }
 
-    // Save the recorded video locally
     await saveRecording();
-    logMessage('Recording stopped and saved.');
+    logMessage('Recording stopped and all chunks uploaded.');
   }
 };
 
 const saveRecording = async () => {
+  if (!shouldRecord.value) return;
   if (mediaRecorder.value) {
     try {
       const mimeType = mediaRecorder.value.mimeType;
