@@ -3,6 +3,7 @@ import { messagingReadyPromise, vapidKey } from './firebase';
 import { Capacitor } from '@capacitor/core';
 import { PushNotifications } from '@capacitor/push-notifications';
 import { useUserStore } from 'src/stores/user-store';
+import { FirebaseMessaging } from '@capacitor-firebase/messaging';
 
 export default boot(async ({ router }) => {
   const userStore = useUserStore();
@@ -42,6 +43,11 @@ export default boot(async ({ router }) => {
             });
           }
         );
+
+        // Some issue with our setup and push will not work
+        PushNotifications.addListener('registrationError', (error: any) => {
+          console.log('Error on registration:', error);
+        });
 
         await PushNotifications.register();
         console.log('Push notifications registered');
