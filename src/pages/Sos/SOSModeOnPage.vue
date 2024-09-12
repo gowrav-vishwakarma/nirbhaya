@@ -211,6 +211,8 @@ const peer = ref<Peer | null>(null);
 
 const peerConnection = ref<RTCPeerConnection | null>(null);
 
+const currentChunkDuration = ref(5);
+
 const mediaRecorder = ref<MediaRecorder | null>(null);
 const mediaStream = ref<MediaStream | null>(null);
 const recordedChunks = ref<Blob[]>([]);
@@ -240,6 +242,13 @@ const logMessage = (message: string) => {
 const chunks = ref<Blob[]>([]);
 const partNumber = ref(1);
 const uploadedParts = ref<{ PartNumber: number; ETag: string }[]>([]);
+
+const uploadId = ref<string | null>(null);
+
+const recordingIntervals = ref([5000, 10000, 20000, 30000]); // in milliseconds
+const currentIntervalIndex = ref(0);
+const recordingStartTime = ref(0);
+const nextRecordingTimeout = ref<number | null>(null);
 
 onMounted(async () => {
   await checkPermissions();
@@ -618,6 +627,16 @@ const updateCurrentLocation = async (): Promise<void> => {
   }
 };
 
+const getSupportedMimeType = (types: string[]): string | null => {
+  for (const type of types) {
+    if (MediaRecorder.isTypeSupported(type)) {
+      logMessage('Supported MIME type found: ' + type);
+      return type;
+    }
+  }
+  return null;
+};
+
 const startRecordingAndStreaming = async () => {
   try {
     if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
@@ -641,91 +660,95 @@ const startRecordingAndStreaming = async () => {
         mimeType,
       });
 
-      mediaRecorder.value.ondataavailable = async (event) => {
-        if (shouldStream.value && event.data.size > 0) {
-          chunks.value.push(event.data);
-          if (chunks.value.length >= 5) {
-            // Upload every 5 chunks
-            await uploadChunks();
-          }
-        }
-      };
-
-      mediaRecorder.value.start(1000); // Capture data every second
-      isRecording.value = shouldRecord.value && true;
-      logMessage('Started recording and streaming.');
+      mediaRecorder.value.ondataavailable = handleDataAvailable;
+      scheduleNextRecording();
+      isRecording.value = true;
+      recordingStartTime.value = Date.now();
     } else {
-      logMessage('Media Devices API not available');
       throw new Error('Media Devices API not available');
     }
   } catch (error) {
-    logMessage('Failed to start recording: ' + error);
     console.error('Failed to start recording:', error);
+    logMessage('Failed to start recording: ' + error);
   }
 };
 
-const uploadChunks = async () => {
-  if (chunks.value.length === 0 || !presignedUrl.value) return;
+const scheduleNextRecording = () => {
+  const currentInterval = recordingIntervals.value[currentIntervalIndex.value];
 
-  const blob = new Blob(chunks.value, { type: 'application/octet-stream' });
-  chunks.value = []; // Clear the chunks array
+  if (nextRecordingTimeout.value) {
+    clearTimeout(nextRecordingTimeout.value);
+  }
 
+  nextRecordingTimeout.value = setTimeout(() => {
+    if (mediaRecorder.value && mediaRecorder.value.state === 'inactive') {
+      mediaRecorder.value.start();
+      setTimeout(() => {
+        if (mediaRecorder.value && mediaRecorder.value.state === 'recording') {
+          mediaRecorder.value.stop();
+        }
+      }, currentInterval);
+    }
+
+    if (currentIntervalIndex.value < recordingIntervals.value.length - 1) {
+      currentIntervalIndex.value++;
+    }
+
+    scheduleNextRecording();
+  }, currentInterval);
+};
+
+const handleDataAvailable = async (event: BlobEvent) => {
+  if (event.data.size > 0) {
+    const blob = event.data;
+    const fileName = `video_${Date.now()}.${
+      mediaRecorder.value?.mimeType.split('/')[1] || 'webm'
+    }`;
+    await uploadVideo(blob, fileName);
+  }
+};
+
+const uploadVideo = async (blob: Blob, fileName: string) => {
   try {
-    // Create a new axios instance for this request
-    const axiosInstance = axios.create();
-
-    // Upload the part without the Authorization header
-    const response = await axiosInstance.put(presignedUrl.value, blob, {
-      headers: {
-        'Content-Type': 'application/octet-stream',
-        'Access-Control-Allow-Origin': '*',
+    const { data } = await api.get('/auth/get-presigned-url', {
+      params: {
+        sosEventId: createdSosId.value,
+        fileName,
+        contentType: mediaRecorder.value?.mimeType || 'video/webm',
       },
     });
 
-    // Store the ETag from the response
-    const etag = response.headers['etag'];
-    if (etag) {
-      uploadedParts.value.push({ PartNumber: partNumber.value, ETag: etag });
-    }
+    await fetch(data.presignedUrl, {
+      method: 'PUT',
+      body: blob,
+      headers: {
+        'Content-Type': mediaRecorder.value?.mimeType || 'video/webm',
+      },
+    });
 
-    // Increment part number for next chunk
-    partNumber.value++;
+    console.log(`Uploaded ${fileName} successfully`);
+    logMessage(`Uploaded ${fileName} successfully`);
 
-    logMessage(`Uploaded part ${partNumber.value - 1} successfully.`);
+    // Clear the blob after successful upload
+    blob = null;
   } catch (error) {
-    console.error('Failed to upload chunk:', error);
-    logMessage('Failed to upload chunk: ' + error);
+    console.error('Failed to upload video:', error);
+    logMessage('Failed to upload video: ' + error);
   }
 };
 
-// Helper function to get supported MIME type
-const getSupportedMimeType = (types: string[]): string | null => {
-  for (const type of types) {
-    if (MediaRecorder.isTypeSupported(type)) {
-      logMessage('Supported MIME type found: ' + type);
-      return type;
-    }
-  }
-  return null;
-};
-
-const stopRecordingAndStreaming = async () => {
+const stopRecordingAndStreaming = () => {
   if (mediaRecorder.value && isRecording.value) {
     mediaRecorder.value.stop();
     isRecording.value = false;
 
-    // Upload any remaining chunks
-    if (chunks.value.length > 0) {
-      await uploadChunks();
-    }
-
-    // Stop all tracks
     if (mediaStream.value) {
       mediaStream.value.getTracks().forEach((track) => track.stop());
     }
 
-    await saveRecording();
-    logMessage('Recording stopped and all chunks uploaded.');
+    if (nextRecordingTimeout.value) {
+      clearTimeout(nextRecordingTimeout.value);
+    }
   }
 };
 
