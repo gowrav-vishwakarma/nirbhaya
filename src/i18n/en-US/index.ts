@@ -36,6 +36,7 @@ export default {
     volumeUp: 'volume_up',
     hospital: 'local_hospital',
     build: 'build',
+    contacts: 'contacts',
   },
 
   // Navigation
@@ -58,7 +59,7 @@ export default {
   request: 'Request {permission}',
   helpFor: 'Help for {permission}',
 
-  // Account Page
+  // Profile Page
   name: 'Name',
   city: 'City',
   userType: 'User Type',
@@ -90,6 +91,8 @@ export default {
   startAudioVideoRecordOnSos: 'Start Audio/Video Record on SOS (local)',
   streamAudioVideoOnSos: 'Stream Audio/Video on SOS (on server)',
   broadcastAudioOnSos: 'Broadcast Audio on SOS (to volunteers)',
+  emergencyContactRequests: 'Emergency Contact Requests',
+  noEmergencyContacts: "You are not in anyone's emergency contact list",
 
   // Permissions
   appPermissions: 'App Permissions',

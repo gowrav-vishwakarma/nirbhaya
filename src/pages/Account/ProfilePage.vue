@@ -108,6 +108,20 @@
             :error="!!errors[`emergencyContact${index}`]"
             :error-message="errors[`emergencyContact${index}`]?.join('; ')"
           />
+          <div class="q-mb-sm">
+            <q-chip
+              :color="contact.consentGiven ? 'positive' : 'warning'"
+              text-color="white"
+              :icon="contact.consentGiven ? 'check_circle' : 'warning'"
+            >
+              {{
+                contact.consentGiven ? $t('approved') : $t('pendingApproval')
+              }}
+            </q-chip>
+            <q-tooltip v-if="!contact.consentGiven">
+              {{ $t('pendingApprovalWarning') }}
+            </q-tooltip>
+          </div>
           <q-btn
             flat
             round
@@ -182,6 +196,15 @@
       >
         <b class="q-ml-xs q-my-md">{{ $t('saveChanges') }}</b>
       </q-btn>
+
+      <!-- Emergency contact requests button -->
+      <q-btn
+        @click="openEmergencyContactRequests"
+        class="q-mt-md bg-primary text-white"
+        :icon="$t('icons.contacts')"
+      >
+        <span class="q-ml-xs">{{ $t('emergencyContactRequests') }}</span>
+      </q-btn>
     </q-form>
   </div>
 </template>
@@ -197,6 +220,7 @@ import LanguageSelector from 'src/components/LanguageSelector.vue';
 import { Capacitor, Plugins } from '@capacitor/core';
 import { Geolocation } from '@capacitor/geolocation';
 import { Camera } from '@capacitor/camera';
+import EmergencyContactRequestsDialog from 'components/EmergencyContactRequestsDialog.vue';
 
 const { t } = useI18n();
 const $q = useQuasar();
@@ -243,9 +267,28 @@ const permissions = ref([
   // { name: 'microphone', granted: false },
 ]);
 
-const loadUserData = () => {
+const loadUserData = async () => {
   const userData = userStore.user;
   Object.assign(values.value, userData);
+
+  // Fetch emergency contacts status
+  try {
+    const response = await api.get('/auth/emergency-contacts-status');
+    const contactsStatus = response.data;
+    values.value.emergencyContacts = values.value.emergencyContacts.map(
+      (contact) => {
+        const status = contactsStatus.find(
+          (c) => c.contactPhone === contact.contactPhone
+        );
+        return {
+          ...contact,
+          consentGiven: status ? status.consentGiven : false,
+        };
+      }
+    );
+  } catch (error) {
+    console.error('Error fetching emergency contacts status:', error);
+  }
 };
 
 onMounted(() => {
@@ -261,6 +304,7 @@ const addEmergencyContact = () => {
       relationship: '',
       isAppUser: false,
       priority: 0,
+      consentGiven: false,
     });
   }
 };
@@ -453,6 +497,12 @@ callbacks.onError = (error) => {
     color: 'negative',
     message: t('profileUpdateError'),
     icon: 'error',
+  });
+};
+
+const openEmergencyContactRequests = () => {
+  $q.dialog({
+    component: EmergencyContactRequestsDialog,
   });
 };
 </script>

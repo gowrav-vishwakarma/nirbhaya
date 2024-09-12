@@ -33,6 +33,7 @@ export default {
     volumeUp: 'volume_up',
     hospital: 'local_hospital',
     build: 'build',
+    contacts: 'contacts',
   },
 
   // Navigation
@@ -55,7 +56,7 @@ export default {
   request: '{permission} માટે વિનંતી કરો',
   helpFor: '{permission} માટે મદદ',
 
-  // Account Page
+  // Profile Page
   name: 'નામ',
   city: 'શહેર',
   userType: 'વપરાશકર્તા પ્રકાર',
@@ -87,6 +88,8 @@ export default {
   streamAudioVideoOnSos: 'એસઓએસ પર ઓડિયો/વિડિઓ સ્ટ્રીમ શરતો (સર્વર પર)',
   broadcastAudioOnSos:
     'એસઓએસ પર ઓડિયો બ્રોડ્કાસ્ટ શરતો (સ્વયંસેવાના વ્યક્તિઓને)',
+  emergencyContactRequests: 'કટોકટી સંપર્ક તરીકે વિનંતી',
+  noEmergencyContacts: 'તમે કોઈના કટોકટી સંપર્ક યાતરીમાં નથી',
 
   // Permissions
   appPermissions: 'એપ્લિકેશન પરવાનગીઓ',
