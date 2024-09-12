@@ -248,7 +248,9 @@ const uploadId = ref<string | null>(null);
 const recordingIntervals = ref([5000, 10000, 20000, 30000]); // in milliseconds
 const currentIntervalIndex = ref(0);
 const recordingStartTime = ref(0);
-const nextRecordingTimeout = ref<number | null>(null);
+const nextUploadTimeout = ref<number | null>(null);
+const accumulatedChunks = ref<Blob[]>([]);
+const entireRecording = ref<Blob[]>([]);
 
 onMounted(async () => {
   await checkPermissions();
@@ -256,6 +258,9 @@ onMounted(async () => {
   startCountdown();
   await startLocationWatching();
   initializePeer();
+  if (shouldRecord.value || shouldStream.value) {
+    startRecordingAndStreaming();
+  }
 });
 
 const showResolveConfirmation = (): Promise<boolean> => {
@@ -409,14 +414,6 @@ const updateSOSData = async (data: {
       sosSent.value = true;
       notifiedPersons.value = 10;
       acceptedPersons.value = 3;
-      if (shouldRecord.value || shouldStream.value) {
-        startRecordingAndStreaming();
-        logMessage('Started recording and streaming.');
-      } else {
-        logMessage(
-          'Recording and streaming not started because recording is not set in profile.'
-        );
-      }
     }
 
     // Always update all available values
@@ -641,29 +638,37 @@ const startRecordingAndStreaming = async () => {
   try {
     if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
       mediaStream.value = await navigator.mediaDevices.getUserMedia({
-        video: true,
+        video: { width: 640, height: 480 },
         audio: true,
       });
 
       const mimeType = getSupportedMimeType([
-        'video/webm',
-        'video/mp4',
-        'video/x-matroska',
-        'video/quicktime',
+        'video/webm;codecs=vp8,opus',
+        'video/webm;codecs=vp9,opus',
+        'video/webm;codecs=h264,opus',
+        'video/mp4;codecs=h264,aac',
       ]);
 
       if (!mimeType) {
         throw new Error('No supported mime type found for video recording');
       }
 
-      mediaRecorder.value = new MediaRecorder(mediaStream.value, {
+      const options = {
         mimeType,
-      });
+        videoBitsPerSecond: 250000,
+        audioBitsPerSecond: 128000,
+      };
+
+      mediaRecorder.value = new MediaRecorder(mediaStream.value, options);
 
       mediaRecorder.value.ondataavailable = handleDataAvailable;
-      scheduleNextRecording();
+      mediaRecorder.value.start(5000); // Record in 5-second chunks
       isRecording.value = true;
       recordingStartTime.value = Date.now();
+
+      if (shouldStream.value) {
+        scheduleNextProcessing();
+      }
     } else {
       throw new Error('Media Devices API not available');
     }
@@ -673,38 +678,45 @@ const startRecordingAndStreaming = async () => {
   }
 };
 
-const scheduleNextRecording = () => {
+const scheduleNextProcessing = () => {
   const currentInterval = recordingIntervals.value[currentIntervalIndex.value];
 
-  if (nextRecordingTimeout.value) {
-    clearTimeout(nextRecordingTimeout.value);
+  if (nextUploadTimeout.value) {
+    clearTimeout(nextUploadTimeout.value);
   }
 
-  nextRecordingTimeout.value = setTimeout(() => {
-    if (mediaRecorder.value && mediaRecorder.value.state === 'inactive') {
-      mediaRecorder.value.start();
-      setTimeout(() => {
-        if (mediaRecorder.value && mediaRecorder.value.state === 'recording') {
-          mediaRecorder.value.stop();
-        }
-      }, currentInterval);
-    }
+  nextUploadTimeout.value = setTimeout(() => {
+    processAccumulatedChunks();
 
     if (currentIntervalIndex.value < recordingIntervals.value.length - 1) {
       currentIntervalIndex.value++;
     }
 
-    scheduleNextRecording();
+    scheduleNextProcessing();
   }, currentInterval);
 };
 
-const handleDataAvailable = async (event: BlobEvent) => {
+const handleDataAvailable = (event: BlobEvent) => {
   if (event.data.size > 0) {
-    const blob = event.data;
-    const fileName = `video_${Date.now()}.${
-      mediaRecorder.value?.mimeType.split('/')[1] || 'webm'
-    }`;
+    if (shouldStream.value) {
+      accumulatedChunks.value.push(event.data);
+    }
+    if (shouldRecord.value) {
+      entireRecording.value.push(event.data);
+    }
+  }
+};
+
+const processAccumulatedChunks = async () => {
+  if (accumulatedChunks.value.length > 0 && shouldStream.value) {
+    const blob = new Blob(accumulatedChunks.value, {
+      type: mediaRecorder.value?.mimeType || 'video/webm;codecs=vp8,opus',
+    });
+    const fileName = `video_${Date.now()}.webm`;
+
     await uploadVideo(blob, fileName);
+
+    accumulatedChunks.value = []; // Clear the chunks after processing
   }
 };
 
@@ -714,7 +726,8 @@ const uploadVideo = async (blob: Blob, fileName: string) => {
       params: {
         sosEventId: createdSosId.value,
         fileName,
-        contentType: mediaRecorder.value?.mimeType || 'video/webm',
+        contentType:
+          mediaRecorder.value?.mimeType || 'video/webm;codecs=vp8,opus',
       },
     });
 
@@ -722,22 +735,60 @@ const uploadVideo = async (blob: Blob, fileName: string) => {
       method: 'PUT',
       body: blob,
       headers: {
-        'Content-Type': mediaRecorder.value?.mimeType || 'video/webm',
+        'Content-Type':
+          mediaRecorder.value?.mimeType || 'video/webm;codecs=vp8,opus',
       },
     });
 
     console.log(`Uploaded ${fileName} successfully`);
     logMessage(`Uploaded ${fileName} successfully`);
-
-    // Clear the blob after successful upload
-    blob = null;
   } catch (error) {
     console.error('Failed to upload video:', error);
     logMessage('Failed to upload video: ' + error);
   }
 };
 
-const stopRecordingAndStreaming = () => {
+const saveLocalRecording = async () => {
+  if (entireRecording.value.length > 0) {
+    const blob = new Blob(entireRecording.value, {
+      type: mediaRecorder.value?.mimeType || 'video/webm;codecs=vp8,opus',
+    });
+    const fileName = `sos_recording_${Date.now()}.webm`;
+
+    if (Capacitor.isNativePlatform()) {
+      const { Filesystem, Directory } = await import('@capacitor/filesystem');
+      const base64Data = await blobToBase64(blob);
+
+      try {
+        await Filesystem.writeFile({
+          path: fileName,
+          data: base64Data,
+          directory: Directory.Data,
+          recursive: true,
+        });
+        logMessage('Full recording saved locally: ' + fileName);
+      } catch (error) {
+        logMessage('Failed to save full recording locally: ' + error);
+        console.error('Failed to save full recording locally:', error);
+      }
+    } else {
+      // For web platform, we'll save the blob directly
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.style.display = 'none';
+      a.href = url;
+      a.download = fileName;
+      document.body.appendChild(a);
+      a.click();
+      URL.revokeObjectURL(url);
+      logMessage('Full recording downloaded in browser: ' + fileName);
+    }
+
+    entireRecording.value = []; // Clear the recording after saving
+  }
+};
+
+const stopRecordingAndStreaming = async () => {
   if (mediaRecorder.value && isRecording.value) {
     mediaRecorder.value.stop();
     isRecording.value = false;
@@ -746,8 +797,18 @@ const stopRecordingAndStreaming = () => {
       mediaStream.value.getTracks().forEach((track) => track.stop());
     }
 
-    if (nextRecordingTimeout.value) {
-      clearTimeout(nextRecordingTimeout.value);
+    if (nextUploadTimeout.value) {
+      clearTimeout(nextUploadTimeout.value);
+    }
+
+    // Final processing of any remaining chunks for streaming
+    if (shouldStream.value) {
+      await processAccumulatedChunks();
+    }
+
+    // Save the entire recording locally
+    if (shouldRecord.value) {
+      await saveLocalRecording();
     }
   }
 };
