@@ -219,4 +219,10 @@ export default {
   iosNotSafariWarning:
     'For the best experience on iOS, please use Safari browser.',
   openInSafari: 'Open in Safari',
+  useSafariTitle: 'Use Safari for Best Experience',
+  useSafariMessage:
+    'For the best and most secure experience, we recommend using Safari on your iOS device. Would you like to open Safari now?',
+  openSafari: 'Open Safari',
+  failedToOpenSafari:
+    'Failed to open Safari. Please open Safari manually and navigate to this website.',
 };

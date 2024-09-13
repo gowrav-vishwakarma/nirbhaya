@@ -112,7 +112,7 @@ export default {
   currentLocation: 'वर्तमान स्थान',
   gettingLocation: 'आपका स्थान प्राप्त कर रहे हैं...',
   coordinates: 'निर्देशांक',
-  nearbyPoliceStations: 'न���दीकी पुलिस स्टेशन',
+  nearbyPoliceStations: 'नदीकी पुलिस स्टेशन',
   contactPoliceStation: 'पुलिस स्टेशन से संपर्क करें',
   resolveSOSIssue: 'एसओएस मुद्दे को हल करें',
   audioOpen: 'ऑडियो खुला है',
@@ -122,7 +122,7 @@ export default {
   followedBySomeone: 'किसी का पीछा किया जा रहा है',
   verbalHarassment: 'मौखिक उत्पीड़न',
   physicalThreat: 'शारीरिक खतरा',
-  attemptedKidnapping: 'अपहरण का प्रयास',
+  attemptedKidnapping: 'अपहरण �� प्रयास',
   sexualAssault: 'यौन उत्पीड़न',
   domesticViolence: 'घरेलू हिंसा',
 
@@ -135,7 +135,7 @@ export default {
     'कैमरा पहुंच आपको आपातकाल के दौरान दृश्य साक्ष्य कैप्चर करने और भेजने की अनुमति देती है।',
   microphonePermission: 'माइक्रोफोन अनुमति',
   microphonePermissionHelp:
-    'माइक्रोफोन पहुंच बेहतर सहायता के लिए आपातकाल के दौरान ऑडियो रिकॉर्डिंग को सक्षम करती है।',
+    'माइ्��ोफोन पहुंच बेहतर सहायता के लिए आपातकाल के दौरान ऑडियो रिकॉर्डिंग को सक्षम करती है।',
   notificationPermission: 'सूचना अनुमति',
   notificationPermissionHelp:
     'सूचनाएं आपको महत्वपूर्ण चेतावनियों और अपडेट के बारे में सूचित रखती हैं।',
@@ -157,7 +157,7 @@ export default {
   addNotificationLocation: 'सूचना स्थान जोड़ें',
   availableForCommunity: 'समुदाय सहायता के लिए उपलब्ध',
   availableForCommunityDescription:
-    'आपातकाल में दूसरों की मदद करने के लिए अपनी उपलब्धत�� दर्शाने के लिए इसे टॉगल करें',
+    'आपातकाल में दूसरों की मदद करने के लिए अपनी उपलब्धत दर्शाने के लिए इसे टॉगल करें',
   volunteeringUpdateSuccess: 'स्वयंसेवा जानकारी सफलतापूर्वक अपडेट की गई',
   volunteeringUpdateError: 'स्वयंसेवा जानकारी अपडेट करने में विफल',
   pleaseSelectAllLocations: 'कृपया सहेजने से पहले सभी स्थान चुनें',
@@ -203,7 +203,7 @@ export default {
     sent: 'भेजा गया',
     received: 'प्राप्त हुआ',
     accepted: 'स्वीकार किया गया',
-    ignored: 'अ���देखा किया गया',
+    ignored: 'अनदेखा किया गया',
   },
 
   audioConnectedSuccess: 'ऑडियो सफलतापूर्वक जोड़ा गया',
@@ -217,4 +217,12 @@ export default {
   iosNotSafariWarning:
     'iOS पर सर्वोत्तम अनुभव के लिए, कृपया Safari ब्राउज़र का उपयोग करें।',
   openInSafari: 'Safari में खोलें',
+
+  useSafariTitle: 'सर्वोत्तम अनुभव के लिए Safari का उपयोग करें',
+  useSafariMessage:
+    'सबसे अच्छे और सुरक्षित अनुभव के लिए, हम आपके iOS डिवाइस पर Safari का उपयोग करने की सलाह देते हैं। क्या आप अभी Safari खोलना चाहते हैं?',
+  openSafari: 'Safari खोलें',
+
+  failedToOpenSafari:
+    'Safari खोलने में विफल। कृपया Safari को मैन्युअल रूप से खोलें और इस वेबसाइट पर जाएं।',
 };

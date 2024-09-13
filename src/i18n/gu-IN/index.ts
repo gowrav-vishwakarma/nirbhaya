@@ -84,8 +84,8 @@ export default {
   nurse: 'નિયુસ',
   other: 'અન્ય',
   sosSettings: 'એસઓએસ સેટિંગ્સ',
-  startAudioVideoRecordOnSos: 'એસઓએસ પર ઓડિયો/વિડિઓ રેકોર્ડ શરતો (સ્થાનીય)',
-  streamAudioVideoOnSos: 'એસઓએસ પર ઓડિયો/વિડિઓ સ્ટ્રીમ શરતો (સર્વર પર)',
+  startAudioVideoRecordOnSos: 'એસઓએસ પર ઓડિયો/વિડિયો રેકોર્ડ શરતો (સ્થાનીય)',
+  streamAudioVideoOnSos: 'એસઓએસ પર ઓડિયો/વિડિયો સ્ટ્રીમ શરતો (સર્વર પર)',
   broadcastAudioOnSos:
     'એસઓએસ પર ઓડિયો બ્રોડ્કાસ્ટ શરતો (સ્વયંસેવાના વ્યક્તિઓને)',
   emergencyContactRequests: 'કટોકટી સંપર્ક તરીકે વિનંતી',
@@ -216,4 +216,12 @@ export default {
   iosNotSafariWarning:
     'iOS પર શ્રેષ્ઠ અનુભવ માટે, કૃપા કરીને Safari બ્રાઉઝરનો ઉપયોગ કરો.',
   openInSafari: 'Safari માં ખોલો',
+
+  useSafariTitle: 'શ્રેષ્ઠ અનુભવ માટે Safari નો ઉપયોગ કરો',
+  useSafariMessage:
+    'શ્રેષ્ઠ અને સૌથી સુરક્ષિત અનુભવ માટે, અમે તમારા iOS ઉપકરણ પર Safari નો ઉપયોગ કરવાની ભલામણ કરીએ છીએ. શું તમે હવે Safari ખોલવા માંગો છો?',
+  openSafari: 'Safari ખોલો',
+
+  failedToOpenSafari:
+    'Safari ખોલવામાં નિષ્ફળ. કૃપા કરીને Safari ને મેન્યુઅલી ખોલો અને આ વેબસાઇટ પર નેવિગેટ કરો.',
 };
