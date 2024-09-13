@@ -51,7 +51,7 @@ export default {
 
   // Dashboard Page
   welcome: 'શું થયું {name}?',
-  sosButton: 'એસઓએસ',
+  sosButton: 'SOS',
   missingPermissions: 'કેટલીક પરવાનગીઓ ખૂટે છે',
   request: '{permission} માટે વિનંતી કરો',
   helpFor: '{permission} માટે મદદ',
@@ -83,11 +83,10 @@ export default {
   mechanicBoth: '2&4 વેહિકલ મેકનિક',
   nurse: 'નિયુસ',
   other: 'અન્ય',
-  sosSettings: 'એસઓએસ સેટિંગ્સ',
-  startAudioVideoRecordOnSos: 'એસઓએસ પર ઓડિયો/વિડિયો રેકોર્ડ શરતો (સ્થાનીય)',
-  streamAudioVideoOnSos: 'એસઓએસ પર ઓડિયો/વિડિયો સ્ટ્રીમ શરતો (સર્વર પર)',
-  broadcastAudioOnSos:
-    'એસઓએસ પર ઓડિયો બ્રોડ્કાસ્ટ શરતો (સ્વયંસેવાના વ્યક્તિઓને)',
+  sosSettings: 'SOS સેટિંગ્સ',
+  startAudioVideoRecordOnSos: 'SOS પર ઓડિયો/વિડિયો રેકોર્ડ શરતો (સ્થાનીય)',
+  streamAudioVideoOnSos: 'SOS પર ઓડિયો/વિડિયો સ્ટ્રીમ શરતો (સર્વર પર)',
+  broadcastAudioOnSos: 'SOS પર ઓડિયો બ્રોડ્કાસ્ટ શરતો (સ્વયંસેવાના વ્યક્તિઓને)',
   emergencyContactRequests: 'કટોકટી સંપર્ક તરીકે વિનંતી',
   noEmergencyContacts: 'તમે કોઈના કટોકટી સંપર્ક યાતરીમાં નથી',
 
@@ -102,9 +101,9 @@ export default {
   permissionDenied: '{permission} પરવાનગી નકારવામાં આવી',
 
   // SOS Mode
-  sosWarning: 'એસઓએસ મોડ સક્રિય',
-  cancelSOS: 'એસઓએસ રદ કરો',
-  sosSent: 'એસઓએસ મોકલવામાં આવ્યો',
+  sosWarning: 'SOS મોડ સક્રિય',
+  cancelSOS: 'SOS રદ કરો',
+  sosSent: 'SOS મોકલવામાં આવ્યો',
   sosNotified: '{count} નજીકના લોકોને સૂચિત કરવામાં આવ્યા',
   sosAccepted: '{count} લોકો દ્વારા સ્વીકારવામાં આવ્યું',
   emergencyContactsInformed: 'કટોકટીના સંપર્કોને જાણ કરવામાં આવી',
@@ -114,7 +113,7 @@ export default {
   coordinates: 'નિર્દેશાંકો',
   nearbyPoliceStations: 'નજીકના પોલીસ સ્ટેશનો',
   contactPoliceStation: 'પોલીસ સ્ટેશનનો સંપર્ક કરો',
-  resolveSOSIssue: 'એસઓએસ સમસ્યાનું નિરાકરણ કરો',
+  resolveSOSIssue: 'SOS સમસ્યાનું નિરાકરણ કરો',
   audioOpen: 'ઓડિયો ખુલ્લો છે',
   clickToOpenAudio: 'ઓડિયો ખોલવા માટે ક્લિક કરો',
 
@@ -129,7 +128,7 @@ export default {
   // Help Page
   locationPermission: 'સ્થાન પરવાનગી',
   locationPermissionHelp:
-    'સ્થાન ઍક્સેસની પરવાનગી આપવાથી અમને કટોકટીની સ્થિતિમાં તમારા ચોક્કસ સ્થાને મદદ મોકલવામાં મદદ મળે છે. યાદ રાખો, તમારું સ્થાન કભ્ય જાણવામાં આવતું નથી જ્યારે તમે એસઓએસ ભરતા નથી.',
+    'સ્થાન ઍક્સેસની પરવાનગી આપવાથી અમને કટોકટીની સ્થિતિમાં તમારા ચોક્કસ સ્થાને મદદ મોકલવામાં મદદ મળે છે. યાદ રાખો, તમારું સ્થાન કભ્ય જાણવામાં આવતું નથી જ્યારે તમે SOS ભરતા નથી.',
   cameraPermission: 'કેમેરા પરવાનગી',
   cameraPermissionHelp:
     'કેમેરા ઍક્સેસ તમને કટોકટી દરમિયાન દૃશ્ય પુરાવા કેપ્ચર કરવા અને મોકલવાની મંજૂરી આપે છે.',
@@ -151,7 +150,7 @@ export default {
   // Volunteering
   notificationLocations: 'સૂચના સ્થાનો',
   notificationLocationsHelp:
-    'જ્યાં તમે એસઓએસ સૂચનાઓ પ્રાપ્ત કરવા માંગો છો તે સ્થાનો ઉમેરો',
+    'જ્યાં તમે SOS સૂચનાઓ પ્રાપ્ત કરવા માંગો છો તે સ્થાનો ઉમેરો',
   locationName: 'સ્થાનનું નામ',
   useCurrentLocation: 'વર્તમાન સ્થાનનો ઉપયોગ કરો',
   addNotificationLocation: 'સૂચના સ્થાન ઉમેરો',
@@ -163,7 +162,7 @@ export default {
   pleaseSelectAllLocations: 'કૃપા કરીને સાચવતા પહેલા બધા સ્થાનો પસંદ કરો',
   availableForPaidProfessionalService: 'ભુગતાન કરાયેલ પેશેવર સેવા માટે ઉપલબ્ધ',
   availableForPaidProfessionalServiceDescription:
-    'એસઓએસ કરતા તમારી ઉપલબ્ધતા દર્શાવવા માટે આ ટૉગલ કરો',
+    'SOS કરતા તમારી ઉપલબ્ધતા દર્શાવવા માટે આ ટૉગલ કરો',
 
   // Misc
   noLocationSet: 'કોઈ સ્થાન સેટ નથી',
@@ -234,4 +233,41 @@ export default {
   viewNotifications: 'સૂચનાઓ જુઓ',
   getHelp: 'મદદ મેળવો',
   notificationsPermissionHelp: 'સૂચનાઓની પરવાનગી મદદ',
+
+  sosMode: 'SOS મોડ',
+  sosCountdownMessage: 'SOS કાઉન્ટડાઉન સંદેશ',
+  notifiedPersons: 'સૂચિત કરેલા વ્યક્તિઓ',
+  acceptedPersons: 'સ્વીકૃત વ્યક્તિઓ',
+  yes: 'હા',
+  audioConnected: 'ઓડિયો જોડાયેલ છે',
+  searchRadius: 'શોધ ત્રિજ્યા',
+  volunteersFound: 'આ અંતરમાં સ્વયંસેવકો મળ્યા',
+  distance: 'અંતર',
+  volunteeringSettings: 'સ્વયંસેવા સેટિંગ્સ',
+  availabilitySettings: 'ઉપલબ્ધતા સેટિંગ્સ',
+  profileSettings: 'મારી પ્રોફાઇલ',
+  pendingApproval: 'મંજૂરી બાકી',
+  close: 'બંધ કરો',
+  errorFetchingContacts: 'સર્વર ભૂલ',
+  resendOTP: 'ઓટીપી ફરીથી મોકલો',
+  safetyTip: 'સુરક્ષા ટિપ',
+  safetyTip1: 'હંમેશા તમારી આસપાસના વાતાવરણથી સાવચેત રહો.',
+  safetyTip2: 'બહાર જતી વખતે વિશ્વસનીય મિત્રો સાથે તમારું સ્થાન શેર કરો.',
+  safetyTip3: 'કટોકટીના નંબરો સરળતાથી ઉપલબ્ધ રાખો.',
+  safetyTip4:
+    'તમારી અંતઃપ્રેરણા પર વિશ્વાસ કરો. જો કંઈક ખોટું લાગે તો, તે વિસ્તાર છોડી દો.',
+  safetyTip5: 'બહાર જતી વખતે ખાતરી કરો કે તમારો ફોન હંમેશા ચાર્જ થયેલો હોય.',
+  emergencyServices: 'કટોકટી સેવાઓ',
+  police: 'પોલીસ',
+  ambulance: 'એમ્બ્યુલન્સ',
+  fireDepartment: 'ફાયર વિભાગ',
+  womenHelpline: 'મહિલા હેલ્પલાઈન',
+  volunteerStatus: 'સ્વયંસેવક સ્થિતિ',
+  volunteerAvailable: 'સમુદાય સહાયતા માટે ઉપલબ્ધ',
+  volunteerUnavailable: 'સમુદાય સહાયતા માટે અનુપલબ્ધ',
+  volunteerStatusUpdated: 'સ્વયંસેવક સ્થિતિ સફળતાપૂર્વક અપડેટ થઈ',
+  volunteerStatusUpdateFailed: 'સ્વયંસેવક સ્થિતિ અપડેટ કરવામાં નિષ્ફળ',
+  nearbyVolunteers: 'નજીકના સ્વયંસેવકો',
+  viewAll: 'બધું જુઓ',
+  volunteersNearby: 'નજીકના સ્વયંસેવકો',
 };

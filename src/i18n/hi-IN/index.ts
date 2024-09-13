@@ -51,7 +51,7 @@ export default {
 
   // Dashboard Page
   welcome: 'क्या हुआ {name}?',
-  sosButton: 'एसओएस',
+  sosButton: 'SOS',
   missingPermissions: 'कुछ अनुमतियाँ गायब हैं',
   request: '{permission} का अनुरोध करें',
   helpFor: '{permission} के लिए मदद',
@@ -68,8 +68,8 @@ export default {
   gettingStarted: 'शुरू करना', // Added
   gettingStartedContent: 'शुरू करने की सामग्री', // Added
   watchVideo: 'वीडियो देखें', // Added
-  usingSOS: 'एसओएस का उपयोग करना', // Added
-  usingSOSContent: 'एसओएस का उपयोग करने की सामग्री', // Added
+  usingSOS: 'SOS का उपयोग करना', // Added
+  usingSOSContent: 'SOS का उपयोग करने की सामग्री', // Added
   volunteeringHelp: 'स्वयंसेवा मदद', // Added
   volunteeringHelpContent: 'स्वयंसेवा मदद सामग्री', // Added
   helpVideo: 'मदद वीडियो', // Added
@@ -77,6 +77,7 @@ export default {
   pwaLocationHelp: 'पीडब्ल्यूए स्थान मदद', // Added
   platformSpecificHelp: 'प्लेटफ़ॉर्म विशिष्ट मदद', // Added
   pwaCameraHelp: 'पीडब्ल्यूए कैमरा मदद', // Added
+  notificationsPermissionHelp: 'notifications Permission Help',
 
   // Profile Page
   name: 'नाम',
@@ -105,11 +106,11 @@ export default {
   mechanicBoth: '2&4 व्हीलर मैकेनिक',
   nurse: 'नियुस',
   other: 'अन्य',
-  sosSettings: 'एसओएस सेटिंग्स',
-  startAudioVideoRecordOnSos: 'एसओएस पर ऑडियो/विडियो रिकॉर्ड शर्तें (स्थानीय)',
-  streamAudioVideoOnSos: 'एसओएस पर ऑडियो/विडियो स्ट्रीम शर्तें (सर्वर पर)',
+  sosSettings: 'SOS सेटिंग्स',
+  startAudioVideoRecordOnSos: 'SOS पर ऑडियो/विडियो रिकॉर्ड शर्तें (स्थानीय)',
+  streamAudioVideoOnSos: 'SOS पर ऑडियो/विडियो स्ट्रीम शर्तें (सर्वर पर)',
   broadcastAudioOnSos:
-    'एसओएस पर ऑडियो ब्रॉडकास्ट शर्तें (स्वयंसेवा के व्यक्तियों को)',
+    'SOS पर ऑडियो ब्रॉडकास्ट शर्तें (स्वयंसेवा के व्यक्तियों को)',
   emergencyContactRequests: 'आपातकालीन संपर्क के लिए अनुरोध',
   noEmergencyContacts: 'आप किसी के आपातकालीन संपर्क में नहीं हैं',
 
@@ -124,9 +125,9 @@ export default {
   permissionDenied: '{permission} अनुमति अस्वीकृत',
 
   // SOS Mode
-  sosWarning: 'एसओएस मोड सक्रिय',
-  cancelSOS: 'एसओएस रद्द करें',
-  sosSent: 'एसओएस भेजा गया',
+  sosWarning: 'SOS मोड सक्रिय',
+  cancelSOS: 'SOS रद्द करें',
+  sosSent: 'SOS भेजा गया',
   sosNotified: '{count} आस-पास के व्यक्तियों को सूचित किया गया',
   sosAccepted: '{count} व्यक्तियों द्वारा स्वीकार किया गया',
   emergencyContactsInformed: 'आपातकालीन संपर्कों को सूचित किया गया',
@@ -136,7 +137,7 @@ export default {
   coordinates: 'निर्देशांक',
   nearbyPoliceStations: 'नदीकी पुलिस स्टेशन',
   contactPoliceStation: 'पुलिस स्टेशन से संपर्क करें',
-  resolveSOSIssue: 'एसओएस मुद्दे को हल करें',
+  resolveSOSIssue: 'SOS मुद्दे को हल करें',
   audioOpen: 'ऑडियो खुला है',
   clickToOpenAudio: 'ऑडियो खोलने के लिए क्लिक करें',
 
@@ -151,7 +152,7 @@ export default {
   // Help Page
   locationPermission: 'स्थान अनुमति',
   locationPermissionHelp:
-    'स्थान पहुंच की अनुमति देने से हमें आपातकाल की स्थिति में आपके सटीक स्थान पर मदद भेजने में मदद मिलती है। याद रखें, आपका स्थान कभी भी सहेजा नहीं जाता जब तक आप एसओएस भेजते हैं। यहां तक कि जब आप समुदाय की मदद करने के लिए तैयार हैं, आपका स्थान सहेजा नहीं जाता।',
+    'स्थान पहुंच की अनुमति देने से हमें आपातकाल की स्थिति में आपके सटीक स्थान पर मदद भेजने में मदद मिलती है। याद रखें, आपका स्थान कभी भी सहेजा नहीं जाता जब तक आप SOS भेजते हैं। यहां तक कि जब आप समुदाय की मदद करने के लिए तैयार हैं, आपका स्थान सहेजा नहीं जाता।',
   cameraPermission: 'कैमरा अनुमति',
   cameraPermissionHelp:
     'कैमरा पहुंच आपको आपातकाल के दौरान दृश्य साक्ष्य कैप्चर करने और भेजने की अनुमति देती है।',
@@ -173,7 +174,7 @@ export default {
   // Volunteering
   notificationLocations: 'सूचना स्थान',
   notificationLocationsHelp:
-    'वे स्थान जोड़ें जहाँ आप एसओएस सूचनाएँ प्राप्त करना चाहते हैं',
+    'वे स्थान जोड़ें जहाँ आप SOS सूचनाएँ प्राप्त करना चाहते हैं',
   locationName: 'स्थान नाम',
   useCurrentLocation: 'वर्तमान स्थान का उपयोग करें',
   addNotificationLocation: 'सूचना स्थान जोड़ें',
@@ -186,7 +187,7 @@ export default {
   availableForPaidProfessionalService:
     'भुगतान किए जाने वाले पेशेवर सेवा के लिए उपलब्ध',
   availableForPaidProfessionalServiceDescription:
-    'एसओएस के दौरान आपातकाल के मामले में भुगतान किए जाने वाले पेशेवर सेवा प्रदान करने के लिए अपनी उपलब्धता दर्शाने के लिए इसे टॉगल करें',
+    'SOS के दौरान आपातकाल के मामले में भुगतान किए जाने वाले पेशेवर सेवा प्रदान करने के लिए अपनी उपलब्धता दर्शाने के लिए इसे टॉगल करें',
 
   // Misc
   noLocationSet: 'कोई स्थान सेट नहीं',
@@ -247,4 +248,46 @@ export default {
 
   failedToOpenSafari:
     'Safari खोलने में विफल। कृपया Safari को मैन्युअल रूप से खोलें और इस वेबसाइट पर जाएं।',
+
+  sosMode: 'SOS मोड',
+  sosCountdownMessage: 'SOS काउंटडाउन',
+  notifiedPersons: 'सूचित किए गए व्यक्ति',
+  acceptedPersons: 'स्वीकार किए गए व्यक्ति',
+  yes: 'हां',
+  audioConnected: 'ऑडियो कनेक्ट हो गया',
+  searchRadius: 'खोज त्रिज्या',
+  volunteersFound: 'इस दूरी के भीतर स्वयंसेवक उपलब्ध',
+  distance: 'दूरी',
+  volunteeringSettings: 'स्वयंसेवा प्राथमिकताएं',
+  availabilitySettings: 'उपलब्धता प्राथमिकताएं',
+  profileSettings: 'मेरी प्रोफ़ाइल',
+  pendingApproval: 'स्वीकृति लंबित',
+  close: 'बंद करें',
+  errorFetchingContacts: 'सर्वर त्रुटि',
+  resendOTP: 'ओटीपी पुनः भेजें',
+
+  // Dashboard Page additions in Hindi
+  safetyTip: 'सुरक्षा सुझाव',
+  safetyTip1: 'हमेशा अपने आस-पास के माहौल के प्रति सचेत रहें।',
+  safetyTip2: 'बाहर जाते समय विश्वसनीय दोस्तों के साथ अपना स्थान साझा करें।',
+  safetyTip3: 'आपातकालीन नंबर आसानी से पहुंच योग्य रखें।',
+  safetyTip4:
+    'अपनी अंतर्ज्ञान पर भरोसा करें। यदि कुछ गड़बड़ लगता है, तो वहां से चले जाएं।',
+  safetyTip5: 'बाहर जाते समय सुनिश्चित करें कि आपका फोन हमेशा चार्ज रहे।',
+
+  emergencyServices: 'आपातकालीन सेवाएं',
+  police: 'पुलिस',
+  ambulance: 'एम्बुलेंस',
+  fireDepartment: 'अग्निशमन विभाग',
+  womenHelpline: 'महिला हेल्पलाइन',
+
+  volunteerStatus: 'स्वयंसेवक स्थिति',
+  volunteerAvailable: 'सामुदायिक सहायता के लिए उपलब्ध',
+  volunteerUnavailable: 'सामुदायिक सहायता के लिए अनुपलब्ध',
+  volunteerStatusUpdated: 'स्वयंसेवक स्थिति सफलतापूर्वक अपडेट की गई',
+  volunteerStatusUpdateFailed: 'स्वयंसेवक स्थिति अपडेट करने में विफल',
+
+  nearbyVolunteers: 'आस-पास के स्वयंसेवक',
+  viewAll: 'सभी देखें',
+  volunteersNearby: 'आस-पास के स्वयंसेवक',
 };
