@@ -1,132 +1,131 @@
 <template>
-  <div>
-    <!-- Notification locations -->
-    <div class="q-mb-md">
-      <div class="flex items-center">
-        <h6 class="q-ma-none q-ml-xs">{{ $t('notificationLocations') }}</h6>
-        <q-icon :name="$t('icons.help')" size="xs" class="q-ml-sm">
-          <q-tooltip>{{ $t('notificationLocationsHelp') }}</q-tooltip>
-        </q-icon>
-      </div>
-      <div
-        v-for="(location, index) in values.locations"
-        :key="index"
-        class="q-mt-sm"
-      >
-        <div class="row q-col-gutter-sm">
-          <div class="col">
-            <q-input
-              outlined
-              v-model="location.name"
-              :label="$t('locationName')"
-              :hint="getLocationHint(location)"
-              class="q-mb-sm"
-              style="border-radius: 20px"
-              :error="!isLocationValid(location)"
-              :error-message="$t('pleaseSelectLocation')"
-            />
+  <q-page class="volunteering-page q-pa-md">
+    <div class="volunteering-content">
+      <q-card class="volunteering-card q-mb-md">
+        <q-card-section>
+          <div class="text-h6 text-weight-bold q-mb-md">
+            {{ $t('volunteeringSettings') }}
           </div>
-          <div class="col-auto">
-            <q-btn
-              flat
-              round
-              color="primary"
-              :icon="$t('icons.myLocation')"
-              @click="updateLocationCoordinates(index)"
-              :loading="locationLoading[index]"
-            >
-              <q-tooltip>{{ $t('useCurrentLocation') }}</q-tooltip>
-            </q-btn>
-          </div>
-          <div class="col-auto">
-            <q-btn
-              flat
-              round
-              color="negative"
-              :icon="$t('icons.delete')"
-              @click="removeNotificationLocation(index)"
-            />
-          </div>
-        </div>
-        <p
-          v-if="
-            location.location.coordinates[1] && location.location.coordinates[0]
-          "
-          class="text-caption q-mt-sm row"
-        >
-          <span class="col-auto">
-            {{ $t('coordinates') }}: {{ location.location.coordinates[1] }},
-            {{ location.location.coordinates[0] }}
-          </span>
-          <span class="col-auto">
-            <q-btn
-              icon="place"
-              outline
-              label="Check Location"
-              @click="openGoogleMaps(location.location.coordinates)"
-              class="q-ml-sm text-right"
-              color="primary"
-              size="xs"
-            />
-          </span>
-        </p>
-      </div>
-      <q-btn
-        v-if="values.locations.length < 10"
-        @click="addNotificationLocation"
-        class="q-mt-sm bg-primary text-white full-width"
-        :icon="$t('icons.addCircle')"
-      >
-        <span class="q-ml-xs">{{ $t('addNotificationLocation') }}</span>
-      </q-btn>
-    </div>
 
-    <!-- Available for community toggle -->
-    <div class="q-mb-md">
-      <div class="flex items-center justify-between">
-        <div>
-          <h6 class="q-ma-none q-ml-xs">
-            {{ $t('availableForCommunity') }}
-          </h6>
-          <p class="text-caption q-mb-sm">
-            {{ $t('availableForCommunityDescription') }}
-          </p>
-        </div>
-        <q-toggle v-model="values.availableForCommunity" color="primary" />
-      </div>
-    </div>
+          <q-form @submit.prevent="handleSubmit">
+            <!-- Notification locations -->
+            <div class="q-mb-lg">
+              <div class="text-subtitle1 text-weight-bold q-mb-sm">
+                {{ $t('notificationLocations') }}
+                <q-icon :name="$t('icons.help')" size="xs" class="q-ml-sm">
+                  <q-tooltip>{{ $t('notificationLocationsHelp') }}</q-tooltip>
+                </q-icon>
+              </div>
+              <q-list bordered separator>
+                <q-item
+                  v-for="(location, index) in values.locations"
+                  :key="index"
+                >
+                  <q-item-section>
+                    <q-input
+                      outlined
+                      dense
+                      v-model="location.name"
+                      :label="$t('locationName')"
+                      :hint="getLocationHint(location)"
+                      :error="!isLocationValid(location)"
+                      :error-message="$t('pleaseSelectLocation')"
+                    />
+                  </q-item-section>
+                  <q-item-section side>
+                    <q-btn-group spread>
+                      <q-btn
+                        flat
+                        color="primary"
+                        :icon="$t('icons.myLocation')"
+                        @click="updateLocationCoordinates(index)"
+                        :loading="locationLoading[index]"
+                      >
+                        <q-tooltip>{{ $t('useCurrentLocation') }}</q-tooltip>
+                      </q-btn>
+                      <q-btn
+                        flat
+                        color="negative"
+                        :icon="$t('icons.delete')"
+                        @click="removeNotificationLocation(index)"
+                      />
+                    </q-btn-group>
+                  </q-item-section>
+                </q-item>
+              </q-list>
+              <div class="text-center q-mt-sm">
+                <q-btn
+                  v-if="values.locations.length < 10"
+                  @click="addNotificationLocation"
+                  color="primary"
+                  :icon="$t('icons.addCircle')"
+                  :label="$t('addNotificationLocation')"
+                  no-caps
+                />
+              </div>
+            </div>
 
-    <!-- Available for paid professional service toggle -->
-    <div class="q-mb-md">
-      <div class="flex items-center justify-between">
-        <div>
-          <h6 class="q-ma-none q-ml-xs">
-            {{ $t('availableForPaidProfessionalService') }}
-          </h6>
-          <p class="text-caption q-mb-sm">
-            {{ $t('availableForPaidProfessionalServiceDescription') }}
-          </p>
-        </div>
-        <q-toggle
-          v-model="values.availableForPaidProfessionalService"
-          color="primary"
-        />
-      </div>
-    </div>
+            <!-- Availability toggles -->
+            <q-card flat bordered class="q-mb-md">
+              <q-card-section>
+                <div class="text-subtitle1 text-weight-bold q-mb-sm">
+                  {{ $t('availabilitySettings') }}
+                </div>
+                <q-list>
+                  <q-item tag="label" v-ripple>
+                    <q-item-section>
+                      <q-item-label>{{
+                        $t('availableForCommunity')
+                      }}</q-item-label>
+                      <q-item-label caption>{{
+                        $t('availableForCommunityDescription')
+                      }}</q-item-label>
+                    </q-item-section>
+                    <q-item-section side>
+                      <q-toggle
+                        v-model="values.availableForCommunity"
+                        color="primary"
+                      />
+                    </q-item-section>
+                  </q-item>
+                  <q-item tag="label" v-ripple>
+                    <q-item-section>
+                      <q-item-label>{{
+                        $t('availableForPaidProfessionalService')
+                      }}</q-item-label>
+                      <q-item-label caption>{{
+                        $t('availableForPaidProfessionalServiceDescription')
+                      }}</q-item-label>
+                    </q-item-section>
+                    <q-item-section side>
+                      <q-toggle
+                        v-model="values.availableForPaidProfessionalService"
+                        color="primary"
+                      />
+                    </q-item-section>
+                  </q-item>
+                </q-list>
+              </q-card-section>
+            </q-card>
 
-    <!-- Add save button at the bottom -->
-    <div class="q-mt-md">
-      <q-btn
-        :loading="isLoading"
-        @click="handleSubmit"
-        style="width: 100%"
-        class="bg-green text-white"
-        :disable="!isFormValid"
-      >
-        <b class="q-ml-xs q-my-md">{{ $t('saveChanges') }}</b>
-      </q-btn>
+            <!-- Save button -->
+            <div class="q-mt-lg">
+              <q-btn
+                type="submit"
+                :loading="isLoading"
+                color="primary"
+                class="full-width"
+                :disable="!isFormValid"
+                no-caps
+              >
+                <b>{{ $t('saveChanges') }}</b>
+              </q-btn>
+            </div>
+          </q-form>
+        </q-card-section>
+      </q-card>
     </div>
-  </div>
+  </q-page>
 </template>
 
 <script lang="ts" setup>
@@ -288,3 +287,29 @@ const openGoogleMaps = (coordinates: [number, number]) => {
   window.open(url, '_blank');
 };
 </script>
+
+<style lang="scss" scoped>
+.volunteering-page {
+  background: linear-gradient(135deg, $primary, darken($primary, 20%));
+  min-height: 100vh;
+}
+
+.volunteering-content {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.volunteering-card {
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.q-item {
+  border-radius: 8px;
+}
+
+.q-btn-group {
+  border-radius: 8px;
+  overflow: hidden;
+}
+</style>

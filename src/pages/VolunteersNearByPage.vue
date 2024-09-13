@@ -1,66 +1,103 @@
 <template>
-  <q-page class="q-pa-md">
-    <div class="row q-col-gutter-md q-mb-md">
-      <div class="col-12">
-        <q-input
-          v-model="address"
-          label="Location"
-          :loading="addressLoading"
-          :readonly="addressLoading"
-          class="q-mb-sm"
-        >
-          <template v-slot:append>
-            <q-btn
-              round
-              dense
-              flat
-              :icon="$t('icons.myLocation')"
-              @click="getCurrentLocation"
-              :loading="locationLoading"
-            />
-          </template>
-        </q-input>
-      </div>
-      <div class="col-12">
-        <q-slider
-          v-model="range"
-          :min="100"
-          :max="5000"
-          :step="100"
-          label
-          label-always
-          :label-value="`${range}m`"
-          class="q-mt-md"
-        />
-      </div>
-    </div>
+  <q-page class="volunteers-nearby-page q-pa-md">
+    <div class="volunteers-nearby-content">
+      <q-card class="volunteers-nearby-card q-mb-md">
+        <q-card-section>
+          <div class="text-h6 text-weight-bold q-mb-md">
+            {{ $t('nearbyVolunteers') }}
+          </div>
 
-    <div class="volunteer-map" ref="volunteerMap">
-      <div class="map-center">
-        <q-icon :name="$t('icons.myLocation')" size="24px" color="primary" />
-      </div>
-      <div class="north-indicator">
-        <q-icon name="north" size="24px" color="red" />
-      </div>
-      <div
-        v-for="volunteer in volunteers"
-        :key="volunteer.id"
-        class="volunteer-icon"
-        :style="getVolunteerPosition(volunteer)"
-      >
-        <q-icon
-          :name="getVolunteerIcon(volunteer)"
-          size="20px"
-          :color="getVolunteerColor(volunteer)"
-        />
-        <q-tooltip>
-          {{ volunteer.profession }}
-        </q-tooltip>
-      </div>
-    </div>
+          <div class="row q-col-gutter-md q-mb-md">
+            <div class="col-12">
+              <q-input
+                v-model="address"
+                :label="$t('location')"
+                :loading="addressLoading"
+                :readonly="addressLoading"
+                outlined
+                dense
+              >
+                <template v-slot:append>
+                  <q-btn
+                    round
+                    dense
+                    flat
+                    :icon="$t('icons.myLocation')"
+                    @click="getCurrentLocation"
+                    :loading="locationLoading"
+                  >
+                    <q-tooltip>{{ $t('useCurrentLocation') }}</q-tooltip>
+                  </q-btn>
+                </template>
+              </q-input>
+            </div>
+            <div class="col-12">
+              <div class="text-subtitle2 q-mb-sm">{{ $t('searchRadius') }}</div>
+              <q-slider
+                v-model="range"
+                :min="100"
+                :max="5000"
+                :step="100"
+                label
+                label-always
+                :label-value="`${range}m`"
+                color="primary"
+              />
+            </div>
+          </div>
 
-    <div class="text-center q-mt-md">
-      <p>{{ volunteers.length }} volunteers found within {{ range }}m</p>
+          <div class="volunteer-map q-mb-md" ref="volunteerMap">
+            <div class="map-center">
+              <q-icon
+                :name="$t('icons.myLocation')"
+                size="24px"
+                color="primary"
+              />
+            </div>
+            <div class="north-indicator">
+              <q-icon name="north" size="24px" color="red" />
+            </div>
+            <div
+              v-for="volunteer in volunteers"
+              :key="volunteer.id"
+              class="volunteer-icon"
+              :style="getVolunteerPosition(volunteer)"
+            >
+              <q-icon
+                :name="getVolunteerIcon(volunteer)"
+                size="20px"
+                :color="getVolunteerColor(volunteer)"
+              />
+              <q-tooltip>
+                {{ volunteer.profession }}
+              </q-tooltip>
+            </div>
+          </div>
+
+          <div class="text-center q-mt-md">
+            <p class="text-subtitle1">
+              {{ volunteers.length }} {{ $t('volunteersFound') }} {{ range }}m
+            </p>
+          </div>
+
+          <q-list bordered separator>
+            <q-item v-for="volunteer in volunteers" :key="volunteer.id">
+              <q-item-section avatar>
+                <q-icon
+                  :name="getVolunteerIcon(volunteer)"
+                  :color="getVolunteerColor(volunteer)"
+                />
+              </q-item-section>
+              <q-item-section>
+                <q-item-label>{{ volunteer.profession }}</q-item-label>
+                <q-item-label caption>
+                  {{ $t('distance') }}: {{ calculateDistance(volunteer) }}m
+                </q-item-label>
+              </q-item-section>
+            </q-item>
+          </q-list>
+        </q-card-section>
+      </q-card>
     </div>
   </q-page>
 </template>
@@ -178,6 +215,26 @@ const getVolunteerColor = (volunteer) => {
   return professionColors[volunteer.profession] || professionColors.default;
 };
 
+const calculateDistance = (volunteer) => {
+  const [latitude, longitude] = address.value.split(',').map(Number);
+  const volunteerLat = volunteer.location.coordinates[1];
+  const volunteerLng = volunteer.location.coordinates[0];
+
+  const R = 6371; // Radius of the earth in kilometers
+  const dLat = (volunteerLat - latitude) * (Math.PI / 180);
+  const dLng = (volunteerLng - longitude) * (Math.PI / 180);
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(latitude * (Math.PI / 180)) *
+      Math.cos(volunteerLat * (Math.PI / 180)) *
+      Math.sin(dLng / 2) *
+      Math.sin(dLng / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  const distance = R * c * 1000; // Convert to meters
+
+  return Math.round(distance);
+};
+
 onMounted(() => {
   if (!userStore.isLoggedIn) {
     $q.notify({
@@ -192,7 +249,22 @@ onMounted(() => {
 });
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
+.volunteers-nearby-page {
+  background: linear-gradient(135deg, $primary, darken($primary, 20%));
+  min-height: 100vh;
+}
+
+.volunteers-nearby-content {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.volunteers-nearby-card {
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
 .volunteer-map {
   position: relative;
   width: 100%;
@@ -200,6 +272,7 @@ onMounted(() => {
   border: 1px solid #ccc;
   border-radius: 8px;
   overflow: hidden;
+  background-color: #f0f0f0;
 }
 
 .map-center {
@@ -211,13 +284,24 @@ onMounted(() => {
 
 .north-indicator {
   position: absolute;
-  top: 10px; /* Adjust as needed */
+  top: 10px;
   left: 50%;
   transform: translateX(-50%);
+  background-color: rgba(255, 255, 255, 0.7);
+  border-radius: 50%;
+  padding: 4px;
 }
 
 .volunteer-icon {
   position: absolute;
   transform: translate(-50%, -50%);
+}
+
+.q-item {
+  transition: background-color 0.3s;
+
+  &:hover {
+    background-color: #f0f0f0;
+  }
 }
 </style>

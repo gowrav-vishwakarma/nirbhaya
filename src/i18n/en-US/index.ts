@@ -55,9 +55,17 @@ export default {
   // Dashboard Page
   welcome: 'What Happened {name}?',
   sosButton: 'SOS',
+  sosButtonSubtitle: 'Send emergency alert to nearby volunteers',
   missingPermissions: 'Some permissions are missing',
   request: 'Request {permission}',
   helpFor: 'Help for {permission}',
+  dashboardSubtitle: 'Stay safe and connected with your community',
+  helpContacts: 'Help from Contacts',
+  helpContactsSubtitle: 'Notify only your emergency contacts',
+  quickActions: 'Quick Actions',
+  updateProfile: 'Update Profile',
+  viewNotifications: 'View Notifications',
+  getHelp: 'Get Help',
 
   // Profile Page
   name: 'Name',
@@ -225,4 +233,30 @@ export default {
   openSafari: 'Open Safari',
   failedToOpenSafari:
     'Failed to open Safari. Please open Safari manually and navigate to this website.',
+  resendOTP: 'Resend OTP',
+
+  // Dashboard Page
+  safetyTip: 'Safety Tip',
+  safetyTip1: 'Always be aware of your surroundings.',
+  safetyTip2: 'Share your location with trusted friends when going out.',
+  safetyTip3: 'Keep emergency numbers easily accessible.',
+  safetyTip4: 'Trust your instincts. If something feels off, leave the area.',
+  safetyTip5: 'Ensure your phone is always charged when going out.',
+
+  emergencyServices: 'Emergency Services',
+  police: 'Police',
+  ambulance: 'Ambulance',
+  fireDepartment: 'Fire Dept.',
+  womenHelpline: 'Women Helpline',
+
+  volunteerStatus: 'Volunteer Status',
+  volunteerAvailable: 'Available for Community Assistance',
+  volunteerUnavailable: 'Unavailable for Community Assistance',
+  volunteerStatusUpdated: 'Volunteer status updated successfully',
+  volunteerStatusUpdateFailed: 'Failed to update volunteer status',
+
+  // ... (rest of the translations)
+  nearbyVolunteers: 'Nearby Volunteers',
+  viewAll: 'View All',
+  volunteersNearby: 'volunteers nearby',
 };

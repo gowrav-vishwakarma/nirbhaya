@@ -64,10 +64,8 @@ onMounted(() => {
 
 const logout = async () => {
   try {
-    // Call the logout API to remove token and FCM token
-    console.log('userStore.user', userStore.user);
-    await userStore.logout();
     await api.post('/auth/logout');
+    userStore.logout(); // This will clear both in-memory and persisted state
     router.push('/login');
     $q.notify({
       color: 'positive',

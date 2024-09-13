@@ -1,20 +1,18 @@
 <template>
-  <q-page class="bg-grey-1">
+  <q-page class="sos-page q-pa-md">
     <q-card class="sos-card q-pa-lg">
-      <div class="row q-col-gutter-md">
-        <div class="col-12">
-          <div class="text-h6 text-weight-bold text-red text-center">
-            {{ $t('sosWarning') }}
-          </div>
+      <q-card-section>
+        <div class="text-h5 text-weight-bold text-center q-mb-md">
+          {{ $t('sosMode') }}
         </div>
 
         <template v-if="!sosSent">
-          <div class="col-12 text-center">
+          <div class="text-center q-mb-lg">
             <q-circular-progress
               show-value
               class="text-red q-ma-md"
               :value="timeLeft"
-              size="120px"
+              size="150px"
               :thickness="0.22"
               color="red"
               track-color="grey-3"
@@ -22,17 +20,29 @@
               :max="countdownDuration"
               @click="resetCountdown"
             >
-              <div class="text-h6">{{ timeLeft }}</div>
+              <div class="text-h5">{{ timeLeft }}</div>
             </q-circular-progress>
+            <div class="text-subtitle1 q-mt-sm">
+              {{ $t('sosCountdownMessage') }}
+            </div>
           </div>
-          <div class="col-12 text-center">
-            <q-btn color="red" :label="$t('cancelSOS')" @click="cancelSOS" />
-          </div>
+          <q-btn
+            color="red"
+            :label="$t('cancelSOS')"
+            @click="cancelSOS"
+            class="full-width q-py-sm"
+          />
         </template>
 
-        <div v-else class="col-12 text-center">
-          <div class="text-h6 text-red text-weight-bold">SOS Sent</div>
-          <div v-if="isNavigatorMediaSupported">
+        <template v-else>
+          <div class="text-center q-mb-lg">
+            <q-icon name="warning" color="red" size="4rem" />
+            <div class="text-h6 text-red text-weight-bold q-mt-sm">
+              {{ $t('sosSent') }}
+            </div>
+          </div>
+
+          <div v-if="isNavigatorMediaSupported" class="text-center q-mb-lg">
             <q-btn
               round
               size="xl"
@@ -40,101 +50,123 @@
               :icon="$t('icons.mic')"
               @click="toggleAudio"
             />
-            <p class="q-mt-sm">
-              {{ isAudioOpen ? 'Audio Connected' : 'Click to Open Audio' }}
-            </p>
-          </div>
-        </div>
-
-        <div v-if="sosSent" class="col-12">
-          <p class="text-body1">
-            Notification sent to {{ informed }} nearby persons
-          </p>
-          <p class="text-body1">Accepted by {{ accepted }} persons</p>
-          <p class="text-body1">Emergency contacts informed</p>
-        </div>
-
-        <div class="col-12">
-          <h5 class="text-h6 text-weight-bold q-mt-md">
-            {{ $t('helpUsMore') }}
-          </h5>
-        </div>
-
-        <div class="col-12 q-gutter-y-sm">
-          <q-btn
-            v-for="threat in threats"
-            :key="threat"
-            class="full-width"
-            color="primary"
-            outline
-            @click="handleThreatButtonClick(threat)"
-          >
-            {{ $t(threat) }}
-          </q-btn>
-        </div>
-
-        <div class="col-12 q-mt-md">
-          <h6 class="text-subtitle1 text-weight-bold">
-            {{ $t('currentLocation') }}
-          </h6>
-          <div class="text-body1">
-            <q-icon :name="$t('icons.myLocation')" color="primary" size="sm" />
-            <span class="q-ml-sm">
-              {{ currentLocationName || $t('gettingLocation') }}
-            </span>
-          </div>
-          <p
-            v-if="currentLocation.latitude && currentLocation.longitude"
-            class="text-caption q-mt-sm"
-          >
-            {{ $t('coordinates') }}: {{ currentLocation.latitude.toFixed(6) }},
-            {{ currentLocation.longitude.toFixed(6) }}
-          </p>
-        </div>
-
-        <div class="col-12 q-mt-md">
-          <h6 class="text-subtitle1 text-weight-bold">
-            {{ $t('nearbyPoliceStations') }}
-          </h6>
-          <div class="text-body1">
-            <q-icon :name="$t('icons.locationOn')" color="primary" size="sm" />
-            <span class="q-ml-sm">South Bopal Ahmedabad</span>
-          </div>
-        </div>
-
-        <div class="col-12 q-mt-lg">
-          <q-btn
-            @click="updateSOSData({ status: 'active' })"
-            color="primary"
-            class="full-width"
-          >
-            <b>{{ $t('contactPoliceStation') }}</b>
-          </q-btn>
-        </div>
-
-        <div v-if="sosSent" class="col-12 q-mt-md">
-          <q-btn
-            @click="showResolveConfirmation"
-            color="positive"
-            class="full-width"
-          >
-            <b>{{ $t('resolveSOSIssue') }}</b>
-          </q-btn>
-        </div>
-
-        <div class="col-12 q-mt-lg">
-          <q-expansion-item
-            label="Logs"
-            icon="mdi-clipboard-text"
-            class="text-h6 text-weight-bold"
-          >
-            <div v-for="(log, index) in logs" :key="index" class="text-body1">
-              {{ log }}
-              <q-separator v-if="index < logs.length - 1" class="q-my-sm" />
+            <div class="text-subtitle1 q-mt-sm">
+              {{ isAudioOpen ? $t('audioConnected') : $t('clickToOpenAudio') }}
             </div>
-          </q-expansion-item>
+          </div>
+
+          <q-list bordered class="rounded-borders q-mb-md">
+            <q-item>
+              <q-item-section>
+                <q-item-label>{{ $t('notifiedPersons') }}</q-item-label>
+                <q-item-label caption>{{ informed }}</q-item-label>
+              </q-item-section>
+            </q-item>
+            <q-item>
+              <q-item-section>
+                <q-item-label>{{ $t('acceptedPersons') }}</q-item-label>
+                <q-item-label caption>{{ accepted }}</q-item-label>
+              </q-item-section>
+            </q-item>
+            <q-item>
+              <q-item-section>
+                <q-item-label>{{
+                  $t('emergencyContactsInformed')
+                }}</q-item-label>
+                <q-item-label caption>{{ $t('yes') }}</q-item-label>
+              </q-item-section>
+            </q-item>
+          </q-list>
+        </template>
+
+        <div class="text-h6 text-weight-bold q-mb-sm">
+          {{ $t('helpUsMore') }}
         </div>
-      </div>
+        <div class="row q-col-gutter-sm q-mb-md">
+          <div v-for="threat in threats" :key="threat" class="col-12 col-sm-6">
+            <q-btn
+              class="full-width"
+              color="primary"
+              outline
+              @click="handleThreatButtonClick(threat)"
+            >
+              {{ $t(threat) }}
+            </q-btn>
+          </div>
+        </div>
+
+        <div class="text-subtitle1 text-weight-bold q-mb-sm">
+          {{ $t('currentLocation') }}
+        </div>
+        <q-item class="bg-grey-2 rounded-borders q-mb-md">
+          <q-item-section avatar>
+            <q-icon :name="$t('icons.myLocation')" color="primary" />
+          </q-item-section>
+          <q-item-section>
+            <q-item-label>{{
+              currentLocationName || $t('gettingLocation')
+            }}</q-item-label>
+            <q-item-label
+              caption
+              v-if="currentLocation.latitude && currentLocation.longitude"
+            >
+              {{ $t('coordinates') }}:
+              {{ currentLocation.latitude.toFixed(6) }},
+              {{ currentLocation.longitude.toFixed(6) }}
+            </q-item-label>
+          </q-item-section>
+        </q-item>
+
+        <div class="text-subtitle1 text-weight-bold q-mb-sm">
+          {{ $t('nearbyPoliceStations') }}
+        </div>
+        <q-item class="bg-grey-2 rounded-borders q-mb-md">
+          <q-item-section avatar>
+            <q-icon :name="$t('icons.locationOn')" color="primary" />
+          </q-item-section>
+          <q-item-section>
+            <q-item-label>South Bopal Ahmedabad</q-item-label>
+          </q-item-section>
+        </q-item>
+
+        <q-btn
+          @click="updateSOSData({ status: 'active' })"
+          color="primary"
+          class="full-width q-mb-md"
+        >
+          <b>{{ $t('contactPoliceStation') }}</b>
+        </q-btn>
+
+        <q-btn
+          v-if="sosSent"
+          @click="showResolveConfirmation"
+          color="positive"
+          class="full-width"
+        >
+          <b>{{ $t('resolveSOSIssue') }}</b>
+        </q-btn>
+      </q-card-section>
+
+      <q-card-section>
+        <q-expansion-item
+          label="Logs"
+          icon="mdi-clipboard-text"
+          class="text-subtitle1 text-weight-bold"
+        >
+          <q-card>
+            <q-card-section>
+              <div
+                v-for="(log, index) in logs"
+                :key="index"
+                class="text-body2 q-mb-xs"
+              >
+                {{ log }}
+                <q-separator v-if="index < logs.length - 1" class="q-my-sm" />
+              </div>
+            </q-card-section>
+          </q-card>
+        </q-expansion-item>
+      </q-card-section>
     </q-card>
   </q-page>
 </template>
@@ -380,7 +412,7 @@ const resetCountdown = () => {
 
 const cancelSOS = async () => {
   try {
-    await sendCancelSOSRequest();
+    // await sendCancelSOSRequest();
     logMessage('SOS request cancelled.');
     router.push('/dashboard');
   } catch (error) {
@@ -994,11 +1026,32 @@ const closeAudioConnection = () => {
 };
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
+.sos-page {
+  background: linear-gradient(135deg, $primary, darken($primary, 20%));
+  min-height: 100vh;
+}
+
 .sos-card {
   max-width: 600px;
   margin: 0 auto;
   border-radius: 8px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+.q-circular-progress {
+  cursor: pointer;
+}
+
+.q-btn {
+  border-radius: 8px;
+}
+
+.q-item {
+  border-radius: 8px;
+}
+
+.q-expansion-item {
+  border: 1px solid $grey-4;
+  border-radius: 8px;
 }
 </style>

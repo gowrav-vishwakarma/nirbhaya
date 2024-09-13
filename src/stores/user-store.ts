@@ -71,7 +71,15 @@ export const useUserStore = defineStore('userStore', {
       this.user = { ...this.user, ...updatedFields };
     },
     logout() {
-      this.user = defaultUser;
+      this.user = { ...defaultUser };
+      this.user.token = '';
+
+      // Clear persisted data
+      localStorage.removeItem('sos-user');
+
+      // If you're using @vueuse/core for persistence, you can also do:
+      // const storage = useStorage('sos-user', null);
+      // storage.value = null;
     },
     sendFcmTokenToBackend(token: string) {
       try {

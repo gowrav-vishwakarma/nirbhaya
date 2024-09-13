@@ -1,10 +1,12 @@
 <template>
-  <q-page class="flex flex-center bg-grey-1">
+  <q-page class="flex flex-center bg-primary">
     <q-card class="login-card q-pa-lg">
       <q-card-section class="text-center">
-        <div class="text-h4 text-weight-bold text-primary q-mb-md">
-          Shoutout<br />
-          <small><u>Community SOS</u></small>
+        <div class="text-h3 text-weight-bold text-primary q-mb-md">
+          Shoutout
+        </div>
+        <div class="text-subtitle1 text-weight-medium text-grey-7 q-mb-lg">
+          Community SOS
         </div>
         <div class="text-h5 text-weight-bold text-primary q-mb-md">
           {{ $t('login') }}
@@ -13,9 +15,9 @@
       </q-card-section>
 
       <q-card-section v-if="isIosNotSafari">
-        <div class="text-negative q-mb-md">
+        <q-banner class="bg-negative text-white" rounded>
           {{ $t('iosNotSafariWarning') }}
-        </div>
+        </q-banner>
       </q-card-section>
 
       <q-card-section v-else>
@@ -30,7 +32,7 @@
             :disable="otpSent"
           >
             <template v-slot:prepend>
-              <q-icon :name="$t('icons.phone')" />
+              <q-icon :name="$t('icons.phone')" color="primary" />
             </template>
           </q-input>
 
@@ -44,7 +46,7 @@
             mask="####"
           >
             <template v-slot:prepend>
-              <q-icon :name="$t('icons.lock')" />
+              <q-icon :name="$t('icons.lock')" color="primary" />
             </template>
           </q-input>
 
@@ -52,15 +54,22 @@
             :label="otpSent ? $t('login') : $t('sendOTP')"
             type="submit"
             color="primary"
-            class="full-width"
+            class="full-width q-py-sm"
+            :loading="isLoading"
           />
         </q-form>
+      </q-card-section>
+
+      <q-card-section v-if="otpSent" class="text-center">
+        <q-btn flat color="primary" @click="resendOTP" :disable="isLoading">
+          {{ $t('resendOTP') }}
+        </q-btn>
       </q-card-section>
     </q-card>
   </q-page>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, computed } from 'vue';
 import { useQuasar } from 'quasar';
 import { useUserStore } from 'stores/user-store';
@@ -150,13 +159,38 @@ callbacks.onError = (error) => {
       : 'Failed to send OTP. Please try again.',
   });
 };
+
+const isLoading = ref(false);
+
+const resendOTP = async () => {
+  isLoading.value = true;
+  try {
+    await api.post('auth/sendOtp', { mobileNumber: values.value.mobileNumber });
+    Notify.create({
+      type: 'positive',
+      message: 'OTP resent successfully',
+    });
+  } catch (error) {
+    console.error('Error resending OTP:', error);
+    Notify.create({
+      type: 'negative',
+      message: 'Failed to resend OTP. Please try again.',
+    });
+  } finally {
+    isLoading.value = false;
+  }
+};
 </script>
 
 <style scoped lang="scss">
 .login-card {
   max-width: 400px;
   width: 90%;
-  border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+}
+
+.q-page {
+  background: linear-gradient(135deg, $primary, darken($primary, 20%));
 }
 </style>

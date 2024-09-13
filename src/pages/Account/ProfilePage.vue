@@ -1,212 +1,243 @@
 <template>
-  <div>
-    <LanguageSelector class="q-mb-md" />
-
-    <q-form @submit.prevent="handleSubmit">
-      <!-- Basic profile information -->
-      <div class="q-mb-md">
-        <h6 class="q-ma-none q-ml-xs">{{ $t('name') }}</h6>
-        <q-input
-          v-model="values.name"
-          :label="$t('name')"
-          outlined
-          class="q-mt-sm"
-          style="border-radius: 20px"
-          :error="!!errors.name"
-          :error-message="errors.name?.join('; ')"
-          :rules="[(val) => !!val || $t('nameRequired')]"
-        />
-      </div>
-
-      <div class="q-mb-md">
-        <h6 class="q-ma-none q-ml-xs">{{ $t('mobileNumber') }}</h6>
-        <q-input
-          v-model="values.phoneNumber"
-          :label="$t('mobileNumber')"
-          outlined
-          readonly
-          disable
-          class="q-mt-sm"
-          style="border-radius: 20px"
-        />
-      </div>
-
-      <div class="q-mb-md">
-        <h6 class="q-ma-none q-ml-xs">{{ $t('city') }}</h6>
-        <q-input
-          v-model="values.city"
-          :label="$t('city')"
-          outlined
-          class="q-mt-sm"
-          style="border-radius: 20px"
-          :error="!!errors.city"
-          :error-message="errors.city?.join('; ')"
-        />
-      </div>
-
-      <div class="q-mb-md">
-        <h6 class="q-ma-none q-ml-xs">{{ $t('userType') }}</h6>
-        <q-select
-          v-model="values.userType"
-          :options="userTypeOptions"
-          :label="$t('userType')"
-          outlined
-          class="q-mt-sm"
-          style="border-radius: 20px"
-          :error="!!errors.userType"
-          :error-message="errors.userType?.join('; ')"
-        />
-      </div>
-
-      <div class="q-mb-md">
-        <h6 class="q-ma-none q-ml-xs">{{ $t('profession') }}</h6>
-        <q-select
-          v-model="values.profession"
-          :options="professionOptions"
-          :label="$t('profession')"
-          outlined
-          class="q-mt-sm"
-          style="border-radius: 20px"
-          :error="!!errors.profession"
-          :error-message="errors.profession?.join('; ')"
-          map-options
-          emit-value
-          option-value="value"
-          option-label="label"
-        />
-      </div>
-
-      <!-- Emergency contacts -->
-      <div class="q-mb-md">
-        <div class="flex items-center">
-          <h6 class="q-ma-none q-ml-xs">{{ $t('emergencyContacts') }}</h6>
-          <q-icon :name="$t('icons.help')" size="xs" class="q-ml-sm">
-            <q-tooltip>{{ $t('emergencyContactsHelp') }}</q-tooltip>
-          </q-icon>
-        </div>
-        <div
-          v-for="(contact, index) in values.emergencyContacts"
-          :key="index"
-          class="q-mt-sm"
-        >
-          <q-input
-            v-model="contact.contactName"
-            :label="$t('name')"
-            outlined
-            class="q-mb-sm"
-            style="border-radius: 20px"
-            :rules="[(val) => !!val || $t('contactNameRequired')]"
-          />
-          <q-input
-            v-model="contact.contactPhone"
-            :label="$t('mobileNumber')"
-            outlined
-            class="q-mb-sm"
-            style="border-radius: 20px"
-            :rules="[(val) => !!val || $t('contactNumberRequired')]"
-            @blur="validatePhoneNumber(contact.contactPhone, index)"
-            :error="!!errors[`emergencyContact${index}`]"
-            :error-message="errors[`emergencyContact${index}`]?.join('; ')"
-          />
-          <div class="q-mb-sm">
-            <q-chip
-              :color="contact.consentGiven ? 'positive' : 'warning'"
-              text-color="white"
-              :icon="contact.consentGiven ? 'check_circle' : 'warning'"
-            >
-              {{
-                contact.consentGiven ? $t('approved') : $t('pendingApproval')
-              }}
-            </q-chip>
-            <q-tooltip v-if="!contact.consentGiven">
-              {{ $t('pendingApprovalWarning') }}
-            </q-tooltip>
+  <q-page class="profile-page q-pa-md">
+    <div class="profile-content">
+      <q-card class="profile-card q-mb-md">
+        <q-card-section>
+          <div class="text-h6 text-weight-bold q-mb-md">
+            {{ $t('profileSettings') }}
           </div>
-          <q-btn
-            flat
-            round
-            color="negative"
-            :icon="$t('icons.delete')"
-            @click="removeEmergencyContact(index)"
-          />
-        </div>
-        <q-btn
-          v-if="values.emergencyContacts.length < 3"
-          @click="addEmergencyContact"
-          class="q-mt-sm bg-primary text-white"
-          :icon="$t('icons.addCircle')"
-        >
-          <span class="q-ml-xs">{{ $t('addEmergencyContact') }}</span>
-        </q-btn>
-        <p v-if="!hasEmergencyContacts" class="text-negative q-mt-sm">
-          {{ $t('atLeastOneEmergencyContactRequired') }}
-        </p>
-      </div>
+          <LanguageSelector class="q-mb-md" />
 
-      <!-- Permissions section -->
-      <div class="q-mb-md">
-        <h6 class="q-ma-none q-ml-xs">{{ $t('appPermissions') }}</h6>
-        <div
-          v-for="(permission, index) in permissions"
-          :key="index"
-          class="q-mt-sm"
-        >
-          <div class="flex items-center justify-between">
-            <span>{{ $t(permission.name) }}</span>
-            <q-btn
-              :label="$t(permission.granted ? 'granted' : 'requestPermission')"
-              :color="permission.granted ? 'positive' : 'primary'"
-              @click="requestPermission(permission.name)"
-              :disable="permission.granted"
-            />
-          </div>
-        </div>
-      </div>
+          <q-form @submit.prevent="handleSubmit">
+            <!-- Basic profile information -->
+            <div class="row q-col-gutter-md">
+              <div class="col-12 col-sm-6">
+                <q-input
+                  v-model="values.name"
+                  :label="$t('name')"
+                  outlined
+                  dense
+                  :error="!!errors.name"
+                  :error-message="errors.name?.join('; ')"
+                  :rules="[(val) => !!val || $t('nameRequired')]"
+                />
+              </div>
+              <div class="col-12 col-sm-6">
+                <q-input
+                  v-model="values.phoneNumber"
+                  :label="$t('mobileNumber')"
+                  outlined
+                  dense
+                  readonly
+                  disable
+                />
+              </div>
+              <div class="col-12 col-sm-6">
+                <q-input
+                  v-model="values.city"
+                  :label="$t('city')"
+                  outlined
+                  dense
+                  :error="!!errors.city"
+                  :error-message="errors.city?.join('; ')"
+                />
+              </div>
+              <div class="col-12 col-sm-6">
+                <q-select
+                  v-model="values.userType"
+                  :options="userTypeOptions"
+                  :label="$t('userType')"
+                  outlined
+                  dense
+                  :error="!!errors.userType"
+                  :error-message="errors.userType?.join('; ')"
+                />
+              </div>
+              <div class="col-12">
+                <q-select
+                  v-model="values.profession"
+                  :options="professionOptions"
+                  :label="$t('profession')"
+                  outlined
+                  dense
+                  :error="!!errors.profession"
+                  :error-message="errors.profession?.join('; ')"
+                  map-options
+                  emit-value
+                  option-value="value"
+                  option-label="label"
+                />
+              </div>
+            </div>
 
-      <!-- New SOS Settings -->
-      <div v-if="isNavigatorMediaSupported">
-        <div class="q-mb-md">
-          <h6 class="q-ma-none q-ml-xs">{{ $t('sosSettings') }}</h6>
-          <q-toggle
-            v-model="values.startAudioVideoRecordOnSos"
-            :label="$t('startAudioVideoRecordOnSos')"
-            class="q-mt-sm"
-          />
-          <q-toggle
-            v-if="STREAM_SAVE"
-            v-model="values.streamAudioVideoOnSos"
-            :label="$t('streamAudioVideoOnSos')"
-            class="q-mt-sm"
-          />
-          <q-toggle
-            v-model="values.broadcastAudioOnSos"
-            :label="$t('broadcastAudioOnSos')"
-            class="q-mt-sm"
-          />
-        </div>
-      </div>
+            <!-- Emergency contacts -->
+            <div class="q-mt-lg">
+              <div class="text-subtitle1 text-weight-bold q-mb-sm">
+                {{ $t('emergencyContacts') }}
+                <q-icon :name="$t('icons.help')" size="xs" class="q-ml-sm">
+                  <q-tooltip>{{ $t('emergencyContactsHelp') }}</q-tooltip>
+                </q-icon>
+              </div>
+              <q-list bordered separator>
+                <q-item
+                  v-for="(contact, index) in values.emergencyContacts"
+                  :key="index"
+                >
+                  <q-item-section>
+                    <q-input
+                      v-model="contact.contactName"
+                      :label="$t('name')"
+                      dense
+                      outlined
+                      class="q-mb-sm"
+                      :rules="[(val) => !!val || $t('contactNameRequired')]"
+                    />
+                    <q-input
+                      v-model="contact.contactPhone"
+                      :label="$t('mobileNumber')"
+                      dense
+                      outlined
+                      class="q-mb-sm"
+                      :rules="[(val) => !!val || $t('contactNumberRequired')]"
+                      @blur="validatePhoneNumber(contact.contactPhone, index)"
+                      :error="!!errors[`emergencyContact${index}`]"
+                      :error-message="
+                        errors[`emergencyContact${index}`]?.join('; ')
+                      "
+                    />
+                    <q-chip
+                      :color="contact.consentGiven ? 'positive' : 'warning'"
+                      text-color="white"
+                      :icon="contact.consentGiven ? 'check_circle' : 'warning'"
+                      size="sm"
+                    >
+                      {{
+                        contact.consentGiven
+                          ? $t('approved')
+                          : $t('pendingApproval')
+                      }}
+                    </q-chip>
+                  </q-item-section>
+                  <q-item-section side>
+                    <q-btn
+                      flat
+                      round
+                      color="negative"
+                      :icon="$t('icons.delete')"
+                      @click="removeEmergencyContact(index)"
+                    />
+                  </q-item-section>
+                </q-item>
+              </q-list>
+              <div class="text-center q-mt-sm">
+                <q-btn
+                  v-if="values.emergencyContacts.length < 3"
+                  @click="addEmergencyContact"
+                  color="primary"
+                  :icon="$t('icons.addCircle')"
+                  :label="$t('addEmergencyContact')"
+                  no-caps
+                />
+              </div>
+              <p v-if="!hasEmergencyContacts" class="text-negative q-mt-sm">
+                {{ $t('atLeastOneEmergencyContactRequired') }}
+              </p>
+            </div>
 
-      <!-- Submit button -->
-      <q-btn
-        type="submit"
-        :loading="isLoading"
-        style="width: 100%"
-        class="bg-green text-white"
-        :disable="!isFormValid"
-      >
-        <b class="q-ml-xs q-my-md">{{ $t('saveChanges') }}</b>
-      </q-btn>
+            <!-- Permissions section -->
+            <div class="q-mt-lg">
+              <div class="text-subtitle1 text-weight-bold q-mb-sm">
+                {{ $t('appPermissions') }}
+              </div>
+              <q-list bordered>
+                <q-item v-for="(permission, index) in permissions" :key="index">
+                  <q-item-section>
+                    <q-item-label>{{ $t(permission.name) }}</q-item-label>
+                  </q-item-section>
+                  <q-item-section side>
+                    <q-btn
+                      :label="
+                        $t(permission.granted ? 'granted' : 'requestPermission')
+                      "
+                      :color="permission.granted ? 'positive' : 'primary'"
+                      @click="requestPermission(permission.name)"
+                      :disable="permission.granted"
+                      dense
+                      no-caps
+                    />
+                  </q-item-section>
+                </q-item>
+              </q-list>
+            </div>
 
-      <!-- Emergency contact requests button -->
-      <q-btn
-        @click="openEmergencyContactRequests"
-        class="q-mt-md bg-primary text-white"
-        :icon="$t('icons.contacts')"
-      >
-        <span class="q-ml-xs">{{ $t('emergencyContactRequests') }}</span>
-      </q-btn>
-    </q-form>
-  </div>
+            <!-- SOS Settings -->
+            <div v-if="isNavigatorMediaSupported" class="q-mt-lg">
+              <div class="text-subtitle1 text-weight-bold q-mb-sm">
+                {{ $t('sosSettings') }}
+              </div>
+              <q-list bordered>
+                <q-item tag="label" v-ripple>
+                  <q-item-section>
+                    <q-item-label>{{
+                      $t('startAudioVideoRecordOnSos')
+                    }}</q-item-label>
+                  </q-item-section>
+                  <q-item-section side>
+                    <q-toggle v-model="values.startAudioVideoRecordOnSos" />
+                  </q-item-section>
+                </q-item>
+                <q-item v-if="STREAM_SAVE" tag="label" v-ripple>
+                  <q-item-section>
+                    <q-item-label>{{
+                      $t('streamAudioVideoOnSos')
+                    }}</q-item-label>
+                  </q-item-section>
+                  <q-item-section side>
+                    <q-toggle v-model="values.streamAudioVideoOnSos" />
+                  </q-item-section>
+                </q-item>
+                <q-item tag="label" v-ripple>
+                  <q-item-section>
+                    <q-item-label>{{ $t('broadcastAudioOnSos') }}</q-item-label>
+                  </q-item-section>
+                  <q-item-section side>
+                    <q-toggle v-model="values.broadcastAudioOnSos" />
+                  </q-item-section>
+                </q-item>
+              </q-list>
+            </div>
+
+            <!-- Submit and Emergency contact requests buttons -->
+            <div class="row q-col-gutter-md q-mt-lg">
+              <div class="col-12 col-sm-6">
+                <q-btn
+                  type="submit"
+                  :loading="isLoading"
+                  color="primary"
+                  class="full-width"
+                  :disable="!isFormValid"
+                  no-caps
+                >
+                  <b>{{ $t('saveChanges') }}</b>
+                </q-btn>
+              </div>
+              <div class="col-12 col-sm-6">
+                <q-btn
+                  @click="openEmergencyContactRequests"
+                  color="secondary"
+                  class="full-width"
+                  :icon="$t('icons.contacts')"
+                  no-caps
+                >
+                  {{ $t('emergencyContactRequests') }}
+                </q-btn>
+              </div>
+            </div>
+          </q-form>
+        </q-card-section>
+      </q-card>
+    </div>
+  </q-page>
 </template>
 
 <script lang="ts" setup>
@@ -506,3 +537,20 @@ const openEmergencyContactRequests = () => {
   });
 };
 </script>
+
+<style lang="scss" scoped>
+.profile-page {
+  background: linear-gradient(135deg, $primary, darken($primary, 20%));
+  min-height: 100vh;
+}
+
+.profile-content {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.profile-card {
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+</style>

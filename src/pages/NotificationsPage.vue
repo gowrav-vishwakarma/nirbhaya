@@ -1,75 +1,132 @@
 <template>
-  <q-page padding>
-    <h1 class="text-h4 q-mb-md">{{ $t('notifications') }}</h1>
-    <q-spinner v-if="isLoading" color="primary" />
-    <q-list v-if="!isLoading && responseData.length > 0" bordered separator>
-      <q-item
-        v-for="notification in responseData"
-        :key="notification.id"
-        class="q-py-md"
-      >
-        <q-item-section>
-          <q-card>
-            <q-card-section>
-              <q-item-label class="text-weight-bold">
-                #{{ notification.id }} {{ getNotificationTitle(notification) }}
-              </q-item-label>
-              <q-item-label caption>
-                {{ formatRelativeTime(notification.createdAt) }}
-              </q-item-label>
-              <q-item-label v-if="notification.sosEvent" caption>
-                {{ $t('status') }}:
-                {{ $t(`sosStatus.${notification.sosEvent.status}`) }}
-              </q-item-label>
-              <q-item-label
-                v-if="notification.sosEvent && notification.sosEvent.threat"
-                caption
+  <q-page class="notifications-page q-pa-md">
+    <div class="notifications-content">
+      <q-card class="notifications-card q-mb-md">
+        <q-card-section>
+          <div class="text-h5 text-weight-bold q-mb-md">
+            {{ $t('notifications') }}
+          </div>
+
+          <q-inner-loading :showing="isLoading">
+            <q-spinner-dots size="50px" color="primary" />
+          </q-inner-loading>
+
+          <template v-if="!isLoading">
+            <q-list v-if="responseData.length > 0" separator>
+              <q-item
+                v-for="notification in responseData"
+                :key="notification.id"
+                class="q-py-md"
               >
-                {{ $t('threat') }}: {{ $t(notification.sosEvent.threat) }}
-              </q-item-label>
-              <q-item-label
-                v-if="
-                  notification.userLocationName && notification.distanceToEvent
-                "
-                caption
-              >
-                {{ formatDistance(notification.distanceToEvent) }}
-                {{ $t('awayFrom') }} {{ notification.userLocationName }}
-              </q-item-label>
-            </q-card-section>
-            <q-card-actions align="right" class="q-gutter-md">
-              <q-btn
-                v-if="notification.status === 'sent'"
-                color="primary"
-                :label="$t('accept')"
-                @click="acceptNotification(notification.id)"
-              />
-              <q-btn
-                v-else-if="notification.status === 'accepted'"
-                color="secondary"
-                :label="$t('follow')"
-                @click="followLocation(notification.sosEvent.location)"
-              />
-              <q-btn
-                round
-                v-if="notification.status === 'accepted'"
-                :color="
-                  isAudioOpen[notification.sosEvent.id] ? 'primary' : 'grey'
-                "
-                :icon="$t('icons.volumeUp')"
-                @click="toggleAudio(notification.sosEvent.id)"
-              />
-              <q-btn
-                color="negative"
-                :label="$t('discard')"
-                @click="discardNotification(notification.id)"
-              />
-            </q-card-actions>
-          </q-card>
-        </q-item-section>
-      </q-item>
-    </q-list>
-    <p v-else>{{ $t('noNotificationsFound') }}</p>
+                <q-item-section>
+                  <q-card flat bordered class="notification-item">
+                    <q-card-section>
+                      <div class="row items-center no-wrap">
+                        <div class="col">
+                          <div class="text-subtitle1 text-weight-medium">
+                            {{ getNotificationTitle(notification) }}
+                          </div>
+                          <div class="text-caption text-grey">
+                            {{ formatRelativeTime(notification.createdAt) }}
+                          </div>
+                        </div>
+                        <div class="col-auto">
+                          <q-chip
+                            :color="
+                              getStatusColor(notification.sosEvent?.status)
+                            "
+                            text-color="white"
+                            size="sm"
+                          >
+                            {{
+                              $t(`sosStatus.${notification.sosEvent?.status}`)
+                            }}
+                          </q-chip>
+                        </div>
+                      </div>
+                    </q-card-section>
+
+                    <q-card-section>
+                      <div
+                        v-if="notification.sosEvent?.threat"
+                        class="text-body2 q-mb-sm"
+                      >
+                        {{ $t('threat') }}:
+                        <span class="text-weight-medium">{{
+                          $t(notification.sosEvent.threat)
+                        }}</span>
+                      </div>
+                      <div
+                        v-if="
+                          notification.userLocationName &&
+                          notification.distanceToEvent
+                        "
+                        class="text-body2"
+                      >
+                        {{ formatDistance(notification.distanceToEvent) }}
+                        {{ $t('awayFrom') }} {{ notification.userLocationName }}
+                      </div>
+                    </q-card-section>
+
+                    <q-card-actions align="right" class="q-gutter-sm">
+                      <q-btn
+                        v-if="notification.status === 'sent'"
+                        color="primary"
+                        :label="$t('accept')"
+                        @click="acceptNotification(notification.id)"
+                        dense
+                        no-caps
+                      />
+                      <q-btn
+                        v-else-if="notification.status === 'accepted'"
+                        color="secondary"
+                        :label="$t('follow')"
+                        @click="followLocation(notification.sosEvent.location)"
+                        dense
+                        no-caps
+                      />
+                      <q-btn
+                        v-if="notification.status === 'accepted'"
+                        round
+                        :color="
+                          isAudioOpen[notification.sosEvent.id]
+                            ? 'primary'
+                            : 'grey'
+                        "
+                        :icon="$t('icons.volumeUp')"
+                        @click="toggleAudio(notification.sosEvent.id)"
+                      >
+                        <q-tooltip>{{
+                          $t(
+                            isAudioOpen[notification.sosEvent.id]
+                              ? 'muteAudio'
+                              : 'unmuteAudio'
+                          )
+                        }}</q-tooltip>
+                      </q-btn>
+                      <q-btn
+                        color="negative"
+                        :label="$t('discard')"
+                        @click="discardNotification(notification.id)"
+                        flat
+                        dense
+                        no-caps
+                      />
+                    </q-card-actions>
+                  </q-card>
+                </q-item-section>
+              </q-item>
+            </q-list>
+            <div v-else class="text-center q-pa-md">
+              <q-icon name="notifications_off" size="48px" color="grey-6" />
+              <p class="text-h6 text-grey-6">
+                {{ $t('noNotificationsFound') }}
+              </p>
+            </div>
+          </template>
+        </q-card-section>
+      </q-card>
+    </div>
   </q-page>
 </template>
 
@@ -386,8 +443,32 @@ const discardNotification = async (notificationId: number) => {
 };
 </script>
 
-<style scoped>
-h1 {
-  color: #333;
+<style lang="scss" scoped>
+.notifications-page {
+  background: linear-gradient(135deg, $primary, darken($primary, 20%));
+  min-height: 100vh;
+}
+
+.notifications-content {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.notifications-card {
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.notification-item {
+  transition: all 0.3s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+}
+
+.q-card-actions {
+  background-color: rgba(0, 0, 0, 0.03);
 }
 </style>

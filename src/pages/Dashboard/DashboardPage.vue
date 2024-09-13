@@ -1,25 +1,34 @@
 <template>
-  <q-page class="q-pa-md bg-grey-1">
-    <q-card class="dashboard-card q-pa-lg">
-      <h5 class="text-primary q-mb-xl">
-        {{ $t('welcome', { name: userName }) }}
-      </h5>
+  <q-page class="dashboard-page q-pa-md">
+    <div class="dashboard-content">
+      <q-card class="welcome-card q-mb-md">
+        <q-card-section>
+          <h4 class="text-h4 text-weight-bold text-primary q-mb-sm">
+            {{ $t('welcome', { name: userName }) }}
+          </h4>
+          <p class="text-subtitle1 text-grey-7">
+            {{ $t('dashboardSubtitle') }}
+          </p>
+        </q-card-section>
+      </q-card>
 
-      <div class="flex justify-center q-mb-xl">
+      <div class="sos-buttons q-mb-lg">
         <q-btn
-          round
           color="red"
-          size="xl"
-          class="sos-button"
+          class="sos-button q-my-lg glowing-border"
           @click="initiateSOSMode"
         >
-          <span class="text-h5 text-weight-bold">SOS</span>
+          <div class="row items-center full-width">
+            <q-icon name="warning" size="3rem" class="q-mr-md col-3" />
+            <div class="text-left col-5">
+              <div class="text-h5 text-weight-bold">{{ $t('sosButton') }}</div>
+              <div class="text-subtitle2">{{ $t('sosButtonSubtitle') }}</div>
+            </div>
+          </div>
         </q-btn>
-      </div>
-      <div class="flex justify-center q-mb-xl">
         <q-btn
           color="orange"
-          size="lg"
+          class="help-button q-my-lg"
           @click="
             () => {
               contactsOnly = true;
@@ -27,56 +36,193 @@
             }
           "
         >
-          <span class="text-h6 text-weight-bold"
-            >Help: To Emergency Contacts</span
-          >
+          <div class="row items-center full-width">
+            <q-icon name="people" size="2rem" class="q-mr-md" />
+            <div class="text-left">
+              <div class="text-subtitle1 text-weight-bold">
+                {{ $t('helpContacts') }}
+              </div>
+              <div class="text-caption">{{ $t('helpContactsSubtitle') }}</div>
+            </div>
+          </div>
         </q-btn>
       </div>
 
-      <div v-if="!allPermissionsGranted" class="q-mt-lg">
-        <h6 class="text-center text-grey-8">{{ $t('missingPermissions') }}</h6>
-        <div
-          v-for="permission in permissions"
-          :key="permission.name"
-          class="q-mt-sm"
-        >
-          <q-btn
-            v-if="!permission.granted && !permission.denied"
-            :label="$t('request', { permission: $t(permission.name) })"
-            color="primary"
-            outline
-            @click="requestPermission(permission.name)"
-            class="full-width"
+      <q-card v-if="!allPermissionsGranted" class="permissions-card q-mb-md">
+        <q-card-section>
+          <h6 class="text-h6 text-weight-bold q-mb-sm">
+            {{ $t('missingPermissions') }}
+          </h6>
+          <q-list>
+            <q-item
+              v-for="permission in permissions"
+              :key="permission.name"
+              class="q-mb-sm"
+            >
+              <q-item-section avatar>
+                <q-icon
+                  :name="getPermissionIcon(permission.name)"
+                  color="primary"
+                />
+              </q-item-section>
+              <q-item-section>
+                <q-item-label>{{ $t(permission.name) }}</q-item-label>
+                <q-item-label caption>{{
+                  $t(permission.name + 'PermissionHelp')
+                }}</q-item-label>
+              </q-item-section>
+              <q-item-section side>
+                <q-btn
+                  v-if="!permission.granted && !permission.denied"
+                  :label="$t('request')"
+                  color="primary"
+                  outline
+                  @click="requestPermission(permission.name)"
+                />
+                <q-btn
+                  v-if="permission.denied"
+                  :label="$t('helpFor')"
+                  color="secondary"
+                  outline
+                  @click="goToHelp(permission.name)"
+                />
+              </q-item-section>
+            </q-item>
+          </q-list>
+        </q-card-section>
+      </q-card>
+
+      <q-card class="safety-card q-mb-md">
+        <q-card-section>
+          <h6 class="text-h6 text-weight-bold q-mb-sm">
+            {{ $t('safetyTip') }}
+          </h6>
+          <p class="text-body1">{{ currentSafetyTip }}</p>
+        </q-card-section>
+      </q-card>
+
+      <q-card class="emergency-contacts-card q-mb-md">
+        <q-card-section>
+          <h6 class="text-h6 text-weight-bold q-mb-sm">
+            {{ $t('emergencyServices') }}
+          </h6>
+          <div class="row q-col-gutter-md">
+            <div
+              v-for="service in emergencyServices"
+              :key="service.name"
+              class="col-6"
+            >
+              <q-btn
+                :label="$t(service.name)"
+                :icon="service.icon"
+                color="primary"
+                outline
+                class="full-width"
+                @click="callEmergencyService(service.number)"
+                size="sm"
+              />
+            </div>
+          </div>
+        </q-card-section>
+      </q-card>
+
+      <q-card v-if="isVolunteer" class="volunteer-status-card">
+        <q-card-section>
+          <h6 class="text-h6 text-weight-bold q-mb-sm">
+            {{ $t('volunteerStatus') }}
+          </h6>
+          <q-toggle
+            v-model="volunteerAvailable"
+            :label="
+              $t(
+                volunteerAvailable
+                  ? 'volunteerAvailable'
+                  : 'volunteerUnavailable'
+              )
+            "
+            color="positive"
+            @update:model-value="updateVolunteerStatus"
           />
-          <q-btn
-            v-if="permission.denied"
-            :label="$t('helpFor', { permission: $t(permission.name) })"
-            color="secondary"
-            outline
-            @click="goToHelp(permission.name)"
-            class="full-width"
-          />
-        </div>
-      </div>
-    </q-card>
+        </q-card-section>
+      </q-card>
+
+      <q-card class="nearby-volunteers-card q-mb-md">
+        <q-card-section>
+          <div class="row items-center justify-between q-mb-sm">
+            <h6 class="text-h6 text-weight-bold q-my-none">
+              {{ $t('nearbyVolunteers') }}
+            </h6>
+            <q-btn
+              flat
+              color="primary"
+              :label="$t('viewAll')"
+              @click="router.push('/volunteers')"
+            />
+          </div>
+          <div v-if="isLoadingLocation" class="text-center">
+            <q-spinner color="primary" size="3em" />
+            <p>{{ $t('gettingLocation') }}</p>
+          </div>
+          <div
+            v-else-if="nearbyVolunteers.length > 0"
+            class="volunteer-map"
+            ref="volunteerMap"
+          >
+            <div class="map-center">
+              <q-icon
+                :name="$t('icons.myLocation')"
+                size="24px"
+                color="primary"
+              />
+            </div>
+            <div
+              v-for="volunteer in nearbyVolunteers"
+              :key="volunteer.id"
+              class="volunteer-icon"
+              :style="getVolunteerPosition(volunteer)"
+            >
+              <q-icon
+                :name="getVolunteerIcon(volunteer)"
+                size="20px"
+                :color="getVolunteerColor(volunteer)"
+              />
+              <q-tooltip>
+                {{ volunteer.profession }}
+              </q-tooltip>
+            </div>
+          </div>
+          <p v-if="!isLoadingLocation" class="text-center q-mt-sm">
+            {{ nearbyVolunteers.length }} {{ $t('volunteersNearby') }}
+          </p>
+          <p
+            v-if="!isLoadingLocation && nearbyVolunteers.length === 0"
+            class="text-center"
+          >
+            {{ $t('noVolunteersNearby') }}
+          </p>
+        </q-card-section>
+      </q-card>
+    </div>
   </q-page>
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useUserForm } from 'src/composables/use-user-form';
 import { useQuasar } from 'quasar';
 import { useI18n } from 'vue-i18n';
 import { usePermissions } from 'src/composables/usePermissions';
 import { useUserStore } from 'src/stores/user-store';
+import { Geolocation } from '@capacitor/geolocation';
+import { api } from 'src/boot/axios';
 
 const router = useRouter();
 const $q = useQuasar();
 const { t } = useI18n();
 
 const userStore = useUserStore();
-const userName = ref('User');
+const userName = computed(() => userStore.user.name || 'User');
 const contactsOnly = ref(false);
 
 const {
@@ -124,52 +270,215 @@ const sendInitialSOSRequest = async () => {
   await validateAndSubmit();
 };
 
-onMounted(async () => {
-  await checkPermissions();
-  userName.value = userStore.user.name || 'User';
-});
-
 const goToHelp = (permissionName: string) => {
   router.push({ path: '/help', query: { section: permissionName } });
 };
 
-const sendEmergencySOS = async () => {
+const getPermissionIcon = (permissionName: string) => {
+  const icons = {
+    location: 'place',
+    camera: 'camera_alt',
+    microphone: 'mic',
+    notification: 'notifications',
+  };
+  return icons[permissionName] || 'help';
+};
+
+const isVolunteer = computed(() => userStore.user.isVolunteer);
+const volunteerAvailable = ref(userStore.user.volunteerAvailable);
+
+const safetyTips = [
+  'safetyTip1',
+  'safetyTip2',
+  'safetyTip3',
+  'safetyTip4',
+  'safetyTip5',
+];
+const currentSafetyTip = computed(() =>
+  t(safetyTips[Math.floor(Math.random() * safetyTips.length)])
+);
+
+const emergencyServices = [
+  { name: 'police', icon: 'local_police', number: '100' },
+  { name: 'ambulance', icon: 'emergency', number: '108' },
+  { name: 'fireDepartment', icon: 'local_fire_department', number: '101' },
+  { name: 'womenHelpline', icon: 'woman', number: '1091' },
+];
+
+const callEmergencyService = (number: string) => {
+  window.location.href = `tel:${number}`;
+};
+
+const updateVolunteerStatus = async () => {
   try {
-    await sendEmergencySOSRequest();
+    await api.post('/user/update-volunteer-status', {
+      available: volunteerAvailable.value,
+    });
+    userStore.updateUser({ volunteerAvailable: volunteerAvailable.value });
     $q.notify({
-      color: 'positive',
-      message: t('emergencySOSSent'),
-      icon: 'check',
+      type: 'positive',
+      message: $t('volunteerStatusUpdated'),
     });
   } catch (error) {
-    console.error('Failed to send emergency SOS request:', error);
+    console.error('Failed to update volunteer status:', error);
     $q.notify({
-      color: 'negative',
-      message: t('emergencySOSFailed'),
-      icon: 'error',
+      type: 'negative',
+      message: $t('volunteerStatusUpdateFailed'),
     });
   }
 };
 
-const sendEmergencySOSRequest = async () => {
-  // Replace with your API call to send the specific key
-  console.log('Sending emergency SOS request');
-  // Example: await api.sendSOSKey('your_specific_key');
+const coords = ref({ latitude: 0, longitude: 0 });
+const nearbyVolunteers = ref([]);
+const volunteerMap = ref(null);
+const isLoadingLocation = ref(true);
+
+const fetchNearbyVolunteers = async () => {
+  if (coords.value.latitude && coords.value.longitude) {
+    try {
+      const response = await api.get('/auth/volunteers-nearby', {
+        params: {
+          location: `${coords.value.latitude},${coords.value.longitude}`,
+          range: 1000, // 1km radius
+        },
+      });
+      nearbyVolunteers.value = response.data.slice(0, 5); // Limit to 5 volunteers for simplicity
+    } catch (error) {
+      console.error('Error fetching nearby volunteers', error);
+    }
+  }
 };
+
+const getVolunteerPosition = (volunteer) => {
+  const mapWidth = volunteerMap.value?.offsetWidth || 300;
+  const mapHeight = volunteerMap.value?.offsetHeight || 150;
+
+  // Use the current position as the center
+  const latitude = coords.value.latitude;
+  const longitude = coords.value.longitude;
+
+  // Calculate the distance from the center to the volunteer's location
+  const distanceX = volunteer.location.coordinates[0] - longitude;
+  const distanceY = volunteer.location.coordinates[1] - latitude;
+
+  // Convert degrees to meters (approximate)
+  const scaleX = distanceX * 111320 * (mapWidth / 2000); // Scale based on 1km radius
+  const scaleY = distanceY * 110574 * (mapHeight / 2000); // Scale based on 1km radius
+
+  const x = mapWidth / 2 + scaleX;
+  const y = mapHeight / 2 - scaleY;
+
+  return {
+    left: `${x}px`,
+    top: `${y}px`,
+  };
+};
+
+const getVolunteerIcon = (volunteer) => {
+  const professionIcons = {
+    hospital: 'local_hospital',
+    'Doctor General': 'local_hospital',
+    'Doctor Emergency': 'local_hospital',
+    '2 Wheeler Mechanic': 'build',
+    '4 Wheeler Mechanic': 'build',
+    '2&4 Wheeler Mechanic': 'build',
+    Nurse: 'local_hospital',
+    Other: 'person',
+  };
+  return professionIcons[volunteer.profession] || 'person';
+};
+
+const getVolunteerColor = (volunteer) => {
+  const professionColors = {
+    doctor: 'red',
+    police: 'blue',
+    firefighter: 'orange',
+    default: 'green',
+  };
+  return professionColors[volunteer.profession] || professionColors.default;
+};
+
+onMounted(async () => {
+  await checkPermissions();
+  isLoadingLocation.value = true;
+  try {
+    const position = await Geolocation.getCurrentPosition();
+    coords.value = {
+      latitude: position.coords.latitude,
+      longitude: position.coords.longitude,
+    };
+    await fetchNearbyVolunteers();
+  } catch (error) {
+    console.error('Error getting current position:', error);
+  } finally {
+    isLoadingLocation.value = false;
+  }
+});
 </script>
 
-<style scoped>
-.dashboard-card {
-  max-width: 500px;
+<style lang="scss" scoped>
+.dashboard-page {
+  background: linear-gradient(135deg, $primary, darken($primary, 20%));
+  min-height: 100vh;
+}
+
+.dashboard-content {
+  max-width: 600px;
   margin: 0 auto;
-  border-radius: 8px;
+}
+
+.welcome-card,
+.permissions-card,
+.safety-card,
+.emergency-contacts-card,
+.volunteer-status-card,
+.nearby-volunteers-card {
+  border-radius: 12px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
+.sos-buttons {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
 .sos-button {
-  width: 150px;
-  height: 150px;
+  height: 120px;
   font-weight: bold;
   box-shadow: 0 4px 8px rgba(255, 0, 0, 0.3);
+}
+
+.glowing-border {
+  border: 5px solid #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 0 10px 0 rgba(255, 0, 0, 0.7);
+}
+
+.help-button {
+  height: 80px;
+  font-weight: bold;
+  box-shadow: 0 4px 8px rgba(255, 165, 0, 0.3);
+}
+
+.volunteer-map {
+  position: relative;
+  width: 100%;
+  height: 150px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.map-center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.volunteer-icon {
+  position: absolute;
+  transform: translate(-50%, -50%);
 }
 </style>
