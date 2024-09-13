@@ -55,6 +55,28 @@ export default {
   missingPermissions: 'कुछ अनुमतियाँ गायब हैं',
   request: '{permission} का अनुरोध करें',
   helpFor: '{permission} के लिए मदद',
+  sosButtonSubtitle: 'नज़दीकी स्वयंसेवकों को आपातकालीन अलर्ट भेजें',
+  dashboardSubtitle: 'सुरक्षित रहें और अपने समुदाय से जुड़े रहें',
+  helpContacts: 'संपर्कों से मदद',
+  helpContactsSubtitle: 'केवल अपने आपातकालीन संपर्कों को सूचित करें',
+  quickActions: 'त्वरित क्रियाएँ',
+  updateProfile: 'प्रोफ़ाइल अपडेट करें',
+  viewNotifications: 'सूचनाएँ देखें',
+  getHelp: 'मदद प्राप्त करें',
+  appHelp: 'ऐप मदद', // Added
+  permissionsHelp: 'अनुमतियों की मदद', // Added
+  gettingStarted: 'शुरू करना', // Added
+  gettingStartedContent: 'शुरू करने की सामग्री', // Added
+  watchVideo: 'वीडियो देखें', // Added
+  usingSOS: 'एसओएस का उपयोग करना', // Added
+  usingSOSContent: 'एसओएस का उपयोग करने की सामग्री', // Added
+  volunteeringHelp: 'स्वयंसेवा मदद', // Added
+  volunteeringHelpContent: 'स्वयंसेवा मदद सामग्री', // Added
+  helpVideo: 'मदद वीडियो', // Added
+  howToEnable: 'कैसे सक्षम करें', // Added
+  pwaLocationHelp: 'पीडब्ल्यूए स्थान मदद', // Added
+  platformSpecificHelp: 'प्लेटफ़ॉर्म विशिष्ट मदद', // Added
+  pwaCameraHelp: 'पीडब्ल्यूए कैमरा मदद', // Added
 
   // Profile Page
   name: 'नाम',
@@ -122,7 +144,7 @@ export default {
   followedBySomeone: 'किसी का पीछा किया जा रहा है',
   verbalHarassment: 'मौखिक उत्पीड़न',
   physicalThreat: 'शारीरिक खतरा',
-  attemptedKidnapping: 'अपहरण �� प्रयास',
+  attemptedKidnapping: 'अपहरण  प्रयास',
   sexualAssault: 'यौन उत्पीड़न',
   domesticViolence: 'घरेलू हिंसा',
 
@@ -135,7 +157,7 @@ export default {
     'कैमरा पहुंच आपको आपातकाल के दौरान दृश्य साक्ष्य कैप्चर करने और भेजने की अनुमति देती है।',
   microphonePermission: 'माइक्रोफोन अनुमति',
   microphonePermissionHelp:
-    'माइ्��ोफोन पहुंच बेहतर सहायता के लिए आपातकाल के दौरान ऑडियो रिकॉर्डिंग को सक्षम करती है।',
+    'माइ्ोफोन पहुंच बेहतर सहायता के लिए आपाताल के दौरान ऑडियो रिकॉर्डिंग को सक्षम करती है।',
   notificationPermission: 'सूचना अनुमति',
   notificationPermissionHelp:
     'सूचनाएं आपको महत्वपूर्ण चेतावनियों और अपडेट के बारे में सूचित रखती हैं।',

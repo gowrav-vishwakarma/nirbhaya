@@ -138,7 +138,7 @@ export default {
     'માઇક્રોફોન ઍક્સેસ વધુ સારી સહાય માટે કટોકટી દરમિયાન ઓડિયો રેકોર્ડિંગ સક્ષમ કરે છે.',
   notificationPermission: 'સૂચના પરવાનગી',
   notificationPermissionHelp:
-    'સૂચનાઓ તમને મહત્ત્વપૂર્ણ ચેતવણીઓ અને અપડેટ્સ વિશે માહિતગાર રાખે છે.',
+    'સૂચનાઓ તમને મહત્ત્વપૂર્ણ ચેતવણીઓ અને અપડેટ્સ વિે માહિતગાર રાખે છે.',
 
   // Errors and Validations
   nameRequired: 'નામ આવશ્યક છે',
@@ -224,4 +224,14 @@ export default {
 
   failedToOpenSafari:
     'Safari ખોલવામાં નિષ્ફળ. કૃપા કરીને Safari ને મેન્યુઅલી ખોલો અને આ વેબસાઇટ પર નેવિગેટ કરો.',
+
+  sosButtonSubtitle: 'નજીકના સ્વયંસેવકોને આપાતકાલીન એલર્ટ મોકલો',
+  dashboardSubtitle: 'સુરક્ષિત રહો અને તમારા સમુદાય સાથે જોડાયેલા રહો',
+  helpContacts: 'સંપર્કો પાસેથી મદદ',
+  helpContactsSubtitle: 'ફક્ત તમારા આપાતકાલીન સંપર્કોને જાણ કરો',
+  quickActions: 'ઝડપી ક્રિયાઓ',
+  updateProfile: 'પ્રોફાઇલ અપડેટ કરો',
+  viewNotifications: 'સૂચનાઓ જુઓ',
+  getHelp: 'મદદ મેળવો',
+  notificationsPermissionHelp: 'સૂચનાઓની પરવાનગી મદદ',
 };

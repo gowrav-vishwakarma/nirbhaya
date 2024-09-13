@@ -66,6 +66,7 @@ export default {
   updateProfile: 'Update Profile',
   viewNotifications: 'View Notifications',
   getHelp: 'Get Help',
+  notificationsPermissionHelp: 'notifications Permission Help',
 
   // Profile Page
   name: 'Name',
@@ -128,6 +129,12 @@ export default {
   resolveSOSIssue: 'Resolve SOS Issue',
   audioOpen: 'Audio Open',
   clickToOpenAudio: 'Click to Open Audio',
+  sosMode: 'SOS Mode',
+  sosCountdownMessage: '',
+  notifiedPersons: 'Notified to persons',
+  acceptedPersons: 'Accepted by persons',
+  yes: 'yes',
+  audioConnected: 'audio Connected',
 
   // Threat Types
   followedBySomeone: 'Followed by Someone',
@@ -150,6 +157,20 @@ export default {
   notificationPermission: 'Notification Permission',
   notificationPermissionHelp:
     'Notifications keep you informed about important alerts and updates.',
+  appHelp: 'app Help',
+  permissionsHelp: 'permissions Help',
+  gettingStarted: 'getting Started',
+  gettingStartedContent: 'getting Started Content',
+  watchVideo: 'watch Video',
+  usingSOS: 'using SOS',
+  usingSOSContent: 'using SOS Content',
+  volunteeringHelp: 'volunteering Help',
+  volunteeringHelpContent: 'volunteering Help Content',
+  helpVideo: 'Help Video',
+  howToEnable: 'how to enable',
+  pwaLocationHelp: 'PWA Location Help',
+  platformSpecificHelp: 'platform Specific Help',
+  pwaCameraHelp: 'PWA Camera Help',
 
   // Errors and Validations
   nameRequired: 'Name is required',
@@ -176,6 +197,11 @@ export default {
     'Available for Paid Professional Service',
   availableForPaidProfessionalServiceDescription:
     'Toggle this to indicate your availability to provide paid professional services in case of an emergency',
+  searchRadius: 'Search Radius',
+  volunteersFound: 'Volunteers available within',
+  distance: 'distance',
+  volunteeringSettings: 'Volunteering Preferences',
+  availabilitySettings: 'Availability Preferences',
 
   // Misc
   noLocationSet: 'No location set',
@@ -188,6 +214,10 @@ export default {
   volunteering: 'Volunteering',
   logoutSuccess: 'Logged out successfully',
   logoutError: 'Error logging out',
+  profileSettings: 'My Profile',
+  pendingApproval: 'Pending Approval',
+  close: 'Close',
+  errorFetchingContacts: 'Server Error',
 
   // Notifications Page
   noNotificationsFound: 'No notifications found.',
