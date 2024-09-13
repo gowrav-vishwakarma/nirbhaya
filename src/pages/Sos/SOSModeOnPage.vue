@@ -242,8 +242,6 @@ const isAudioOpen = ref(false);
 
 const peer = ref<Peer | null>(null);
 
-const peerConnection = ref<RTCPeerConnection | null>(null);
-
 const currentChunkDuration = ref(5);
 
 const mediaRecorder = ref<MediaRecorder | null>(null);
@@ -1036,7 +1034,8 @@ const handleRecordingData = (data: { value: { recordDataBase64: string } }) => {
 };
 
 const closePeerConnection = () => {
-  if (peerConnection.value) {
+  console.log('closeAudioConnection');
+  if (peer.value) {
     // stop all tracks
     if (mediaStream.value) {
       mediaStream.value.getTracks().forEach((track) => track.stop());
@@ -1044,8 +1043,8 @@ const closePeerConnection = () => {
     if (mediaRecorder.value) {
       mediaRecorder.value.stop();
     }
-    peerConnection.value.close();
-    peerConnection.value = null;
+    peer.value.disconnect();
+    peer.value = null;
   }
 };
 
