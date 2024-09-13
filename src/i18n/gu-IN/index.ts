@@ -138,7 +138,7 @@ export default {
     'માઇક્રોફોન ઍક્સેસ વધુ સારી સહાય માટે કટોકટી દરમિયાન ઓડિયો રેકોર્ડિંગ સક્ષમ કરે છે.',
   notificationPermission: 'સૂચના પરવાનગી',
   notificationPermissionHelp:
-    'સૂચનાઓ તમને મહત્વપૂર્ણ ચેતવણીઓ અને અપડેટ્સ વિશે માહિતગાર રાખે છે.',
+    'સૂચનાઓ તમને મહત્ત્વપૂર્ણ ચેતવણીઓ અને અપડેટ્સ વિશે માહિતગાર રાખે છે.',
 
   // Errors and Validations
   nameRequired: 'નામ આવશ્યક છે',
@@ -212,4 +212,8 @@ export default {
   hoursAgo: 'કલામાં',
   daysAnd: 'દિવસો અને',
   hoursAnd: 'કલામાં',
+
+  iosNotSafariWarning:
+    'iOS પર શ્રેષ્ઠ અનુભવ માટે, કૃપા કરીને Safari બ્રાઉઝરનો ઉપયોગ કરો.',
+  openInSafari: 'Safari માં ખોલો',
 };

@@ -216,4 +216,7 @@ export default {
   hoursAgo: 'hours ago',
   daysAnd: 'days and',
   hoursAnd: 'hours and',
+  iosNotSafariWarning:
+    'For the best experience on iOS, please use Safari browser.',
+  openInSafari: 'Open in Safari',
 };

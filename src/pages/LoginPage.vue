@@ -12,7 +12,19 @@
         <LanguageSelector class="q-mb-md" />
       </q-card-section>
 
-      <q-card-section>
+      <q-card-section v-if="isIosNotSafari">
+        <div class="text-negative q-mb-md">
+          {{ $t('iosNotSafariWarning') }}
+        </div>
+        <q-btn
+          :label="$t('openInSafari')"
+          color="primary"
+          class="full-width"
+          @click="openInSafari"
+        />
+      </q-card-section>
+
+      <q-card-section v-else>
         <q-form @submit="handleSubmit" class="q-gutter-md">
           <q-input
             filled
@@ -55,18 +67,37 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
+import { useQuasar } from 'quasar';
 import { useUserStore } from 'stores/user-store';
 import { useRouter } from 'vue-router';
 import { useForm } from 'src/qnatk/composibles/use-form';
 import { api } from 'src/boot/axios';
 import { Notify } from 'quasar';
 import LanguageSelector from 'src/components/LanguageSelector.vue';
-import { Device } from '@capacitor/device'; // Import Device API
+import { Device } from '@capacitor/device';
 
+const $q = useQuasar();
 const userStore = useUserStore();
 const router = useRouter();
 const otpSent = ref(false);
+
+const isIosNotSafari = computed(() => {
+  return $q.platform.is.ios && !$q.platform.is.safari;
+});
+
+const openInSafari = () => {
+  const currentUrl = window.location.href;
+  const encodedUrl = encodeURIComponent(currentUrl);
+  const safariUrl = `x-web-search://?url=${encodedUrl}`;
+
+  window.location.href = safariUrl;
+
+  // Fallback for older iOS versions
+  setTimeout(() => {
+    window.location.href = currentUrl;
+  }, 100);
+};
 
 const { values, errors, validateAndSubmit, updateUrl, callbacks } = useForm(
   api,

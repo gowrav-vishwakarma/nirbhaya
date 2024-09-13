@@ -112,7 +112,7 @@ export default {
   currentLocation: 'वर्तमान स्थान',
   gettingLocation: 'आपका स्थान प्राप्त कर रहे हैं...',
   coordinates: 'निर्देशांक',
-  nearbyPoliceStations: 'नजदीकी पुलिस स्टेशन',
+  nearbyPoliceStations: 'न���दीकी पुलिस स्टेशन',
   contactPoliceStation: 'पुलिस स्टेशन से संपर्क करें',
   resolveSOSIssue: 'एसओएस मुद्दे को हल करें',
   audioOpen: 'ऑडियो खुला है',
@@ -157,7 +157,7 @@ export default {
   addNotificationLocation: 'सूचना स्थान जोड़ें',
   availableForCommunity: 'समुदाय सहायता के लिए उपलब्ध',
   availableForCommunityDescription:
-    'आपातकाल में दूसरों की मदद करने के लिए अपनी उपलब्धता दर्शाने के लिए इसे टॉगल करें',
+    'आपातकाल में दूसरों की मदद करने के लिए अपनी उपलब्धत�� दर्शाने के लिए इसे टॉगल करें',
   volunteeringUpdateSuccess: 'स्वयंसेवा जानकारी सफलतापूर्वक अपडेट की गई',
   volunteeringUpdateError: 'स्वयंसेवा जानकारी अपडेट करने में विफल',
   pleaseSelectAllLocations: 'कृपया सहेजने से पहले सभी स्थान चुनें',
@@ -203,7 +203,7 @@ export default {
     sent: 'भेजा गया',
     received: 'प्राप्त हुआ',
     accepted: 'स्वीकार किया गया',
-    ignored: 'अनदेखा किया गया',
+    ignored: 'अ���देखा किया गया',
   },
 
   audioConnectedSuccess: 'ऑडियो सफलतापूर्वक जोड़ा गया',
@@ -213,4 +213,8 @@ export default {
   hoursAgo: 'घंटों में',
   daysAnd: 'दिनों और',
   hoursAnd: 'घंटों और',
+
+  iosNotSafariWarning:
+    'iOS पर सर्वोत्तम अनुभव के लिए, कृपया Safari ब्राउज़र का उपयोग करें।',
+  openInSafari: 'Safari में खोलें',
 };
