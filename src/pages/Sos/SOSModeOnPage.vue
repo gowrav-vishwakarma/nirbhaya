@@ -1034,9 +1034,9 @@ const handleRecordingData = (data: { value: { recordDataBase64: string } }) => {
 };
 
 const closePeerConnection = () => {
-  console.log('closeAudioConnection');
   if (peer.value) {
     // stop all tracks
+    console.log('closeAudioConnection');
     if (mediaStream.value) {
       mediaStream.value.getTracks().forEach((track) => track.stop());
     }
@@ -1044,7 +1044,7 @@ const closePeerConnection = () => {
       mediaRecorder.value.stop();
     }
     peer.value.disconnect();
-    peer.value = null;
+    // peer.value = null;
   }
 };
 
