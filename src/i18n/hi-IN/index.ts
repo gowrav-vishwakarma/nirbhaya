@@ -86,7 +86,7 @@ export default {
   emergencyContacts: 'आपातकालीन संपर्क',
   emergencyContactsHelp:
     'आपातकाल की स्थिति में सूचित किए जाने वाले 3 आपातकालीन संपर्क जोड़ें।',
-  addEmergencyContact: 'आपातकालीन संपर्क जोड़ें',
+  addEmergencyContact: 'संपर्क जोड़ें',
   contactName: 'संपर्क नाम',
   contactNumber: 'संपर्क नंबर',
   removeContact: 'संपर्क हटाएं',
@@ -111,7 +111,7 @@ export default {
   streamAudioVideoOnSos: 'SOS पर ऑडियो/विडियो स्ट्रीम शर्तें (सर्वर पर)',
   broadcastAudioOnSos:
     'SOS पर ऑडियो ब्रॉडकास्ट शर्तें (स्वयंसेवा के व्यक्तियों को)',
-  emergencyContactRequests: 'आपातकालीन संपर्क के लिए अनुरोध',
+  emergencyContactRequests: 'अनुरोध',
   noEmergencyContacts: 'आप किसी के आपातकालीन संपर्क में नहीं हैं',
 
   // Permissions

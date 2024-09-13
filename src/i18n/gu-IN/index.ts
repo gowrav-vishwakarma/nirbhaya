@@ -63,7 +63,7 @@ export default {
   emergencyContacts: 'કટોકટીના સંપર્કો',
   emergencyContactsHelp:
     'કટોકટીની સ્થિતિમાં સૂચિત કરવા માટે 3 કટોકટીના સંપર્કો ઉમેરો.',
-  addEmergencyContact: 'કટોકટીનો સંપર્ક ઉમેરો',
+  addEmergencyContact: 'નવો સંપર્ક',
   contactName: 'સંપર્કનું નામ',
   contactNumber: 'સંપર્ક નંબર',
   removeContact: 'સંપર્ક દૂર કરો',
@@ -87,7 +87,7 @@ export default {
   startAudioVideoRecordOnSos: 'SOS પર ઓડિયો/વિડિયો રેકોર્ડ શરતો (સ્થાનીય)',
   streamAudioVideoOnSos: 'SOS પર ઓડિયો/વિડિયો સ્ટ્રીમ શરતો (સર્વર પર)',
   broadcastAudioOnSos: 'SOS પર ઓડિયો બ્રોડ્કાસ્ટ શરતો (સ્વયંસેવાના વ્યક્તિઓને)',
-  emergencyContactRequests: 'કટોકટી સંપર્ક તરીકે વિનંતી',
+  emergencyContactRequests: 'કટોકટી સંપર્ક વિનંતી',
   noEmergencyContacts: 'તમે કોઈના કટોકટી સંપર્ક યાતરીમાં નથી',
 
   // Permissions

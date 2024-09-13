@@ -75,7 +75,7 @@ export default {
   emergencyContacts: 'Emergency Contacts',
   emergencyContactsHelp:
     'Add up to 3 emergency contacts who will be notified in case of an emergency.',
-  addEmergencyContact: 'Add Emergency Contact',
+  addEmergencyContact: 'Add New',
   contactName: 'Contact Name',
   contactNumber: 'Contact Number',
   removeContact: 'Remove Contact',
@@ -100,7 +100,7 @@ export default {
   startAudioVideoRecordOnSos: 'Start Audio/Video Record on SOS (local)',
   streamAudioVideoOnSos: 'Stream Audio/Video on SOS (on server)',
   broadcastAudioOnSos: 'Broadcast Audio on SOS (to volunteers)',
-  emergencyContactRequests: 'Emergency Contact Requests',
+  emergencyContactRequests: 'Requests',
   noEmergencyContacts: "You are not in anyone's emergency contact list",
 
   // Permissions

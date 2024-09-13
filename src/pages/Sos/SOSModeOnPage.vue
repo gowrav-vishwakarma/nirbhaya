@@ -192,6 +192,7 @@ import { onBeforeRouteLeave } from 'vue-router';
 import { useUserStore } from 'src/stores/user-store';
 import { api } from 'boot/axios';
 import axios from 'axios';
+import { throttle } from 'quasar';
 
 const router = useRouter();
 const route = useRoute();
@@ -283,6 +284,9 @@ const recordingStartTime = ref(0);
 const nextUploadTimeout = ref<number | null>(null);
 const accumulatedChunks = ref<Blob[]>([]);
 const entireRecording = ref<Blob[]>([]);
+
+const lastUpdateTime = ref(0);
+const significantChange = ref(false);
 
 onMounted(async () => {
   await checkPermissions();
@@ -601,21 +605,60 @@ const handleLocationUpdate: WatchPositionCallback = (
   logMessage('Location updated: ' + JSON.stringify(position, null, 2));
 
   if (position) {
-    currentLocation.value = {
+    const newLocation = {
       latitude: position.coords.latitude,
       longitude: position.coords.longitude,
     };
-    currentLocationName.value = `Lat: ${currentLocation.value.latitude.toFixed(
+
+    // Check if the location has changed significantly (e.g., more than 10 meters)
+    if (
+      currentLocation.value.latitude !== null &&
+      currentLocation.value.longitude !== null
+    ) {
+      const distance = calculateDistance(currentLocation.value, newLocation);
+      significantChange.value = distance > 10; // 10 meters threshold
+    } else {
+      significantChange.value = true;
+    }
+
+    currentLocation.value = newLocation;
+    currentLocationName.value = `Lat: ${newLocation.latitude.toFixed(
       4
-    )}, Lon: ${currentLocation.value.longitude.toFixed(4)}`;
+    )}, Lon: ${newLocation.longitude.toFixed(4)}`;
     isLocationReceived.value = true;
 
-    if (sosSent.value) {
-      updateSOSData({}).catch(console.error);
-      logMessage('Location updated and sent to server');
-    }
+    throttledUpdateSOS();
   }
 };
+
+const calculateDistance = (loc1, loc2) => {
+  const R = 6371; // Radius of the earth in kilometers
+  const dLat = (loc2.latitude - loc1.latitude) * (Math.PI / 180);
+  const dLon = (loc2.longitude - loc1.longitude) * (Math.PI / 180);
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(loc1.latitude * (Math.PI / 180)) *
+      Math.cos(loc2.latitude * (Math.PI / 180)) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  const distance = R * c * 1000; // Convert to meters
+
+  return Math.round(distance);
+};
+
+const throttledUpdateSOS = throttle(() => {
+  const now = Date.now();
+  if (
+    sosSent.value &&
+    (now - lastUpdateTime.value > 10000 || significantChange.value)
+  ) {
+    updateSOSData({}).catch(console.error);
+    logMessage('Location updated and sent to server');
+    lastUpdateTime.value = now;
+    significantChange.value = false;
+  }
+}, 10000);
 
 const stopLocationWatching = async () => {
   if (watchId !== null) {

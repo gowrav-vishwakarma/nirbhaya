@@ -78,6 +78,32 @@
                   <q-tooltip>{{ $t('emergencyContactsHelp') }}</q-tooltip>
                 </q-icon>
               </div>
+
+              <!-- Button group for Add Emergency Contact and Emergency Contact Requests -->
+              <div class="row q-col-gutter-sm q-mb-md">
+                <div class="col-12">
+                  <q-btn-group class="full-width">
+                    <q-btn
+                      v-if="values.emergencyContacts.length < 3"
+                      @click="addEmergencyContact"
+                      color="primary"
+                      :icon="$t('icons.addCircle')"
+                      :label="$t('addEmergencyContact')"
+                      no-caps
+                      class="full-width"
+                    />
+                    <q-btn
+                      @click="openEmergencyContactRequests"
+                      color="secondary"
+                      :icon="$t('icons.contacts')"
+                      :label="$t('emergencyContactRequests')"
+                      no-caps
+                      class="full-width"
+                    />
+                  </q-btn-group>
+                </div>
+              </div>
+
               <q-list bordered separator>
                 <q-item
                   v-for="(contact, index) in values.emergencyContacts"
@@ -129,16 +155,6 @@
                   </q-item-section>
                 </q-item>
               </q-list>
-              <div class="text-center q-mt-sm">
-                <q-btn
-                  v-if="values.emergencyContacts.length < 3"
-                  @click="addEmergencyContact"
-                  color="primary"
-                  :icon="$t('icons.addCircle')"
-                  :label="$t('addEmergencyContact')"
-                  no-caps
-                />
-              </div>
               <p v-if="!hasEmergencyContacts" class="text-negative q-mt-sm">
                 {{ $t('atLeastOneEmergencyContactRequired') }}
               </p>
@@ -207,9 +223,9 @@
               </q-list>
             </div>
 
-            <!-- Submit and Emergency contact requests buttons -->
+            <!-- Submit button -->
             <div class="row q-col-gutter-md q-mt-lg">
-              <div class="col-12 col-sm-6">
+              <div class="col-12">
                 <q-btn
                   type="submit"
                   :loading="isLoading"
@@ -219,17 +235,6 @@
                   no-caps
                 >
                   <b>{{ $t('saveChanges') }}</b>
-                </q-btn>
-              </div>
-              <div class="col-12 col-sm-6">
-                <q-btn
-                  @click="openEmergencyContactRequests"
-                  color="secondary"
-                  class="full-width"
-                  :icon="$t('icons.contacts')"
-                  no-caps
-                >
-                  {{ $t('emergencyContactRequests') }}
                 </q-btn>
               </div>
             </div>
