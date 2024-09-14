@@ -196,13 +196,11 @@ import { Network } from '@capacitor/network';
 import { useUserForm } from 'src/composables/use-user-form';
 import { usePermissions } from 'src/composables/usePermissions';
 import { useQuasar } from 'quasar';
-import { VoiceRecorder } from 'capacitor-voice-recorder';
 import { socket } from 'boot/socket';
 import Peer from 'peerjs';
 import { onBeforeRouteLeave } from 'vue-router';
 import { useUserStore } from 'src/stores/user-store';
 import { api } from 'boot/axios';
-import axios from 'axios';
 import { throttle } from 'quasar';
 
 const router = useRouter();
@@ -224,9 +222,6 @@ const acceptedPersons = ref(0);
 const createdSosId = ref(route.query.sosEventId || '');
 const contactsOnly = ref(route.query.contactsOnly === 'true');
 
-const initialRequestTime =
-  Number(route.params.initialRequestTime) || Date.now();
-
 const currentLocation = ref({ latitude: null, longitude: null });
 const currentLocationName = ref('');
 let watchId: string | null = null;
@@ -234,7 +229,6 @@ let watchId: string | null = null;
 const isRecording = ref(false);
 const isGettingLocation = ref(false);
 const isLocationReceived = ref(false);
-const selectedThreat = ref('');
 
 const { permissions, checkPermissions, requestPermission, activatePermission } =
   usePermissions();
@@ -252,8 +246,6 @@ const locationSentToServer = ref(false);
 const isAudioOpen = ref(false);
 
 const peer = ref<Peer | null>(null);
-
-const currentChunkDuration = ref(5);
 
 const mediaRecorder = ref<MediaRecorder | null>(null);
 const mediaStream = ref<MediaStream | null>(null);
@@ -278,14 +270,7 @@ const logs = ref<string[]>([]); // Reactive array to store logs
 
 const logMessage = (message: string) => {
   logs.value.push(message); // Add new log message
-  console.log(message); // Optional: log to console as well
 };
-
-const chunks = ref<Blob[]>([]);
-const partNumber = ref(1);
-const uploadedParts = ref<{ PartNumber: number; ETag: string }[]>([]);
-
-const uploadId = ref<string | null>(null);
 
 const recordingIntervals = ref([5000, 10000, 20000, 30000]); // in milliseconds
 const currentIntervalIndex = ref(0);
@@ -990,7 +975,7 @@ const blobToBase64 = (blob: Blob): Promise<string> => {
 
 // Initialize PeerJS
 const initializePeer = () => {
-  peer.value = new Peer();
+  peer.value = new Peer(userStore.user.phoneNumber);
 
   peer.value.on('open', (id) => {
     console.log('My peer ID is: ' + id);

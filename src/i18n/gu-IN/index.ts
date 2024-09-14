@@ -184,6 +184,7 @@ export default {
   status: 'સ્થિતિ',
   threat: 'ખતરો',
   accept: 'સ્વીકારો',
+  discard: 'અવગણો',
   follow: 'અનુસરો',
   notificationAcceptedSuccess: 'સૂચના સફળતાપૂર્વક સ્વીકારવામાં આવી',
   notificationAcceptedError: 'સૂચના સ્વીકારવામાં નિષ્ફળ',

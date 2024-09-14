@@ -209,6 +209,7 @@ export default {
   status: 'स्थिति',
   threat: 'खतरा',
   accept: 'स्वीकार करें',
+  discard: 'अवगाहन',
   follow: 'फॉलो करें',
   notificationAcceptedSuccess: 'सूचना सफलतापूर्वक स्वीकार की गई',
   notificationAcceptedError: 'सूचना स्वीकार करने में विफल',

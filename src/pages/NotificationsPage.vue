@@ -142,6 +142,7 @@ import { socket } from 'boot/socket';
 import { useI18n } from 'vue-i18n';
 import { useRoute } from 'vue-router';
 import Peer from 'peerjs';
+import { useUserStore } from 'src/stores/user-store';
 
 interface SosEvent {
   id: number;
@@ -185,6 +186,7 @@ const peer = ref<Peer | null>(null);
 const isAudioOpen = reactive({});
 const audioElements = reactive({}); // Store audio elements by peer ID
 
+const userStore = useUserStore();
 const { t } = useI18n();
 
 const route = useRoute();
@@ -285,7 +287,7 @@ const followLocation = (location: { type: string; coordinates: number[] }) => {
 };
 
 const initializePeer = () => {
-  peer.value = new Peer();
+  peer.value = new Peer(userStore.user.phoneNumber);
 
   peer.value.on('open', (id) => {
     console.log('My peer ID is: ' + id);

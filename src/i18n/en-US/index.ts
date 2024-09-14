@@ -227,6 +227,7 @@ export default {
   status: 'Status',
   threat: 'Threat',
   accept: 'Accept',
+  discard: 'Discard',
   follow: 'Follow',
   notificationAcceptedSuccess: 'Notification accepted successfully',
   notificationAcceptedError: 'Failed to accept notification',
