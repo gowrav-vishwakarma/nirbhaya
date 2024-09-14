@@ -10,7 +10,7 @@ export default boot(({ app }) => {
   socket = io(`${API_BASE_URL}/sos`, {
     autoConnect: true,
     withCredentials: true,
-    transports: ['websocket'], // Removed 'polling' to prevent multiple connections
+    transports: ['websocket', 'polling'],
   });
 
   socket.on('connect', () => {
