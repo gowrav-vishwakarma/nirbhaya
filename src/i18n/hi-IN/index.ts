@@ -34,6 +34,7 @@ export default {
     hospital: 'local_hospital',
     build: 'build',
     contacts: 'contacts',
+    speaker: 'speaker',
   },
 
   // Navigation
@@ -140,6 +141,8 @@ export default {
   resolveSOSIssue: 'SOS मुद्दे को हल करें',
   audioOpen: 'ऑडियो खुला है',
   clickToOpenAudio: 'ऑडियो खोलने के लिए क्लिक करें',
+  speakerOn: 'स्पीकर ऑन',
+  speakerOff: 'स्पीकर ऑफ',
 
   // Threat Types
   followedBySomeone: 'किसी का पीछा किया जा रहा है',

@@ -50,8 +50,19 @@
               :icon="$t('icons.mic')"
               @click="toggleAudio"
             />
+            <q-btn
+              round
+              size="xl"
+              :color="isSpeakerOn ? 'primary' : 'grey'"
+              :icon="$t('icons.speaker')"
+              @click="toggleSpeaker"
+              class="q-ml-sm"
+            />
             <div class="text-subtitle1 q-mt-sm">
               {{ isAudioOpen ? $t('audioConnected') : $t('clickToOpenAudio') }}
+            </div>
+            <div class="text-subtitle1 q-mt-sm">
+              {{ isSpeakerOn ? $t('speakerOn') : $t('speakerOff') }}
             </div>
           </div>
 
@@ -285,6 +296,22 @@ const entireRecording = ref<Blob[]>([]);
 
 const lastUpdateTime = ref(0);
 const significantChange = ref(false);
+
+const isSpeakerOn = ref(false);
+
+const toggleSpeaker = () => {
+  isSpeakerOn.value = !isSpeakerOn.value;
+  if (!isSpeakerOn.value) {
+    // Stop all incoming audio
+    Object.values(audioElements).forEach((audio) => {
+      audio.pause();
+      audio.srcObject = null;
+    });
+    Object.keys(audioElements).forEach((key) => {
+      delete audioElements[key];
+    });
+  }
+};
 
 onMounted(async () => {
   await checkPermissions();
@@ -979,9 +1006,12 @@ const initializePeer = () => {
       .then((stream) => {
         call.answer(stream);
         call.on('stream', (remoteStream) => {
-          const audio = new Audio();
-          audio.srcObject = remoteStream;
-          audio.play();
+          if (isSpeakerOn.value) {
+            const audio = new Audio();
+            audio.srcObject = remoteStream;
+            audio.play();
+            audioElements[call.peer] = audio;
+          }
         });
       })
       .catch((err) => console.error('Failed to get local stream', err));
@@ -1012,10 +1042,12 @@ socket.on('peers_in_room', (peerIds: string[]) => {
           if (peerId !== peer.value?.id) {
             const call = peer.value?.call(peerId, stream);
             call?.on('stream', (remoteStream) => {
-              const audio = new Audio();
-              audio.srcObject = remoteStream;
-              audio.play();
-              audioElements[peerId] = audio; // Store the audio element
+              if (isSpeakerOn.value) {
+                const audio = new Audio();
+                audio.srcObject = remoteStream;
+                audio.play();
+                audioElements[peerId] = audio;
+              }
             });
           }
         });

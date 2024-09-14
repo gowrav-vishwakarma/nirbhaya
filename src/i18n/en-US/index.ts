@@ -37,6 +37,7 @@ export default {
     hospital: 'local_hospital',
     build: 'build',
     contacts: 'contacts',
+    speaker: 'volume_up',
   },
 
   // Navigation
@@ -135,6 +136,8 @@ export default {
   acceptedPersons: 'Accepted by persons',
   yes: 'yes',
   audioConnected: 'audio Connected',
+  speakerOn: 'Speaker On',
+  speakerOff: 'Speaker Off',
 
   // Threat Types
   followedBySomeone: 'Followed by Someone',
