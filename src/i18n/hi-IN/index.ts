@@ -212,6 +212,8 @@ export default {
   follow: 'फॉलो करें',
   notificationAcceptedSuccess: 'सूचना सफलतापूर्वक स्वीकार की गई',
   notificationAcceptedError: 'सूचना स्वीकार करने में विफल',
+  mute: 'मूट करें',
+  unmute: 'मूट हटाएं',
 
   notificationTitles: {
     volunteerNearby: 'आस-पास {eventType} अलर्ट',

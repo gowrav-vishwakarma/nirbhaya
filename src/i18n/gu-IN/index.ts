@@ -187,6 +187,8 @@ export default {
   follow: 'અનુસરો',
   notificationAcceptedSuccess: 'સૂચના સફળતાપૂર્વક સ્વીકારવામાં આવી',
   notificationAcceptedError: 'સૂચના સ્વીકારવામાં નિષ્ફળ',
+  mute: 'મૂટા કરો',
+  unmute: 'મૂટા કરો',
 
   notificationTitles: {
     volunteerNearby: 'નજીકના {eventType} એલર્ટ',

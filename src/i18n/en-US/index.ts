@@ -230,6 +230,8 @@ export default {
   follow: 'Follow',
   notificationAcceptedSuccess: 'Notification accepted successfully',
   notificationAcceptedError: 'Failed to accept notification',
+  muteAudio: 'Mute Audio',
+  unmuteAudio: 'Unmute Audio',
 
   notificationTitles: {
     volunteerNearby: 'Nearby {eventType} alert',

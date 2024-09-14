@@ -67,13 +67,13 @@
           </div>
 
           <q-list bordered class="rounded-borders q-mb-md">
-            <q-item>
+            <q-item v-if="!contactsOnly">
               <q-item-section>
                 <q-item-label>{{ $t('notifiedPersons') }}</q-item-label>
                 <q-item-label caption>{{ informed }}</q-item-label>
               </q-item-section>
             </q-item>
-            <q-item>
+            <q-item v-if="!contactsOnly">
               <q-item-section>
                 <q-item-label>{{ $t('acceptedPersons') }}</q-item-label>
                 <q-item-label caption>{{ accepted }}</q-item-label>
