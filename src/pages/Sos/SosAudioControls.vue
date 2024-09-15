@@ -141,9 +141,13 @@ const toggleAudio = async () => {
     const success = await startAudioStream();
     if (success) {
       isAudioOpen.value = true;
-      connectedPeers.value.forEach((remotePeerId) => {
-        callPeer(remotePeerId);
+      socket.emit('join_sos_room', {
+        peerId: peerId,
+        sosEventId: props.sosEventId,
       });
+      // connectedPeers.value.forEach((remotePeerId) => {
+      //   callPeer(remotePeerId);
+      // });
     }
   }
 };

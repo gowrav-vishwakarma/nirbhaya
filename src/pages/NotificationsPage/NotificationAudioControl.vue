@@ -58,7 +58,7 @@ const initializePeer = () => {
 const joinSosRoom = () => {
   socket.emit('join_sos_room', {
     peerId: peerId,
-    sosEventId: props.sosEventId.toString(),
+    sosEventId: props.sosEventId,
   });
 };
 
