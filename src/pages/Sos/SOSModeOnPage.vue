@@ -42,30 +42,7 @@
             </div>
           </div>
 
-          <div v-if="isNavigatorMediaSupported" class="text-center q-mb-lg">
-            <q-btn
-              round
-              size="xl"
-              :color="isAudioOpen ? 'primary' : 'grey'"
-              :icon="$t('icons.mic')"
-              @click="toggleAudio"
-            />
-            <q-btn
-              round
-              size="xl"
-              v-if="isAudioOpen"
-              :color="isSpeakerOn ? 'primary' : 'grey'"
-              :icon="$t('icons.speaker')"
-              @click="toggleSpeaker"
-              class="q-ml-sm"
-            />
-            <div class="text-subtitle1 q-mt-sm">
-              {{ isAudioOpen ? $t('audioConnected') : $t('clickToOpenAudio') }}
-            </div>
-            <div class="text-subtitle1 q-mt-sm">
-              {{ isSpeakerOn ? $t('speakerOn') : $t('speakerOff') }}
-            </div>
-          </div>
+          <AudioControls :sosEventId="createdSosId" />
 
           <q-list bordered class="rounded-borders q-mb-md">
             <q-item v-if="!contactsOnly">
@@ -197,12 +174,11 @@ import { Network } from '@capacitor/network';
 import { useUserForm } from 'src/composables/use-user-form';
 import { usePermissions } from 'src/composables/usePermissions';
 import { useQuasar } from 'quasar';
-import { socket } from 'boot/socket';
-import Peer from 'peerjs';
 import { onBeforeRouteLeave } from 'vue-router';
 import { useUserStore } from 'src/stores/user-store';
 import { api } from 'boot/axios';
 import { throttle } from 'quasar';
+import AudioControls from './SosAudioControls.vue';
 
 const router = useRouter();
 const route = useRoute();
@@ -220,7 +196,7 @@ const isResolvingManually = ref(false);
 const notifiedPersons = ref(0);
 const acceptedPersons = ref(0);
 
-const createdSosId = ref(route.query.sosEventId || '');
+const createdSosId = ref(parseInt(route.query.sosEventId) || 0);
 const contactsOnly = ref(route.query.contactsOnly === 'true');
 
 const currentLocation = ref({ latitude: null, longitude: null });
@@ -228,7 +204,6 @@ const currentLocationName = ref('');
 let watchId: string | null = null;
 
 const isRecording = ref(false);
-const isGettingLocation = ref(false);
 const isLocationReceived = ref(false);
 
 const { permissions, checkPermissions, requestPermission, activatePermission } =
@@ -243,21 +218,6 @@ const presignedUrl = ref<string | null>(null); // Create a ref for presigned URL
 const shouldRecord = computed(() => userStore.user.startAudioVideoRecordOnSos);
 
 const locationSentToServer = ref(false);
-
-const isAudioOpen = ref(false);
-
-const peer = ref<Peer | null>(null);
-const peerId = 'sos_' + userStore.user.phoneNumber; // Unique ID for this peer
-const isSpeakerOn = ref(false);
-const audioElements = ref<{ [key: string]: HTMLAudioElement }>({});
-
-const mediaRecorder = ref<MediaRecorder | null>(null);
-const mediaStream = ref<MediaStream | null>(null);
-const recordedChunks = ref<Blob[]>([]);
-
-const isNavigatorMediaSupported = computed(() => {
-  return !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
-});
 
 const threats = [
   'followedBySomeone',
@@ -284,16 +244,17 @@ const entireRecording = ref<Blob[]>([]);
 const lastUpdateTime = ref(0);
 const significantChange = ref(false);
 
-const connectedPeers = ref<Set<string>>(new Set());
+const mediaRecorder = ref<MediaRecorder | null>(null);
+const mediaStream = ref<MediaStream | null>(null);
+const recordedChunks = ref<Blob[]>([]);
 
 onMounted(async () => {
   await checkPermissions();
   await activateSOSPermissions();
   startCountdown();
   await startLocationWatching();
-  initializePeer();
   if (shouldRecord.value || shouldStream.value) {
-    startRecordingAndStreaming();
+    await startRecordingAndStreaming();
   }
 });
 
@@ -324,7 +285,6 @@ const showResolveConfirmation = (): Promise<boolean> => {
         switch (action) {
           case 'cancel':
             await updateSOSData({ status: 'cancelled' });
-            closeAudioConnection(); // Close audio connection
             $q.notify({
               message: 'Your SOS event has been closed.',
               color: 'info',
@@ -335,7 +295,6 @@ const showResolveConfirmation = (): Promise<boolean> => {
             break;
           case 'resolve':
             await updateSOSData({ status: 'resolved' });
-            closeAudioConnection(); // Close audio connection
             $q.notify({
               message: 'Your SOS event has been resolved.',
               color: 'positive',
@@ -373,7 +332,6 @@ onBeforeRouteLeave(async (to, from, next) => {
   }
   await stopLocationWatching();
   await stopRecordingAndStreaming();
-  closePeerConnection();
 
   // Only show the confirmation if SOS is still active
   if (sosSent.value) {
@@ -391,7 +349,6 @@ onBeforeRouteLeave(async (to, from, next) => {
 onUnmounted(async () => {
   console.log('Unmounting SOSModeOnPage');
   await stopRecordingAndStreaming();
-  closePeerConnection();
 });
 
 const startCountdown = () => {
@@ -682,7 +639,7 @@ callbacks.onSuccess = (data) => {
   console.log('data...........', data);
   informed.value = data.informed;
   accepted.value = data.accepted;
-  createdSosId.value = data.sosEventId;
+  createdSosId.value = parseInt(data.sosEventId);
   presignedUrl.value = data.presignedUrl; // Set the presigned URL
   return data;
 };
@@ -757,6 +714,31 @@ const startRecordingAndStreaming = async () => {
   }
 };
 
+const stopRecordingAndStreaming = async () => {
+  if (mediaRecorder.value && isRecording.value) {
+    mediaRecorder.value.stop();
+    isRecording.value = false;
+
+    if (mediaStream.value) {
+      mediaStream.value.getTracks().forEach((track) => track.stop());
+    }
+
+    if (nextUploadTimeout.value) {
+      clearTimeout(nextUploadTimeout.value);
+    }
+
+    // Final processing of any remaining chunks for streaming
+    if (shouldStream.value) {
+      await processAccumulatedChunks();
+    }
+
+    // Save the entire recording locally
+    if (shouldRecord.value) {
+      await saveLocalRecording();
+    }
+  }
+};
+
 const scheduleNextProcessing = () => {
   const currentInterval = recordingIntervals.value[currentIntervalIndex.value];
 
@@ -789,7 +771,7 @@ const handleDataAvailable = (event: BlobEvent) => {
 const processAccumulatedChunks = async () => {
   if (accumulatedChunks.value.length > 0 && shouldStream.value) {
     const blob = new Blob(accumulatedChunks.value, {
-      type: mediaRecorder.value?.mimeType || 'video/webm;codecs=vp8,opus',
+      type: 'video/webm;codecs=vp8,opus',
     });
     const fileName = `video_${Date.now()}.webm`;
 
@@ -867,31 +849,6 @@ const saveLocalRecording = async () => {
   }
 };
 
-const stopRecordingAndStreaming = async () => {
-  if (mediaRecorder.value && isRecording.value) {
-    mediaRecorder.value.stop();
-    isRecording.value = false;
-
-    if (mediaStream.value) {
-      mediaStream.value.getTracks().forEach((track) => track.stop());
-    }
-
-    if (nextUploadTimeout.value) {
-      clearTimeout(nextUploadTimeout.value);
-    }
-
-    // Final processing of any remaining chunks for streaming
-    if (shouldStream.value) {
-      await processAccumulatedChunks();
-    }
-
-    // Save the entire recording locally
-    if (shouldRecord.value) {
-      await saveLocalRecording();
-    }
-  }
-};
-
 const saveRecording = async () => {
   if (!shouldRecord.value) return;
   if (mediaRecorder.value) {
@@ -959,134 +916,6 @@ const blobToBase64 = (blob: Blob): Promise<string> => {
     reader.onerror = reject;
     reader.readAsDataURL(blob);
   });
-};
-
-// Initialize PeerJS
-const initializePeer = () => {
-  peer.value = new Peer(peerId);
-
-  peer.value.on('open', (id) => {
-    console.log('My peer ID is: ' + id);
-  });
-
-  peer.value.on('call', (call) => {
-    navigator.mediaDevices
-      .getUserMedia({ audio: true })
-      .then((stream) => {
-        call.answer(stream);
-        call.on('stream', (remoteStream) => {
-          if (isSpeakerOn.value) {
-            const audio = new Audio();
-            audio.srcObject = remoteStream;
-            audio.play();
-            audioElements[call.peer] = audio;
-          }
-        });
-      })
-      .catch((err) => console.error('Failed to get local stream', err));
-  });
-};
-
-// Modify toggleAudio function
-const toggleAudio = async () => {
-  const sosEventIdString = createdSosId.value.toString();
-  if (isAudioOpen.value) {
-    closePeerConnection();
-    socket.emit('leave_sos_room', {
-      peerId: peerId,
-      sosEventId: sosEventIdString,
-    }); // Ensure to leave the room
-  } else {
-    socket.emit('join_sos_room', {
-      peerId: peerId,
-      sosEventId: sosEventIdString,
-    });
-  }
-  isAudioOpen.value = !isAudioOpen.value;
-};
-
-// Modify the peers_in_room event listener
-socket.on('peers_in_room', (peerIds: string[]) => {
-  console.log('peers_in_room:', peerIds);
-  if (isAudioOpen.value) {
-    navigator.mediaDevices
-      .getUserMedia({ audio: true })
-      .then((stream) => {
-        peerIds.forEach((remotePeerId) => {
-          if (
-            remotePeerId !== peer.value?.id &&
-            !connectedPeers.value.has(remotePeerId)
-          ) {
-            connectToPeer(remotePeerId, stream);
-          }
-        });
-      })
-      .catch((err) => console.error('Failed to get local stream', err));
-  }
-});
-
-// Add a new function to connect to a peer
-const connectToPeer = (remotePeerId: string, stream: MediaStream) => {
-  const call = peer.value?.call(remotePeerId, stream);
-  call?.on('stream', (remoteStream) => {
-    handleRemoteStream(remotePeerId, remoteStream);
-  });
-  connectedPeers.value.add(remotePeerId);
-};
-
-// Add a new function to handle remote streams
-const handleRemoteStream = (
-  remotePeerId: string,
-  remoteStream: MediaStream
-) => {
-  if (isSpeakerOn.value) {
-    const audio = new Audio();
-    audio.srcObject = remoteStream;
-    audio.play();
-    audioElements.value[remotePeerId] = audio;
-  }
-};
-
-// Modify the toggleSpeaker function
-const toggleSpeaker = () => {
-  isSpeakerOn.value = !isSpeakerOn.value;
-  if (isSpeakerOn.value) {
-    Object.values(audioElements.value).forEach((audio) => audio.play());
-  } else {
-    Object.values(audioElements.value).forEach((audio) => audio.pause());
-  }
-};
-
-// const handleRecordingData = (data: { value: { recordDataBase64: string } }) => {
-//   if (socket) {
-//     socket.emit('audio_data', {
-//       sosEventId: createdSosId.value,
-//       audioData: data.value.recordDataBase64,
-//     });
-//   }
-// };
-
-// Modify the closePeerConnection function
-const closePeerConnection = () => {
-  if (peer.value) {
-    console.log('closeAudioConnection');
-    if (mediaStream.value) {
-      mediaStream.value.getTracks().forEach((track) => track.stop());
-    }
-    if (mediaRecorder.value) {
-      mediaRecorder.value.stop();
-    }
-    peer.value.disconnect();
-    connectedPeers.value.clear();
-    Object.values(audioElements.value).forEach((audio) => audio.pause());
-    audioElements.value = {};
-  }
-};
-
-const closeAudioConnection = () => {
-  closePeerConnection();
-  socket.emit('leave_sos_room', createdSosId.value.toString());
-  isAudioOpen.value = false;
 };
 </script>
 

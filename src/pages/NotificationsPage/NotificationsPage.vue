@@ -85,25 +85,10 @@
                         dense
                         no-caps
                       />
-                      <q-btn
+                      <AudioControl
                         v-if="notification.status === 'accepted'"
-                        round
-                        :color="
-                          isAudioOpen[notification.sosEvent.id]
-                            ? 'primary'
-                            : 'grey'
-                        "
-                        :icon="$t('icons.volumeUp')"
-                        @click="toggleAudio(notification.sosEvent.id)"
-                      >
-                        <q-tooltip>{{
-                          $t(
-                            isAudioOpen[notification.sosEvent.id]
-                              ? 'muteAudio'
-                              : 'unmuteAudio'
-                          )
-                        }}</q-tooltip>
-                      </q-btn>
+                        :sos-event-id="notification.sosEvent.id"
+                      />
                       <q-btn
                         color="negative"
                         :label="$t('discard')"
@@ -131,18 +116,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, watch, reactive } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 import { useForm } from 'src/qnatk/composibles/use-form';
 import { api } from 'boot/axios';
 import { useQuasar } from 'quasar';
 import { useBackgroundNotifications } from 'src/composables/useBackgroundNotifications';
-import { Capacitor } from '@capacitor/core';
-import { VoiceRecorder } from 'capacitor-voice-recorder';
-import { socket } from 'boot/socket';
 import { useI18n } from 'vue-i18n';
 import { useRoute } from 'vue-router';
-import Peer from 'peerjs';
-import { useUserStore } from 'src/stores/user-store';
+import AudioControl from './NotificationAudioControl.vue';
 
 interface SosEvent {
   id: number;
@@ -182,24 +163,11 @@ callbacks.onSuccess = () => {
   console.log('Notification accepted');
 };
 
-const userStore = useUserStore();
-
-const peer = ref<Peer | null>(null);
-const peerId = 'vol_' + userStore.user.phoneNumber; // Unique ID for this peer
-const audioElements = ref<{ [key: string]: HTMLAudioElement }>({});
-const isAudioOpen = ref<{ [key: number]: boolean }>({});
-
 const { t } = useI18n();
-
 const route = useRoute();
 
 onMounted(async () => {
   await validateAndSubmit(false);
-  initializePeer();
-});
-
-onUnmounted(() => {
-  closePeerConnection();
 });
 
 // Refresh notifications when unreadNotificationCount changes
@@ -263,7 +231,6 @@ const acceptNotification = async (notificationId: number) => {
       icon: 'check',
     });
     await fetchUnreadNotificationCount();
-    await connectAudio(responseData.value[index].sosEvent.id); // Connect audio when notification is accepted
   } catch (error) {
     console.error('Error accepting notification:', error);
     $q.notify({
@@ -286,61 +253,6 @@ const followLocation = (location: { type: string; coordinates: number[] }) => {
       icon: 'error',
     });
   }
-};
-
-const initializePeer = () => {
-  peer.value = new Peer(peerId);
-
-  peer.value.on('open', (id) => {
-    console.log('My peer ID is: ' + id);
-  });
-
-  peer.value.on('call', (call) => {
-    navigator.mediaDevices
-      .getUserMedia({ audio: true })
-      .then((stream) => {
-        call.answer(stream);
-        call.on('stream', (remoteStream) => {
-          addAudioElement(call.peer, remoteStream);
-        });
-      })
-      .catch((err) => console.error('Failed to get local stream', err));
-  });
-};
-
-const toggleAudio = async (sosEventId: number) => {
-  if (isAudioOpen.value[sosEventId]) {
-    await disconnectAudio(sosEventId);
-  } else {
-    await connectAudio(sosEventId);
-  }
-  isAudioOpen.value[sosEventId] = !isAudioOpen.value[sosEventId];
-};
-
-const connectAudio = async (sosEventId: number) => {
-  const sosEventIdString = sosEventId.toString();
-  socket.emit('join_sos_room', { peerId, sosEventId: sosEventIdString });
-};
-
-const disconnectAudio = async (sosEventId: number) => {
-  const sosEventIdString = sosEventId.toString();
-  socket.emit('leave_sos_room', { peerId, sosEventId: sosEventIdString });
-  Object.keys(audioElements.value).forEach((peerId) => {
-    audioElements.value[peerId].pause();
-    delete audioElements.value[peerId];
-  });
-};
-
-const addAudioElement = (peerId: string, stream: MediaStream) => {
-  const audio = new Audio();
-  audio.srcObject = stream;
-  audio.play();
-  audioElements.value[peerId] = audio;
-};
-
-const closePeerConnection = () => {
-  peer.value?.disconnect();
-  peer.value?.destroy();
 };
 
 const formatDistance = (distance: number) => {
@@ -394,23 +306,6 @@ const refreshNotifications = async () => {
   await validateAndSubmit(false);
   await fetchUnreadNotificationCount();
 };
-
-socket.on('peers_in_room', (peerIds: string[]) => {
-  console.log('peers_in_room', peerIds);
-  navigator.mediaDevices
-    .getUserMedia({ audio: true })
-    .then((stream) => {
-      peerIds.forEach((peerId) => {
-        if (peerId !== peer.value?.id) {
-          const call = peer.value?.call(peerId, stream);
-          call?.on('stream', (remoteStream) => {
-            addAudioElement(peerId, remoteStream);
-          });
-        }
-      });
-    })
-    .catch((err) => console.error('Failed to get local stream', err));
-});
 
 const discardNotification = async (notificationId: number) => {
   try {
