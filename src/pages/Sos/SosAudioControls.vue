@@ -19,22 +19,20 @@
     <div class="text-subtitle1 q-mt-sm">
       {{ isAudioOpen ? $t('audioConnected') : $t('clickToOpenAudio') }}
     </div>
-    <div class="text-subtitle1 q-mt-sm">
+    <div class="text-subtitle1 q-mt-sm" v-if="isAudioOpen">
       {{ isSpeakerOn ? $t('speakerOn') : $t('speakerOff') }}
     </div>
   </div>
 </template>
 
-<script lang="ts" setup>
+<script setup lang="ts">
 import { ref, onMounted, onUnmounted, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import Peer from 'peerjs';
 import { socket } from 'boot/socket';
-
 import { useUserStore } from 'src/stores/user-store';
 
 const userStore = useUserStore();
-
 const { t } = useI18n();
 
 const props = defineProps<{
@@ -42,7 +40,7 @@ const props = defineProps<{
 }>();
 
 const isAudioOpen = ref(false);
-const isSpeakerOn = ref(false);
+const isSpeakerOn = ref(true);
 const peer = ref<Peer | null>(null);
 const peerId = 'sos_' + userStore.user.phoneNumber;
 const audioStream = ref<MediaStream | null>(null);
@@ -55,12 +53,11 @@ const isNavigatorMediaSupported = computed(() => {
 
 const initializePeer = () => {
   peer.value = new Peer(peerId, {
-    debug: 3,
+    // debug: 3,
   });
 
   peer.value.on('open', (id) => {
     console.log('Victim peer ID is:', id);
-    joinSosRoom();
   });
 
   peer.value.on('error', (error) => {
@@ -80,6 +77,7 @@ const joinSosRoom = () => {
   socket.emit('join_sos_room', {
     peerId: peerId,
     sosEventId: props.sosEventId,
+    isSos: true,
   });
 };
 
@@ -88,7 +86,9 @@ const handlePeersInRoom = (peerIds: string[]) => {
   peerIds.forEach((remotePeerId) => {
     if (
       remotePeerId !== peer.value?.id &&
-      !connectedPeers.value.has(remotePeerId)
+      !connectedPeers.value.has(remotePeerId) &&
+      audioStream.value &&
+      remotePeerId.startsWith('vol_') // Only call volunteer peers
     ) {
       callPeer(remotePeerId);
     }
@@ -130,6 +130,9 @@ const handleRemoteStream = (
     audio.srcObject = remoteStream;
     audio.muted = !isSpeakerOn.value;
     audioElements.value[remotePeerId] = audio;
+    if (isSpeakerOn.value) {
+      audio.play();
+    }
   }
 };
 
@@ -137,17 +140,13 @@ const toggleAudio = async () => {
   if (isAudioOpen.value) {
     await stopAudioStream();
     isAudioOpen.value = false;
+    socket.emit('sos_audio_stopped', { sosEventId: props.sosEventId });
   } else {
     const success = await startAudioStream();
     if (success) {
       isAudioOpen.value = true;
-      socket.emit('join_sos_room', {
-        peerId: peerId,
-        sosEventId: props.sosEventId,
-      });
-      // connectedPeers.value.forEach((remotePeerId) => {
-      //   callPeer(remotePeerId);
-      // });
+      joinSosRoom();
+      socket.emit('sos_audio_started', { sosEventId: props.sosEventId });
     }
   }
 };
@@ -179,6 +178,11 @@ const toggleSpeaker = () => {
   isSpeakerOn.value = !isSpeakerOn.value;
   Object.values(audioElements.value).forEach((audio) => {
     audio.muted = !isSpeakerOn.value;
+    if (isSpeakerOn.value) {
+      audio.play();
+    } else {
+      audio.pause();
+    }
   });
 };
 
