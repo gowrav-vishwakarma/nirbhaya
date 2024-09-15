@@ -52,24 +52,35 @@ const isNavigatorMediaSupported = computed(() => {
 });
 
 const initializePeer = () => {
+  if (peer.value) return;
+
   peer.value = new Peer(peerId, {
     // debug: 3,
   });
 
   peer.value.on('open', (id) => {
-    console.log('Victim peer ID is:', id);
+    console.log('SOS peer ID is:', id);
+    if (isAudioOpen.value) {
+      joinSosRoom();
+    }
   });
 
   peer.value.on('error', (error) => {
     console.error('PeerJS error:', error);
+    // Attempt to reinitialize after a delay
+    setTimeout(initializePeer, 5000);
   });
 
   peer.value.on('call', (call) => {
     console.log('Received call from:', call.peer);
-    call.answer(audioStream.value);
-    call.on('stream', (remoteStream) => {
-      handleRemoteStream(call.peer, remoteStream);
-    });
+    if (audioStream.value) {
+      call.answer(audioStream.value);
+      call.on('stream', (remoteStream) => {
+        handleRemoteStream(call.peer, remoteStream);
+      });
+    } else {
+      console.error('No audio stream available to answer call');
+    }
   });
 };
 
@@ -131,7 +142,16 @@ const handleRemoteStream = (
     audio.muted = !isSpeakerOn.value;
     audioElements.value[remotePeerId] = audio;
     if (isSpeakerOn.value) {
-      audio.play();
+      audio.play().catch((error) => {
+        console.error('Error playing audio:', error);
+      });
+    }
+  } else {
+    audioElements.value[remotePeerId].srcObject = remoteStream;
+    if (isSpeakerOn.value) {
+      audioElements.value[remotePeerId].play().catch((error) => {
+        console.error('Error playing audio:', error);
+      });
     }
   }
 };
@@ -145,8 +165,14 @@ const toggleAudio = async () => {
     const success = await startAudioStream();
     if (success) {
       isAudioOpen.value = true;
+      if (!peer.value) {
+        initializePeer();
+      }
       joinSosRoom();
-      socket.emit('sos_audio_started', { sosEventId: props.sosEventId });
+      socket.emit('sos_audio_started', {
+        sosEventId: props.sosEventId,
+        peerId: peerId,
+      });
     }
   }
 };
@@ -179,9 +205,30 @@ const toggleSpeaker = () => {
   Object.values(audioElements.value).forEach((audio) => {
     audio.muted = !isSpeakerOn.value;
     if (isSpeakerOn.value) {
-      audio.play();
+      audio.play().catch((error) => {
+        console.error('Error playing audio:', error);
+      });
     } else {
       audio.pause();
+    }
+  });
+
+  // Reconnect to peers if speaker is turned on
+  if (isSpeakerOn.value) {
+    reconnectToPeers();
+  }
+};
+
+const reconnectToPeers = () => {
+  connectedPeers.value.forEach((remotePeerId) => {
+    if (peer.value && audioStream.value) {
+      const call = peer.value.call(remotePeerId, audioStream.value);
+      call.on('stream', (remoteStream) => {
+        handleRemoteStream(remotePeerId, remoteStream);
+      });
+      call.on('error', (error) => {
+        console.error(`Error in call to ${remotePeerId}:`, error);
+      });
     }
   });
 };
@@ -195,5 +242,6 @@ onUnmounted(() => {
   stopAudioStream();
   socket.off('peers_in_room', handlePeersInRoom);
   peer.value?.destroy();
+  peer.value = null;
 });
 </script>
