@@ -182,11 +182,13 @@ callbacks.onSuccess = () => {
   console.log('Notification accepted');
 };
 
-const peer = ref<Peer | null>(null);
-const isAudioOpen = reactive({});
-const audioElements = reactive({}); // Store audio elements by peer ID
-
 const userStore = useUserStore();
+
+const peer = ref<Peer | null>(null);
+const peerId = 'vol_' + userStore.user.phoneNumber; // Unique ID for this peer
+const audioElements = ref<{ [key: string]: HTMLAudioElement }>({});
+const isAudioOpen = ref<{ [key: number]: boolean }>({});
+
 const { t } = useI18n();
 
 const route = useRoute();
@@ -287,7 +289,7 @@ const followLocation = (location: { type: string; coordinates: number[] }) => {
 };
 
 const initializePeer = () => {
-  peer.value = new Peer(userStore.user.phoneNumber);
+  peer.value = new Peer(peerId);
 
   peer.value.on('open', (id) => {
     console.log('My peer ID is: ' + id);
@@ -299,9 +301,7 @@ const initializePeer = () => {
       .then((stream) => {
         call.answer(stream);
         call.on('stream', (remoteStream) => {
-          const audio = new Audio();
-          audio.srcObject = remoteStream;
-          audio.play();
+          addAudioElement(call.peer, remoteStream);
         });
       })
       .catch((err) => console.error('Failed to get local stream', err));
@@ -309,37 +309,38 @@ const initializePeer = () => {
 };
 
 const toggleAudio = async (sosEventId: number) => {
-  if (isAudioOpen[sosEventId]) {
-    await disconnectAudio(sosEventId); // Ensure to disconnect audio
+  if (isAudioOpen.value[sosEventId]) {
+    await disconnectAudio(sosEventId);
   } else {
     await connectAudio(sosEventId);
   }
-  isAudioOpen[sosEventId] = !isAudioOpen[sosEventId];
+  isAudioOpen.value[sosEventId] = !isAudioOpen.value[sosEventId];
 };
 
 const connectAudio = async (sosEventId: number) => {
   const sosEventIdString = sosEventId.toString();
-  socket.emit('join_sos_room', sosEventIdString);
-  socket.emit('register_peer', {
-    peerId: peer.value?.id,
-    sosEventId: sosEventIdString,
-  });
-  socket.emit('get_peers_in_room', sosEventIdString);
+  socket.emit('join_sos_room', { peerId, sosEventId: sosEventIdString });
 };
 
 const disconnectAudio = async (sosEventId: number) => {
-  closePeerConnection();
-  if (socket) {
-    socket.emit('leave_sos_room', sosEventId);
-  }
-  console.log('Audio disconnected');
+  const sosEventIdString = sosEventId.toString();
+  socket.emit('leave_sos_room', { peerId, sosEventId: sosEventIdString });
+  Object.keys(audioElements.value).forEach((peerId) => {
+    audioElements.value[peerId].pause();
+    delete audioElements.value[peerId];
+  });
+};
+
+const addAudioElement = (peerId: string, stream: MediaStream) => {
+  const audio = new Audio();
+  audio.srcObject = stream;
+  audio.play();
+  audioElements.value[peerId] = audio;
 };
 
 const closePeerConnection = () => {
-  if (peer.value) {
-    peer.value.destroy();
-    peer.value = null;
-  }
+  peer.value?.disconnect();
+  peer.value?.destroy();
 };
 
 const formatDistance = (distance: number) => {
@@ -395,6 +396,7 @@ const refreshNotifications = async () => {
 };
 
 socket.on('peers_in_room', (peerIds: string[]) => {
+  console.log('peers_in_room', peerIds);
   navigator.mediaDevices
     .getUserMedia({ audio: true })
     .then((stream) => {
@@ -402,25 +404,12 @@ socket.on('peers_in_room', (peerIds: string[]) => {
         if (peerId !== peer.value?.id) {
           const call = peer.value?.call(peerId, stream);
           call?.on('stream', (remoteStream) => {
-            const audio = new Audio();
-            audio.srcObject = remoteStream;
-            audio.play();
-            audioElements[peerId] = audio; // Store the audio element
+            addAudioElement(peerId, remoteStream);
           });
         }
       });
     })
     .catch((err) => console.error('Failed to get local stream', err));
-});
-
-socket.on('peer_left', (peerId: string) => {
-  if (peerId !== peer.value?.id) {
-    console.log(`Peer ${peerId} has left the room. Stopping audio.`);
-    if (audioElements[peerId]) {
-      audioElements[peerId].pause(); // Stop the audio
-      delete audioElements[peerId]; // Remove the reference
-    }
-  }
 });
 
 const discardNotification = async (notificationId: number) => {

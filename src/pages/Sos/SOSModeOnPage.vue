@@ -53,6 +53,7 @@
             <q-btn
               round
               size="xl"
+              v-if="isAudioOpen"
               :color="isSpeakerOn ? 'primary' : 'grey'"
               :icon="$t('icons.speaker')"
               @click="toggleSpeaker"
@@ -246,6 +247,9 @@ const locationSentToServer = ref(false);
 const isAudioOpen = ref(false);
 
 const peer = ref<Peer | null>(null);
+const peerId = 'sos_' + userStore.user.phoneNumber; // Unique ID for this peer
+const isSpeakerOn = ref(false);
+const audioElements = ref<{ [key: string]: HTMLAudioElement }>({});
 
 const mediaRecorder = ref<MediaRecorder | null>(null);
 const mediaStream = ref<MediaStream | null>(null);
@@ -264,8 +268,6 @@ const threats = [
   'domesticViolence',
 ];
 
-const audioElements = reactive({}); // Store audio elements by peer ID
-
 const logs = ref<string[]>([]); // Reactive array to store logs
 
 const logMessage = (message: string) => {
@@ -282,21 +284,7 @@ const entireRecording = ref<Blob[]>([]);
 const lastUpdateTime = ref(0);
 const significantChange = ref(false);
 
-const isSpeakerOn = ref(false);
-
-const toggleSpeaker = () => {
-  isSpeakerOn.value = !isSpeakerOn.value;
-  if (!isSpeakerOn.value) {
-    // Stop all incoming audio
-    Object.values(audioElements).forEach((audio) => {
-      audio.pause();
-      audio.srcObject = null;
-    });
-    Object.keys(audioElements).forEach((key) => {
-      delete audioElements[key];
-    });
-  }
-};
+const connectedPeers = ref<Set<string>>(new Set());
 
 onMounted(async () => {
   await checkPermissions();
@@ -403,7 +391,7 @@ onBeforeRouteLeave(async (to, from, next) => {
 onUnmounted(async () => {
   console.log('Unmounting SOSModeOnPage');
   await stopRecordingAndStreaming();
-  // No need to call complete-upload endpoint
+  closePeerConnection();
 });
 
 const startCountdown = () => {
@@ -975,14 +963,10 @@ const blobToBase64 = (blob: Blob): Promise<string> => {
 
 // Initialize PeerJS
 const initializePeer = () => {
-  peer.value = new Peer(userStore.user.phoneNumber);
+  peer.value = new Peer(peerId);
 
   peer.value.on('open', (id) => {
     console.log('My peer ID is: ' + id);
-    socket.emit('register_peer', {
-      peerId: id,
-      sosEventId: createdSosId.value,
-    });
   });
 
   peer.value.on('call', (call) => {
@@ -1008,32 +992,32 @@ const toggleAudio = async () => {
   const sosEventIdString = createdSosId.value.toString();
   if (isAudioOpen.value) {
     closePeerConnection();
-    socket.emit('leave_sos_room', sosEventIdString); // Ensure to leave the room
+    socket.emit('leave_sos_room', {
+      peerId: peerId,
+      sosEventId: sosEventIdString,
+    }); // Ensure to leave the room
   } else {
-    socket.emit('join_sos_room', sosEventIdString);
-    socket.emit('get_peers_in_room', sosEventIdString);
+    socket.emit('join_sos_room', {
+      peerId: peerId,
+      sosEventId: sosEventIdString,
+    });
   }
   isAudioOpen.value = !isAudioOpen.value;
 };
 
-// Add this event listener
+// Modify the peers_in_room event listener
 socket.on('peers_in_room', (peerIds: string[]) => {
-  console.log('peerIds............', peerIds);
+  console.log('peers_in_room:', peerIds);
   if (isAudioOpen.value) {
     navigator.mediaDevices
       .getUserMedia({ audio: true })
       .then((stream) => {
-        peerIds.forEach((peerId) => {
-          if (peerId !== peer.value?.id) {
-            const call = peer.value?.call(peerId, stream);
-            call?.on('stream', (remoteStream) => {
-              if (isSpeakerOn.value) {
-                const audio = new Audio();
-                audio.srcObject = remoteStream;
-                audio.play();
-                audioElements[peerId] = audio;
-              }
-            });
+        peerIds.forEach((remotePeerId) => {
+          if (
+            remotePeerId !== peer.value?.id &&
+            !connectedPeers.value.has(remotePeerId)
+          ) {
+            connectToPeer(remotePeerId, stream);
           }
         });
       })
@@ -1041,18 +1025,50 @@ socket.on('peers_in_room', (peerIds: string[]) => {
   }
 });
 
-const handleRecordingData = (data: { value: { recordDataBase64: string } }) => {
-  if (socket) {
-    socket.emit('audio_data', {
-      sosEventId: createdSosId.value,
-      audioData: data.value.recordDataBase64,
-    });
+// Add a new function to connect to a peer
+const connectToPeer = (remotePeerId: string, stream: MediaStream) => {
+  const call = peer.value?.call(remotePeerId, stream);
+  call?.on('stream', (remoteStream) => {
+    handleRemoteStream(remotePeerId, remoteStream);
+  });
+  connectedPeers.value.add(remotePeerId);
+};
+
+// Add a new function to handle remote streams
+const handleRemoteStream = (
+  remotePeerId: string,
+  remoteStream: MediaStream
+) => {
+  if (isSpeakerOn.value) {
+    const audio = new Audio();
+    audio.srcObject = remoteStream;
+    audio.play();
+    audioElements.value[remotePeerId] = audio;
   }
 };
 
+// Modify the toggleSpeaker function
+const toggleSpeaker = () => {
+  isSpeakerOn.value = !isSpeakerOn.value;
+  if (isSpeakerOn.value) {
+    Object.values(audioElements.value).forEach((audio) => audio.play());
+  } else {
+    Object.values(audioElements.value).forEach((audio) => audio.pause());
+  }
+};
+
+// const handleRecordingData = (data: { value: { recordDataBase64: string } }) => {
+//   if (socket) {
+//     socket.emit('audio_data', {
+//       sosEventId: createdSosId.value,
+//       audioData: data.value.recordDataBase64,
+//     });
+//   }
+// };
+
+// Modify the closePeerConnection function
 const closePeerConnection = () => {
   if (peer.value) {
-    // stop all tracks
     console.log('closeAudioConnection');
     if (mediaStream.value) {
       mediaStream.value.getTracks().forEach((track) => track.stop());
@@ -1061,22 +1077,11 @@ const closePeerConnection = () => {
       mediaRecorder.value.stop();
     }
     peer.value.disconnect();
-    // peer.value = null;
+    connectedPeers.value.clear();
+    Object.values(audioElements.value).forEach((audio) => audio.pause());
+    audioElements.value = {};
   }
 };
-
-// Listen for the peer_left event
-socket.on('peer_left', (peerId: string) => {
-  // Logic to stop audio for the peer that left
-  if (peerId !== peer.value?.id) {
-    // Stop the audio stream for the peer that left
-    console.log(`Peer ${peerId} has left the room. Stopping audio.`);
-    if (audioElements[peerId]) {
-      audioElements[peerId].pause(); // Stop the audio
-      delete audioElements[peerId]; // Remove the reference
-    }
-  }
-});
 
 const closeAudioConnection = () => {
   closePeerConnection();
