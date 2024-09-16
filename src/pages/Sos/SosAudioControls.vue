@@ -31,6 +31,7 @@ import { useI18n } from 'vue-i18n';
 import Peer from 'peerjs';
 import { socket } from 'boot/socket';
 import { useUserStore } from 'src/stores/user-store';
+import { useAudioHandler } from 'src/composables/useAudioHandler';
 
 const userStore = useUserStore();
 const { t } = useI18n();
@@ -43,7 +44,6 @@ const isAudioOpen = ref(false);
 const isSpeakerOn = ref(true);
 const peer = ref<Peer | null>(null);
 const peerId = 'sos_' + userStore.user.phoneNumber;
-const audioStream = ref<MediaStream | null>(null);
 const connectedPeers = ref<Set<string>>(new Set());
 const audioElements = ref<{ [key: string]: HTMLAudioElement }>({});
 
@@ -98,7 +98,6 @@ const handlePeersInRoom = (peerIds: string[]) => {
     if (
       remotePeerId !== peer.value?.id &&
       !connectedPeers.value.has(remotePeerId) &&
-      audioStream.value &&
       remotePeerId.startsWith('vol_') // Only call volunteer peers
     ) {
       callPeer(remotePeerId);
@@ -116,6 +115,8 @@ const callPeer = (remotePeerId: string) => {
         });
         call.on('error', (error) => {
           console.error(`Error in call to ${remotePeerId}:`, error);
+          // Retry connection after a short delay
+          setTimeout(() => callPeer(remotePeerId), 2000);
         });
         connectedPeers.value.add(remotePeerId);
         console.log(`Successfully called peer: ${remotePeerId}`);
@@ -123,9 +124,13 @@ const callPeer = (remotePeerId: string) => {
         console.error(
           `Failed to establish call with ${remotePeerId}: Call object is undefined`
         );
+        // Retry connection after a short delay
+        setTimeout(() => callPeer(remotePeerId), 2000);
       }
     } catch (error) {
       console.error(`Error calling peer ${remotePeerId}:`, error);
+      // Retry connection after a short delay
+      setTimeout(() => callPeer(remotePeerId), 2000);
     }
   } else {
     console.error('Cannot call peer: audioStream or peer is not available');
@@ -173,31 +178,10 @@ const toggleAudio = async () => {
         sosEventId: props.sosEventId,
         peerId: peerId,
       });
+      // Call all existing peers
+      connectedPeers.value.forEach(callPeer);
     }
   }
-};
-
-const startAudioStream = async (): Promise<boolean> => {
-  try {
-    audioStream.value = await navigator.mediaDevices.getUserMedia({
-      audio: true,
-    });
-    console.log('Audio stream started successfully');
-    return true;
-  } catch (error) {
-    console.error('Failed to get audio stream:', error);
-    return false;
-  }
-};
-
-const stopAudioStream = async () => {
-  if (audioStream.value) {
-    audioStream.value.getTracks().forEach((track) => track.stop());
-    audioStream.value = null;
-  }
-  connectedPeers.value.clear();
-  Object.values(audioElements.value).forEach((audio) => audio.pause());
-  audioElements.value = {};
 };
 
 const toggleSpeaker = () => {
@@ -232,6 +216,8 @@ const reconnectToPeers = () => {
     }
   });
 };
+
+const { startAudioStream, stopAudioStream, audioStream } = useAudioHandler();
 
 onMounted(() => {
   initializePeer();

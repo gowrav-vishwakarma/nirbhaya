@@ -19,6 +19,7 @@ import { socket } from 'boot/socket';
 import Peer from 'peerjs';
 import { useUserStore } from 'src/stores/user-store';
 import { useI18n } from 'vue-i18n';
+import { useAudioHandler } from 'src/composables/useAudioHandler';
 
 const props = defineProps<{
   sosEventId: number;
@@ -170,19 +171,16 @@ const connectToSosPeer = async () => {
   if (activeSosPeerId.value && peer.value) {
     isConnecting.value = true;
     try {
-      // Obtain user media before making the call
-      outgoingStream.value = await navigator.mediaDevices.getUserMedia({
-        audio: true,
-      });
+      await startAudioStream();
 
-      const call = peer.value.call(activeSosPeerId.value, outgoingStream.value);
+      const call = peer.value.call(activeSosPeerId.value, audioStream.value!);
       if (!call) {
         throw new Error('Failed to create call object');
       }
       await new Promise((resolve, reject) => {
         const timeout = setTimeout(() => {
           reject(new Error('Call timed out'));
-        }, 10000); // 10 seconds timeout
+        }, 10000);
 
         call.on('stream', (remoteStream) => {
           clearTimeout(timeout);
@@ -206,6 +204,8 @@ const connectToSosPeer = async () => {
         icon: 'warning',
       });
       isAudioOpen.value = false;
+      // Retry connection after a short delay
+      setTimeout(connectToSosPeer, 2000);
     } finally {
       isConnecting.value = false;
     }
@@ -219,11 +219,7 @@ const disconnectFromSosPeer = () => {
     audioElement.value.pause();
     audioElement.value.srcObject = null;
   }
-  // Stop the outgoing media stream
-  if (outgoingStream.value) {
-    outgoingStream.value.getTracks().forEach((track) => track.stop());
-    outgoingStream.value = null;
-  }
+  stopAudioStream();
 };
 
 const handleSosAudioStarted = (sosPeerId: string) => {
@@ -232,12 +228,8 @@ const handleSosAudioStarted = (sosPeerId: string) => {
     message: t('sosAudioStarted'),
     color: 'info',
   });
-  {
-    {
-      if (isAudioOpen.value) {
-        connectToSosPeer();
-      }
-    }
+  if (isAudioOpen.value) {
+    connectToSosPeer();
   }
 };
 
@@ -259,4 +251,6 @@ const closePeerConnection = () => {
     audioElement.value.srcObject = null;
   }
 };
+
+const { startAudioStream, stopAudioStream, audioStream } = useAudioHandler();
 </script>
