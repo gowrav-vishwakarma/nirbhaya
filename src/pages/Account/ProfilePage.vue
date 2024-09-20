@@ -74,6 +74,9 @@
                   :label="$t('referredBy')"
                   outlined
                   dense
+                  @blur="validateReferralId"
+                  :error="!!errors.referredBy"
+                  :error-message="errors.referredBy?.join('; ')"
                 />
               </div>
             </div>
@@ -315,7 +318,7 @@ const permissions = ref([
 const loadUserData = async () => {
   const userData = userStore.user;
   Object.assign(values.value, userData);
-
+  lastCheckedReferralId.value = values.value.referredBy;
   // Fetch emergency contacts status
   try {
     const response = await api.get('/auth/emergency-contacts-status');
@@ -550,6 +553,37 @@ const openEmergencyContactRequests = () => {
     component: EmergencyContactRequestsDialog,
   });
 };
+
+// Add a new method to validate the referral ID
+const validateReferralId = async () => {
+  console.log('values.referredBy', values.value.referredBy);
+  if (
+    !values.value.referredBy ||
+    values.value.referredBy === lastCheckedReferralId.value
+  ) {
+    return;
+  }
+
+  try {
+    const response = await api.get(
+      `/auth/validate-referral/${values.value.referredBy}`
+    );
+    if (!response.data.exists) {
+      errors.value.referredBy = [t('referralIdNotFound')];
+      values.value.referredBy = lastCheckedReferralId.value;
+    } else {
+      delete errors.value.referredBy;
+      lastCheckedReferralId.value = values.value.referredBy; // Track the last checked ID to avoid redundant API calls
+    }
+  } catch (error) {
+    console.error('Error validating referral ID:', error);
+    errors.value.referredBy = [t('referralIdValidationFailed')];
+    values.value.referredBy = lastCheckedReferralId.value;
+  }
+};
+
+// Add a reactive reference to track the last checked referral ID
+const lastCheckedReferralId = ref('');
 </script>
 
 <style lang="scss" scoped>

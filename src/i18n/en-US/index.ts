@@ -300,4 +300,9 @@ export default {
   yourReferralId: 'Your Referral ID',
   peopleYouHaveEncouraged: 'People You Have Encouraged',
   locationsSecured: 'Locations Secured',
+
+  // Add these keys
+  referredBy: 'Referred By',
+  referralIdNotFound: 'Referral ID not found',
+  referralIdValidationFailed: 'Failed to validate referral ID',
 };

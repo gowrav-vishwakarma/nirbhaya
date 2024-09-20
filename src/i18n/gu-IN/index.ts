@@ -97,7 +97,7 @@ export default {
   camera: 'કેમેરા',
   microphone: 'માઇક્રોફોન',
   granted: 'મંજૂર કરેલ',
-  requestPermission: 'પરવાનગી માટે ��િનંતી કરો',
+  requestPermission: 'પરવાનગી માટે િનંતી કરો',
   permissionGranted: '{permission} પરવાનગી આપવામાં આવી',
   permissionDenied: '{permission} પરવાનગી નકારવામાં આવી',
 
@@ -148,7 +148,7 @@ export default {
   invalidOTP: 'કૃપા કરીને માન્ય 4-અંકનો ઓટીપી દાખલ કરો',
   phoneNumberNotInSystem: 'આ ફોન નંબર અમારી સિસ્ટમમાં નોંધાયેલ નથી',
   phoneValidationError: 'ફોન નંબર ચકાસવામાં ભૂલ',
-  pleaseFixErrors: 'કૃપા કરીને સબમિટ કરતા પહેલા ભૂલ�� સુધારો',
+  pleaseFixErrors: 'કૃપા કરીને સબમિટ કરતા પહેલા ભૂલકારી સુધારો',
 
   // Volunteering
   notificationLocations: 'સૂચના સ્થાનો',
@@ -282,4 +282,9 @@ export default {
   yourReferralId: 'તમારી રેફરલ ID',
   peopleYouHaveEncouraged: 'તમે પ્રોત્સાહિત કરેલા લોકો',
   locationsSecured: 'સુરક્ષિત સ્થળો',
+
+  // Additional Keys Identified in ProfilePage.vue
+  referredBy: 'રેફરલ દ્વારા',
+  referralIdNotFound: 'રેફરલ ID મળી નથી',
+  referralIdValidationFailed: 'રેફરલ ID ચકાસવામાં નિષ્ફળ',
 };

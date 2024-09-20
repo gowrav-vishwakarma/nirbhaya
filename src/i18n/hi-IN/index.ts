@@ -140,7 +140,7 @@ export default {
   contactPoliceStation: 'पुलिस स्टेशन से संपर्क करें',
   resolveSOSIssue: 'SOS मुद्दे को हल करें',
   audioOpen: 'ऑडियो खुला है',
-  clickToOpenAudio: 'ऑडियो खोलने के लिए क्लिक करें',
+  clickToOpenAudio: 'ऑ���ियो खोलने के लिए क्लिक करें',
   speakerOn: 'स्पीकर ऑन',
   speakerOff: 'स्पीकर ऑफ',
 
@@ -156,7 +156,7 @@ export default {
   locationPermission: 'स्थान अनुमति',
   locationPermissionHelp:
     'स्थान पहुंच की अनुमति देने से हमें आपातकाल की स्थिति में आपके सटीक स्थान पर मदद भेजने में मदद मिलती है। याद रखें, आपका स्थान कभी भी सहेजा नहीं जाता जब तक आप SOS भेजते हैं। यहां तक कि जब आप समुदाय की मदद करने के लिए तैयार हैं, आपका स्थान सहेजा नहीं जाता।',
-  cameraPermission: 'कैमरा अ���ुमति',
+  cameraPermission: 'कैमर��� अनुमति',
   cameraPermissionHelp:
     'कैमरा पहुंच आपको आपातकाल के दौरान दृश्य साक्ष्य कैप्चर करने और भेजने की अनुमति देती है।',
   microphonePermission: 'माइक्रोफोन अनुमति',
@@ -235,7 +235,7 @@ export default {
     ignored: 'अनदेखा किया गया',
   },
 
-  audioConnectedSuccess: 'ऑडियो सफलतापूर्वक जोड़ा गया',
+  audioConnectedSuccess: 'ऑडियो सफलताप���र्वक जोड़ा गया',
   audioConnectedError: 'ऑडियो जोड़ने में त्रुटि',
   justNow: 'बस अब',
   minutesAgo: 'मिनटों में',
@@ -275,7 +275,8 @@ export default {
   // Dashboard Page additions in Hindi
   safetyTip: 'सुरक्षा सुझाव',
   safetyTip1: 'हमेशा अपने आस-पास के माहौल के प्रति सचेत रहें।',
-  safetyTip2: 'बाहर जाते समय विश्वसनीय दोस्तों के साथ अपना स्थान साझा करें।',
+  safetyTip2:
+    'बाहर जाते समय विश्वसनीय दोस्तों के साथ अपना स्थान साझ��� ���रें।',
   safetyTip3: 'आपातकालीन नंबर आसानी से पहुंच योग्य रखें।',
   safetyTip4:
     'अपनी अंतर्ज्ञान पर भरोसा करें। यदि कुछ गड़बड़ लगता है, तो वहां से चले जाएं।',
@@ -291,7 +292,7 @@ export default {
   volunteerAvailable: 'सामुदायिक सहायता के लिए उपलब्ध',
   volunteerUnavailable: 'सामुदायिक सहायता के लिए अनुपलब्ध',
   volunteerStatusUpdated: 'स्वयंसेवक स्थिति सफलतापूर्वक अपडेट की गई',
-  volunteerStatusUpdateFailed: 'स्वयंसेवक स्थिति अपडेट करने में विफल',
+  volunteerStatusUpdateFailed: 'स्वयंसेवक स्थिति अपडेट करने मे�� विफल',
 
   nearbyVolunteers: 'आस-पास के स्वयंसेवक',
   viewAll: 'सभी देखें',
@@ -302,4 +303,9 @@ export default {
   yourReferralId: 'आपकी रेफरल आईडी',
   peopleYouHaveEncouraged: 'आपके द्वारा प्रोत्साहित लोग',
   locationsSecured: 'सुरक्षित स्थान',
+
+  // Added keys
+  referredBy: 'रेफर किया गया',
+  referralIdNotFound: 'रेफरल आईडी नहीं मिली',
+  referralIdValidationFailed: 'रेफरल आईडी सत्यापित करने में विफल',
 };
