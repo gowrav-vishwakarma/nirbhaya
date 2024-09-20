@@ -291,8 +291,13 @@ export default {
   volunteerStatusUpdated: 'Volunteer status updated successfully',
   volunteerStatusUpdateFailed: 'Failed to update volunteer status',
 
-  // ... (rest of the translations)
   nearbyVolunteers: 'Nearby Volunteers',
   viewAll: 'View All',
   volunteersNearby: 'volunteers nearby',
+
+  // CommunityImpactPage
+  communityImpact: 'Community Impact',
+  yourReferralId: 'Your Referral ID',
+  peopleYouHaveEncouraged: 'People You Have Encouraged',
+  locationsSecured: 'Locations Secured',
 };

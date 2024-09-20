@@ -12,6 +12,7 @@
       >
         <q-tab :name="'profile'" :label="$t('profile')" />
         <q-tab :name="'volunteering'" :label="$t('volunteering')" />
+        <q-tab :name="'impact'" :label="$t('communityImpact')" />
       </q-tabs>
 
       <q-separator />
@@ -23,6 +24,10 @@
 
         <q-tab-panel name="volunteering">
           <VolunteeringPage />
+        </q-tab-panel>
+
+        <q-tab-panel name="impact">
+          <CommunityImpactPage />
         </q-tab-panel>
       </q-tab-panels>
 
@@ -43,6 +48,7 @@ import { useRouter } from 'vue-router';
 import { useUserStore } from 'src/stores/user-store';
 import ProfilePage from './ProfilePage.vue';
 import VolunteeringPage from './VolunteeringPage.vue';
+import CommunityImpactPage from './CommunityImpactPage.vue';
 import { api } from 'src/boot/axios';
 
 const { t } = useI18n();

@@ -156,7 +156,7 @@ export default {
   locationPermission: 'स्थान अनुमति',
   locationPermissionHelp:
     'स्थान पहुंच की अनुमति देने से हमें आपातकाल की स्थिति में आपके सटीक स्थान पर मदद भेजने में मदद मिलती है। याद रखें, आपका स्थान कभी भी सहेजा नहीं जाता जब तक आप SOS भेजते हैं। यहां तक कि जब आप समुदाय की मदद करने के लिए तैयार हैं, आपका स्थान सहेजा नहीं जाता।',
-  cameraPermission: 'कैमरा अनुमति',
+  cameraPermission: 'कैमरा अ���ुमति',
   cameraPermissionHelp:
     'कैमरा पहुंच आपको आपातकाल के दौरान दृश्य साक्ष्य कैप्चर करने और भेजने की अनुमति देती है।',
   microphonePermission: 'माइक्रोफोन अनुमति',
@@ -296,4 +296,10 @@ export default {
   nearbyVolunteers: 'आस-पास के स्वयंसेवक',
   viewAll: 'सभी देखें',
   volunteersNearby: 'आस-पास के स्वयंसेवक',
+
+  // CommunityImpactPage
+  communityImpact: 'सामुदायिक प्रभाव',
+  yourReferralId: 'आपकी रेफरल आईडी',
+  peopleYouHaveEncouraged: 'आपके द्वारा प्रोत्साहित लोग',
+  locationsSecured: 'सुरक्षित स्थान',
 };

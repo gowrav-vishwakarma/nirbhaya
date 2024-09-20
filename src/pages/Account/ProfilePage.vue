@@ -68,6 +68,14 @@
                   option-label="label"
                 />
               </div>
+              <div class="col-12">
+                <q-input
+                  v-model="values.referredBy"
+                  :label="$t('referredBy')"
+                  outlined
+                  dense
+                />
+              </div>
             </div>
 
             <!-- Emergency contacts -->
@@ -294,6 +302,7 @@ const { values, errors, isLoading, validateAndSubmit, callbacks } = useForm(
     startAudioVideoRecordOnSos: false,
     streamAudioVideoOnSos: false,
     broadcastAudioOnSos: false,
+    referredBy: '',
   }
 );
 

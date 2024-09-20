@@ -1,5 +1,4 @@
 import { defineStore } from 'pinia';
-import { computed, ref } from 'vue';
 import { api } from 'src/boot/axios';
 
 export interface EmergencyContact {
@@ -36,6 +35,8 @@ export interface User {
   startAudioVideoRecordOnSos: boolean;
   streamAudioVideoOnSos: boolean;
   broadcastAudioOnSos: boolean;
+  referralId: string;
+  referredBy: string | null;
 }
 
 const defaultUser: User = {
@@ -55,6 +56,8 @@ const defaultUser: User = {
   startAudioVideoRecordOnSos: false,
   streamAudioVideoOnSos: false,
   broadcastAudioOnSos: false,
+  referralId: '',
+  referredBy: null,
 };
 
 export const useUserStore = defineStore('userStore', {
