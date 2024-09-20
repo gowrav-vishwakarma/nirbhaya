@@ -318,6 +318,9 @@ const permissions = ref([
 const loadUserData = async () => {
   const userData = userStore.user;
   Object.assign(values.value, userData);
+  if (values.value.referredBy === '' || values.value.referredBy === null) {
+    values.value.referredBy = userStore.referredBy;
+  }
   lastCheckedReferralId.value = values.value.referredBy;
   // Fetch emergency contacts status
   try {

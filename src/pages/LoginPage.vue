@@ -70,7 +70,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useQuasar } from 'quasar';
 import { useUserStore } from 'stores/user-store';
 import { useRouter } from 'vue-router';
@@ -87,6 +87,14 @@ const otpSent = ref(false);
 
 const isIosNotSafari = computed(() => {
   return $q.platform.is.ios && !$q.platform.is.safari;
+});
+
+onMounted(() => {
+  const referrer = router.currentRoute.value.params.referrer;
+  console.log('referrer', referrer);
+  if (referrer) {
+    userStore.setReferrer(referrer);
+  }
 });
 
 const { values, errors, validateAndSubmit, updateUrl, callbacks } = useForm(

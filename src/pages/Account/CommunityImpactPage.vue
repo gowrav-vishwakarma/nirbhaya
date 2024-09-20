@@ -48,7 +48,7 @@ const fetchImpactInfo = async () => {
 };
 
 const copyReferralLink = () => {
-  const url = `https://sosbharat.com/#/referrer=${userStore.user.referralId}`;
+  const url = `https://sosbharat.com/#/login/${userStore.user.referralId}`;
   copyToClipboard(url)
     .then(() => {
       alert('Referral link copied to clipboard!');

@@ -36,7 +36,7 @@ export interface User {
   streamAudioVideoOnSos: boolean;
   broadcastAudioOnSos: boolean;
   referralId: string;
-  referredBy: string | null;
+  referredBy: string;
 }
 
 const defaultUser: User = {
@@ -57,7 +57,7 @@ const defaultUser: User = {
   streamAudioVideoOnSos: false,
   broadcastAudioOnSos: false,
   referralId: '',
-  referredBy: null,
+  referredBy: '',
 };
 
 export const useUserStore = defineStore('userStore', {
@@ -65,7 +65,7 @@ export const useUserStore = defineStore('userStore', {
     user: defaultUser,
     language: localStorage.getItem('userLanguage') || 'en-US',
     availableLanguages: ['en-US', 'hi-IN', 'gu-IN'],
-    referredBy: null,
+    referredBy: '',
   }),
   actions: {
     setUser(newUser: User) {
@@ -105,6 +105,9 @@ export const useUserStore = defineStore('userStore', {
     setLanguage(lang: string) {
       this.language = lang;
       localStorage.setItem('userLanguage', lang);
+    },
+    setReferrer(referrer: string) {
+      this.referredBy = referrer;
     },
   },
   getters: {

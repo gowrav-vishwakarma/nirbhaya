@@ -7,7 +7,7 @@ const routes: RouteRecordRaw[] = [
     component: () => import('layouts/MainLayout.vue'),
     children: [
       {
-        path: 'login',
+        path: 'login/:referrer?',
         component: () => import('pages/LoginPage.vue'),
       },
       {
