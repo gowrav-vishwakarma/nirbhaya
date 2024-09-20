@@ -9,6 +9,9 @@ export function useBackgroundNotifications() {
   let notificationCountInterval: number | null = null;
 
   const fetchUnreadNotificationCount = async () => {
+    if (!userStore.isLoggedIn) {
+      return;
+    }
     try {
       const response = await api.get('/auth/notifications/unread-count');
       unreadNotificationCount.value = response.data;
