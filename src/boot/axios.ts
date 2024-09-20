@@ -35,7 +35,7 @@ export default boot(({ app, store, router }) => {
     (error) => {
       if (error.response && error.response.status === 401) {
         // Unauthorized, redirect to login page
-        userStore.clearUser(); // Clear user data
+        userStore.logout(); // Clear user data
         router.push('/login');
       }
       return Promise.reject(error);

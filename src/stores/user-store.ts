@@ -65,6 +65,7 @@ export const useUserStore = defineStore('userStore', {
     user: defaultUser,
     language: localStorage.getItem('userLanguage') || 'en-US',
     availableLanguages: ['en-US', 'hi-IN', 'gu-IN'],
+    referredBy: null,
   }),
   actions: {
     setUser(newUser: User) {
