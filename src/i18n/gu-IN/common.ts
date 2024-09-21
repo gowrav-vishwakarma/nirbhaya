@@ -91,6 +91,9 @@ export default {
   broadcastAudioOnSos: 'SOS પર ઓડિયો બ્રોડ્કાસ્ટ શરતો (સ્વયંસેવાના વ્યક્તિઓને)',
   emergencyContactRequests: 'કટોકટી સંપર્ક વિનંતી',
   noEmergencyContacts: 'તમે કોઈના કટોકટી સંપર્ક યાતરીમાં નથી',
+  approve: 'સ્વીકારો',
+  reject: 'અવગણો',
+  remove: 'દૂર કરો',
 
   // Permissions
   appPermissions: 'એપ્લિકેશન પરવાનગીઓ',

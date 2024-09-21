@@ -291,7 +291,8 @@ const startRecording = async () => {
     const audioTrack = stream.getAudioTracks()[0];
     canvasStream.value.addTrack(audioTrack);
 
-    const mimeType = Platform.is.ios ? 'video/mp4' : 'video/webm';
+    const mimeType =
+      Platform.is.ios || Platform.is.safari ? 'video/mp4' : 'video/webm';
     const options = {
       mimeType: mimeType,
       videoBitsPerSecond: 2500000, // 2.5 Mbps
@@ -307,7 +308,7 @@ const startRecording = async () => {
     };
 
     mediaRecorder.value.onstop = () => {
-      const blob = new Blob(recordedChunks.value, { type: 'video/webm' });
+      const blob = new Blob(recordedChunks.value, { type: mimeType });
       recordedVideoUrl.value = URL.createObjectURL(blob);
     };
 
@@ -381,6 +382,7 @@ const copyReferralLink = () => {
 };
 
 onMounted(() => {
+  console.log('platform', Platform.is);
   fetchImpactInfo();
 });
 

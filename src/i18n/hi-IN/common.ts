@@ -115,6 +115,9 @@ export default {
     'SOS पर ऑडियो ब्रॉडकास्ट शर्तें (स्वयंसेवा के व्यक्तियों को)',
   emergencyContactRequests: 'अनुरोध',
   noEmergencyContacts: 'आप किसी के आपातकालीन संपर्क में नहीं हैं',
+  approve: 'स्वीकार करें',
+  reject: 'अवगाहन',
+  remove: 'हटाएं',
 
   // Permissions
   appPermissions: 'ऐप अनुमतियां',

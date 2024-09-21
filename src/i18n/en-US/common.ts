@@ -104,6 +104,9 @@ export default {
   broadcastAudioOnSos: 'Broadcast Audio on SOS (to volunteers)',
   emergencyContactRequests: 'Requests',
   noEmergencyContacts: "You are not in anyone's emergency contact list",
+  approve: 'Approve',
+  reject: 'Reject',
+  remove: 'Remove',
 
   // Permissions
   appPermissions: 'App Permissions',
