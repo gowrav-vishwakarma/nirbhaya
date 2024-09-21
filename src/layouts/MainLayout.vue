@@ -7,7 +7,9 @@
           @click="userStore.isLoggedIn ? goToDashboardPage() : goToLoginPage()"
         >
           <q-icon name="campaign" size="2em" />
-          <span class="text-weight-bold">{{ $t('common.appname') }}</span>
+          <span class="text-weight-bold"
+            >{{ $t('common.appname') }} - {{ version }}</span
+          >
         </q-toolbar-title>
 
         <div>
@@ -94,6 +96,7 @@ import { useUserStore } from 'src/stores/user-store';
 import { onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { ref } from 'vue';
+import { version } from 'src/../package.json';
 
 const router = useRouter();
 const { unreadNotificationCount, fetchUnreadNotificationCount } =

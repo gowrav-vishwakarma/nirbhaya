@@ -13,11 +13,28 @@ if [ -n "$(git status --porcelain)" ]; then
   exit 1
 fi
 
+# Patch version number
+npm version patch
+if [ $? -ne 0 ]; then
+  echo "Error: Failed to patch version number."
+  exit 1
+fi
+
+# Get the new version number
+new_version=$(node -p "require('./package.json').version")
+
+# Commit the version change
+git add package.json package-lock.json
+git commit -m "Bump version to ${new_version}"
+
+# Push the version change to develop
+git push origin develop
+
 # Uncomment the API_BASE_URL with https and comment the one with http
 sed -i.bak 's/^#\(.*https:\/\/.*\)/\1/' .env && rm .env.bak
 sed -i.bak 's/^\(API_BASE_URL=http:\/\/.*\)/#\1/' .env && rm .env.bak
 
-# lets try to build the app in develop only
+# Build the app in develop
 npx quasar build -m pwa
 if [ $? -ne 0 ]; then
   echo "Error: Failed to build PWA."
@@ -54,7 +71,7 @@ git remote add origin git@github.com:gowrav-vishwakarma/nirbhaya-pwa.git
 
 # Add and commit the build
 git add .
-git commit -m "Release new PWA build"
+git commit -m "Release version ${new_version}"
 
 # Force push to the repository
 git push -f origin master
@@ -72,4 +89,4 @@ git checkout develop
 sed -i.bak 's/^\(API_BASE_URL=https:\/\/.*\)/#\1/' .env && rm .env.bak
 sed -i.bak 's/^#\(API_BASE_URL=http:\/\/.*\)/\1/' .env && rm .env.bak
 
-echo "Release successful!"
+echo "Release of version ${new_version} successful!"
