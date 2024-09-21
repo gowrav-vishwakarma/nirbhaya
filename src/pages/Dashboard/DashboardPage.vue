@@ -294,21 +294,25 @@ const isVolunteer = computed(() => userStore.user.isVolunteer);
 const volunteerAvailable = ref(userStore.user.volunteerAvailable);
 
 const safetyTips = [
-  'safetyTip1',
-  'safetyTip2',
-  'safetyTip3',
-  'safetyTip4',
-  'safetyTip5',
-];
+  'common.safetyTip1',
+  'common.safetyTip2',
+  'common.safetyTip3',
+  'common.safetyTip4',
+  'common.safetyTip5',
+]; 
 const currentSafetyTip = computed(() =>
   t(safetyTips[Math.floor(Math.random() * safetyTips.length)])
 );
 
 const emergencyServices = [
-  { name: 'police', icon: 'local_police', number: '100' },
-  { name: 'ambulance', icon: 'emergency', number: '108' },
-  { name: 'fireDepartment', icon: 'local_fire_department', number: '101' },
-  { name: 'womenHelpline', icon: 'woman', number: '1091' },
+  { name: 'common.police', icon: 'local_police', number: '100' },
+  { name: 'common.ambulance', icon: 'emergency', number: '108' },
+  {
+    name: 'common.fireDepartment',
+    icon: 'local_fire_department',
+    number: '101',
+  },
+  { name: 'common.womenHelpline', icon: 'woman', number: '1091' },
 ];
 
 const callEmergencyService = (number: string) => {

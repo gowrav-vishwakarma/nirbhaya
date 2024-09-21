@@ -194,7 +194,11 @@
                   <q-item-section side>
                     <q-btn
                       :label="
-                        $t(permission.granted ? 'granted' : 'requestPermission')
+                        $t(
+                          permission.granted
+                            ? 'common.granted'
+                            : 'common.requestPermission'
+                        )
                       "
                       :color="permission.granted ? 'positive' : 'primary'"
                       @click="requestPermission(permission.name)"
@@ -322,9 +326,9 @@ const { values, errors, isLoading, validateAndSubmit, callbacks } = useForm(
 );
 
 const permissions = ref([
-  { name: 'location', granted: false },
-  { name: 'camera', granted: false },
-  // { name: 'microphone', granted: false },
+  { name: 'common.location', granted: false },
+  { name: 'common.camera', granted: false },
+  // { name: 'common.microphone', granted: false },
 ]);
 
 const loadUserData = async () => {

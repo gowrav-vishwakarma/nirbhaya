@@ -220,6 +220,7 @@ export default {
   logoutError: 'Error logging out',
   profileSettings: 'My Profile',
   pendingApproval: 'Pending Approval',
+  approved: 'Approved',
   close: 'Close',
   errorFetchingContacts: 'Server Error',
 

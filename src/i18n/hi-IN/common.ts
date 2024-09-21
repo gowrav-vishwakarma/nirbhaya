@@ -269,6 +269,7 @@ export default {
   availabilitySettings: 'उपलब्धता प्राथमिकताएं',
   profileSettings: 'मेरी प्रोफ़ाइल',
   pendingApproval: 'स्वीकृति लंबित',
+  approved: 'समर्थन',
   close: 'बंद करें',
   errorFetchingContacts: 'सर्वर त्रुटि',
   resendOTP: 'ओटीपी पुनः भेजें',

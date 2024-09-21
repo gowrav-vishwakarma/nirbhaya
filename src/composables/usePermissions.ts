@@ -14,10 +14,10 @@ interface Permission {
 
 export function usePermissions() {
   const permissions: Ref<Permission[]> = ref([
-    { name: 'location', granted: false, denied: false },
-    { name: 'camera', granted: false, denied: false },
+    { name: 'common.location', granted: false, denied: false },
+    { name: 'common.camera', granted: false, denied: false },
     // Remove microphone permission
-    { name: 'notifications', granted: false, denied: false },
+    { name: 'common.notifications', granted: false, denied: false },
   ]);
 
   const allPermissionsGranted = computed(() =>

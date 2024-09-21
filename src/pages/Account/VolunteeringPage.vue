@@ -33,12 +33,19 @@
                       dense
                       v-model="location.name"
                       :label="$t('common.locationName')"
-                      :hint="getLocationHint(location)"
                       :error="!isLocationValid(location)"
                       :error-message="$t('common.pleaseSelectLocation')"
-                    />
+                      class="full-width"
+                    >
+                    </q-input>
+                    <div
+                      v-if="isLocationValid(location)"
+                      class="text-caption q-mt-sm"
+                    >
+                      {{ getLocationCoordinates(location) }}
+                    </div>
                   </q-item-section>
-                  <q-item-section side>
+                  <q-item-section side top>
                     <q-btn-group spread>
                       <q-btn
                         flat
@@ -58,6 +65,18 @@
                         @click="removeNotificationLocation(index)"
                       />
                     </q-btn-group>
+                    <q-space />
+                    <q-btn
+                      flat
+                      dense
+                      round
+                      icon="map"
+                      :disable="!isLocationValid(location)"
+                      @click="openGoogleMaps(location.location.coordinates)"
+                      class="q-mb-0"
+                    >
+                      <q-tooltip>{{ $t('common.viewOnMap') }}</q-tooltip>
+                    </q-btn>
                   </q-item-section>
                 </q-item>
               </q-list>
@@ -227,9 +246,9 @@ const getLocationHint = (location: {
 }) => {
   const [longitude, latitude] = location.location.coordinates;
   if (latitude && longitude) {
-    return `${t('coordinates')}: ${latitude.toFixed(6)}, ${longitude.toFixed(
+    return `${t('common.coordinates')}: ${latitude.toFixed(
       6
-    )}`;
+    )}, ${longitude.toFixed(6)}`;
   }
   return t('common.noLocationSet');
 };
@@ -244,6 +263,18 @@ const isLocationValid = (location: {
 const isFormValid = computed(() => {
   return values.value.locations.every(isLocationValid);
 });
+
+const getLocationCoordinates = (location: {
+  location: { coordinates: [number, number] };
+}) => {
+  const [longitude, latitude] = location.location.coordinates;
+  if (latitude && longitude) {
+    return `${t('common.coordinates')}: ${latitude.toFixed(
+      6
+    )}, ${longitude.toFixed(6)}`;
+  }
+  return '';
+};
 
 callbacks.onSuccess = (data) => {
   userStore.updateUser(data.user);
@@ -321,5 +352,9 @@ const openGoogleMaps = (coordinates: [number, number]) => {
 .q-btn-group {
   border-radius: 8px;
   overflow: hidden;
+}
+
+.q-input {
+  width: 100%;
 }
 </style>

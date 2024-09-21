@@ -254,6 +254,7 @@ export default {
   availabilitySettings: 'ઉપલબ્ધતા સેટિંગ્સ',
   profileSettings: 'મારી પ્રોફાઇલ',
   pendingApproval: 'મંજૂરી બાકી',
+  approved: 'સમર્થન',
   close: 'બંધ કરો',
   errorFetchingContacts: 'સર્વર ભૂલ',
   resendOTP: 'ઓટીપી ફરીથી મોકલો',
