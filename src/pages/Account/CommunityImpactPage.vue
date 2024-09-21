@@ -196,6 +196,7 @@ import { ref, onMounted, onUnmounted, watch } from 'vue';
 import { api } from 'src/boot/axios';
 import { useUserStore } from 'src/stores/user-store';
 import { copyToClipboard, openURL } from 'quasar';
+import { Platform } from 'quasar';
 
 const userStore = useUserStore();
 const impactInfo = ref({
@@ -290,7 +291,14 @@ const startRecording = async () => {
     const audioTrack = stream.getAudioTracks()[0];
     canvasStream.value.addTrack(audioTrack);
 
-    mediaRecorder.value = new MediaRecorder(canvasStream.value);
+    const mimeType = Platform.is.ios ? 'video/mp4' : 'video/webm';
+    const options = {
+      mimeType: mimeType,
+      videoBitsPerSecond: 2500000, // 2.5 Mbps
+      audioBitsPerSecond: 128000, // 128 kbps
+    };
+
+    mediaRecorder.value = new MediaRecorder(canvasStream.value, options);
 
     mediaRecorder.value.ondataavailable = (event) => {
       if (event.data.size > 0) {
@@ -338,7 +346,8 @@ const downloadVideo = () => {
   if (recordedVideoUrl.value) {
     const a = document.createElement('a');
     a.href = recordedVideoUrl.value;
-    a.download = 'recorded_video.webm';
+    const extension = Platform.is.ios ? 'mp4' : 'webm';
+    a.download = `recorded_video.${extension}`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);

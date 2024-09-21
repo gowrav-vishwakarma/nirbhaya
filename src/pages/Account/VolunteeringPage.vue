@@ -36,6 +36,7 @@
                       :error="!isLocationValid(location)"
                       :error-message="$t('common.pleaseSelectLocation')"
                       class="full-width"
+                      :disable="!values.availableForCommunity"
                     >
                     </q-input>
                     <div
@@ -53,6 +54,7 @@
                         :icon="$t('common.icons.myLocation')"
                         @click="updateLocationCoordinates(index)"
                         :loading="locationLoading[index]"
+                        :disable="!values.availableForCommunity"
                       >
                         <q-tooltip>{{
                           $t('common.useCurrentLocation')
@@ -63,6 +65,7 @@
                         color="negative"
                         :icon="$t('common.icons.delete')"
                         @click="removeNotificationLocation(index)"
+                        :disable="!values.availableForCommunity"
                       />
                     </q-btn-group>
                     <q-space />
@@ -71,7 +74,10 @@
                       dense
                       round
                       icon="map"
-                      :disable="!isLocationValid(location)"
+                      :disable="
+                        !isLocationValid(location) ||
+                        !values.availableForCommunity
+                      "
                       @click="openGoogleMaps(location.location.coordinates)"
                       class="q-mb-0"
                     >
@@ -88,6 +94,7 @@
                   :icon="$t('common.icons.addCircle')"
                   :label="$t('common.addNotificationLocation')"
                   no-caps
+                  :disable="!values.availableForCommunity"
                 />
               </div>
             </div>
@@ -261,6 +268,9 @@ const isLocationValid = (location: {
 };
 
 const isFormValid = computed(() => {
+  if (!values.value.availableForCommunity) {
+    return true;
+  }
   return values.value.locations.every(isLocationValid);
 });
 
