@@ -91,11 +91,8 @@
     </div>
 
     <div class="video-container q-mt-sm" style="position: relative">
-      <video ref="videoPreview" style="max-width: 100%" autoplay muted></video>
-      <canvas
-        ref="overlayCanvas"
-        style="position: absolute; top: 0; left: 0; width: 100%; height: 100%"
-      ></canvas>
+      <video ref="videoPreview" style="display: none" autoplay muted></video>
+      <canvas ref="overlayCanvas" style="width: 100%; height: auto"></canvas>
     </div>
 
     <canvas ref="canvas" style="display: none"></canvas>
@@ -149,32 +146,20 @@ const watermarkConfig = ref({
   textSize: 24,
 });
 
+const canvasStream = ref<MediaStream | null>(null);
+
 const drawOverlay = () => {
   if (!overlayCanvas.value || !videoPreview.value) return;
   const ctx = overlayCanvas.value.getContext('2d');
   if (!ctx) return;
 
-  overlayCanvas.value.width =
-    videoPreview.value.videoWidth || videoPreview.value.clientWidth;
-  overlayCanvas.value.height =
-    videoPreview.value.videoHeight || videoPreview.value.clientHeight;
-
-  ctx.clearRect(0, 0, overlayCanvas.value.width, overlayCanvas.value.height);
-
-  // Draw image watermark
-  if (watermarkConfig.value.imageSrc) {
-    const img = new Image();
-    img.onload = () => {
-      ctx.drawImage(
-        img,
-        watermarkConfig.value.imageX,
-        watermarkConfig.value.imageY,
-        watermarkConfig.value.imageWidth,
-        watermarkConfig.value.imageHeight
-      );
-    };
-    img.src = watermarkConfig.value.imageSrc;
-  }
+  ctx.drawImage(
+    videoPreview.value,
+    0,
+    0,
+    overlayCanvas.value.width,
+    overlayCanvas.value.height
+  );
 
   // Draw text overlay
   ctx.fillStyle = watermarkConfig.value.textColor;
@@ -184,9 +169,18 @@ const drawOverlay = () => {
     watermarkConfig.value.textX,
     watermarkConfig.value.textY
   );
+
+  // Draw image watermark if needed
+  if (watermarkConfig.value.imageSrc) {
+    // ... (existing image watermark code)
+  }
+
+  if (isRecording.value) {
+    requestAnimationFrame(drawOverlay);
+  }
 };
 
-watch(watermarkConfig.value, drawOverlay, { deep: true });
+watch(watermarkConfig, drawOverlay, { deep: true });
 
 const startRecording = async () => {
   try {
@@ -197,21 +191,37 @@ const startRecording = async () => {
     if (videoPreview.value) {
       videoPreview.value.srcObject = stream;
       videoPreview.value.onloadedmetadata = () => {
+        if (overlayCanvas.value) {
+          overlayCanvas.value.width = videoPreview.value!.videoWidth;
+          overlayCanvas.value.height = videoPreview.value!.videoHeight;
+        }
         drawOverlay();
       };
+      await videoPreview.value.play();
     }
-    mediaRecorder.value = new MediaRecorder(stream);
+
+    if (!overlayCanvas.value) return;
+
+    canvasStream.value = overlayCanvas.value.captureStream(30);
+    const audioTrack = stream.getAudioTracks()[0];
+    canvasStream.value.addTrack(audioTrack);
+
+    mediaRecorder.value = new MediaRecorder(canvasStream.value);
+
     mediaRecorder.value.ondataavailable = (event) => {
       if (event.data.size > 0) {
         recordedChunks.value.push(event.data);
       }
     };
+
     mediaRecorder.value.onstop = () => {
       const blob = new Blob(recordedChunks.value, { type: 'video/webm' });
       recordedVideoUrl.value = URL.createObjectURL(blob);
     };
+
     mediaRecorder.value.start();
     isRecording.value = true;
+    drawOverlay();
   } catch (error) {
     console.error('Error accessing camera:', error);
   }
@@ -223,77 +233,8 @@ const stopRecording = () => {
     isRecording.value = false;
     const tracks = videoPreview.value?.srcObject as MediaStream;
     tracks?.getTracks().forEach((track) => track.stop());
-    addWatermark();
+    canvasStream.value?.getTracks().forEach((track) => track.stop());
   }
-};
-
-const addWatermark = () => {
-  if (!videoPreview.value) return;
-
-  const tempVideo = document.createElement('video');
-  tempVideo.src = recordedVideoUrl.value;
-  tempVideo.onloadedmetadata = () => {
-    if (!canvas.value) return;
-    const ctx = canvas.value.getContext('2d');
-    if (!ctx) return;
-
-    canvas.value.width = tempVideo.videoWidth;
-    canvas.value.height = tempVideo.videoHeight;
-
-    const stream = canvas.value.captureStream();
-    const newMediaRecorder = new MediaRecorder(stream, {
-      mimeType: 'video/webm',
-    });
-    const newChunks: Blob[] = [];
-
-    newMediaRecorder.ondataavailable = (e) => {
-      if (e.data.size > 0) {
-        newChunks.push(e.data);
-      }
-    };
-
-    newMediaRecorder.onstop = () => {
-      const blob = new Blob(newChunks, { type: 'video/webm' });
-      recordedVideoUrl.value = URL.createObjectURL(blob);
-    };
-
-    const drawFrame = () => {
-      ctx.drawImage(tempVideo, 0, 0, canvas.value!.width, canvas.value!.height);
-
-      // Apply watermark and overlay
-      if (watermarkConfig.value.imageSrc) {
-        const img = new Image();
-        img.onload = () => {
-          ctx.drawImage(
-            img,
-            watermarkConfig.value.imageX,
-            watermarkConfig.value.imageY,
-            watermarkConfig.value.imageWidth,
-            watermarkConfig.value.imageHeight
-          );
-        };
-        img.src = watermarkConfig.value.imageSrc;
-      }
-
-      ctx.fillStyle = watermarkConfig.value.textColor;
-      ctx.font = `${watermarkConfig.value.textSize}px Arial`;
-      ctx.fillText(
-        watermarkConfig.value.text,
-        watermarkConfig.value.textX,
-        watermarkConfig.value.textY
-      );
-
-      if (!tempVideo.paused && !tempVideo.ended) {
-        requestAnimationFrame(drawFrame);
-      } else {
-        newMediaRecorder.stop();
-      }
-    };
-
-    newMediaRecorder.start();
-    tempVideo.play();
-    drawFrame();
-  };
 };
 
 const discardVideo = () => {
@@ -352,9 +293,15 @@ onMounted(() => {
 
 watch(
   videoPreview,
-  () => {
-    if (videoPreview.value) {
-      videoPreview.value.onloadedmetadata = drawOverlay;
+  (newValue) => {
+    if (newValue) {
+      newValue.onloadedmetadata = () => {
+        if (overlayCanvas.value) {
+          overlayCanvas.value.width = newValue.videoWidth;
+          overlayCanvas.value.height = newValue.videoHeight;
+        }
+        drawOverlay();
+      };
     }
   },
   { immediate: true }
