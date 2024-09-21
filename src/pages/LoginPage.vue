@@ -89,7 +89,9 @@ const router = useRouter();
 const otpSent = ref(false);
 
 const isIosNotSafari = computed(() => {
-  return $q.platform.is.ios && !$q.platform.is.safari;
+  return (
+    $q.platform.is.ios && !$q.platform.is.safari && !$q.platform.is.nativeMobile
+  );
 });
 
 onMounted(() => {
