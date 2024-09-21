@@ -4,16 +4,22 @@
       <q-card class="volunteering-card q-mb-md">
         <q-card-section>
           <div class="text-h6 text-weight-bold q-mb-md">
-            {{ $t('volunteeringSettings') }}
+            {{ $t('common.volunteeringSettings') }}
           </div>
 
           <q-form @submit.prevent="handleSubmit">
             <!-- Notification locations -->
             <div class="q-mb-lg">
               <div class="text-subtitle1 text-weight-bold q-mb-sm">
-                {{ $t('notificationLocations') }}
-                <q-icon :name="$t('icons.help')" size="xs" class="q-ml-sm">
-                  <q-tooltip>{{ $t('notificationLocationsHelp') }}</q-tooltip>
+                {{ $t('common.notificationLocations') }}
+                <q-icon
+                  :name="$t('common.icons.help')"
+                  size="xs"
+                  class="q-ml-sm"
+                >
+                  <q-tooltip>{{
+                    $t('common.notificationLocationsHelp')
+                  }}</q-tooltip>
                 </q-icon>
               </div>
               <q-list bordered separator>
@@ -26,10 +32,10 @@
                       outlined
                       dense
                       v-model="location.name"
-                      :label="$t('locationName')"
+                      :label="$t('common.locationName')"
                       :hint="getLocationHint(location)"
                       :error="!isLocationValid(location)"
-                      :error-message="$t('pleaseSelectLocation')"
+                      :error-message="$t('common.pleaseSelectLocation')"
                     />
                   </q-item-section>
                   <q-item-section side>
@@ -37,16 +43,18 @@
                       <q-btn
                         flat
                         color="primary"
-                        :icon="$t('icons.myLocation')"
+                        :icon="$t('common.icons.myLocation')"
                         @click="updateLocationCoordinates(index)"
                         :loading="locationLoading[index]"
                       >
-                        <q-tooltip>{{ $t('useCurrentLocation') }}</q-tooltip>
+                        <q-tooltip>{{
+                          $t('common.useCurrentLocation')
+                        }}</q-tooltip>
                       </q-btn>
                       <q-btn
                         flat
                         color="negative"
-                        :icon="$t('icons.delete')"
+                        :icon="$t('common.icons.delete')"
                         @click="removeNotificationLocation(index)"
                       />
                     </q-btn-group>
@@ -58,8 +66,8 @@
                   v-if="values.locations.length < 10"
                   @click="addNotificationLocation"
                   color="primary"
-                  :icon="$t('icons.addCircle')"
-                  :label="$t('addNotificationLocation')"
+                  :icon="$t('common.icons.addCircle')"
+                  :label="$t('common.addNotificationLocation')"
                   no-caps
                 />
               </div>
@@ -69,16 +77,16 @@
             <q-card flat bordered class="q-mb-md">
               <q-card-section>
                 <div class="text-subtitle1 text-weight-bold q-mb-sm">
-                  {{ $t('availabilitySettings') }}
+                  {{ $t('common.availabilitySettings') }}
                 </div>
                 <q-list>
                   <q-item tag="label" v-ripple>
                     <q-item-section>
                       <q-item-label>{{
-                        $t('availableForCommunity')
+                        $t('common.availableForCommunity')
                       }}</q-item-label>
                       <q-item-label caption>{{
-                        $t('availableForCommunityDescription')
+                        $t('common.availableForCommunityDescription')
                       }}</q-item-label>
                     </q-item-section>
                     <q-item-section side>
@@ -91,10 +99,12 @@
                   <q-item tag="label" v-ripple>
                     <q-item-section>
                       <q-item-label>{{
-                        $t('availableForPaidProfessionalService')
+                        $t('common.availableForPaidProfessionalService')
                       }}</q-item-label>
                       <q-item-label caption>{{
-                        $t('availableForPaidProfessionalServiceDescription')
+                        $t(
+                          'common.availableForPaidProfessionalServiceDescription'
+                        )
                       }}</q-item-label>
                     </q-item-section>
                     <q-item-section side>
@@ -118,7 +128,7 @@
                 :disable="!isFormValid"
                 no-caps
               >
-                <b>{{ $t('saveChanges') }}</b>
+                <b>{{ $t('common.saveChanges') }}</b>
               </q-btn>
             </div>
           </q-form>
@@ -197,14 +207,14 @@ const updateLocationCoordinates = async (index: number) => {
 
     $q.notify({
       color: 'positive',
-      message: t('locationUpdated'),
+      message: t('common.locationUpdated'),
       icon: 'check',
     });
   } catch (error) {
     console.error('Error getting location', error);
     $q.notify({
       color: 'negative',
-      message: t('locationError'),
+      message: t('common.locationError'),
       icon: 'error',
     });
   } finally {
@@ -221,7 +231,7 @@ const getLocationHint = (location: {
       6
     )}`;
   }
-  return t('noLocationSet');
+  return t('common.noLocationSet');
 };
 
 const isLocationValid = (location: {
@@ -240,7 +250,7 @@ callbacks.onSuccess = (data) => {
   loadUserData(); // Reload user data from the store
   $q.notify({
     color: 'positive',
-    message: t('volunteeringUpdateSuccess'),
+    message: t('common.volunteeringUpdateSuccess'),
     icon: 'check',
   });
 };
@@ -263,7 +273,7 @@ callbacks.onError = (error) => {
   console.error('Error updating volunteering info', error);
   $q.notify({
     color: 'negative',
-    message: t('volunteeringUpdateError'),
+    message: t('common.volunteeringUpdateError'),
     icon: 'error',
   });
 };
@@ -275,7 +285,7 @@ const handleSubmit = () => {
   } else {
     $q.notify({
       color: 'negative',
-      message: t('pleaseSelectAllLocations'),
+      message: t('common.pleaseSelectAllLocations'),
       icon: 'error',
     });
   }

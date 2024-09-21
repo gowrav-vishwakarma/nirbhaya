@@ -3,7 +3,7 @@
     <q-card class="sos-card q-pa-lg">
       <q-card-section>
         <div class="text-h5 text-weight-bold text-center q-mb-md">
-          {{ $t('sosMode') }}
+          {{ $t('common.sosMode') }}
         </div>
 
         <template v-if="!sosSent">
@@ -23,12 +23,12 @@
               <div class="text-h5">{{ timeLeft }}</div>
             </q-circular-progress>
             <div class="text-subtitle1 q-mt-sm">
-              {{ $t('sosCountdownMessage') }}
+              {{ $t('common.sosCountdownMessage') }}
             </div>
           </div>
           <q-btn
             color="red"
-            :label="$t('cancelSOS')"
+            :label="$t('common.cancelSOS')"
             @click="cancelSOS"
             class="full-width q-py-sm"
           />
@@ -38,7 +38,7 @@
           <div class="text-center q-mb-lg">
             <q-icon name="warning" color="red" size="4rem" />
             <div class="text-h6 text-red text-weight-bold q-mt-sm">
-              {{ $t('sosSent') }}
+              {{ $t('common.sosSent') }}
             </div>
           </div>
 
@@ -47,29 +47,29 @@
           <q-list bordered class="rounded-borders q-mb-md">
             <q-item v-if="!contactsOnly">
               <q-item-section>
-                <q-item-label>{{ $t('notifiedPersons') }}</q-item-label>
+                <q-item-label>{{ $t('common.notifiedPersons') }}</q-item-label>
                 <q-item-label caption>{{ informed }}</q-item-label>
               </q-item-section>
             </q-item>
             <q-item v-if="!contactsOnly">
               <q-item-section>
-                <q-item-label>{{ $t('acceptedPersons') }}</q-item-label>
+                <q-item-label>{{ $t('common.acceptedPersons') }}</q-item-label>
                 <q-item-label caption>{{ accepted }}</q-item-label>
               </q-item-section>
             </q-item>
             <q-item>
               <q-item-section>
                 <q-item-label>{{
-                  $t('emergencyContactsInformed')
+                  $t('common.emergencyContactsInformed')
                 }}</q-item-label>
-                <q-item-label caption>{{ $t('yes') }}</q-item-label>
+                <q-item-label caption>{{ $t('common.yes') }}</q-item-label>
               </q-item-section>
             </q-item>
           </q-list>
         </template>
 
         <div class="text-h6 text-weight-bold q-mb-sm">
-          {{ $t('helpUsMore') }}
+          {{ $t('common.helpUsMore') }}
         </div>
         <div class="row q-col-gutter-sm q-mb-md">
           <div v-for="threat in threats" :key="threat" class="col-12 col-sm-6">
@@ -85,21 +85,21 @@
         </div>
 
         <div class="text-subtitle1 text-weight-bold q-mb-sm">
-          {{ $t('currentLocation') }}
+          {{ $t('common.currentLocation') }}
         </div>
         <q-item class="bg-grey-2 rounded-borders q-mb-md">
           <q-item-section avatar>
-            <q-icon :name="$t('icons.myLocation')" color="primary" />
+            <q-icon :name="$t('common.icons.myLocation')" color="primary" />
           </q-item-section>
           <q-item-section>
             <q-item-label>{{
-              currentLocationName || $t('gettingLocation')
+              currentLocationName || $t('common.gettingLocation')
             }}</q-item-label>
             <q-item-label
               caption
               v-if="currentLocation.latitude && currentLocation.longitude"
             >
-              {{ $t('coordinates') }}:
+              {{ $t('common.coordinates') }}:
               {{ currentLocation.latitude.toFixed(6) }},
               {{ currentLocation.longitude.toFixed(6) }}
             </q-item-label>
@@ -107,11 +107,11 @@
         </q-item>
 
         <div class="text-subtitle1 text-weight-bold q-mb-sm">
-          {{ $t('nearbyPoliceStations') }}
+          {{ $t('common.nearbyPoliceStations') }}
         </div>
         <q-item class="bg-grey-2 rounded-borders q-mb-md">
           <q-item-section avatar>
-            <q-icon :name="$t('icons.locationOn')" color="primary" />
+            <q-icon :name="$t('common.icons.locationOn')" color="primary" />
           </q-item-section>
           <q-item-section>
             <q-item-label>South Bopal Ahmedabad</q-item-label>
@@ -123,7 +123,7 @@
           color="primary"
           class="full-width q-mb-md"
         >
-          <b>{{ $t('contactPoliceStation') }}</b>
+          <b>{{ $t('common.contactPoliceStation') }}</b>
         </q-btn>
 
         <q-btn
@@ -132,7 +132,7 @@
           color="positive"
           class="full-width"
         >
-          <b>{{ $t('resolveSOSIssue') }}</b>
+          <b>{{ $t('common.resolveSOSIssue') }}</b>
         </q-btn>
       </q-card-section>
 
@@ -542,7 +542,7 @@ const startLocationWatching = async () => {
   } catch (error) {
     logMessage('Error starting location watch: ' + error);
     console.error('Error starting location watch:', error);
-    currentLocationName.value = t('locationWatchError');
+    currentLocationName.value = t('common.locationWatchError');
   }
 };
 

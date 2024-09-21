@@ -4,7 +4,7 @@
       <q-card class="notifications-card q-mb-md">
         <q-card-section>
           <div class="text-h5 text-weight-bold q-mb-md">
-            {{ $t('notifications') }}
+            {{ $t('common.notifications') }}
           </div>
 
           <q-inner-loading :showing="isLoading">
@@ -51,7 +51,7 @@
                         v-if="notification.sosEvent?.threat"
                         class="text-body2 q-mb-sm"
                       >
-                        {{ $t('threat') }}:
+                        {{ $t('common.threat') }}:
                         <span class="text-weight-medium">{{
                           $t(notification.sosEvent.threat)
                         }}</span>
@@ -64,7 +64,8 @@
                         class="text-body2"
                       >
                         {{ formatDistance(notification.distanceToEvent) }}
-                        {{ $t('awayFrom') }} {{ notification.userLocationName }}
+                        {{ $t('common.awayFrom') }}
+                        {{ notification.userLocationName }}
                       </div>
                     </q-card-section>
 
@@ -72,7 +73,7 @@
                       <q-btn
                         v-if="notification.status === 'sent'"
                         color="primary"
-                        :label="$t('accept')"
+                        :label="$t('common.accept')"
                         @click="acceptNotification(notification.id)"
                         dense
                         no-caps
@@ -80,7 +81,7 @@
                       <q-btn
                         v-else-if="notification.status === 'accepted'"
                         color="secondary"
-                        :label="$t('follow')"
+                        :label="$t('common.follow')"
                         @click="followLocation(notification.sosEvent.location)"
                         dense
                         no-caps
@@ -91,7 +92,7 @@
                       />
                       <q-btn
                         color="negative"
-                        :label="$t('discard')"
+                        :label="$t('common.discard')"
                         @click="discardNotification(notification.id)"
                         flat
                         dense
@@ -105,7 +106,7 @@
             <div v-else class="text-center q-pa-md">
               <q-icon name="notifications_off" size="48px" color="grey-6" />
               <p class="text-h6 text-grey-6">
-                {{ $t('noNotificationsFound') }}
+                {{ $t('common.noNotificationsFound') }}
               </p>
             </div>
           </template>
@@ -186,7 +187,7 @@ watch(
 const getNotificationTitle = (notification: Notification) => {
   const eventType = notification.sosEvent?.threat || 'SOS';
   if (notification.recipientType === 'volunteer') {
-    return t('notificationTitles.volunteerNearby', {
+    return t('common.notificationTitles.volunteerNearby', {
       eventType: t(`${eventType}`),
     });
   } else if (notification.recipientType === 'emergency_contact') {
@@ -227,7 +228,7 @@ const acceptNotification = async (notificationId: number) => {
     }
     $q.notify({
       color: 'positive',
-      message: t('notificationAcceptedSuccess'),
+      message: t('common.notificationAcceptedSuccess'),
       icon: 'check',
     });
     await fetchUnreadNotificationCount();
@@ -235,7 +236,7 @@ const acceptNotification = async (notificationId: number) => {
     console.error('Error accepting notification:', error);
     $q.notify({
       color: 'negative',
-      message: t('notificationAcceptedError'),
+      message: t('common.notificationAcceptedError'),
       icon: 'error',
     });
   }
@@ -249,7 +250,7 @@ const followLocation = (location: { type: string; coordinates: number[] }) => {
   } else {
     $q.notify({
       color: 'negative',
-      message: t('locationNotAvailable'),
+      message: t('common.locationNotAvailable'),
       icon: 'error',
     });
   }
@@ -269,7 +270,7 @@ const formatRelativeTime = (dateString: string) => {
   const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
 
   if (diffInSeconds < 60) {
-    return t('justNow');
+    return t('common.justNow');
   }
 
   const diffInMinutes = Math.floor(diffInSeconds / 60);
@@ -294,12 +295,14 @@ const formatRelativeTime = (dateString: string) => {
   const diffInMonths = Math.floor(diffInDays / 30);
   if (diffInMonths < 12) {
     return `${diffInMonths} ${
-      diffInMonths === 1 ? t('monthAgo') : t('monthsAgo')
+      diffInMonths === 1 ? t('common.monthAgo') : t('common.monthsAgo')
     }`;
   }
 
   const diffInYears = Math.floor(diffInDays / 365);
-  return `${diffInYears} ${diffInYears === 1 ? t('yearAgo') : t('yearsAgo')}`;
+  return `${diffInYears} ${
+    diffInYears === 1 ? t('common.yearAgo') : t('common.yearsAgo')
+  }`;
 };
 
 const refreshNotifications = async () => {
@@ -315,14 +318,14 @@ const discardNotification = async (notificationId: number) => {
     ); // Remove the discarded notification from the list
     $q.notify({
       color: 'positive',
-      message: t('notificationDiscardedSuccess'),
+      message: t('common.notificationDiscardedSuccess'),
       icon: 'check',
     });
   } catch (error) {
     console.error('Error discarding notification:', error);
     $q.notify({
       color: 'negative',
-      message: t('notificationDiscardedError'),
+      message: t('common.notificationDiscardedError'),
       icon: 'error',
     });
   }

@@ -4,10 +4,10 @@
       <q-card class="welcome-card q-mb-md">
         <q-card-section>
           <h4 class="text-h4 text-weight-bold text-primary q-mb-sm">
-            {{ $t('welcome', { name: userName }) }}
+            {{ $t('common.welcome', { name: userName }) }}
           </h4>
           <p class="text-subtitle1 text-grey-7">
-            {{ $t('dashboardSubtitle') }}
+            {{ $t('common.dashboardSubtitle') }}
           </p>
         </q-card-section>
       </q-card>
@@ -21,8 +21,12 @@
           <div class="row items-center full-width">
             <q-icon name="warning" size="3rem" class="q-mr-md col-3" />
             <div class="text-left col-5">
-              <div class="text-h5 text-weight-bold">{{ $t('sosButton') }}</div>
-              <div class="text-subtitle2">{{ $t('sosButtonSubtitle') }}</div>
+              <div class="text-h5 text-weight-bold">
+                {{ $t('common.sosButton') }}
+              </div>
+              <div class="text-subtitle2">
+                {{ $t('common.sosButtonSubtitle') }}
+              </div>
             </div>
           </div>
         </q-btn>
@@ -40,9 +44,11 @@
             <q-icon name="people" size="2rem" class="q-mr-md" />
             <div class="text-left">
               <div class="text-subtitle1 text-weight-bold">
-                {{ $t('helpContacts') }}
+                {{ $t('common.helpContacts') }}
               </div>
-              <div class="text-caption">{{ $t('helpContactsSubtitle') }}</div>
+              <div class="text-caption">
+                {{ $t('common.helpContactsSubtitle') }}
+              </div>
             </div>
           </div>
         </q-btn>
@@ -51,7 +57,7 @@
       <q-card v-if="!allPermissionsGranted" class="permissions-card q-mb-md">
         <q-card-section>
           <h6 class="text-h6 text-weight-bold q-mb-sm">
-            {{ $t('missingPermissions') }}
+            {{ $t('common.missingPermissions') }}
           </h6>
           <q-list>
             <q-item
@@ -74,14 +80,14 @@
               <q-item-section side>
                 <q-btn
                   v-if="!permission.granted && !permission.denied"
-                  :label="$t('request')"
+                  :label="$t('common.request')"
                   color="primary"
                   outline
                   @click="requestPermission(permission.name)"
                 />
                 <q-btn
                   v-if="permission.denied"
-                  :label="$t('helpFor')"
+                  :label="$t('common.helpFor')"
                   color="secondary"
                   outline
                   @click="goToHelp(permission.name)"
@@ -95,7 +101,7 @@
       <q-card class="safety-card q-mb-md">
         <q-card-section>
           <h6 class="text-h6 text-weight-bold q-mb-sm">
-            {{ $t('safetyTip') }}
+            {{ $t('common.safetyTip') }}
           </h6>
           <p class="text-body1">{{ currentSafetyTip }}</p>
         </q-card-section>
@@ -104,7 +110,7 @@
       <q-card class="emergency-contacts-card q-mb-md">
         <q-card-section>
           <h6 class="text-h6 text-weight-bold q-mb-sm">
-            {{ $t('emergencyServices') }}
+            {{ $t('common.emergencyServices') }}
           </h6>
           <div class="row q-col-gutter-md">
             <div
@@ -129,7 +135,7 @@
       <q-card v-if="isVolunteer" class="volunteer-status-card">
         <q-card-section>
           <h6 class="text-h6 text-weight-bold q-mb-sm">
-            {{ $t('volunteerStatus') }}
+            {{ $t('common.volunteerStatus') }}
           </h6>
           <q-toggle
             v-model="volunteerAvailable"
@@ -150,18 +156,18 @@
         <q-card-section>
           <div class="row items-center justify-between q-mb-sm">
             <h6 class="text-h6 text-weight-bold q-my-none">
-              {{ $t('nearbyVolunteers') }}
+              {{ $t('common.nearbyVolunteers') }}
             </h6>
             <q-btn
               flat
               color="primary"
-              :label="$t('viewAll')"
+              :label="$t('common.viewAll')"
               @click="router.push('/volunteers')"
             />
           </div>
           <div v-if="isLoadingLocation" class="text-center">
             <q-spinner color="primary" size="3em" />
-            <p>{{ $t('gettingLocation') }}</p>
+            <p>{{ $t('common.gettingLocation') }}</p>
           </div>
           <div
             v-else-if="nearbyVolunteers.length > 0"
@@ -170,7 +176,7 @@
           >
             <div class="map-center">
               <q-icon
-                :name="$t('icons.myLocation')"
+                :name="$t('common.icons.myLocation')"
                 size="24px"
                 color="primary"
               />
@@ -192,13 +198,13 @@
             </div>
           </div>
           <p v-if="!isLoadingLocation" class="text-center q-mt-sm">
-            {{ nearbyVolunteers.length }} {{ $t('volunteersNearby') }}
+            {{ nearbyVolunteers.length }} {{ $t('common.volunteersNearby') }}
           </p>
           <p
             v-if="!isLoadingLocation && nearbyVolunteers.length === 0"
             class="text-center"
           >
-            {{ $t('noVolunteersNearby') }}
+            {{ $t('common.noVolunteersNearby') }}
           </p>
         </q-card-section>
       </q-card>
@@ -317,13 +323,13 @@ const updateVolunteerStatus = async () => {
     userStore.updateUser({ volunteerAvailable: volunteerAvailable.value });
     $q.notify({
       type: 'positive',
-      message: $t('volunteerStatusUpdated'),
+      message: $t('common.volunteerStatusUpdated'),
     });
   } catch (error) {
     console.error('Failed to update volunteer status:', error);
     $q.notify({
       type: 'negative',
-      message: $t('volunteerStatusUpdateFailed'),
+      message: $t('common.volunteerStatusUpdateFailed'),
     });
   }
 };

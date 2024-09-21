@@ -1,5 +1,5 @@
 <template>
-  <q-layout view="lHh Lpr lFf" class="bg-grey-1">
+  <q-layout view="hHh LpR lff" class="bg-grey-1">
     <q-header elevated class="bg-primary text-white">
       <q-toolbar>
         <q-toolbar-title
@@ -7,7 +7,7 @@
           @click="userStore.isLoggedIn ? goToDashboardPage() : goToLoginPage()"
         >
           <q-icon name="campaign" size="2em" />
-          <span class="text-weight-bold">{{ $t('app.name') }}</span>
+          <span class="text-weight-bold">{{ $t('common.appname') }}</span>
         </q-toolbar-title>
 
         <div>
@@ -35,6 +35,17 @@
         </div>
       </q-toolbar>
     </q-header>
+
+    <q-drawer v-model="drawer" class="bg-grey-2" :persistent="true" bordered>
+      <q-list>
+        <q-item @click="goToHomePage" clickable>
+          <q-item-section>Home</q-item-section>
+        </q-item>
+        <q-item @click="goToAboutUsPage" clickable>
+          <q-item-section>About Us</q-item-section>
+        </q-item>
+      </q-list>
+    </q-drawer>
 
     <q-page-container>
       <router-view />
@@ -82,23 +93,29 @@ import { useBackgroundNotifications } from 'src/composables/useBackgroundNotific
 import { useUserStore } from 'src/stores/user-store';
 import { onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { ref } from 'vue';
 
 const router = useRouter();
 const { unreadNotificationCount, fetchUnreadNotificationCount } =
   useBackgroundNotifications();
 const userStore = useUserStore();
 const { locale } = useI18n();
+const drawer = ref(false);
 
 onMounted(() => {
   locale.value = userStore.language;
 });
+
+const toggleDrawer = () => {
+  drawer.value = !drawer.value; // Method to toggle drawer visibility
+};
 
 const goToAccountPage = () => {
   router.push('/account');
 };
 
 const goToDashboardPage = () => {
-  router.push('/dashboard');
+  router.push('/sos');
 };
 
 const goToLoginPage = () => {
@@ -107,11 +124,11 @@ const goToLoginPage = () => {
 
 const refreshNotifications = async () => {
   await fetchUnreadNotificationCount();
-  goToNotificationsPage(true); // Pass a flag to indicate refresh
+  goToNotificationsPage(true);
 };
 
 const goToNotificationsPage = () => {
-  const timestamp = Date.now(); // Generate a unique key
+  const timestamp = Date.now();
   router
     .push({ path: '/notifications', query: { key: timestamp } })
     .catch(() => {
@@ -124,11 +141,20 @@ const goToHelpPage = () => {
 };
 
 const goToVolunteersPage = () => {
-  // New method for navigation
   router.push('/volunteers');
 };
 
 const goToCommunityPage = () => {
   router.push('/community');
+};
+
+const goToHomePage = () => {
+  router.push('/home');
+  drawer.value = false;
+};
+
+const goToAboutUsPage = () => {
+  router.push('/about-us');
+  drawer.value = false;
 };
 </script>

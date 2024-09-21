@@ -4,7 +4,7 @@
       <q-card class="profile-card q-mb-md">
         <q-card-section>
           <div class="text-h6 text-weight-bold q-mb-md">
-            {{ $t('profileSettings') }}
+            {{ $t('common.profileSettings') }}
           </div>
           <LanguageSelector class="q-mb-md" />
 
@@ -14,18 +14,18 @@
               <div class="col-12 col-sm-6">
                 <q-input
                   v-model="values.name"
-                  :label="$t('name')"
+                  :label="$t('common.name')"
                   outlined
                   dense
                   :error="!!errors.name"
                   :error-message="errors.name?.join('; ')"
-                  :rules="[(val) => !!val || $t('nameRequired')]"
+                  :rules="[(val) => !!val || $t('common.nameRequired')]"
                 />
               </div>
               <div class="col-12 col-sm-6">
                 <q-input
                   v-model="values.phoneNumber"
-                  :label="$t('mobileNumber')"
+                  :label="$t('common.mobileNumber')"
                   outlined
                   dense
                   readonly
@@ -35,7 +35,7 @@
               <div class="col-12 col-sm-6">
                 <q-input
                   v-model="values.city"
-                  :label="$t('city')"
+                  :label="$t('common.city')"
                   outlined
                   dense
                   :error="!!errors.city"
@@ -46,7 +46,7 @@
                 <q-select
                   v-model="values.userType"
                   :options="userTypeOptions"
-                  :label="$t('userType')"
+                  :label="$t('common.userType')"
                   outlined
                   dense
                   :error="!!errors.userType"
@@ -57,7 +57,7 @@
                 <q-select
                   v-model="values.profession"
                   :options="professionOptions"
-                  :label="$t('profession')"
+                  :label="$t('common.profession')"
                   outlined
                   dense
                   :error="!!errors.profession"
@@ -71,7 +71,7 @@
               <div class="col-12">
                 <q-input
                   v-model="values.referredBy"
-                  :label="$t('referredBy')"
+                  :label="$t('common.referredBy')"
                   outlined
                   dense
                   @blur="validateReferralId"
@@ -84,9 +84,15 @@
             <!-- Emergency contacts -->
             <div class="q-mt-lg">
               <div class="text-subtitle1 text-weight-bold q-mb-sm">
-                {{ $t('emergencyContacts') }}
-                <q-icon :name="$t('icons.help')" size="xs" class="q-ml-sm">
-                  <q-tooltip>{{ $t('emergencyContactsHelp') }}</q-tooltip>
+                {{ $t('common.emergencyContacts') }}
+                <q-icon
+                  :name="$t('common.icons.help')"
+                  size="xs"
+                  class="q-ml-sm"
+                >
+                  <q-tooltip>{{
+                    $t('common.emergencyContactsHelp')
+                  }}</q-tooltip>
                 </q-icon>
               </div>
 
@@ -98,16 +104,16 @@
                       v-if="values.emergencyContacts.length < 3"
                       @click="addEmergencyContact"
                       color="primary"
-                      :icon="$t('icons.addCircle')"
-                      :label="$t('addEmergencyContact')"
+                      :icon="$t('common.icons.addCircle')"
+                      :label="$t('common.addEmergencyContact')"
                       no-caps
                       class="full-width"
                     />
                     <q-btn
                       @click="openEmergencyContactRequests"
                       color="secondary"
-                      :icon="$t('icons.contacts')"
-                      :label="$t('emergencyContactRequests')"
+                      :icon="$t('common.icons.contacts')"
+                      :label="$t('common.emergencyContactRequests')"
                       no-caps
                       class="full-width"
                     />
@@ -123,19 +129,23 @@
                   <q-item-section>
                     <q-input
                       v-model="contact.contactName"
-                      :label="$t('name')"
+                      :label="$t('common.name')"
                       dense
                       outlined
                       class="q-mb-sm"
-                      :rules="[(val) => !!val || $t('contactNameRequired')]"
+                      :rules="[
+                        (val) => !!val || $t('common.contactNameRequired'),
+                      ]"
                     />
                     <q-input
                       v-model="contact.contactPhone"
-                      :label="$t('mobileNumber')"
+                      :label="$t('common.mobileNumber')"
                       dense
                       outlined
                       class="q-mb-sm"
-                      :rules="[(val) => !!val || $t('contactNumberRequired')]"
+                      :rules="[
+                        (val) => !!val || $t('common.contactNumberRequired'),
+                      ]"
                       @blur="validatePhoneNumber(contact.contactPhone, index)"
                       :error="!!errors[`emergencyContact${index}`]"
                       :error-message="
@@ -150,8 +160,8 @@
                     >
                       {{
                         contact.consentGiven
-                          ? $t('approved')
-                          : $t('pendingApproval')
+                          ? $t('common.approved')
+                          : $t('common.pendingApproval')
                       }}
                     </q-chip>
                   </q-item-section>
@@ -160,21 +170,21 @@
                       flat
                       round
                       color="negative"
-                      :icon="$t('icons.delete')"
+                      :icon="$t('common.icons.delete')"
                       @click="removeEmergencyContact(index)"
                     />
                   </q-item-section>
                 </q-item>
               </q-list>
               <p v-if="!hasEmergencyContacts" class="text-negative q-mt-sm">
-                {{ $t('atLeastOneEmergencyContactRequired') }}
+                {{ $t('common.atLeastOneEmergencyContactRequired') }}
               </p>
             </div>
 
             <!-- Permissions section -->
             <div class="q-mt-lg">
               <div class="text-subtitle1 text-weight-bold q-mb-sm">
-                {{ $t('appPermissions') }}
+                {{ $t('common.appPermissions') }}
               </div>
               <q-list bordered>
                 <q-item v-for="(permission, index) in permissions" :key="index">
@@ -200,13 +210,13 @@
             <!-- SOS Settings -->
             <div v-if="isNavigatorMediaSupported" class="q-mt-lg">
               <div class="text-subtitle1 text-weight-bold q-mb-sm">
-                {{ $t('sosSettings') }}
+                {{ $t('common.sosSettings') }}
               </div>
               <q-list bordered>
                 <q-item tag="label" v-ripple>
                   <q-item-section>
                     <q-item-label>{{
-                      $t('startAudioVideoRecordOnSos')
+                      $t('common.startAudioVideoRecordOnSos')
                     }}</q-item-label>
                   </q-item-section>
                   <q-item-section side>
@@ -216,7 +226,7 @@
                 <q-item v-if="STREAM_SAVE" tag="label" v-ripple>
                   <q-item-section>
                     <q-item-label>{{
-                      $t('streamAudioVideoOnSos')
+                      $t('common.streamAudioVideoOnSos')
                     }}</q-item-label>
                   </q-item-section>
                   <q-item-section side>
@@ -225,7 +235,9 @@
                 </q-item>
                 <q-item tag="label" v-ripple>
                   <q-item-section>
-                    <q-item-label>{{ $t('broadcastAudioOnSos') }}</q-item-label>
+                    <q-item-label>{{
+                      $t('common.broadcastAudioOnSos')
+                    }}</q-item-label>
                   </q-item-section>
                   <q-item-section side>
                     <q-toggle v-model="values.broadcastAudioOnSos" />
@@ -245,7 +257,7 @@
                   :disable="!isFormValid"
                   no-caps
                 >
-                  <b>{{ $t('saveChanges') }}</b>
+                  <b>{{ $t('common.saveChanges') }}</b>
                 </q-btn>
               </div>
             </div>
@@ -282,14 +294,14 @@ const isNavigatorMediaSupported = computed(() => {
 });
 
 const professionOptions = [
-  { label: t('hospital'), value: 'hospital' },
-  { label: t('doctorGeneral'), value: 'doctorGeneral' },
-  { label: t('doctorEmergency'), value: 'doctorEmergency' },
-  { label: t('mechanic2Wheeler'), value: 'mechanic2Wheeler' },
-  { label: t('mechanic4Wheeler'), value: 'mechanic4Wheeler' },
-  { label: t('mechanicBoth'), value: 'mechanicBoth' },
-  { label: t('nurse'), value: 'nurse' },
-  { label: t('other'), value: 'other' },
+  { label: t('common.hospital'), value: 'hospital' },
+  { label: t('common.doctorGeneral'), value: 'doctorGeneral' },
+  { label: t('common.doctorEmergency'), value: 'doctorEmergency' },
+  { label: t('common.mechanic2Wheeler'), value: 'mechanic2Wheeler' },
+  { label: t('common.mechanic4Wheeler'), value: 'mechanic4Wheeler' },
+  { label: t('common.mechanicBoth'), value: 'mechanicBoth' },
+  { label: t('common.nurse'), value: 'nurse' },
+  { label: t('common.other'), value: 'other' },
 ];
 
 const { values, errors, isLoading, validateAndSubmit, callbacks } = useForm(
@@ -411,14 +423,14 @@ const requestPermission = async (permissionName: string) => {
 
     $q.notify({
       color: 'positive',
-      message: t('permissionGranted', { permission: t(permissionName) }),
+      message: t('common.permissionGranted', { permission: t(permissionName) }),
       icon: 'check',
     });
   } catch (error) {
     console.error(`Error requesting ${permissionName} permission:`, error);
     $q.notify({
       color: 'negative',
-      message: t('permissionDenied', { permission: t(permissionName) }),
+      message: t('common.permissionDenied', { permission: t(permissionName) }),
       icon: 'error',
     });
   }
@@ -512,7 +524,7 @@ const handleSubmit = async () => {
   } else {
     $q.notify({
       color: 'negative',
-      message: t('pleaseFixErrors'),
+      message: t('common.pleaseFixErrors'),
       icon: 'error',
     });
   }
@@ -537,7 +549,7 @@ callbacks.onSuccess = (data) => {
   loadUserData(); // Reload user data from the store
   $q.notify({
     color: 'positive',
-    message: t('profileUpdateSuccess'),
+    message: t('common.profileUpdateSuccess'),
     icon: 'check',
   });
 };
@@ -546,7 +558,7 @@ callbacks.onError = (error) => {
   console.error('Error updating profile', error);
   $q.notify({
     color: 'negative',
-    message: t('profileUpdateError'),
+    message: t('common.profileUpdateError'),
     icon: 'error',
   });
 };

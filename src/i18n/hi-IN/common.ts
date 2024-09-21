@@ -1,6 +1,6 @@
 export default {
   // App-wide
-  'app.name': 'शॉउटआउट',
+  appname: 'शॉउटआउट',
   login: 'लॉग इन करें',
   logout: 'लॉग आउट करें',
   cancel: 'रद्द करें',
@@ -49,6 +49,7 @@ export default {
   sendOTP: 'ओटीपी भेजें',
   loginFailed: 'लॉगिन विफल। कृपया अपना ओटीपी जांचें और पुनः प्रयास करें।',
   otpSendFailed: 'ओटीपी भेजने में विफल। कृपया पुनः प्रयास करें।',
+  aboutUs: 'हमारे बारे में',
 
   // Dashboard Page
   welcome: 'क्या हुआ {name}?',

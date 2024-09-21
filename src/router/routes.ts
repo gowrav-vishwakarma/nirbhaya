@@ -1,26 +1,27 @@
 import { RouteRecordRaw } from 'vue-router';
 import VolunteersNearByPage from 'pages/VolunteersNearByPage.vue';
+import publicRoutes from './publicRoutes'; // Import public routes
 
 const routes: RouteRecordRaw[] = [
   {
     path: '/',
     component: () => import('layouts/MainLayout.vue'),
     children: [
-      {
-        path: 'login/:referrer?',
-        component: () => import('pages/LoginPage.vue'),
-      },
+      ...publicRoutes,
       {
         path: '',
         component: () => import('pages/Dashboard/DashboardPage.vue'),
+        meta: { requiresAuth: true },
       },
       {
-        path: 'dashboard',
+        path: 'sos',
         component: () => import('pages/Dashboard/DashboardPage.vue'),
+        meta: { requiresAuth: true },
       },
       {
         path: 'account',
         component: () => import('pages/Account/AccountDetailsPage.vue'),
+        meta: { requiresAuth: true },
       },
       {
         path: 'sos-mode',
@@ -30,43 +31,36 @@ const routes: RouteRecordRaw[] = [
           sosEventId: route.query.sosEventId,
           contactsOnly: route.query.contactsOnly === 'true',
         }),
+        meta: { requiresAuth: true },
       },
       {
         path: 'volunteers',
         component: () => import('pages/VolunteersNearByPage.vue'),
+        meta: { requiresAuth: true },
       },
       {
         path: 'notifications',
         component: () =>
           import('pages/NotificationsPage/NotificationsPage.vue'),
         name: 'notifications', // This is the named route
+        meta: { requiresAuth: true },
       },
       {
         path: 'community',
         component: () => import('pages/CommunityOfferPage.vue'),
+        meta: { requiresAuth: true },
       },
       {
         path: 'joined-community',
         component: () => import('pages/CommunityPage.vue'),
-      },
-      {
-        path: 'help',
-        component: () => import('pages/HelpPage.vue'),
-      },
-      {
-        path: 'test',
-        component: () => import('pages/TestPage.vue'),
+        meta: { requiresAuth: true },
       },
     ],
   },
-
-  // Always leave this as last one,
-  // but you can also remove it
   {
     path: '/:catchAll(.*)*',
     component: () => import('pages/ErrorNotFound.vue'),
   },
-
   {
     path: '/volunteers-nearby',
     component: VolunteersNearByPage,

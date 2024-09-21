@@ -1,14 +1,19 @@
 import { boot } from 'quasar/wrappers';
 import { useUserStore } from 'stores/user-store';
 
-export default boot(async ({ redirect, store, urlPath }) => {
-  console.log('urlPath', urlPath);
+export default boot(({ router, store }) => {
   const userStore = useUserStore(store);
-  const loggedIn = userStore.isLoggedIn;
 
-  // Check if the user is not logged in and accessing a protected route
-  if (!loggedIn && !urlPath.endsWith('/login')) {
-    userStore.logout();
-    redirect('/login');
-  }
+  // Global before guard
+  router.beforeEach((to, from, next) => {
+    const loggedIn = userStore.isLoggedIn;
+
+    // Check if the route requires authentication
+    if (to.meta.requiresAuth && !loggedIn) {
+      userStore.logout();
+      next('/login'); // Redirect to login if not authenticated
+    } else {
+      next(); // Proceed to the route
+    }
+  });
 });

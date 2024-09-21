@@ -4,7 +4,7 @@
       round
       size="xl"
       :color="isAudioOpen ? 'primary' : 'grey'"
-      :icon="$t('icons.mic')"
+      :icon="$t('common.icons.mic')"
       @click="toggleAudio"
     />
     <q-btn
@@ -12,15 +12,19 @@
       size="xl"
       v-if="isAudioOpen"
       :color="isSpeakerOn ? 'primary' : 'grey'"
-      :icon="$t('icons.speaker')"
+      :icon="$t('common.icons.speaker')"
       @click="toggleSpeaker"
       class="q-ml-sm"
     />
     <div class="text-subtitle1 q-mt-sm">
-      {{ isAudioOpen ? $t('audioConnected') : $t('clickToOpenAudio') }}
+      {{
+        isAudioOpen
+          ? $t('common.audioConnected')
+          : $t('common.clickToOpenAudio')
+      }}
     </div>
     <div class="text-subtitle1 q-mt-sm" v-if="isAudioOpen">
-      {{ isSpeakerOn ? $t('speakerOn') : $t('speakerOff') }}
+      {{ isSpeakerOn ? $t('common.speakerOn') : $t('common.speakerOff') }}
     </div>
   </div>
 </template>

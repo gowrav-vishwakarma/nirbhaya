@@ -9,14 +9,14 @@
           Community SOS
         </div>
         <div class="text-h5 text-weight-bold text-primary q-mb-md">
-          {{ $t('login') }}
+          {{ $t('common.login') }}
         </div>
         <LanguageSelector class="q-mb-md" />
       </q-card-section>
 
       <q-card-section v-if="isIosNotSafari">
         <q-banner class="bg-negative text-white" rounded>
-          {{ $t('iosNotSafariWarning') }}
+          {{ $t('common.iosNotSafariWarning') }}
         </q-banner>
       </q-card-section>
 
@@ -25,14 +25,14 @@
           <q-input
             filled
             v-model="values.mobileNumber"
-            :label="$t('mobileNumber')"
+            :label="$t('common.mobileNumber')"
             :error="!!errors.mobileNumber"
             :error-message="errors.mobileNumber?.join('; ')"
             mask="##########"
             :disable="otpSent"
           >
             <template v-slot:prepend>
-              <q-icon :name="$t('icons.phone')" color="primary" />
+              <q-icon :name="$t('common.icons.phone')" color="primary" />
             </template>
           </q-input>
 
@@ -40,18 +40,18 @@
             v-if="otpSent"
             filled
             v-model="values.otp"
-            :label="$t('enterOTP')"
+            :label="$t('common.enterOTP')"
             :error="!!errors.otp"
             :error-message="errors.otp?.join('; ')"
             mask="####"
           >
             <template v-slot:prepend>
-              <q-icon :name="$t('icons.lock')" color="primary" />
+              <q-icon :name="$t('common.icons.lock')" color="primary" />
             </template>
           </q-input>
 
           <q-btn
-            :label="otpSent ? $t('login') : $t('sendOTP')"
+            :label="otpSent ? $t('common.login') : $t('common.sendOTP')"
             type="submit"
             color="primary"
             class="full-width q-py-sm"
@@ -62,10 +62,13 @@
 
       <q-card-section v-if="otpSent" class="text-center">
         <q-btn flat color="primary" @click="resendOTP" :disable="isLoading">
-          {{ $t('resendOTP') }}
+          {{ $t('common.resendOTP') }}
         </q-btn>
       </q-card-section>
     </q-card>
+    <q-btn flat @click="goToAboutUs" class="text-white q-mb-md">
+      {{ $t('common.aboutUs') }}
+    </q-btn>
   </q-page>
 </template>
 
@@ -151,7 +154,7 @@ callbacks.onSuccess = async (userData) => {
     userStore.setUser(userData);
     await userStore.sendTokenIfAvailable(); // Send FCM token after user is set
     if (userData.name) {
-      router.push('/dashboard');
+      router.push('/sos');
     } else {
       router.push('/account');
     }
@@ -187,6 +190,10 @@ const resendOTP = async () => {
   } finally {
     isLoading.value = false;
   }
+};
+
+const goToAboutUs = () => {
+  router.push('/about-us'); // Navigate to About Us page
 };
 </script>
 

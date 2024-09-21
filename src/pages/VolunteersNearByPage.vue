@@ -4,14 +4,14 @@
       <q-card class="volunteers-nearby-card q-mb-md">
         <q-card-section>
           <div class="text-h6 text-weight-bold q-mb-md">
-            {{ $t('nearbyVolunteers') }}
+            {{ $t('common.nearbyVolunteers') }}
           </div>
 
           <div class="row q-col-gutter-md q-mb-md">
             <div class="col-12">
               <q-input
                 v-model="address"
-                :label="$t('location')"
+                :label="$t('common.location')"
                 :loading="addressLoading"
                 :readonly="addressLoading"
                 outlined
@@ -22,17 +22,19 @@
                     round
                     dense
                     flat
-                    :icon="$t('icons.myLocation')"
+                    :icon="$t('common.icons.myLocation')"
                     @click="getCurrentLocation"
                     :loading="locationLoading"
                   >
-                    <q-tooltip>{{ $t('useCurrentLocation') }}</q-tooltip>
+                    <q-tooltip>{{ $t('common.useCurrentLocation') }}</q-tooltip>
                   </q-btn>
                 </template>
               </q-input>
             </div>
             <div class="col-12">
-              <div class="text-subtitle2 q-mb-sm">{{ $t('searchRadius') }}</div>
+              <div class="text-subtitle2 q-mb-sm">
+                {{ $t('common.searchRadius') }}
+              </div>
               <q-slider
                 v-model="range"
                 :min="100"
@@ -49,7 +51,7 @@
           <div class="volunteer-map q-mb-md" ref="volunteerMap">
             <div class="map-center">
               <q-icon
-                :name="$t('icons.myLocation')"
+                :name="$t('common.icons.myLocation')"
                 size="24px"
                 color="primary"
               />
@@ -76,7 +78,8 @@
 
           <div class="text-center q-mt-md">
             <p class="text-subtitle1">
-              {{ volunteers.length }} {{ $t('volunteersFound') }} {{ range }}m
+              {{ volunteers.length }} {{ $t('common.volunteersFound') }}
+              {{ range }}m
             </p>
           </div>
 
@@ -91,7 +94,8 @@
               <q-item-section>
                 <q-item-label>{{ volunteer.profession }}</q-item-label>
                 <q-item-label caption>
-                  {{ $t('distance') }}: {{ calculateDistance(volunteer) }}m
+                  {{ $t('common.distance') }}:
+                  {{ calculateDistance(volunteer) }}m
                 </q-item-label>
               </q-item-section>
             </q-item>
@@ -134,7 +138,7 @@ const getCurrentLocation = async () => {
     console.error('Error getting location', error);
     $q.notify({
       color: 'negative',
-      message: t('locationError'),
+      message: t('common.locationError'),
       icon: 'error',
     });
   } finally {
@@ -155,7 +159,7 @@ const fetchVolunteers = async () => {
     console.error('Error fetching volunteers', error);
     $q.notify({
       color: 'negative',
-      message: t('fetchVolunteersError'),
+      message: t('common.fetchVolunteersError'),
       icon: 'error',
     });
   }
@@ -239,7 +243,7 @@ onMounted(() => {
   if (!userStore.isLoggedIn) {
     $q.notify({
       color: 'negative',
-      message: t('loginToViewVolunteers'),
+      message: t('common.loginToViewVolunteers'),
       icon: 'error',
     });
     router.push('/login');

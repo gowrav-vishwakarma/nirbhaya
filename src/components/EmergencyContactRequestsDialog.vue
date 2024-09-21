@@ -2,7 +2,7 @@
   <q-dialog ref="dialogRef">
     <q-card class="q-dialog-plugin" style="width: 500px; max-width: 80vw">
       <q-card-section>
-        <div class="text-h6">{{ $t('emergencyContacts') }}</div>
+        <div class="text-h6">{{ $t('common.emergencyContacts') }}</div>
       </q-card-section>
 
       <q-card-section class="q-pt-none">
@@ -12,7 +12,11 @@
               <q-item-label>{{ contact.requesterName }}</q-item-label>
               <q-item-label caption>{{ contact.requesterPhone }}</q-item-label>
               <q-item-label caption>
-                {{ contact.consentGiven ? $t('approved') : $t('pending') }}
+                {{
+                  contact.consentGiven
+                    ? $t('common.approved')
+                    : $t('common.pending')
+                }}
               </q-item-label>
             </q-item-section>
             <q-item-section side>
@@ -21,24 +25,24 @@
                 flat
                 color="positive"
                 @click="approveContact(contact.id)"
-                :label="$t('approve')"
+                :label="$t('common.approve')"
               />
               <q-btn
                 flat
                 color="negative"
                 @click="removeContact(contact.id)"
-                :label="$t('remove')"
+                :label="$t('common.remove')"
               />
             </q-item-section>
           </q-item>
         </q-list>
         <div v-else class="text-center q-pa-md">
-          {{ $t('noEmergencyContacts') }}
+          {{ $t('common.noEmergencyContacts') }}
         </div>
       </q-card-section>
 
       <q-card-actions align="right">
-        <q-btn color="primary" flat :label="$t('close')" v-close-popup />
+        <q-btn color="primary" flat :label="$t('common.close')" v-close-popup />
       </q-card-actions>
     </q-card>
   </q-dialog>
@@ -70,7 +74,7 @@ const fetchEmergencyContacts = async () => {
     console.error('Error fetching emergency contacts:', error);
     $q.notify({
       color: 'negative',
-      message: t('errorFetchingContacts'),
+      message: t('common.errorFetchingContacts'),
       icon: 'error',
     });
   }
@@ -82,14 +86,14 @@ const approveContact = async (contactId: number) => {
     await fetchEmergencyContacts();
     $q.notify({
       color: 'positive',
-      message: t('contactApproved'),
+      message: t('common.contactApproved'),
       icon: 'check',
     });
   } catch (error) {
     console.error('Error approving contact:', error);
     $q.notify({
       color: 'negative',
-      message: t('errorApprovingContact'),
+      message: t('common.errorApprovingContact'),
       icon: 'error',
     });
   }
@@ -103,14 +107,14 @@ const removeContact = async (contactId: number) => {
     );
     $q.notify({
       color: 'positive',
-      message: t('contactRemoved'),
+      message: t('common.contactRemoved'),
       icon: 'check',
     });
   } catch (error) {
     console.error('Error removing contact:', error);
     $q.notify({
       color: 'negative',
-      message: t('errorRemovingContact'),
+      message: t('common.errorRemovingContact'),
       icon: 'error',
     });
   }

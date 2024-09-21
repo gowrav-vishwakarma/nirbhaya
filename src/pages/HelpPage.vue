@@ -3,7 +3,9 @@
     <div class="help-content">
       <q-card class="help-card q-mb-md">
         <q-card-section>
-          <div class="text-h5 text-weight-bold q-mb-md">{{ $t('help') }}</div>
+          <div class="text-h5 text-weight-bold q-mb-md">
+            {{ $t('common.help') }}
+          </div>
 
           <q-tabs
             v-model="activeTab"
@@ -14,8 +16,8 @@
             align="justify"
             narrow-indicator
           >
-            <q-tab name="app" :label="$t('appHelp')" />
-            <q-tab name="permissions" :label="$t('permissionsHelp')" />
+            <q-tab name="app" :label="$t('common.appHelp')" />
+            <q-tab name="permissions" :label="$t('common.permissionsHelp')" />
           </q-tabs>
 
           <q-separator />
@@ -33,7 +35,7 @@
                 <p>{{ $t(section.content) }}</p>
                 <q-btn
                   v-if="section.videoUrl"
-                  :label="$t('watchVideo')"
+                  :label="$t('common.watchVideo')"
                   color="primary"
                   outline
                   @click="openVideoModal(section.videoUrl)"
@@ -58,8 +60,8 @@
                       v-if="section.action"
                       :label="
                         section.permissionGranted
-                          ? $t('permissionGranted')
-                          : $t('requestPermission')
+                          ? $t('common.permissionGranted')
+                          : $t('common.requestPermission')
                       "
                       :color="
                         section.permissionGranted ? 'positive' : 'primary'
@@ -71,7 +73,7 @@
                   </div>
                   <div class="col-12 col-sm-6">
                     <q-btn
-                      :label="$t('howToEnable')"
+                      :label="$t('common.howToEnable')"
                       color="secondary"
                       outline
                       @click="showPlatformSpecificHelp(section.id)"
@@ -89,7 +91,7 @@
     <q-dialog v-model="videoModalOpen">
       <q-card style="width: 700px; max-width: 80vw">
         <q-card-section class="row items-center q-pb-none">
-          <div class="text-h6">{{ $t('helpVideo') }}</div>
+          <div class="text-h6">{{ $t('common.helpVideo') }}</div>
           <q-space />
           <q-btn icon="close" flat round dense v-close-popup />
         </q-card-section>
@@ -109,7 +111,7 @@
     <q-dialog v-model="platformHelpOpen">
       <q-card style="width: 700px; max-width: 80vw">
         <q-card-section class="row items-center q-pb-none">
-          <div class="text-h6">{{ $t('platformSpecificHelp') }}</div>
+          <div class="text-h6">{{ $t('common.platformSpecificHelp') }}</div>
           <q-space />
           <q-btn icon="close" flat round dense v-close-popup />
         </q-card-section>
@@ -144,20 +146,20 @@ const currentPlatformHelp = ref('');
 const appHelpSections = [
   {
     id: 'getting-started',
-    title: 'gettingStarted',
-    content: 'gettingStartedContent',
+    title: 'common.gettingStarted',
+    content: 'common.gettingStartedContent',
     videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
   },
   {
     id: 'using-sos',
-    title: 'usingSOS',
-    content: 'usingSOSContent',
+    title: 'common.usingSOS',
+    content: 'common.usingSOSContent',
     videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
   },
   {
     id: 'volunteering',
-    title: 'volunteeringHelp',
-    content: 'volunteeringHelpContent',
+    title: 'common.volunteeringHelp',
+    content: 'common.volunteeringHelpContent',
     videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
   },
 ];
@@ -165,8 +167,8 @@ const appHelpSections = [
 const helpSections = ref([
   {
     id: 'location',
-    title: 'locationPermission',
-    content: 'locationPermissionHelp',
+    title: 'common.locationPermission',
+    content: 'common.locationPermissionHelp',
     action: {
       handler: () => requestPermission('location'),
     },
@@ -174,8 +176,8 @@ const helpSections = ref([
   },
   {
     id: 'camera',
-    title: 'cameraPermission',
-    content: 'cameraPermissionHelp',
+    title: 'common.cameraPermission',
+    content: 'common.cameraPermissionHelp',
     action: {
       handler: () => requestPermission('camera'),
     },
@@ -183,8 +185,8 @@ const helpSections = ref([
   },
   {
     id: 'microphone',
-    title: 'microphonePermission',
-    content: 'microphonePermissionHelp',
+    title: 'common.microphonePermission',
+    content: 'common.microphonePermissionHelp',
     action: {
       handler: () => requestPermission('microphone'),
     },
@@ -192,8 +194,8 @@ const helpSections = ref([
   },
   {
     id: 'notifications',
-    title: 'notificationPermission',
-    content: 'notificationPermissionHelp',
+    title: 'common.notificationPermission',
+    content: 'common.notificationPermissionHelp',
     action: {
       handler: () => requestPermission('notifications'),
     },
@@ -324,7 +326,9 @@ const requestPermission = async (permissionName: string) => {
 
       $q.notify({
         color: 'positive',
-        message: t('permissionGranted', { permission: t(permissionName) }),
+        message: t('common.permissionGranted', {
+          permission: t(permissionName),
+        }),
         icon: 'check',
       });
     } else {
@@ -334,7 +338,7 @@ const requestPermission = async (permissionName: string) => {
     console.error(`Error requesting ${permissionName} permission:`, error);
     $q.notify({
       color: 'negative',
-      message: t('permissionDenied', { permission: t(permissionName) }),
+      message: t('common.permissionDenied', { permission: t(permissionName) }),
       icon: 'error',
     });
   }
@@ -357,20 +361,20 @@ const showPlatformSpecificHelp = (permissionName: string) => {
   switch (permissionName) {
     case 'location':
       if (isIOS) {
-        helpContent = t('iosLocationHelp');
+        helpContent = t('common.iosLocationHelp');
       } else if (isAndroid) {
-        helpContent = t('androidLocationHelp');
+        helpContent = t('common.androidLocationHelp');
       } else {
-        helpContent = t('pwaLocationHelp');
+        helpContent = t('common.pwaLocationHelp');
       }
       break;
     case 'camera':
       if (isIOS) {
-        helpContent = t('iosCameraHelp');
+        helpContent = t('common.iosCameraHelp');
       } else if (isAndroid) {
-        helpContent = t('androidCameraHelp');
+        helpContent = t('common.androidCameraHelp');
       } else {
-        helpContent = t('pwaCameraHelp');
+        helpContent = t('common.pwaCameraHelp');
       }
       break;
     // Add similar cases for other permissions

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h6 class="q-ma-none q-ml-xs">{{ $t('language') }}</h6>
+    <h6 class="q-ma-none q-ml-xs">{{ $t('common.language') }}</h6>
     <q-select
       v-model="userStore.language"
       :options="languageOptions"
@@ -25,7 +25,7 @@ const userStore = useUserStore();
 const languageOptions = computed(() =>
   userStore.availableLanguages.map((lang) => ({
     value: lang,
-    label: t(`languages.${lang}`),
+    label: t(`common.languages.${lang}`), // Updated key reference
   }))
 );
 

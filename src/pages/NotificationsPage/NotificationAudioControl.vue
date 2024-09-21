@@ -2,7 +2,7 @@
   <q-btn
     round
     :color="isAudioOpen ? 'primary' : 'grey'"
-    :icon="$t('icons.volumeUp')"
+    :icon="$t('common.icons.volumeUp')"
     @click="toggleAudio"
     :loading="isLoading"
     :disable="isLoading"
@@ -131,7 +131,7 @@ const toggleAudio = async () => {
     console.error('Error toggling audio:', error);
     $q.notify({
       color: 'negative',
-      message: t('errorTogglingAudio'),
+      message: t('common.errorTogglingAudio'),
       icon: 'warning',
     });
     isAudioOpen.value = false;
@@ -200,7 +200,7 @@ const connectToSosPeer = async () => {
       console.error('Call error:', error);
       $q.notify({
         color: 'negative',
-        message: t('errorConnectingToSos'),
+        message: t('common.errorConnectingToSos'),
         icon: 'warning',
       });
       isAudioOpen.value = false;
@@ -225,7 +225,7 @@ const disconnectFromSosPeer = () => {
 const handleSosAudioStarted = (sosPeerId: string) => {
   activeSosPeerId.value = sosPeerId;
   $q.notify({
-    message: t('sosAudioStarted'),
+    message: t('common.sosAudioStarted'),
     color: 'info',
   });
   if (isAudioOpen.value) {
@@ -236,7 +236,7 @@ const handleSosAudioStarted = (sosPeerId: string) => {
 const handleSosAudioStopped = () => {
   activeSosPeerId.value = null;
   $q.notify({
-    message: t('sosAudioStopped'),
+    message: t('common.sosAudioStopped'),
     color: 'warning',
   });
   disconnectFromSosPeer();

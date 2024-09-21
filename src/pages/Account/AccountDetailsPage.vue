@@ -10,9 +10,9 @@
         align="justify"
         narrow-indicator
       >
-        <q-tab :name="'profile'" :label="$t('profile')" />
-        <q-tab :name="'volunteering'" :label="$t('volunteering')" />
-        <q-tab :name="'impact'" :label="$t('communityImpact')" />
+        <q-tab :name="'profile'" :label="$t('common.profile')" />
+        <q-tab :name="'volunteering'" :label="$t('common.volunteering')" />
+        <q-tab :name="'impact'" :label="$t('common.communityImpact')" />
       </q-tabs>
 
       <q-separator />
@@ -33,7 +33,7 @@
 
       <div class="q-pa-md">
         <q-btn @click="logout" color="red" class="full-width">
-          <b>{{ $t('logout') }}</b>
+          <b>{{ $t('common.logout') }}</b>
         </q-btn>
       </div>
     </q-card>
@@ -62,7 +62,7 @@ onMounted(() => {
     router.push('/login');
     $q.notify({
       color: 'warning',
-      message: t('pleaseLoginFirst'),
+      message: t('common.pleaseLoginFirst'),
       icon: 'warning',
     });
   }
@@ -75,14 +75,14 @@ const logout = async () => {
     router.push('/login');
     $q.notify({
       color: 'positive',
-      message: t('logoutSuccess'),
+      message: t('common.logoutSuccess'),
       icon: 'check',
     });
   } catch (error) {
     console.error('Error logging out', error);
     $q.notify({
       color: 'negative',
-      message: t('logoutError'),
+      message: t('common.logoutError'),
       icon: 'error',
     });
   }

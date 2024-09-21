@@ -3,7 +3,7 @@
 
 export default {
   // App-wide
-  'app.name': 'Shoutout',
+  appname: 'Shoutout',
   login: 'Login',
   logout: 'Logout',
   cancel: 'Cancel',
@@ -52,6 +52,7 @@ export default {
   sendOTP: 'Send OTP',
   loginFailed: 'Login failed. Please check your OTP and try again.',
   otpSendFailed: 'Failed to send OTP. Please try again.',
+  aboutUs: 'About Us',
 
   // Dashboard Page
   welcome: 'What Happened {name}?',

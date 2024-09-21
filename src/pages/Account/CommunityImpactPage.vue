@@ -1,8 +1,8 @@
 <template>
   <div class="community-impact-page">
-    <h5>{{ $t('communityImpact') }}</h5>
+    <h5>{{ $t('common.communityImpact') }}</h5>
     <p>
-      {{ $t('yourReferralId') }}:
+      {{ $t('common.yourReferralId') }}:
       <b
         ><span class="text-primary text-weight-bold text-h4">{{
           userStore.user.referralId
@@ -10,9 +10,12 @@
       >
     </p>
     <p>
-      {{ $t('peopleYouHaveEncouraged') }}: {{ impactInfo.peopleEncouraged }}
+      {{ $t('common.peopleYouHaveEncouraged') }}:
+      {{ impactInfo.peopleEncouraged }}
     </p>
-    <p>{{ $t('locationsSecured') }}: {{ impactInfo.locationsSecured }}</p>
+    <p>
+      {{ $t('common.locationsSecured') }}: {{ impactInfo.locationsSecured }}
+    </p>
     <!-- Copy URL -->
     <p>
       Share your impact:
