@@ -289,7 +289,7 @@ const showResolveConfirmation = (): Promise<boolean> => {
               color: 'info',
             });
             sosSent.value = false; // Reset sosSent
-            router.push('/dashboard'); // Redirect to dashboard
+            router.push('/sos'); // Redirect to dashboard
             resolve(true);
             break;
           case 'resolve':
@@ -299,7 +299,7 @@ const showResolveConfirmation = (): Promise<boolean> => {
               color: 'positive',
             });
             sosSent.value = false; // Reset sosSent
-            router.push('/dashboard'); // Redirect to dashboard
+            router.push('/sos'); // Redirect to dashboard
             resolve(true);
             break;
           case 'keep':
@@ -372,7 +372,7 @@ const cancelSOS = async () => {
   try {
     // await sendCancelSOSRequest();
     logMessage('SOS request cancelled.');
-    router.push('/dashboard');
+    router.push('/sos');
   } catch (error) {
     logMessage('Failed to cancel SOS request: ' + error);
   }
