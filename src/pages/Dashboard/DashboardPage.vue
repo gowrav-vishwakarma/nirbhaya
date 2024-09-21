@@ -3,7 +3,7 @@
     <div class="dashboard-content">
       <q-card class="welcome-card q-mb-md">
         <q-card-section>
-          <h4 class="text-h4 text-weight-bold text-primary q-mb-sm">
+          <h4 class="text-h6 text-weight-bold text-primary q-mb-sm">
             {{ $t('common.welcome', { name: userName }) }}
           </h4>
           <p class="text-subtitle1 text-grey-7">
@@ -299,7 +299,7 @@ const safetyTips = [
   'common.safetyTip3',
   'common.safetyTip4',
   'common.safetyTip5',
-]; 
+];
 const currentSafetyTip = computed(() =>
   t(safetyTips[Math.floor(Math.random() * safetyTips.length)])
 );
@@ -428,7 +428,7 @@ onMounted(async () => {
 
 <style lang="scss" scoped>
 .dashboard-page {
-  background: linear-gradient(135deg, $primary, darken($primary, 20%));
+  background: linear-gradient(135deg, $secondary, lighten($secondary, 20%));
   min-height: 100vh;
 }
 
@@ -454,7 +454,7 @@ onMounted(async () => {
 }
 
 .sos-button {
-  height: 120px;
+  height: 200px;
   font-weight: bold;
   box-shadow: 0 4px 8px rgba(255, 0, 0, 0.3);
 }
