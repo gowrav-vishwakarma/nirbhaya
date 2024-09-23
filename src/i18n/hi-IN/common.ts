@@ -123,6 +123,7 @@ export default {
   location: 'स्थान',
   camera: 'कैमरा',
   microphone: 'माइक्रोफोन',
+  notifications: 'सूचनाएं',
   granted: 'प्रदान की गई',
   requestPermission: 'अनुमति का अनुरोध करें',
   permissionGranted: '{permission} अनुमति प्रदान की गई',

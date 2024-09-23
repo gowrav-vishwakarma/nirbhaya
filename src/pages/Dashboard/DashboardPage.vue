@@ -54,49 +54,7 @@
         </q-btn>
       </div>
 
-      <q-card v-if="!allPermissionsGranted" class="permissions-card q-mb-md">
-        <q-card-section>
-          <h6 class="text-h6 text-weight-bold q-mb-sm">
-            {{ $t('common.missingPermissions') }}
-          </h6>
-          <q-list>
-            <q-item
-              v-for="permission in permissions"
-              :key="permission.name"
-              class="q-mb-sm"
-            >
-              <q-item-section avatar>
-                <q-icon
-                  :name="getPermissionIcon(permission.name)"
-                  color="primary"
-                />
-              </q-item-section>
-              <q-item-section>
-                <q-item-label>{{ $t(permission.name) }}</q-item-label>
-                <q-item-label caption>{{
-                  $t(permission.name + 'PermissionHelp')
-                }}</q-item-label>
-              </q-item-section>
-              <q-item-section side>
-                <q-btn
-                  v-if="!permission.granted && !permission.denied"
-                  :label="$t('common.request')"
-                  color="primary"
-                  outline
-                  @click="requestPermission(permission.name)"
-                />
-                <q-btn
-                  v-if="permission.denied"
-                  :label="$t('common.helpFor')"
-                  color="secondary"
-                  outline
-                  @click="goToHelp(permission.name)"
-                />
-              </q-item-section>
-            </q-item>
-          </q-list>
-        </q-card-section>
-      </q-card>
+      <MissingPermissions />
 
       <q-card class="safety-card q-mb-md">
         <q-card-section>
@@ -218,10 +176,10 @@ import { useRouter } from 'vue-router';
 import { useUserForm } from 'src/composables/use-user-form';
 import { useQuasar } from 'quasar';
 import { useI18n } from 'vue-i18n';
-import { usePermissions } from 'src/composables/usePermissions';
 import { useUserStore } from 'src/stores/user-store';
 import { Geolocation } from '@capacitor/geolocation';
 import { api } from 'src/boot/axios';
+import MissingPermissions from 'src/components/MissingPermissions.vue';
 
 const router = useRouter();
 const $q = useQuasar();
@@ -230,13 +188,6 @@ const { t } = useI18n();
 const userStore = useUserStore();
 const userName = computed(() => userStore.user.name || 'User');
 const contactsOnly = ref(false);
-
-const {
-  permissions,
-  allPermissionsGranted,
-  checkPermissions,
-  requestPermission,
-} = usePermissions();
 
 const initiateSOSMode = async () => {
   const response = await sendInitialSOSRequest();
@@ -274,20 +225,6 @@ callbacks.onSuccess = (response) => {
 const sendInitialSOSRequest = async () => {
   values.value.contactsOnly = contactsOnly.value;
   await validateAndSubmit();
-};
-
-const goToHelp = (permissionName: string) => {
-  router.push({ path: '/help', query: { section: permissionName } });
-};
-
-const getPermissionIcon = (permissionName: string) => {
-  const icons = {
-    location: 'place',
-    camera: 'camera_alt',
-    microphone: 'mic',
-    notification: 'notifications',
-  };
-  return icons[permissionName] || 'help';
 };
 
 const isVolunteer = computed(() => userStore.user.isVolunteer);
@@ -409,7 +346,6 @@ const getVolunteerColor = (volunteer) => {
 };
 
 onMounted(async () => {
-  await checkPermissions();
   isLoadingLocation.value = true;
   try {
     const position = await Geolocation.getCurrentPosition();
@@ -438,7 +374,6 @@ onMounted(async () => {
 }
 
 .welcome-card,
-.permissions-card,
 .safety-card,
 .emergency-contacts-card,
 .volunteer-status-card,

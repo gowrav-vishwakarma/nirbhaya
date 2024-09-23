@@ -112,6 +112,7 @@ export default {
   location: 'Location',
   camera: 'Camera',
   microphone: 'Microphone',
+  notifications: 'Notifications',
   granted: 'Granted',
   requestPermission: 'Request Permission',
   permissionGranted: '{permission} permission granted',

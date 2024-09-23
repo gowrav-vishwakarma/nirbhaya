@@ -99,6 +99,7 @@ export default {
   location: 'સ્થાન',
   camera: 'કેમેરા',
   microphone: 'માઇક્રોફોન',
+  notifications: 'સૂચનાઓ',
   granted: 'મંજૂર કરેલ',
   requestPermission: 'પરવાનગી માટે િનંતી કરો',
   permissionGranted: '{permission} પરવાનગી આપવામાં આવી',

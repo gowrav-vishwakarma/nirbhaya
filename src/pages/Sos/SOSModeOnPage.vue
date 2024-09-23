@@ -219,12 +219,12 @@ const shouldRecord = computed(() => userStore.user.startAudioVideoRecordOnSos);
 const locationSentToServer = ref(false);
 
 const threats = [
-  'followedBySomeone',
-  'verbalHarassment',
-  'physicalThreat',
-  'attemptedKidnapping',
-  'sexualAssault',
-  'domesticViolence',
+  'common.followedBySomeone',
+  'common.verbalHarassment',
+  'common.physicalThreat',
+  'common.attemptedKidnapping',
+  'common.sexualAssault',
+  'common.domesticViolence',
 ];
 
 const logs = ref<string[]>([]); // Reactive array to store logs

@@ -16,7 +16,6 @@ export function usePermissions() {
   const permissions: Ref<Permission[]> = ref([
     { name: 'common.location', granted: false, denied: false },
     { name: 'common.camera', granted: false, denied: false },
-    // Remove microphone permission
     { name: 'common.notifications', granted: false, denied: false },
   ]);
 
@@ -42,7 +41,7 @@ export function usePermissions() {
         let result;
         if (Capacitor.isNativePlatform()) {
           switch (permission.name) {
-            case 'location':
+            case 'common.location':
               result = await Geolocation.checkPermissions();
               updatePermissionStatus(
                 permission.name,
@@ -50,7 +49,7 @@ export function usePermissions() {
                 result.location === 'denied'
               );
               break;
-            case 'camera':
+            case 'common.camera':
               result = await Camera.checkPermissions();
               updatePermissionStatus(
                 permission.name,
@@ -58,7 +57,7 @@ export function usePermissions() {
                 result.camera === 'denied'
               );
               break;
-            case 'notifications':
+            case 'common.notifications':
               result = await PushNotifications.checkPermissions();
               updatePermissionStatus(
                 permission.name,
@@ -69,25 +68,22 @@ export function usePermissions() {
           }
         } else {
           // Web API fallback
-          if (permission.name === 'location') {
+          if (permission.name === 'common.location') {
             result = await navigator.permissions.query({ name: 'geolocation' });
             updatePermissionStatus(
               permission.name,
               result.state === 'granted',
               result.state === 'denied'
             );
-          } else if (permission.name === 'notifications') {
+          } else if (permission.name === 'common.notifications') {
             updatePermissionStatus(
               permission.name,
               Notification.permission === 'granted',
               Notification.permission === 'denied'
             );
-          } else {
+          } else if (permission.name === 'common.camera') {
             try {
-              await navigator.mediaDevices.getUserMedia({
-                video: permission.name === 'camera',
-                audio: permission.name === 'microphone',
-              });
+              await navigator.mediaDevices.getUserMedia({ video: true });
               updatePermissionStatus(permission.name, true, false);
             } catch {
               updatePermissionStatus(permission.name, false, true);
@@ -105,18 +101,14 @@ export function usePermissions() {
       let result;
       if (Capacitor.isNativePlatform()) {
         switch (permissionName) {
-          case 'location':
+          case 'common.location':
             result = await Geolocation.requestPermissions();
-            console.log('Location permission result:', result);
             break;
-          case 'camera':
+          case 'common.camera':
             result = await Camera.requestPermissions();
-            console.log('Camera permission result:', result);
             break;
-          // Remove microphone case
-          case 'notifications':
+          case 'common.notifications':
             result = await PushNotifications.requestPermissions();
-            console.log('Notifications permission result:', result);
             if (result.receive === 'granted') {
               await PushNotifications.register();
             }
@@ -125,44 +117,24 @@ export function usePermissions() {
       } else {
         // Web API fallback
         switch (permissionName) {
-          case 'location':
-            if (navigator.permissions && navigator.permissions.query) {
-              result = await navigator.permissions.query({
-                name: 'geolocation',
-              });
-              console.log('Geolocation permission result:', result);
-            } else {
-              throw new Error('Geolocation API not available');
-            }
+          case 'common.location':
+            result = await navigator.permissions.query({ name: 'geolocation' });
             break;
-          case 'camera':
-            if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-              result = await navigator.mediaDevices.getUserMedia({
-                video: true,
-                audio: true, // Request audio along with video
-              });
-              console.log('Media Devices permission result:', result);
-            } else {
-              throw new Error('Media Devices API not available');
-            }
+          case 'common.camera':
+            result = await navigator.mediaDevices.getUserMedia({ video: true });
             break;
-          case 'notifications':
-            if ('Notification' in window) {
-              result = await Notification.requestPermission();
-              console.log('Notifications permission result:', result);
-            } else {
-              throw new Error('Notifications API not available');
-            }
+          case 'common.notifications':
+            result = await Notification.requestPermission();
             break;
         }
       }
 
       updatePermissionStatus(
         permissionName,
-        result.receive === 'granted',
-        result.receive === 'denied'
+        result?.state === 'granted' || result === 'granted',
+        result?.state === 'denied' || result === 'denied'
       );
-      return result.receive === 'granted';
+      return result?.state === 'granted' || result === 'granted';
     } catch (error) {
       console.error(`Error requesting ${permissionName} permission:`, error);
       updatePermissionStatus(permissionName, false, true);
