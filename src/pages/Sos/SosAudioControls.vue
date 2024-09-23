@@ -200,9 +200,14 @@ onUnmounted(() => {
   socket.off('peers_in_room', handlePeersInRoom);
   peer.value?.destroy();
   peer.value = null;
-  socket.emit('leave_sos_room', {
-    peerId: peerId,
-    sosEventId: props.sosEventId,
-  });
+
+  if (socket.connected) {
+    socket.emit('leave_sos_room', {
+      peerId: peerId,
+      sosEventId: props.sosEventId,
+    });
+  } else {
+    console.warn('Socket disconnected before leaving SOS room');
+  }
 });
 </script>

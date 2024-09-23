@@ -310,4 +310,10 @@ export default {
   referredBy: 'Referred By',
   referralIdNotFound: 'Referral ID not found',
   referralIdValidationFailed: 'Failed to validate referral ID',
+
+  // Added translations for form validation
+  fieldRequired: 'This field is required',
+  fillAllFields: 'Please fill in all fields',
+  errorJoiningCommunity:
+    'An error occurred while joining the community. Please try again.',
 };

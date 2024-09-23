@@ -1,34 +1,35 @@
+<script setup lang="ts">
+import { useI18n } from 'vue-i18n';
+
+const { t } = useI18n();
+</script>
+
 <template>
   <q-page class="flex flex-center">
     <div class="column items-center q-pa-md">
       <h1 class="text-h2 text-weight-bold q-mb-md text-center">
-        Community Hub: Coming Soon!
+        {{ t('community.title') }}
       </h1>
 
       <q-card class="q-pa-lg q-mb-md" style="max-width: 600px; width: 100%">
         <q-card-section>
           <p class="text-body1 q-mb-md">
-            Thank you for joining our mission to create a New Bharat! We're
-            excited to have you on board.
+            {{ t('community.thankYou') }}
           </p>
           <p class="text-body1 q-mb-md">
-            Our community hub is under construction, but great things are coming
-            soon. Stay tuned for updates, events, and opportunities to
-            contribute!
+            {{ t('community.underConstruction') }}
           </p>
           <p class="text-body1 q-mb-md">
-            As this is primarily an SOS app, we respect your privacy and will
-            only send notifications when absolutely necessary for emergency
-            situations.
+            {{ t('community.privacyNote') }}
           </p>
         </q-card-section>
       </q-card>
 
       <q-card class="q-pa-lg" style="max-width: 600px; width: 100%">
         <q-card-section>
-          <h2 class="text-h5 q-mb-md">Stay Connected</h2>
+          <h2 class="text-h5 q-mb-md">{{ t('community.stayConnected') }}</h2>
           <p class="text-body1 q-mb-md">
-            To stay updated and engaged with our community:
+            {{ t('community.stayUpdated') }}
           </p>
           <ul>
             <li class="q-mb-sm">
@@ -38,8 +39,13 @@
                 size="sm"
                 class="q-mr-sm"
               />
-              Join our WhatsApp community:
-              <a href="#" class="text-primary">WhatsApp Link</a>
+              {{ t('community.whatsapp') }}:
+              <a
+                href="https://whatsapp.com/channel/0029VajP3n042DcoI4F6t52L"
+                target="_blank"
+                class="text-primary"
+                >{{ t('community.whatsappLink') }}</a
+              >
             </li>
             <li class="q-mb-sm">
               <q-icon
@@ -48,8 +54,13 @@
                 size="sm"
                 class="q-mr-sm"
               />
-              Follow us on Instagram:
-              <a href="#" class="text-primary">@NewBharatCommunity</a>
+              {{ t('community.instagram') }}:
+              <a
+                href="https://instagram.com/{{ t('community.instagramHandle') }}"
+                class="text-primary"
+                target="_blank"
+                >{{ t('community.instagramHandle') }}</a
+              >
             </li>
             <li class="q-mb-sm">
               <q-icon
@@ -58,8 +69,29 @@
                 size="sm"
                 class="q-mr-sm"
               />
-              Follow us on Twitter:
-              <a href="#" class="text-primary">@NewBharatCommunity</a>
+              {{ t('community.twitter') }}:
+              <a
+                href="https://twitter.com/{{ t('community.twitterHandle') }}"
+                class="text-primary"
+                target="_blank"
+                >{{ t('community.twitterHandle') }}</a
+              >
+            </li>
+            <!-- youtube channel -->
+            <li class="q-mb-sm">
+              <q-icon
+                name="fab fa-youtube"
+                color="red"
+                size="sm"
+                class="q-mr-sm"
+              />
+              {{ t('community.youtube') }}:
+              <a
+                href="https://youtube.com/{{ t('community.youtubeHandle') }}"
+                class="text-primary"
+                target="_blank"
+                >{{ t('community.youtubeHandle') }}</a
+              >
             </li>
           </ul>
         </q-card-section>

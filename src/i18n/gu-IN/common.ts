@@ -291,4 +291,9 @@ export default {
   referredBy: 'રેફરલ દ્વારા',
   referralIdNotFound: 'રેફરલ ID મળી નથી',
   referralIdValidationFailed: 'રેફરલ ID ચકાસવામાં નિષ્ફળ',
+
+  // Added translations for form validation
+  fieldRequired: 'આ ક્ષેત્ર જરૂરી છે',
+  fillAllFields: 'કૃપા કરીને બધા ક્ષેત્રો ભરો',
+  errorJoiningCommunity: 'સમુદાયમાં જોડવામાં ભૂલ થઈ.',
 };

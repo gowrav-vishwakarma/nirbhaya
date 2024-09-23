@@ -61,10 +61,16 @@ onUnmounted(() => {
   socket.off('sos_audio_stopped', handleSosAudioStopped);
   socket.off('peers_in_room', handlePeersInRoom);
   stopAudioStream();
-  socket.emit('leave_sos_room', {
-    peerId: peerId.value,
-    sosEventId: props.sosEventId,
-  });
+
+  if (socket.connected) {
+    console.log('Leaving SOS room');
+    socket.emit('leave_sos_room', {
+      peerId: peerId.value,
+      sosEventId: props.sosEventId,
+    });
+  } else {
+    console.warn('Socket disconnected before leaving SOS room');
+  }
 });
 
 const initializePeer = () => {

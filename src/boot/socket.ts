@@ -11,6 +11,11 @@ export default boot(({ app }) => {
     autoConnect: true,
     withCredentials: true,
     transports: ['websocket', 'polling'],
+    reconnection: true,
+    reconnectionAttempts: 5,
+    reconnectionDelay: 1000,
+    reconnectionDelayMax: 5000,
+    timeout: 20000,
   });
 
   socket.on('connect', () => {
@@ -24,9 +29,30 @@ export default boot(({ app }) => {
 
   socket.on('disconnect', (reason) => {
     console.log('Disconnected from WebSocket. Reason:', reason);
+    if (reason === 'io server disconnect') {
+      socket?.connect();
+    }
   });
 
-  // Make socket available globally
+  socket.on('reconnect', (attemptNumber) => {
+    console.log('Reconnected to WebSocket after', attemptNumber, 'attempts');
+  });
+
+  socket.on('reconnect_attempt', (attemptNumber) => {
+    console.log(
+      'Attempting to reconnect to WebSocket. Attempt:',
+      attemptNumber
+    );
+  });
+
+  socket.on('reconnect_error', (error) => {
+    console.error('Reconnection error:', error);
+  });
+
+  socket.on('reconnect_failed', () => {
+    console.error('Failed to reconnect to WebSocket after maximum attempts');
+  });
+
   app.config.globalProperties.$socket = socket;
 });
 

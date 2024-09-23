@@ -1,73 +1,63 @@
 <template>
   <q-page>
+    <LanguageSelector />
     <q-banner class="bg-primary text-white">
-      <h4>Be a Part of the New Bharat Revolution</h4>
-      <h6>Your skills, your passion, our future</h6>
-      <h6>
-        This app is also made, promoted and funded by community, lets make many
-        more projects like this.
-      </h6>
+      <h4>{{ t('community.offerTitle') }}</h4>
+      <h6>{{ t('community.offerSubtitle') }}</h6>
+      <h6>{{ t('community.offerDescription') }}</h6>
     </q-banner>
 
     <q-card class="q-mt-md">
       <q-card-section>
-        <p>
-          India is on the cusp of a great transformation, and we need YOU to
-          make it happen. Join our community of changemakers who are working
-          together to build a safer, stronger, and more prosperous Bharat.
-          Whether you're a student, professional, homemaker, or retiree, your
-          unique skills and experiences are valuable in shaping our nation's
-          future.
-        </p>
+        <p>{{ t('community.introText') }}</p>
       </q-card-section>
 
+      <q-card-section> </q-card-section>
+
       <q-card-section>
-        <form>
+        <form @submit.prevent="joinMovement">
           <q-input
             v-model="inspiration"
-            label="What inspires you about India's future?"
+            :label="t('community.inspirationLabel')"
             class="q-mb-md"
             outlined
+            :rules="[(val) => !!val || t('common.fieldRequired')]"
           />
           <q-select
             v-model="contribution"
-            label="How do you see yourself contributing to a better Bharat?"
+            :label="t('community.contributionLabel')"
             :options="contributionOptions"
             class="q-mb-md"
             outlined
+            :rules="[(val) => !!val || t('common.fieldRequired')]"
           />
           <q-input
             type="textarea"
             v-model="skills"
-            label="What specific skills or experiences can you bring to our community?"
+            :label="t('community.skillsLabel')"
             class="q-mb-md"
             outlined
+            :rules="[(val) => !!val || t('common.fieldRequired')]"
           />
           <q-select
             v-model="time"
-            label="How much time can you dedicate to community activities per week?"
+            :label="t('community.timeLabel')"
             :options="timeOptions"
             class="q-mb-md"
             outlined
+            :rules="[(val) => !!val || t('common.fieldRequired')]"
           />
           <q-card-actions>
             <q-btn
-              @click="joinMovement"
-              label="Join the Movement"
+              type="submit"
+              :label="t('community.joinButton')"
               color="primary"
               class="q-mx-auto"
             />
           </q-card-actions>
           <q-banner class="q-mt-md">
-            <p>
-              Remember, every skill is valuable, and every contribution matters.
-              Together, we can create a New Bharat that we're proud to call
-              home. Join us in this exciting journey of transformation!
-            </p>
-            <p>
-              Your information is safe with us and will only be used for
-              community purposes.
-            </p>
+            <p>{{ t('community.reminderText') }}</p>
+            <p>{{ t('community.privacyAssurance') }}</p>
           </q-banner>
         </form>
       </q-card-section>
@@ -75,33 +65,31 @@
 
     <q-card class="q-mt-md">
       <q-card-section>
-        <h3>Testimonials</h3>
-        <p>
-          "Being part of this community has changed my life!" - Community Member
-          1
-        </p>
-        <p>
-          "I love contributing to something bigger than myself." - Community
-          Member 2
-        </p>
-        <!-- Add more testimonials as needed -->
+        <h3>{{ t('community.testimonials') }}</h3>
+        <p>{{ t('community.testimonial1') }}</p>
+        <p>{{ t('community.testimonial2') }}</p>
       </q-card-section>
     </q-card>
   </q-page>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
-import { useUserStore } from 'src/stores/user-store'; // Adjust the import based on your project structure
+import { ref, onMounted, computed } from 'vue';
+import { useUserStore } from 'src/stores/user-store';
 import { useRouter } from 'vue-router';
 import { api } from 'src/boot/axios';
+import { useI18n } from 'vue-i18n';
+import LanguageSelector from 'src/components/LanguageSelector.vue';
+import { useQuasar } from 'quasar';
 
 const router = useRouter();
 const userStore = useUserStore();
+const { t, tm } = useI18n();
+const $q = useQuasar();
 
 onMounted(() => {
   if (userStore.user.hasJoinedCommunity) {
-    router.push('/joined-community'); // Redirect to the different page if already joined
+    router.push('/joined-community');
   }
 });
 
@@ -110,28 +98,27 @@ const contribution = ref('');
 const skills = ref('');
 const time = ref('');
 
-const contributionOptions = [
-  'Technology and Innovation',
-  'Education and Skill Development',
-  'Community Service and Social Work',
-  'Arts, Culture, and Heritage Preservation',
-  'Social Media and Digital Marketing',
-  'Business and Entrepreneurship',
-  'Health and Wellness',
-  'Environmental Conservation',
-  'Other (Please specify)',
-];
-
-const timeOptions = [
-  'Less than 1 hour',
-  '1-3 hours',
-  '3-5 hours',
-  '5+ hours',
-  'Flexible, based on project needs',
-];
+const contributionOptions = computed(() =>
+  Object.values(tm('community.contributionOptions'))
+);
+const timeOptions = computed(() => Object.values(tm('community.timeOptions')));
 
 // Logic for joining the movement
 const joinMovement = async () => {
+  if (
+    !inspiration.value ||
+    !contribution.value ||
+    !skills.value ||
+    !time.value
+  ) {
+    $q.notify({
+      color: 'negative',
+      message: t('common.fillAllFields'),
+      icon: 'warning',
+    });
+    return;
+  }
+
   try {
     await api.post('/auth/apply-community', {
       inspiration: inspiration.value,
@@ -139,20 +126,25 @@ const joinMovement = async () => {
       skills: skills.value,
       time: time.value,
     });
-    userStore.updateUser({ hasJoinedCommunity: true }); // Update user store
-    router.push('/joined-community'); // Redirect to joined community page
+    userStore.updateUser({ hasJoinedCommunity: true });
+    router.push('/joined-community');
   } catch (error) {
     console.error('Error joining community:', error);
+    $q.notify({
+      color: 'negative',
+      message: t('common.errorJoiningCommunity'),
+      icon: 'error',
+    });
   }
 };
 </script>
 
 <style scoped>
 .input-field {
-  margin-bottom: 16px; /* Adds space between inputs */
-  border: 1px solid #ccc; /* Adds a border to inputs */
-  border-radius: 4px; /* Rounds the corners */
-  padding: 8px; /* Adds padding inside the inputs */
-  background-color: #f9f9f9; /* Light background color for inputs */
+  margin-bottom: 16px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 8px;
+  background-color: #f9f9f9;
 }
 </style>

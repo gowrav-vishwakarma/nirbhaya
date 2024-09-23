@@ -313,4 +313,10 @@ export default {
   referredBy: 'रेफर किया गया',
   referralIdNotFound: 'रेफरल आईडी नहीं मिली',
   referralIdValidationFailed: 'रेफरल आईडी सत्यापित करने में विफल',
+
+  // Added translations for form validation
+  fieldRequired: 'यह फ़ील्ड जरूरी है',
+  fillAllFields: 'कृपया सभी फ़ील्ड भरें',
+  errorJoiningCommunity:
+    'एक त्रुटि हुई जब समुदाय में जोड़ा जा रहा था। कृपया फिर से प्रयास करें।',
 };
