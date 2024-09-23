@@ -34,7 +34,7 @@ const props = defineProps<{
 
 const isSpeakerOn = ref(true);
 const peer = ref<Peer | null>(null);
-const peerId = 'sos_' + userStore.user.phoneNumber + '_' + Date.now();
+const peerId = 'sos_' + socket.id;
 const connectedPeers = ref<Set<string>>(new Set());
 const audioElements = ref<{ [key: string]: HTMLAudioElement }>({});
 
@@ -200,5 +200,9 @@ onUnmounted(() => {
   socket.off('peers_in_room', handlePeersInRoom);
   peer.value?.destroy();
   peer.value = null;
+  socket.emit('leave_sos_room', {
+    peerId: peerId,
+    sosEventId: props.sosEventId,
+  });
 });
 </script>

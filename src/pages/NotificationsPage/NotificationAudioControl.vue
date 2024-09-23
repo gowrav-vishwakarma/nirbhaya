@@ -61,12 +61,16 @@ onUnmounted(() => {
   socket.off('sos_audio_stopped', handleSosAudioStopped);
   socket.off('peers_in_room', handlePeersInRoom);
   stopAudioStream();
+  socket.emit('leave_sos_room', {
+    peerId: peerId.value,
+    sosEventId: props.sosEventId,
+  });
 });
 
 const initializePeer = () => {
   if (peer.value) return;
 
-  peerId.value = 'vol_' + userStore.user.phoneNumber + '_' + Date.now();
+  peerId.value = 'vol_' + socket.id;
   peer.value = new Peer(peerId.value);
 
   peer.value.on('open', (id) => {
