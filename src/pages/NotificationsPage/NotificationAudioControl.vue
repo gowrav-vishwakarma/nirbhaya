@@ -43,7 +43,11 @@ const isNavigatorMediaSupported = computed(() => {
 });
 
 onMounted(async () => {
-  await ensurePeerInitialized();
+  try {
+    await ensurePeerInitialized();
+  } catch (error) {
+    console.error('Error during peer initialization on mount:', error);
+  }
   socket.on('sos_audio_started', handleSosAudioStarted);
   socket.on('sos_audio_stopped', handleSosAudioStopped);
   socket.on('peers_in_room', handlePeersInRoom);
@@ -59,8 +63,8 @@ onUnmounted(() => {
 const initializePeer = () => {
   if (peer.value) return;
 
-  // peerId.value = 'vol_' + userStore.user.phoneNumber;
-  peer.value = new Peer();
+  peerId.value = 'vol_' + userStore.user.phoneNumber + '_' + Date.now();
+  peer.value = new Peer(peerId.value);
 
   peer.value.on('open', (id) => {
     console.log('Volunteer peer ID is:', id);
@@ -146,7 +150,7 @@ const ensurePeerInitialized = async () => {
     await new Promise<void>((resolve, reject) => {
       const timeout = setTimeout(() => {
         reject(new Error('Peer initialization timed out'));
-      }, 10000); // 10 seconds timeout
+      }, 20000); // 20 seconds timeout
 
       const checkPeer = () => {
         if (peer.value && peer.value.id) {

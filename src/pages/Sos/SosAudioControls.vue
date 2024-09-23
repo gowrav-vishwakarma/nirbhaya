@@ -34,7 +34,7 @@ const props = defineProps<{
 
 const isSpeakerOn = ref(true);
 const peer = ref<Peer | null>(null);
-const peerId = 'sos_' + userStore.user.phoneNumber;
+const peerId = 'sos_' + userStore.user.phoneNumber + '_' + Date.now();
 const connectedPeers = ref<Set<string>>(new Set());
 const audioElements = ref<{ [key: string]: HTMLAudioElement }>({});
 
