@@ -353,7 +353,11 @@ const shareToWhatsApp = async () => {
   try {
     const response = await fetch(recordedVideoUrl.value);
     const blob = await response.blob();
-    const file = new File([blob], 'sosbharat_impact.webm', { type: blob.type });
+    const file = new File(
+      [blob],
+      'sosbharat_impact.' + (Platform.is.ios ? 'mp4' : 'webm'),
+      { type: blob.type }
+    );
 
     if (navigator.share) {
       await navigator.share({
