@@ -38,6 +38,8 @@ const isConnecting = ref(false);
 const isLoading = ref(false);
 const activeSosPeerId = ref<string | null>(null);
 
+const { startAudioStream, stopAudioStream, audioStream } = useAudioHandler();
+
 const isNavigatorMediaSupported = computed(() => {
   return !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
 });
@@ -58,6 +60,7 @@ onUnmounted(() => {
   socket.off('sos_audio_started', handleSosAudioStarted);
   socket.off('sos_audio_stopped', handleSosAudioStopped);
   socket.off('peers_in_room', handlePeersInRoom);
+  stopAudioStream();
 });
 
 const initializePeer = () => {
@@ -123,12 +126,14 @@ const toggleAudio = async () => {
   try {
     isLoading.value = true;
     if (!isAudioOpen.value) {
+      await startAudioStream();
       await ensurePeerInitialized();
       await connectToSosPeer();
       isAudioOpen.value = true;
     } else {
       disconnectFromSosPeer();
       isAudioOpen.value = false;
+      stopAudioStream();
     }
   } catch (error) {
     console.error('Error toggling audio:', error);
@@ -171,10 +176,11 @@ const ensurePeerInitialized = async () => {
 const connectToSosPeer = async () => {
   if (isConnecting.value) return;
 
-  if (activeSosPeerId.value && peer.value) {
+  if (activeSosPeerId.value && peer.value && audioStream.value) {
     isConnecting.value = true;
     try {
-      const call = peer.value.call(activeSosPeerId.value, null);
+      console.log('Calling SOS peer:', activeSosPeerId.value);
+      const call = peer.value.call(activeSosPeerId.value, audioStream.value);
       if (!call) {
         throw new Error('Failed to create call object');
       }
