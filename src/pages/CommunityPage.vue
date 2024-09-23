@@ -1,11 +1,6 @@
-<script setup lang="ts">
-import { useI18n } from 'vue-i18n';
-
-const { t } = useI18n();
-</script>
-
 <template>
   <q-page class="flex flex-center">
+    <LanguageSelector />
     <div class="column items-center q-pa-md">
       <h1 class="text-h2 text-weight-bold q-mb-md text-center">
         {{ t('community.title') }}
@@ -99,3 +94,10 @@ const { t } = useI18n();
     </div>
   </q-page>
 </template>
+
+<script setup lang="ts">
+import { useI18n } from 'vue-i18n';
+import LanguageSelector from 'src/components/LanguageSelector.vue';
+
+const { t } = useI18n();
+</script>
