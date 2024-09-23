@@ -59,8 +59,8 @@ onUnmounted(() => {
 const initializePeer = () => {
   if (peer.value) return;
 
-  peerId.value = 'vol_' + userStore.user.phoneNumber;
-  peer.value = new Peer(peerId.value);
+  // peerId.value = 'vol_' + userStore.user.phoneNumber;
+  peer.value = new Peer();
 
   peer.value.on('open', (id) => {
     console.log('Volunteer peer ID is:', id);
