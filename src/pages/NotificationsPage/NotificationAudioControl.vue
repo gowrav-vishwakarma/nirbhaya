@@ -37,7 +37,6 @@ const sosPeerId = ref<string | null>(null);
 const isConnecting = ref(false);
 const isLoading = ref(false);
 const activeSosPeerId = ref<string | null>(null);
-const outgoingStream = ref<MediaStream | null>(null);
 
 const isNavigatorMediaSupported = computed(() => {
   return !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
@@ -171,9 +170,7 @@ const connectToSosPeer = async () => {
   if (activeSosPeerId.value && peer.value) {
     isConnecting.value = true;
     try {
-      await startAudioStream();
-
-      const call = peer.value.call(activeSosPeerId.value, audioStream.value!);
+      const call = peer.value.call(activeSosPeerId.value, null);
       if (!call) {
         throw new Error('Failed to create call object');
       }
@@ -219,7 +216,6 @@ const disconnectFromSosPeer = () => {
     audioElement.value.pause();
     audioElement.value.srcObject = null;
   }
-  stopAudioStream();
 };
 
 const handleSosAudioStarted = (sosPeerId: string) => {
@@ -251,6 +247,4 @@ const closePeerConnection = () => {
     audioElement.value.srcObject = null;
   }
 };
-
-const { startAudioStream, stopAudioStream, audioStream } = useAudioHandler();
 </script>

@@ -193,8 +193,8 @@ const getNotificationTitle = (notification: Notification) => {
   } else if (notification.recipientType === 'emergency_contact') {
     return t(
       notification.sosEvent.contactsOnly
-        ? 'notificationTitles.contactsOnly'
-        : 'notificationTitles.emergencyContact',
+        ? 'common.notificationTitles.contactsOnly'
+        : 'common.notificationTitles.emergencyContact',
       {
         eventType: t(`${eventType}`),
         victimName: notification.userLocationName, // Use victim's name here

@@ -3,27 +3,15 @@
     <q-btn
       round
       size="xl"
-      :color="isAudioOpen ? 'primary' : 'grey'"
-      :icon="$t('common.icons.mic')"
-      @click="toggleAudio"
-    />
-    <q-btn
-      round
-      size="xl"
-      v-if="isAudioOpen"
       :color="isSpeakerOn ? 'primary' : 'grey'"
       :icon="$t('common.icons.speaker')"
       @click="toggleSpeaker"
       class="q-ml-sm"
     />
     <div class="text-subtitle1 q-mt-sm">
-      {{
-        isAudioOpen
-          ? $t('common.audioConnected')
-          : $t('common.clickToOpenAudio')
-      }}
+      {{ $t('common.audioConnected') }}
     </div>
-    <div class="text-subtitle1 q-mt-sm" v-if="isAudioOpen">
+    <div class="text-subtitle1 q-mt-sm">
       {{ isSpeakerOn ? $t('common.speakerOn') : $t('common.speakerOff') }}
     </div>
   </div>
@@ -44,7 +32,6 @@ const props = defineProps<{
   sosEventId: number;
 }>();
 
-const isAudioOpen = ref(false);
 const isSpeakerOn = ref(true);
 const peer = ref<Peer | null>(null);
 const peerId = 'sos_' + userStore.user.phoneNumber;
@@ -64,9 +51,7 @@ const initializePeer = () => {
 
   peer.value.on('open', (id) => {
     console.log('SOS peer ID is:', id);
-    if (isAudioOpen.value) {
-      joinSosRoom();
-    }
+    joinSosRoom();
   });
 
   peer.value.on('error', (error) => {
@@ -165,29 +150,6 @@ const handleRemoteStream = (
   }
 };
 
-const toggleAudio = async () => {
-  if (isAudioOpen.value) {
-    await stopAudioStream();
-    isAudioOpen.value = false;
-    socket.emit('sos_audio_stopped', { sosEventId: props.sosEventId });
-  } else {
-    const success = await startAudioStream();
-    if (success) {
-      isAudioOpen.value = true;
-      if (!peer.value) {
-        initializePeer();
-      }
-      joinSosRoom();
-      socket.emit('sos_audio_started', {
-        sosEventId: props.sosEventId,
-        peerId: peerId,
-      });
-      // Call all existing peers
-      connectedPeers.value.forEach(callPeer);
-    }
-  }
-};
-
 const toggleSpeaker = () => {
   isSpeakerOn.value = !isSpeakerOn.value;
   Object.values(audioElements.value).forEach((audio) => {
@@ -223,9 +185,14 @@ const reconnectToPeers = () => {
 
 const { startAudioStream, stopAudioStream, audioStream } = useAudioHandler();
 
-onMounted(() => {
+onMounted(async () => {
+  await startAudioStream();
   initializePeer();
   socket.on('peers_in_room', handlePeersInRoom);
+  socket.emit('sos_audio_started', {
+    sosEventId: props.sosEventId,
+    peerId: peerId,
+  });
 });
 
 onUnmounted(() => {
