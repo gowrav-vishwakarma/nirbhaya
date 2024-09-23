@@ -40,7 +40,6 @@ export default {
   // Navigation
   dashboard: 'ડેશબોર્ડ',
   account: 'એકાઉન્ટ',
-  notifications: 'સૂચનાઓ',
   help: 'મદદ',
 
   // Login Page
@@ -240,7 +239,6 @@ export default {
   helpContactsSubtitle: 'ફક્ત તમારા આપાતકાલીન સંપર્કોને જાણ કરો',
   quickActions: 'ઝડપી ક્રિયાઓ',
   updateProfile: 'પ્રોફાઇલ અપડેટ કરો',
-  viewNotifications: 'સૂચનાઓ જુઓ',
   getHelp: 'મદદ મેળવો',
   notificationsPermissionHelp: 'સૂચનાઓની પરવાનગી મદદ',
 

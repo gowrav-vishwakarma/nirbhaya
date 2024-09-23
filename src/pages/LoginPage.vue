@@ -65,10 +65,12 @@
           {{ $t('common.resendOTP') }}
         </q-btn>
       </q-card-section>
+      <q-card-section class="text-center">
+        <q-btn flat @click="goToAboutUs" class="q-mb-md">
+          {{ $t('common.aboutUs') }}
+        </q-btn>
+      </q-card-section>
     </q-card>
-    <q-btn flat @click="goToAboutUs" class="text-white q-mb-md">
-      {{ $t('common.aboutUs') }}
-    </q-btn>
   </q-page>
 </template>
 

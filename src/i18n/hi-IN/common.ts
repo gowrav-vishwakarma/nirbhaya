@@ -40,7 +40,6 @@ export default {
   // Navigation
   dashboard: 'डैशबोर्ड',
   account: 'खाता',
-  notifications: 'सूचनाएं',
   help: 'मदद',
 
   // Login Page

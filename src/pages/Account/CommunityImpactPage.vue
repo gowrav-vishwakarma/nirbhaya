@@ -197,6 +197,7 @@ import { api } from 'src/boot/axios';
 import { useUserStore } from 'src/stores/user-store';
 import { copyToClipboard, openURL } from 'quasar';
 import { Platform } from 'quasar';
+import { useQuasar } from 'quasar';
 
 const userStore = useUserStore();
 const impactInfo = ref({
@@ -335,12 +336,50 @@ const discardVideo = () => {
   recordedChunks.value = [];
 };
 
-const shareToWhatsApp = () => {
-  const message = encodeURIComponent(
-    `Check out my impact with SOSBharat! ${window.location.origin}/#/login/${userStore.user.referralId}`
-  );
-  const whatsappUrl = `https://wa.me/?text=${message}`;
-  openURL(whatsappUrl);
+const $q = useQuasar();
+
+const shareToWhatsApp = async () => {
+  if (!recordedVideoUrl.value) {
+    $q.notify({
+      color: 'negative',
+      message: 'No video recorded to share',
+      icon: 'warning',
+    });
+    return;
+  }
+
+  const message = `Check out my impact with SOSBharat! ${window.location.origin}/#/login/${userStore.user.referralId}`;
+
+  try {
+    const response = await fetch(recordedVideoUrl.value);
+    const blob = await response.blob();
+    const file = new File([blob], 'sosbharat_impact.webm', { type: blob.type });
+
+    if (navigator.share) {
+      await navigator.share({
+        files: [file],
+        title: 'My SOSBharat Impact',
+        text: message,
+      });
+    } else {
+      // Fallback for browsers that don't support Web Share API
+      const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
+      window.open(whatsappUrl, '_blank');
+      $q.dialog({
+        title: 'Share Video',
+        message:
+          'Please also share the recorded video manually as WhatsApp cannot receive it directly through this method.',
+        ok: 'Got it',
+      });
+    }
+  } catch (error) {
+    console.error('Error sharing:', error);
+    $q.notify({
+      color: 'negative',
+      message: 'Failed to share the video',
+      icon: 'error',
+    });
+  }
 };
 
 const downloadVideo = () => {

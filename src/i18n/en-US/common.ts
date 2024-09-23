@@ -43,7 +43,6 @@ export default {
   // Navigation
   dashboard: 'Dashboard',
   account: 'Account',
-  notifications: 'Notifications',
   help: 'Help',
 
   // Login Page
