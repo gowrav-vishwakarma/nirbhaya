@@ -249,6 +249,15 @@ const mediaRecorder = ref<MediaRecorder | null>(null);
 const mediaStream = ref<MediaStream | null>(null);
 const recordedChunks = ref<Blob[]>([]);
 
+// Add this constant to determine video format
+const VIDEO_FORMAT = computed(() => {
+  const isIOS = Capacitor.getPlatform() === 'ios';
+  return {
+    extension: isIOS ? 'mp4' : 'webm',
+    mimeType: isIOS ? 'video/mp4' : 'video/webm;codecs=vp8,opus',
+  };
+});
+
 onMounted(async () => {
   await checkPermissions();
   await activateSOSPermissions();
@@ -656,7 +665,9 @@ const updateCurrentLocation = async (): Promise<void> => {
 };
 
 const getSupportedMimeType = (types: string[]): string | null => {
-  for (const type of types) {
+  // Add VIDEO_FORMAT.value.mimeType as the first option
+  const allTypes = [VIDEO_FORMAT.value.mimeType, ...types];
+  for (const type of allTypes) {
     if (MediaRecorder.isTypeSupported(type)) {
       logMessage('Supported MIME type found: ' + type);
       return type;
@@ -772,9 +783,9 @@ const handleDataAvailable = (event: BlobEvent) => {
 const processAccumulatedChunks = async () => {
   if (accumulatedChunks.value.length > 0 && shouldStream.value) {
     const blob = new Blob(accumulatedChunks.value, {
-      type: 'video/webm;codecs=vp8,opus',
+      type: VIDEO_FORMAT.value.mimeType,
     });
-    const fileName = `video_${Date.now()}.webm`;
+    const fileName = `video_${Date.now()}.${VIDEO_FORMAT.value.extension}`;
 
     await uploadVideo(blob, fileName);
 
@@ -788,8 +799,7 @@ const uploadVideo = async (blob: Blob, fileName: string) => {
       params: {
         sosEventId: createdSosId.value,
         fileName,
-        contentType:
-          mediaRecorder.value?.mimeType || 'video/webm;codecs=vp8,opus',
+        contentType: VIDEO_FORMAT.value.mimeType,
       },
     });
 
@@ -797,8 +807,7 @@ const uploadVideo = async (blob: Blob, fileName: string) => {
       method: 'PUT',
       body: blob,
       headers: {
-        'Content-Type':
-          mediaRecorder.value?.mimeType || 'video/webm;codecs=vp8,opus',
+        'Content-Type': VIDEO_FORMAT.value.mimeType,
       },
     });
 
@@ -813,12 +822,12 @@ const uploadVideo = async (blob: Blob, fileName: string) => {
 const saveLocalRecording = async () => {
   if (entireRecording.value.length > 0) {
     const blob = new Blob(entireRecording.value, {
-      type: mediaRecorder.value?.mimeType || 'video/webm;codecs=vp8,opus',
+      type: VIDEO_FORMAT.value.mimeType,
     });
 
-    const extension = mediaRecorder.value?.mimeType.split('/')[1];
-
-    const fileName = `sos_recording_${Date.now()}.${extension}`;
+    const fileName = `sos_recording_${Date.now()}.${
+      VIDEO_FORMAT.value.extension
+    }`;
 
     if (Capacitor.isNativePlatform()) {
       const { Filesystem, Directory } = await import('@capacitor/filesystem');
