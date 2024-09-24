@@ -35,13 +35,13 @@ const { startAudioStream, stopAudioStream, audioStream } = useAudioHandler();
 
 const isNavigatorMediaSupported = computed(() => !!navigator.mediaDevices?.getUserMedia);
 
-const initializeConnection = (peerId) => {
+const initializeConnection = (peerId: string) => { // Specify peerId type
   const peerConnection = new RTCPeerConnection();
   peerConnections.value[peerId] = peerConnection;
 
   // Add the local stream (SOS audio) to the connection
   if (audioStream.value) { // Ensure audioStream is available
-    audioStream.value.getTracks().forEach(track => {
+    audioStream.value.getTracks().forEach((track: MediaStreamTrack) => { // Specify track type
       peerConnection.addTrack(track, audioStream.value);
     });
   }
@@ -59,7 +59,7 @@ const initializeConnection = (peerId) => {
   return peerConnection;
 };
 
-const handleRemoteStream = (peerId, remoteStream) => {
+const handleRemoteStream = (peerId: string, remoteStream: MediaStream) => { // Specify parameter types
   if (!audioElements.value[peerId]) {
     const audio = new Audio();
     audio.srcObject = remoteStream;
@@ -79,7 +79,7 @@ const toggleSpeaker = () => {
   });
 };
 
-const handlePeersInRoom = (peerIds) => {
+const handlePeersInRoom = (peerIds: string[]) => { // Specify peerIds type
   peerIds.forEach(async (peerId) => {
     if (!peerConnections.value[peerId]) {
       const peerConnection = initializeConnection(peerId);
@@ -90,14 +90,14 @@ const handlePeersInRoom = (peerIds) => {
   });
 };
 
-socket.on('answer', async ({ peerId, answer }) => {
+socket.on('answer', async ({ peerId, answer }: { peerId: string; answer: RTCSessionDescriptionInit }) => { // Specify parameter types
   const peerConnection = peerConnections.value[peerId];
   if (peerConnection) {
     await peerConnection.setRemoteDescription(new RTCSessionDescription(answer));
   }
 });
 
-socket.on('offer', async ({ peerId, offer }) => {
+socket.on('offer', async ({ peerId, offer }: { peerId: string; offer: RTCSessionDescriptionInit }) => { // Specify parameter types
   const peerConnection = initializeConnection(peerId);
   await peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
   const answer = await peerConnection.createAnswer();
@@ -105,7 +105,7 @@ socket.on('offer', async ({ peerId, offer }) => {
   socket.emit('answer', { peerId, answer });
 });
 
-socket.on('ice_candidate', ({ peerId, candidate }) => {
+socket.on('ice_candidate', ({ peerId, candidate }: { peerId: string; candidate: RTCIceCandidateInit }) => { // Specify parameter types
   const peerConnection = peerConnections.value[peerId];
   if (peerConnection) {
     peerConnection.addIceCandidate(new RTCIceCandidate(candidate));

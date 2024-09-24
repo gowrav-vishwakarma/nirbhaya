@@ -1,7 +1,7 @@
 import { ref } from 'vue';
 
 export function useAudioHandler() {
-  const audioStream = ref(null);
+  const audioStream = ref<MediaStream | null>(null); // Specify audioStream type
 
   const startAudioStream = async () => {
     if (!audioStream.value) {
@@ -16,7 +16,9 @@ export function useAudioHandler() {
 
   const stopAudioStream = () => {
     if (audioStream.value) {
-      audioStream.value.getTracks().forEach(track => track.stop());
+      audioStream.value.getTracks().forEach((track: MediaStreamTrack) => { // Specify track type
+        track.stop();
+      });
       audioStream.value = null;
       console.log('Audio stream stopped');
     }

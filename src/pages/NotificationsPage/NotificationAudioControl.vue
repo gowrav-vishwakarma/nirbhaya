@@ -36,14 +36,14 @@ const initializeConnection = () => {
     handleRemoteStream(event.streams[0]);
   };
 
-  peerConnection.value.onicecandidate = (event) => {
+  peerConnection.value.onicecandidate = (event: RTCPeerConnectionIceEvent) => {
     if (event.candidate) {
       socket.emit('ice_candidate', { peerId: sosPeerId.value, candidate: event.candidate });
     }
   };
 };
 
-const handleRemoteStream = (remoteStream) => {
+const handleRemoteStream = (remoteStream: MediaStream) => { // Specify remoteStream type
   if (!audioElement.value) {
     audioElement.value = new Audio();
     audioElement.value.srcObject = remoteStream;
@@ -75,7 +75,7 @@ const closeConnection = () => {
   }
 };
 
-socket.on('offer', async ({ sosPeerId: remoteSosPeerId, offer }) => {
+socket.on('offer', async ({ sosPeerId: remoteSosPeerId, offer }: { sosPeerId: string; offer: RTCSessionDescriptionInit }) => { // Specify parameter types
   sosPeerId.value = remoteSosPeerId;
   if (peerConnection.value) {
     await peerConnection.value.setRemoteDescription(new RTCSessionDescription(offer));
@@ -85,7 +85,7 @@ socket.on('offer', async ({ sosPeerId: remoteSosPeerId, offer }) => {
   }
 });
 
-socket.on('ice_candidate', ({ candidate }) => {
+socket.on('ice_candidate', ({ candidate }: { candidate: RTCIceCandidateInit }) => { // Specify parameter type
   if (peerConnection.value) {
     peerConnection.value.addIceCandidate(new RTCIceCandidate(candidate));
   }
