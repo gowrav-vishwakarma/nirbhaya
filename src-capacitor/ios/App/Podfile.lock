@@ -16,6 +16,8 @@ PODS:
     - Capacitor
   - CapacitorPushNotifications (5.1.2):
     - Capacitor
+  - CapacitorShare (5.0.8):
+    - Capacitor
   - Firebase/CoreOnly (11.2.0):
     - FirebaseCore (= 11.2.0)
   - Firebase/Messaging (11.2.0):
@@ -85,6 +87,7 @@ DEPENDENCIES:
   - "CapacitorGeolocation (from `../../node_modules/@capacitor/geolocation`)"
   - "CapacitorNetwork (from `../../node_modules/@capacitor/network`)"
   - "CapacitorPushNotifications (from `../../node_modules/@capacitor/push-notifications`)"
+  - "CapacitorShare (from `../../node_modules/@capacitor/share`)"
   - Firebase/Messaging
 
 SPEC REPOS:
@@ -118,6 +121,8 @@ EXTERNAL SOURCES:
     :path: "../../node_modules/@capacitor/network"
   CapacitorPushNotifications:
     :path: "../../node_modules/@capacitor/push-notifications"
+  CapacitorShare:
+    :path: "../../node_modules/@capacitor/share"
 
 SPEC CHECKSUMS:
   Capacitor: 747aadb4fa786f460d8cd9d0557cb81440a13747
@@ -129,6 +134,7 @@ SPEC CHECKSUMS:
   CapacitorGeolocation: 0572212732f7ee65828d069a9663a274be89b9fc
   CapacitorNetwork: eac95b6a8eb5be7ad1ee8faa2e26a577acd5d625
   CapacitorPushNotifications: 18108623c4f6a2629e7560c07c157820a511bcdd
+  CapacitorShare: abef1f7be4e10b448693b0b83b540cb4b92dc849
   Firebase: 98e6bf5278170668a7983e12971a66b2cd57fc8c
   FirebaseCore: a282032ae9295c795714ded2ec9c522fc237f8da
   FirebaseCoreInternal: 0c569513412da9f3b31bd0b340013bbee8f295c5
@@ -139,6 +145,6 @@ SPEC CHECKSUMS:
   nanopb: fad817b59e0457d11a5dfbde799381cd727c1275
   PromisesObjC: f5707f49cb48b9636751c5b2e7d227e43fba9f47
 
-PODFILE CHECKSUM: 7c19b6cbaa2a981e44d72680234b73d87d748caf
+PODFILE CHECKSUM: 91d0fa2eb4ded604b842a70d81a45c4b81b9bc2c
 
-COCOAPODS: 1.15.0
+COCOAPODS: 1.15.2
