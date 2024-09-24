@@ -822,12 +822,23 @@ const saveLocalRecording = async () => {
       const base64Data = await blobToBase64(blob);
 
       try {
-        await Filesystem.writeFile({
+        const result = await Filesystem.writeFile({
           path: fileName,
           data: base64Data,
           directory: Directory.Data,
           recursive: true,
         });
+        // Get the file URI
+        const fileUri = result.uri;
+
+        // Share the file
+        await Share.share({
+          title: 'SOS Recording',
+          text: 'Here is your SOS recording',
+          url: fileUri,
+          dialogTitle: 'Share or save your SOS recording',
+        });
+
         logMessage('Full recording saved locally: ' + fileName);
       } catch (error) {
         logMessage('Failed to save full recording locally: ' + error);
@@ -847,56 +858,6 @@ const saveLocalRecording = async () => {
     }
 
     entireRecording.value = []; // Clear the recording after saving
-  }
-};
-
-const saveRecording = async () => {
-  if (!shouldRecord.value) return;
-  if (mediaRecorder.value) {
-    try {
-      const mimeType = mediaRecorder.value.mimeType;
-      const fileExtension = mimeType.split('/')[1].split(';')[0];
-      const videoBlob = new Blob(recordedChunks.value, { type: mimeType });
-      const fileName = `sos_recording_${Date.now()}.${fileExtension}`;
-
-      if (Capacitor.isNativePlatform()) {
-        const base64Data = await blobToBase64(videoBlob);
-
-        // Save the file temporarily
-        const result = await Filesystem.writeFile({
-          path: fileName,
-          data: base64Data,
-          directory: Directory.Cache,
-        });
-
-        // Get the file URI
-        const fileUri = result.uri;
-
-        // Share the file
-        await Share.share({
-          title: 'SOS Recording',
-          text: 'Here is your SOS recording',
-          url: fileUri,
-          dialogTitle: 'Share or save your SOS recording',
-        });
-
-        logMessage('Recording shared or saved: ' + fileName);
-      } else {
-        // For web platform (PWA mode)
-        const url = URL.createObjectURL(videoBlob);
-        const a = document.createElement('a');
-        a.style.display = 'none';
-        a.href = url;
-        a.download = fileName;
-        document.body.appendChild(a);
-        a.click();
-        URL.revokeObjectURL(url);
-        logMessage('Recording downloaded in browser: ' + fileName);
-      }
-    } catch (error) {
-      logMessage('Failed to save or share recording: ' + error);
-      console.error('Failed to save or share recording:', error);
-    }
   }
 };
 
