@@ -6,7 +6,6 @@
     @click="toggleAudio"
     :loading="isLoading"
     :disable="isLoading"
-    v-if="isNavigatorMediaSupported"
   >
     <q-tooltip>{{ $t(isAudioOpen ? 'muteAudio' : 'unmuteAudio') }}</q-tooltip>
   </q-btn>
@@ -19,7 +18,6 @@ import { socket } from 'boot/socket';
 import Peer from 'peerjs';
 import { useUserStore } from 'src/stores/user-store';
 import { useI18n } from 'vue-i18n';
-import { useAudioHandler } from 'src/composables/useAudioHandler';
 
 const props = defineProps<{
   sosEventId: number;
@@ -34,15 +32,24 @@ const peerId = ref<string>('');
 const audioElement = ref<HTMLAudioElement | null>(null);
 const isAudioOpen = ref(false);
 const sosPeerId = ref<string | null>(null);
-const isConnecting = ref(false);
 const isLoading = ref(false);
 const activeSosPeerId = ref<string | null>(null);
-
-const { startAudioStream, stopAudioStream, audioStream } = useAudioHandler();
 
 const isNavigatorMediaSupported = computed(() => {
   return !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
 });
+
+const registerSocketEvents = () => {
+  socket.on('sos_audio_started', handleSosAudioStarted);
+  socket.on('sos_audio_stopped', handleSosAudioStopped);
+  socket.on('peers_in_room', handlePeersInRoom);
+};
+
+const unregisterSocketEvents = () => {
+  socket.off('sos_audio_started', handleSosAudioStarted);
+  socket.off('sos_audio_stopped', handleSosAudioStopped);
+  socket.off('peers_in_room', handlePeersInRoom);
+};
 
 onMounted(async () => {
   try {
@@ -50,18 +57,10 @@ onMounted(async () => {
   } catch (error) {
     console.error('Error during peer initialization on mount:', error);
   }
-  socket.on('sos_audio_started', handleSosAudioStarted);
-  socket.on('sos_audio_stopped', handleSosAudioStopped);
-  socket.on('peers_in_room', handlePeersInRoom);
 });
 
 onUnmounted(() => {
   closePeerConnection();
-  socket.off('sos_audio_started', handleSosAudioStarted);
-  socket.off('sos_audio_stopped', handleSosAudioStopped);
-  socket.off('peers_in_room', handlePeersInRoom);
-  stopAudioStream();
-
   if (socket.connected) {
     console.log('Leaving SOS room');
     socket.emit('leave_sos_room', {
@@ -81,12 +80,12 @@ const initializePeer = () => {
 
   peer.value.on('open', (id) => {
     console.log('Volunteer peer ID is:', id);
-    joinSosRoom();
   });
 
   peer.value.on('call', (call) => {
-    call.answer(null);
+    call.answer();
     call.on('stream', (remoteStream) => {
+      console.log('Received stream from SOS peer');
       handleRemoteStream(call.peer, remoteStream);
     });
   });
@@ -120,30 +119,41 @@ const handleRemoteStream = (
   remotePeerId: string,
   remoteStream: MediaStream
 ) => {
-  if (remotePeerId === sosPeerId.value) {
-    if (!audioElement.value) {
-      audioElement.value = new Audio();
-    }
-    audioElement.value.srcObject = remoteStream;
-    audioElement.value.muted = !isAudioOpen.value;
-    audioElement.value.play().catch((error) => {
-      console.error('Error playing audio:', error);
-    });
+  if (!audioElement.value) {
+    audioElement.value = new Audio();
   }
+  audioElement.value.srcObject = remoteStream;
+  audioElement.value.muted = !isAudioOpen.value;
+  audioElement.value.play().catch((error) => {
+    console.error('Error playing audio:', error);
+  });
 };
 
 const toggleAudio = async () => {
   try {
     isLoading.value = true;
     if (!isAudioOpen.value) {
-      await startAudioStream();
       await ensurePeerInitialized();
-      await connectToSosPeer();
+      joinSosRoom();
+      registerSocketEvents();
       isAudioOpen.value = true;
+      if (audioElement.value) {
+        audioElement.value.muted = false;
+        audioElement.value.play().catch((error) => {
+          console.error('Error playing audio:', error);
+        });
+      }
     } else {
-      disconnectFromSosPeer();
       isAudioOpen.value = false;
-      stopAudioStream();
+      if (audioElement.value) {
+        audioElement.value.muted = true;
+        audioElement.value.pause();
+      }
+      unregisterSocketEvents();
+      socket.emit('leave_sos_room', {
+        peerId: peerId.value,
+        sosEventId: props.sosEventId,
+      });
     }
   } catch (error) {
     console.error('Error toggling audio:', error);
@@ -183,70 +193,12 @@ const ensurePeerInitialized = async () => {
   }
 };
 
-const connectToSosPeer = async () => {
-  if (isConnecting.value) return;
-
-  if (activeSosPeerId.value && peer.value && audioStream.value) {
-    isConnecting.value = true;
-    try {
-      console.log('Calling SOS peer:', activeSosPeerId.value);
-      const call = peer.value.call(activeSosPeerId.value, audioStream.value);
-      if (!call) {
-        throw new Error('Failed to create call object');
-      }
-      await new Promise((resolve, reject) => {
-        const timeout = setTimeout(() => {
-          reject(new Error('Call timed out'));
-        }, 10000);
-
-        call.on('stream', (remoteStream) => {
-          clearTimeout(timeout);
-          handleRemoteStream(activeSosPeerId.value!, remoteStream);
-          resolve(null);
-        });
-        call.on('error', (err) => {
-          clearTimeout(timeout);
-          reject(err);
-        });
-        call.on('close', () => {
-          clearTimeout(timeout);
-          reject(new Error('Call closed unexpectedly'));
-        });
-      });
-    } catch (error) {
-      console.error('Call error:', error);
-      $q.notify({
-        color: 'negative',
-        message: t('common.errorConnectingToSos'),
-        icon: 'warning',
-      });
-      isAudioOpen.value = false;
-      // Retry connection after a short delay
-      setTimeout(connectToSosPeer, 2000);
-    } finally {
-      isConnecting.value = false;
-    }
-  } else {
-    console.log('Waiting for SOS peer to start broadcasting...');
-  }
-};
-
-const disconnectFromSosPeer = () => {
-  if (audioElement.value) {
-    audioElement.value.pause();
-    audioElement.value.srcObject = null;
-  }
-};
-
 const handleSosAudioStarted = (sosPeerId: string) => {
   activeSosPeerId.value = sosPeerId;
   $q.notify({
     message: t('common.sosAudioStarted'),
     color: 'info',
   });
-  if (isAudioOpen.value) {
-    connectToSosPeer();
-  }
 };
 
 const handleSosAudioStopped = () => {
@@ -255,7 +207,10 @@ const handleSosAudioStopped = () => {
     message: t('common.sosAudioStopped'),
     color: 'warning',
   });
-  disconnectFromSosPeer();
+  if (audioElement.value) {
+    audioElement.value.pause();
+    audioElement.value.srcObject = null;
+  }
 };
 
 const closePeerConnection = () => {
