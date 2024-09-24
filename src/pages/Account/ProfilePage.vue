@@ -246,6 +246,7 @@
                   <q-item-section side>
                     <q-toggle
                       v-model="values.broadcastAudioOnSos"
+                      color="grey"
                       :disable="true"
                     />
                   </q-item-section>
