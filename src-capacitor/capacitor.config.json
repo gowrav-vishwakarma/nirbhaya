@@ -3,7 +3,8 @@
   "appName": "Shoutout",
   "webDir": "www",
   "server": {
-    "androidScheme": "https"
+    "androidScheme": "https",
+    "url": "http://192.168.2.145:9500"
   },
   "plugins": {
     "Geolocation": {
