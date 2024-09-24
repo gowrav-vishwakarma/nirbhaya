@@ -815,7 +815,10 @@ const saveLocalRecording = async () => {
     const blob = new Blob(entireRecording.value, {
       type: mediaRecorder.value?.mimeType || 'video/webm;codecs=vp8,opus',
     });
-    const fileName = `sos_recording_${Date.now()}.webm`;
+
+    const extension = mediaRecorder.value?.mimeType.split('/')[1];
+
+    const fileName = `sos_recording_${Date.now()}.${extension}`;
 
     if (Capacitor.isNativePlatform()) {
       const { Filesystem, Directory } = await import('@capacitor/filesystem');
@@ -830,6 +833,8 @@ const saveLocalRecording = async () => {
         });
         // Get the file URI
         const fileUri = result.uri;
+
+        console.log('fileUri', fileUri);
 
         // Share the file
         await Share.share({
