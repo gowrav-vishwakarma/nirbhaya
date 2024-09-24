@@ -178,6 +178,8 @@ import { useUserStore } from 'src/stores/user-store';
 import { api } from 'boot/axios';
 import { throttle } from 'quasar';
 import AudioControls from './SosAudioControls.vue';
+import { Filesystem, Directory } from '@capacitor/filesystem';
+import { Share } from '@capacitor/share';
 
 const router = useRouter();
 const route = useRoute();
@@ -857,38 +859,28 @@ const saveRecording = async () => {
       const videoBlob = new Blob(recordedChunks.value, { type: mimeType });
       const fileName = `sos_recording_${Date.now()}.${fileExtension}`;
 
-      // Attempt to save in external storage first
       if (Capacitor.isNativePlatform()) {
-        const { Filesystem, Directory } = await import('@capacitor/filesystem');
         const base64Data = await blobToBase64(videoBlob);
 
-        // Try saving to external storage
-        try {
-          await Filesystem.writeFile({
-            path: fileName,
-            data: base64Data,
-            directory: Directory.External, // Save in external storage
-          });
-          logMessage('Recording saved in External storage: ' + fileName);
-          return; // Exit if successful
-        } catch (error) {
-          logMessage('Failed to save in External storage: ' + error);
-          console.error('Failed to save in External storage:', error);
-        }
+        // Save the file temporarily
+        const result = await Filesystem.writeFile({
+          path: fileName,
+          data: base64Data,
+          directory: Directory.Cache,
+        });
 
-        // If external storage fails, try saving in internal storage
-        try {
-          await Filesystem.writeFile({
-            path: fileName,
-            data: base64Data,
-            directory: Directory.Data, // Save in internal storage
-          });
-          logMessage('Recording saved in Internal storage: ' + fileName);
-          return; // Exit if successful
-        } catch (error) {
-          logMessage('Failed to save in Internal storage: ' + error);
-          console.error('Failed to save in Internal storage:', error);
-        }
+        // Get the file URI
+        const fileUri = result.uri;
+
+        // Share the file
+        await Share.share({
+          title: 'SOS Recording',
+          text: 'Here is your SOS recording',
+          url: fileUri,
+          dialogTitle: 'Share or save your SOS recording',
+        });
+
+        logMessage('Recording shared or saved: ' + fileName);
       } else {
         // For web platform (PWA mode)
         const url = URL.createObjectURL(videoBlob);
@@ -902,8 +894,8 @@ const saveRecording = async () => {
         logMessage('Recording downloaded in browser: ' + fileName);
       }
     } catch (error) {
-      logMessage('Failed to save recording: ' + error);
-      console.error('Failed to save recording:', error);
+      logMessage('Failed to save or share recording: ' + error);
+      console.error('Failed to save or share recording:', error);
     }
   }
 };
