@@ -244,7 +244,10 @@
                     }}</q-item-label>
                   </q-item-section>
                   <q-item-section side>
-                    <q-toggle v-model="values.broadcastAudioOnSos" />
+                    <q-toggle
+                      v-model="values.broadcastAudioOnSos"
+                      :disable="true"
+                    />
                   </q-item-section>
                 </q-item>
               </q-list>
