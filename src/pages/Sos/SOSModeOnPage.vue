@@ -179,7 +179,6 @@ import { api } from 'boot/axios';
 import { throttle } from 'quasar';
 import AudioControls from './SosAudioControls.vue';
 import { Filesystem, Directory } from '@capacitor/filesystem';
-import { Share } from '@capacitor/share';
 
 const router = useRouter();
 const route = useRoute();
@@ -845,13 +844,14 @@ const saveLocalRecording = async () => {
 
         console.log('fileUri', fileUri);
 
-        // Share the file
-        await Share.share({
-          title: 'SOS Recording',
-          text: 'Here is your SOS recording',
-          url: fileUri,
-          dialogTitle: 'Share or save your SOS recording',
-        });
+        // Download the file
+        const a = document.createElement('a');
+        a.style.display = 'none';
+        a.href = fileUri;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
 
         logMessage('Full recording saved locally: ' + fileName);
       } catch (error) {
