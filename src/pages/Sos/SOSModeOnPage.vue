@@ -833,30 +833,33 @@ const saveLocalRecording = async () => {
       const base64Data = await blobToBase64(blob);
 
       try {
+        // Save to external storage (usually accessible to the user)
         const result = await Filesystem.writeFile({
-          path: fileName,
+          path: `DCIM/Nirbhaya/${fileName}`,
           data: base64Data,
-          directory: Directory.Data,
+          directory: Directory.ExternalStorage,
           recursive: true,
         });
-        // Get the file URI
-        const fileUri = result.uri;
 
-        console.log('fileUri', fileUri);
+        console.log('File saved:', result.uri);
+        logMessage(`Full recording saved to DCIM/Nirbhaya/${fileName}`);
 
-        // Download the file
-        const a = document.createElement('a');
-        a.style.display = 'none';
-        a.href = fileUri;
-        a.download = fileName;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-
-        logMessage('Full recording saved locally: ' + fileName);
+        // Optionally, you can show a notification to the user
+        $q.notify({
+          message: `Video saved to DCIM/Nirbhaya/${fileName}`,
+          color: 'positive',
+          icon: 'save',
+        });
       } catch (error) {
-        logMessage('Failed to save full recording locally: ' + error);
-        console.error('Failed to save full recording locally:', error);
+        console.error('Failed to save full recording:', error);
+        logMessage('Failed to save full recording: ' + error);
+
+        // Show error notification
+        $q.notify({
+          message: 'Failed to save video. Please check app permissions.',
+          color: 'negative',
+          icon: 'error',
+        });
       }
     } else {
       // For web platform, we'll save the blob directly
@@ -868,6 +871,7 @@ const saveLocalRecording = async () => {
       document.body.appendChild(a);
       a.click();
       URL.revokeObjectURL(url);
+      document.body.removeChild(a);
       logMessage('Full recording downloaded in browser: ' + fileName);
     }
 

@@ -18,13 +18,11 @@ def capacitor_pods
   pod 'CapacitorGeolocation', :path => '../../node_modules/@capacitor/geolocation'
   pod 'CapacitorNetwork', :path => '../../node_modules/@capacitor/network'
   pod 'CapacitorPushNotifications', :path => '../../node_modules/@capacitor/push-notifications'
-  pod 'CapacitorShare', :path => '../../node_modules/@capacitor/share'
 end
 
 target 'App' do
   capacitor_pods
   # Add your Pods here
-  pod 'Firebase/Messaging' # Add this line
 end
 
 post_install do |installer|

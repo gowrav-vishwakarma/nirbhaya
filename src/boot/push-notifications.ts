@@ -3,7 +3,6 @@ import { messagingReadyPromise, vapidKey } from './firebase';
 import { Capacitor } from '@capacitor/core';
 import { PushNotifications } from '@capacitor/push-notifications';
 import { useUserStore } from 'src/stores/user-store';
-import { FirebaseMessaging } from '@capacitor-firebase/messaging';
 
 export default boot(async ({ router }) => {
   const userStore = useUserStore();
