@@ -40,9 +40,11 @@ const initializeConnection = (peerId) => {
   peerConnections.value[peerId] = peerConnection;
 
   // Add the local stream (SOS audio) to the connection
-  audioStream.value?.getTracks().forEach(track => {
-    peerConnection.addTrack(track, audioStream.value);
-  });
+  if (audioStream.value) { // Ensure audioStream is available
+    audioStream.value.getTracks().forEach(track => {
+      peerConnection.addTrack(track, audioStream.value);
+    });
+  }
 
   peerConnection.ontrack = (event) => {
     handleRemoteStream(peerId, event.streams[0]);
@@ -111,7 +113,7 @@ socket.on('ice_candidate', ({ peerId, candidate }) => {
 });
 
 onMounted(async () => {
-  await startAudioStream();
+  await startAudioStream(); // Ensure audio stream is started
   socket.emit('join_sos_room', { sosEventId: props.sosEventId });
   socket.on('peers_in_room', handlePeersInRoom);
 });
