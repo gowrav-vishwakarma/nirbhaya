@@ -34,7 +34,7 @@
       <router-view />
     </q-page-container>
 
-    <q-footer class="bg-primary text-white" style="padding: 5px;">
+    <q-footer class="mainlayout-page text-white" style="padding: 5px;">
       <q-toolbar class=""
         style=" border-radius: 10px; background-color: rgb(208 10 78); display: flex; justify-content: flex-end;">
         <q-btn class="" flat aria-label="Nearby Volunteers"
@@ -143,3 +143,8 @@ const goToAboutUsPage = () => {
   drawer.value = false;
 };
 </script>
+<style lang="scss" scoped>
+.mainlayout-page {
+  background: linear-gradient(45deg, $primary, darken($primary, 20%));
+}
+</style>
