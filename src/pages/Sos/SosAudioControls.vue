@@ -1,5 +1,6 @@
 <template>
   <q-btn
+    v-if="false"
     round
     :color="isAudioOpen ? 'primary' : 'grey'"
     :icon="$t('common.icons.volumeUp')"
