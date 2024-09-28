@@ -35,7 +35,16 @@
     </q-page-container>
 
     <q-footer class="bg-primary text-white" style="padding: 5px;">
-      <q-toolbar style=" border-radius: 10px; background-color: rgb(208 10 78);">
+      <q-toolbar class=""
+        style=" border-radius: 10px; background-color: rgb(208 10 78); display: flex; justify-content: flex-end;">
+        <q-btn class="" flat aria-label="Nearby Volunteers"
+          @click="userStore.isLoggedIn ? goToDashboardPage() : goToLoginPage()" :disabled="!userStore.isLoggedIn">
+          <div>
+            <q-icon name="home" style="font-size: 40px;"></q-icon>
+            <p class="q-ma-none q-pa-none" style="font-family: sans-serif;">Home </p>
+          </div>
+        </q-btn>
+        <q-space />
         <q-btn class=" q-pa-none" flat aria-label="Nearby Volunteers" @click="goToVolunteersPage"
           :disabled="!userStore.isLoggedIn">
           <div>

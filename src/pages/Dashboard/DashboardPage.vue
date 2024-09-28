@@ -434,7 +434,7 @@ onMounted(async () => {
 }
 
 .icon {
-  width: 70px;
+  width: 80px;
   height: 80px;
   margin-top: 8px;
 }
