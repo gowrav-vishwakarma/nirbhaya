@@ -611,6 +611,7 @@ const startBackgroundAPIRetry = (sosData: any) => {
 
 const startLocationWatching = async () => {
   try {
+    locationStatus.value = 'pending'; // Set initial status to pending
     watchId = await Geolocation.watchPosition(
       {
         enableHighAccuracy: true,
@@ -621,7 +622,6 @@ const startLocationWatching = async () => {
     );
     logMessage('Started watching location');
     console.log('Started watching location');
-    locationStatus.value = 'success'; // Set status to success
   } catch (error) {
     logMessage('Error starting location watch: ' + error);
     console.error('Error starting location watch:', error);
@@ -637,6 +637,8 @@ const handleLocationUpdate: WatchPositionCallback = (
   if (err) {
     logMessage('Error in location update: ' + err);
     console.error('Error in location update:', err);
+    locationStatus.value = 'error'; // Set status to error when there's a location error
+    currentLocationName.value = t('common.locationError');
     return;
   }
 
@@ -664,6 +666,7 @@ const handleLocationUpdate: WatchPositionCallback = (
       4
     )}, Lon: ${newLocation.longitude.toFixed(4)}`;
     isLocationReceived.value = true;
+    locationStatus.value = 'success'; // Set status to success when location is received
 
     throttledUpdateSOS();
   }
