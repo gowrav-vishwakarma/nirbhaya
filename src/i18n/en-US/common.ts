@@ -38,6 +38,7 @@ export default {
     build: 'build',
     contacts: 'contacts',
     speaker: 'volume_up',
+    videocam: 'videocam',
   },
 
   // Navigation
