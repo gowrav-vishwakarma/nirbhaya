@@ -1,9 +1,17 @@
-// app global css in SCSS form
+// src/css/app.scss
 
 // Importing variables to ensure they are available
 @import 'quasar.variables';
 
-// Global style to apply primary color
+// Global styles
 body {
   background-color: $primary;
+  font-family: "Poppins", sans-serif;
+  font-weight: 500;
+  font-style: normal;
 }
+.primary-text-color {
+  color: $primary;
+}
+
+// Mixin for Poppins font styling with optical sizing

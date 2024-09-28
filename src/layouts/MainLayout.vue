@@ -2,38 +2,19 @@
   <q-layout view="lHh Lpr lFf" class="bg-grey-1">
     <q-header elevated class="bg-primary text-white">
       <q-toolbar>
-        <q-toolbar-title
-          class="text-h6"
-          @click="userStore.isLoggedIn ? goToDashboardPage() : goToLoginPage()"
-        >
+        <q-toolbar-title class="text-h6" @click="userStore.isLoggedIn ? goToDashboardPage() : goToLoginPage()">
           <q-icon name="campaign" size="2em" />
-          <span class="text-weight-bold"
-            >{{ $t('common.appname') }} - {{ version }}</span
-          >
+          <span class="text-weight-bold">{{ $t('common.appname') }} - {{ version }}</span>
         </q-toolbar-title>
 
         <div>
-          <q-btn
-            flat
-            dense
-            round
-            icon="notifications"
-            aria-label="Notifications"
-            @click="refreshNotifications"
-            :disabled="!userStore.isLoggedIn"
-          >
+          <q-btn flat dense round icon="notifications" aria-label="Notifications" @click="refreshNotifications"
+            :disabled="!userStore.isLoggedIn">
             <q-badge color="red" floating v-if="unreadNotificationCount > 0">
               {{ unreadNotificationCount }}
             </q-badge>
           </q-btn>
-          <q-btn
-            flat
-            dense
-            round
-            icon="help"
-            aria-label="Help"
-            @click="goToHelpPage"
-          />
+          <q-btn flat dense round icon="help" aria-label="Help" @click="goToHelpPage" />
         </div>
       </q-toolbar>
     </q-header>
@@ -53,37 +34,29 @@
       <router-view />
     </q-page-container>
 
-    <q-footer class="bg-primary text-white">
-      <q-toolbar>
-        <q-btn
-          flat
-          round
-          icon="engineering"
-          aria-label="Nearby Volunteers"
-          @click="goToVolunteersPage"
-          label="Nearby Volunteers"
-          :disabled="!userStore.isLoggedIn"
-        />
+    <q-footer class="bg-primary text-white" style="padding: 5px;">
+      <q-toolbar style=" border-radius: 10px; background-color: rgb(208 10 78);">
+        <q-btn class=" q-pa-none" flat aria-label="Nearby Volunteers" @click="goToVolunteersPage"
+          :disabled="!userStore.isLoggedIn">
+          <div>
+            <q-icon name="emoji_people" style="font-size: 40px;"></q-icon>
+            <p class="q-ma-none q-pa-none" style="font-family: sans-serif;">Nearby</p>
+          </div>
+        </q-btn>
         <q-space />
-        <q-btn
-          flat
-          round
-          icon="notifications"
-          aria-label="Community"
-          @click="goToCommunityPage"
-          label="Community"
-          :disabled="!userStore.isLoggedIn"
-        />
+        <q-btn flat aria-label="Community" @click="goToCommunityPage" :disabled="!userStore.isLoggedIn">
+          <div>
+            <q-icon name="diversity_3" style="font-size: 40px;"></q-icon>
+            <p class="q-ma-none q-pa-none" style="font-family: sans-serif;">Community</p>
+          </div>
+        </q-btn>
         <q-space />
-        <q-btn
-          flat
-          round
-          icon="person"
-          aria-label="Profile"
-          @click="goToAccountPage"
-          label="Profile"
-          :disabled="!userStore.isLoggedIn"
-        />
+        <q-btn flat aria-label="Profile" @click="goToAccountPage" :disabled="!userStore.isLoggedIn">
+          <div>
+            <q-icon name="person" style="font-size: 40px;"></q-icon>
+            <p class="q-ma-none q-pa-none" style="font-family: sans-serif;">Profile</p>
+          </div>
+        </q-btn>
       </q-toolbar>
     </q-footer>
   </q-layout>

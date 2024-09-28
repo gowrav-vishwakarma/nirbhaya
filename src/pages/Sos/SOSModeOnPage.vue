@@ -29,7 +29,7 @@
 
           <!-- Move status icons here -->
           <div class="status-icons q-mb-md"
-            style="display: flex; justify-content: center; align-items: center; background-color: antiquewhite; border-radius: 20px; width:200px; margin: auto; padding: 3px; margin-bottom: 20px;">
+            style="display: flex; justify-content: center; align-items: center; background-color: antiquewhite; border-radius:  20px; width:200px; margin: auto; padding: 3px; margin-bottom: 20px;">
             <q-icon :name="$t('common.icons.videocam')" :color="getIconColor(recordingStatus)" size="sm">
               <q-tooltip>{{ getTooltip(recordingStatus, 'recording') }}</q-tooltip>
             </q-icon>
