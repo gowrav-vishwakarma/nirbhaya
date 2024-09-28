@@ -92,7 +92,10 @@ const otpSent = ref(false);
 
 const isIosNotSafari = computed(() => {
   return (
-    $q.platform.is.ios && !$q.platform.is.safari && !$q.platform.is.nativeMobile
+    false &&
+    $q.platform.is.ios &&
+    !$q.platform.is.safari &&
+    !$q.platform.is.nativeMobile
   );
 });
 
