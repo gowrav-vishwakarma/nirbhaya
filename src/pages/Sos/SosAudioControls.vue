@@ -12,7 +12,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, computed } from 'vue';
+import { ref, onMounted, onUnmounted, computed, watch } from 'vue';
 import { useQuasar } from 'quasar';
 import { socket } from 'boot/socket';
 import Peer from 'peerjs';
@@ -22,6 +22,8 @@ import { useI18n } from 'vue-i18n';
 const props = defineProps<{
   sosEventId: number;
 }>();
+
+const emit = defineEmits(['audioStatusChange']);
 
 const $q = useQuasar();
 const { t } = useI18n();
@@ -56,8 +58,10 @@ onMounted(async () => {
     joinSosRoom();
     registerSocketEvents();
     startAudioBroadcast(); // Start audio broadcast on page load
+    updateAudioStatus('success');
   } catch (error) {
     console.error('Error during peer initialization on mount:', error);
+    updateAudioStatus('error');
   }
 });
 
@@ -131,14 +135,17 @@ const callPeer = async (volPeerId: string) => {
 const startAudioBroadcast = async () => {
   if (!isNavigatorMediaSupported.value) {
     console.error('Navigator media not supported');
+    updateAudioStatus('error');
     return;
   }
 
   try {
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
     peer.value?.call('volunteer_peer_id', stream); // Replace 'volunteer_peer_id' with actual volunteer peer ID
+    updateAudioStatus('success');
   } catch (error) {
     console.error('Error starting audio broadcast:', error);
+    updateAudioStatus('error');
   }
 };
 
@@ -204,5 +211,9 @@ const closePeerConnection = () => {
   peer.value?.disconnect();
   peer.value?.destroy();
   peer.value = null;
+};
+
+const updateAudioStatus = (status: string) => {
+  emit('audioStatusChange', status);
 };
 </script>

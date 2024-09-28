@@ -42,7 +42,41 @@
             </div>
           </div>
 
-          <AudioControls :sosEventId="createdSosId" />
+          <!-- Move status icons here -->
+          <div class="status-icons q-mb-md">
+            <q-icon
+              :name="$t('common.icons.videocam')"
+              :color="getIconColor(recordingStatus)"
+              size="sm"
+            >
+              <q-tooltip>{{
+                getTooltip(recordingStatus, 'recording')
+              }}</q-tooltip>
+            </q-icon>
+            <q-icon
+              :name="$t('common.icons.mic')"
+              :color="getIconColor(audioStatus)"
+              size="sm"
+              class="q-ml-sm"
+            >
+              <q-tooltip>{{ getTooltip(audioStatus, 'audio') }}</q-tooltip>
+            </q-icon>
+            <q-icon
+              :name="$t('common.icons.myLocation')"
+              :color="getIconColor(locationStatus)"
+              size="sm"
+              class="q-ml-sm"
+            >
+              <q-tooltip>{{
+                getTooltip(locationStatus, 'location')
+              }}</q-tooltip>
+            </q-icon>
+          </div>
+
+          <AudioControls
+            :sosEventId="createdSosId"
+            @audioStatusChange="handleAudioStatusChange"
+          />
 
           <q-list bordered class="rounded-borders q-mb-md">
             <q-item v-if="!contactsOnly">
@@ -248,6 +282,11 @@ const mediaRecorder = ref<MediaRecorder | null>(null);
 const mediaStream = ref<MediaStream | null>(null);
 const recordedChunks = ref<Blob[]>([]);
 
+// Add these new refs for status
+const recordingStatus = ref('pending');
+const audioStatus = ref('pending');
+const locationStatus = ref('pending');
+
 // Add this constant to determine video format
 const VIDEO_FORMAT = computed(() => {
   const isIOS = Capacitor.getPlatform() === 'ios';
@@ -257,6 +296,34 @@ const VIDEO_FORMAT = computed(() => {
   };
 });
 
+// Add this new function to get icon color based on status
+const getIconColor = (status: string) => {
+  switch (status) {
+    case 'success':
+      return 'green';
+    case 'error':
+      return 'red';
+    case 'pending':
+      return 'grey';
+    default:
+      return 'grey';
+  }
+};
+
+// Add this new function to get tooltip text based on status
+const getTooltip = (status: string, type: string) => {
+  switch (status) {
+    case 'success':
+      return `${type} is working properly`;
+    case 'error':
+      return `Error with ${type}`;
+    case 'pending':
+      return `Initializing ${type}`;
+    default:
+      return `Unknown ${type} status`;
+  }
+};
+
 onMounted(async () => {
   await checkPermissions();
   await activateSOSPermissions();
@@ -264,6 +331,11 @@ onMounted(async () => {
   await startLocationWatching();
   if (shouldRecord.value || shouldStream.value) {
     await startRecordingAndStreaming();
+  }
+
+  // Add this to update audio status based on SosAudioControls
+  if (shouldRecord.value || shouldStream.value) {
+    audioStatus.value = 'pending';
   }
 });
 
@@ -549,10 +621,12 @@ const startLocationWatching = async () => {
     );
     logMessage('Started watching location');
     console.log('Started watching location');
+    locationStatus.value = 'success'; // Set status to success
   } catch (error) {
     logMessage('Error starting location watch: ' + error);
     console.error('Error starting location watch:', error);
     currentLocationName.value = t('common.locationWatchError');
+    locationStatus.value = 'error'; // Set status to error
   }
 };
 
@@ -707,11 +781,11 @@ const startRecordingAndStreaming = async () => {
       };
 
       mediaRecorder.value = new MediaRecorder(mediaStream.value, options);
-
       mediaRecorder.value.ondataavailable = handleDataAvailable;
       mediaRecorder.value.start(5000); // Record in 5-second chunks
       isRecording.value = true;
       recordingStartTime.value = Date.now();
+      recordingStatus.value = 'success'; // Set status to success
 
       if (shouldStream.value) {
         scheduleNextProcessing();
@@ -722,6 +796,7 @@ const startRecordingAndStreaming = async () => {
   } catch (error) {
     console.error('Failed to start recording:', error);
     logMessage('Failed to start recording: ' + error);
+    recordingStatus.value = 'error'; // Set status to error
   }
 };
 
@@ -887,6 +962,10 @@ const blobToBase64 = (blob: Blob): Promise<string> => {
     reader.readAsDataURL(blob);
   });
 };
+
+const handleAudioStatusChange = (status: string) => {
+  audioStatus.value = status;
+};
 </script>
 
 <style lang="scss" scoped>
@@ -916,5 +995,27 @@ const blobToBase64 = (blob: Blob): Promise<string> => {
 .q-expansion-item {
   border: 1px solid $grey-4;
   border-radius: 8px;
+}
+
+.status-icons {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.q-icon {
+  animation: blink 2s infinite;
+}
+
+@keyframes blink {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+  100% {
+    opacity: 1;
+  }
 }
 </style>
