@@ -1,20 +1,13 @@
 <template>
   <q-card v-if="!allPermissionsGranted" class="permissions-card q-mb-md">
     <q-card-section>
-      <h6 class="text-h6 text-weight-bold q-mb-sm">
+      <h6 class="text-h6 text-weight-bold q-mb-sm q-ma-none">
         {{ $t('common.missingPermissions') }}
       </h6>
       <q-list>
-        <q-item
-          v-for="permission in permissions"
-          :key="permission.name"
-          class="q-mb-sm"
-        >
+        <q-item v-for="permission in permissions" :key="permission.name" class="q-mb-sm">
           <q-item-section avatar>
-            <q-icon
-              :name="getPermissionIcon(permission.name)"
-              color="primary"
-            />
+            <q-icon :name="getPermissionIcon(permission.name)" color="primary" />
           </q-item-section>
           <q-item-section>
             <q-item-label>{{ $t(permission.name) }}</q-item-label>
@@ -23,20 +16,10 @@
             }}</q-item-label>
           </q-item-section>
           <q-item-section side>
-            <q-btn
-              v-if="!permission.granted && !permission.denied"
-              :label="$t('common.request')"
-              color="primary"
-              outline
-              @click="requestPermission(permission.name)"
-            />
-            <q-btn
-              v-if="permission.denied"
-              :label="$t('common.helpFor')"
-              color="secondary"
-              outline
-              @click="goToHelp(permission.name)"
-            />
+            <q-btn v-if="!permission.granted && !permission.denied" :label="$t('common.request')" color="primary"
+              outline @click="requestPermission(permission.name)" />
+            <q-btn v-if="permission.denied" :label="$t('common.helpFor')" color="secondary" outline
+              @click="goToHelp(permission.name)" />
           </q-item-section>
         </q-item>
       </q-list>
