@@ -8,30 +8,15 @@
 
         <template v-if="!sosSent">
           <div class="text-center q-mb-lg">
-            <q-circular-progress
-              show-value
-              class="text-red q-ma-md"
-              :value="timeLeft"
-              size="150px"
-              :thickness="0.22"
-              color="red"
-              track-color="grey-3"
-              :min="0"
-              :max="countdownDuration"
-              @click="resetCountdown"
-            >
+            <q-circular-progress show-value class="text-red q-ma-md" :value="timeLeft" size="150px" :thickness="0.22"
+              color="red" track-color="grey-3" :min="0" :max="countdownDuration" @click="resetCountdown">
               <div class="text-h5">{{ timeLeft }}</div>
             </q-circular-progress>
             <div class="text-subtitle1 q-mt-sm">
               {{ $t('common.sosCountdownMessage') }}
             </div>
           </div>
-          <q-btn
-            color="red"
-            :label="$t('common.cancelSOS')"
-            @click="cancelSOS"
-            class="full-width q-py-sm"
-          />
+          <q-btn color="red" :label="$t('common.cancelSOS')" @click="cancelSOS" class="full-width q-py-sm" />
         </template>
 
         <template v-else>
@@ -43,53 +28,23 @@
           </div>
 
           <!-- Move status icons here -->
-          <div
-            class="status-icons q-mb-md"
-            style="
-              display: flex;
-              justify-content: center;
-              align-items: center;
-              background-color: antiquewhite;
-              border-radius: 20px;
-              width: 200px;
-              margin: auto;
-              padding: 3px;
-              margin-bottom: 20px;
-            "
-          >
-            <q-icon
-              :name="$t('common.icons.videocam')"
-              :color="getIconColor(recordingStatus)"
-              size="sm"
-            >
-              <q-tooltip>{{
-                getTooltip(recordingStatus, 'recording')
-              }}</q-tooltip>
+          <div class="status-icons q-mb-md"
+            style="display: flex; justify-content: center; align-items: center; background-color: antiquewhite; border-radius:  20px; width:200px; margin: auto; padding: 3px; margin-bottom: 20px;">
+            <q-icon :name="$t('common.icons.videocam')" :color="getIconColor(recordingStatus)" size="sm">
+              <q-tooltip>{{ getTooltip(recordingStatus, 'recording') }}</q-tooltip>
             </q-icon>
-            <q-icon
-              :name="$t('common.icons.mic')"
-              :color="getIconColor(audioStatus)"
-              size="sm"
-              class="q-ml-sm"
-            >
+            <q-icon :name="$t('common.icons.mic')" :color="getIconColor(audioStatus)" size="sm" class="q-ml-sm">
               <q-tooltip>{{ getTooltip(audioStatus, 'audio') }}</q-tooltip>
             </q-icon>
-            <q-icon
-              :name="$t('common.icons.locationOn')"
-              :color="getIconColor(locationStatus)"
-              size="sm"
-              class="q-ml-sm"
-            >
+            <q-icon :name="$t('common.icons.locationOn')" :color="getIconColor(locationStatus)" size="sm"
+              class="q-ml-sm">
               <q-tooltip>{{
                 getTooltip(locationStatus, 'location')
               }}</q-tooltip>
             </q-icon>
           </div>
 
-          <AudioControls
-            :sosEventId="createdSosId"
-            @audioStatusChange="handleAudioStatusChange"
-          />
+          <AudioControls :sosEventId="createdSosId" @audioStatusChange="handleAudioStatusChange" />
 
           <q-list bordered class="rounded-borders q-mb-md">
             <q-item v-if="!contactsOnly">
@@ -120,12 +75,7 @@
         </div>
         <div class="row q-col-gutter-sm q-mb-md">
           <div v-for="threat in threats" :key="threat" class="col-12 col-sm-6">
-            <q-btn
-              class="full-width"
-              color="primary"
-              outline
-              @click="handleThreatButtonClick(threat)"
-            >
+            <q-btn class="full-width" color="primary" outline @click="handleThreatButtonClick(threat)">
               {{ $t(threat) }}
             </q-btn>
           </div>
@@ -142,10 +92,7 @@
             <q-item-label>{{
               currentLocationName || $t('common.gettingLocation')
             }}</q-item-label>
-            <q-item-label
-              caption
-              v-if="currentLocation.latitude && currentLocation.longitude"
-            >
+            <q-item-label caption v-if="currentLocation.latitude && currentLocation.longitude">
               {{ $t('common.coordinates') }}:
               {{ currentLocation.latitude.toFixed(6) }},
               {{ currentLocation.longitude.toFixed(6) }}
@@ -165,37 +112,20 @@
           </q-item-section>
         </q-item>
 
-        <q-btn
-          @click="updateSOSData({ status: 'active' })"
-          color="primary"
-          class="full-width q-mb-md"
-        >
+        <q-btn @click="updateSOSData({ status: 'active' })" color="primary" class="full-width q-mb-md">
           <b>{{ $t('common.contactPoliceStation') }}</b>
         </q-btn>
 
-        <q-btn
-          v-if="sosSent"
-          @click="showResolveConfirmation"
-          color="positive"
-          class="full-width"
-        >
+        <q-btn v-if="sosSent" @click="showResolveConfirmation" color="positive" class="full-width">
           <b>{{ $t('common.resolveSOSIssue') }}</b>
         </q-btn>
       </q-card-section>
 
       <q-card-section>
-        <q-expansion-item
-          label="Logs"
-          icon="mdi-clipboard-text"
-          class="text-subtitle1 text-weight-bold"
-        >
+        <q-expansion-item label="Logs" icon="mdi-clipboard-text" class="text-subtitle1 text-weight-bold">
           <q-card>
             <q-card-section>
-              <div
-                v-for="(log, index) in logs"
-                :key="index"
-                class="text-body2 q-mb-xs"
-              >
+              <div v-for="(log, index) in logs" :key="index" class="text-body2 q-mb-xs">
                 {{ log }}
                 <q-separator v-if="index < logs.length - 1" class="q-my-sm" />
               </div>
@@ -515,17 +445,17 @@ const updateSOSData = async (data: {
     console.log('SOS data updated:', values.value);
     logMessage(
       'SOS data updated: ' +
-        JSON.stringify(
-          {
-            location: currentLocation.value,
-            status: data.status,
-            threat: data.threat,
-            contactsOnly: contactsOnly.value,
-            sosEventId: createdSosId.value,
-          },
-          null,
-          2
-        )
+      JSON.stringify(
+        {
+          location: currentLocation.value,
+          status: data.status,
+          threat: data.threat,
+          contactsOnly: contactsOnly.value,
+          sosEventId: createdSosId.value,
+        },
+        null,
+        2
+      )
     );
 
     if (!isLocationReceived.value) {
@@ -590,9 +520,8 @@ const sendConfirmSOSRequest = async (threatType?: string) => {
 };
 
 const sendSOSviaSMS = async (sosData: any) => {
-  const message = `SOS: ${sosData.threatType || 'Emergency'} at ${
-    sosData.location.latitude
-  }, ${sosData.location.longitude}. Time: ${sosData.timestamp}`;
+  const message = `SOS: ${sosData.threatType || 'Emergency'} at ${sosData.location.latitude
+    }, ${sosData.location.longitude}. Time: ${sosData.timestamp}`;
 
   try {
     await SMS.send({
@@ -692,9 +621,9 @@ const calculateDistance = (loc1, loc2) => {
   const a =
     Math.sin(dLat / 2) * Math.sin(dLat / 2) +
     Math.cos(loc1.latitude * (Math.PI / 180)) *
-      Math.cos(loc2.latitude * (Math.PI / 180)) *
-      Math.sin(dLon / 2) *
-      Math.sin(dLon / 2);
+    Math.cos(loc2.latitude * (Math.PI / 180)) *
+    Math.sin(dLon / 2) *
+    Math.sin(dLon / 2);
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   const distance = R * c * 1000; // Convert to meters
 
@@ -915,9 +844,8 @@ const saveLocalRecording = async () => {
       type: VIDEO_FORMAT.value.mimeType,
     });
 
-    const fileName = `sos_recording_${Date.now()}.${
-      VIDEO_FORMAT.value.extension
-    }`;
+    const fileName = `sos_recording_${Date.now()}.${VIDEO_FORMAT.value.extension
+      }`;
 
     if (Capacitor.isNativePlatform()) {
       const { Filesystem, Directory } = await import('@capacitor/filesystem');

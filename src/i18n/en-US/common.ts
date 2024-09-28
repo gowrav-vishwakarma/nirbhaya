@@ -62,7 +62,7 @@ export default {
   request: 'Request {permission}',
   helpFor: 'Help for {permission}',
   dashboardSubtitle: 'Stay safe and connected with your community',
-  helpContacts: 'Help from Contacts',
+  helpContacts: 'Help From Contacts',
   helpContactsSubtitle: 'Notify only your emergency contacts',
   quickActions: 'Quick Actions',
   updateProfile: 'Update Profile',
