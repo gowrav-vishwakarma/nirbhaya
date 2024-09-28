@@ -1,5 +1,5 @@
 <template>
-  <q-page class="dashboard-page q-pa-md bg-primary">
+  <q-page class="dashboard-page q-pa-md">
     <div class="dashboard-content">
       <q-card class="welcome-card ">
         <q-card-section>
@@ -28,54 +28,69 @@
             </div> -->
           </div>
         </q-btn>
+        <div class="q-pr-md" style="margin-top: -30px;">
+          <q-btn @click="() => { contactsOnly = true; initiateSOSMode(); }" round style="height: 50px;width: 50px; color: whitesmoke; background-color: orange; display: flex; float: right;
+            ">
+            <span style="font-weight: bolder;">
+              sos
+            </span>
+          </q-btn>
+        </div>
       </div>
 
 
       <div class="q-mt-sm flex-container">
-        <div class="card groupBox welcome-card" @click="() => { contactsOnly = true; initiateSOSMode(); }">
-          <q-img class="icon" src="../../../public/icons/nearby.png" />
-          <p class="title">{{ $t('common.helpContacts') }}</p>
-          <p class="subtitle">{{ $t('common.helpContactsSubtitle') }}</p>
-        </div>
-
-        <div class="card groupBox welcome-card">
-          <q-img class="icon" src="../../../public/safety.png" />
-          <p class="title">{{ $t('common.safetyTip') }}</p>
-          <p class="subtitle">{{ currentSafetyTip }}</p>
-        </div>
 
         <div class="card groupBox welcome-card" @click="router.push('/volunteers')">
-          <q-img class="icon" src="../../../public/volunteers.png" />
+          <q-img class="icon" src="/public/volunteers.png" />
           <p class="title">Nearby Volunteers</p>
           <p class="subtitle">{{ nearbyVolunteers.length }} {{ $t('common.volunteersNearby') }}</p>
         </div>
+        <div class="card groupBox welcome-card" style="background-color: orange;"
+          @click="() => { contactsOnly = true; initiateSOSMode(); }">
+          <q-img class="icon" src="/icons/nearby.png" />
+          <p class="title text-white">{{ $t('common.helpContacts') }}</p>
+          <div class="q-px-sm">
+            <q-btn outline color="white" class="" size="sm">
+              <span style="font-weight: bolder;">
+                {{ $t('common.helpContactsSubtitle') }}
+              </span>
+            </q-btn>
+          </div>
+
+        </div>
 
         <div class="card groupBox welcome-card" @click="router.push('/volunteers')">
-          <q-img class="icon" src="../../../public/sosicon.png" />
+          <q-img class="icon" src="/public/sosicon.png" />
           <p class="title">Emergency Services</p>
           <p class="subtitle">5 Emergency Services </p>
+        </div>
+        <div class="card groupBox welcome-card">
+          <q-img class="icon" src="/safety.png" />
+          <p class="title">{{ $t('common.safetyTip') }}</p>
+          <p class="subtitle">{{ currentSafetyTip }}</p>
         </div>
       </div>
 
 
 
-      <!-- <q-btn color="orange" class="help-button q-my-lg" @click="() => {
-          contactsOnly = true;
-          initiateSOSMode();
-        }
-          ">
-          <div class="row items-center full-width">
-            <q-icon name="people" size="2rem" class="q-mr-md" />
-            <div class="text-left">
-              <div class="text-subtitle1 text-weight-bold">
-                {{ $t('common.helpContacts') }}
-              </div>
-              <div class="text-caption">
-                {{ $t('common.helpContactsSubtitle') }}
-              </div>
+      <q-btn color="orange" class="help-button q-my-lg" @click="() => {
+        contactsOnly = true;
+        initiateSOSMode();
+      }
+        ">
+        <div class="row items-center full-width">
+          <q-icon name="people" size="2rem" class="q-mr-md" />
+          <div class="text-left">
+            <div class="text-subtitle1 text-weight-bold">
+              {{ $t('common.helpContacts') }}
+            </div>
+            <div class="text-caption">
+              {{ $t('common.helpContactsSubtitle') }}
             </div>
           </div>
-        </q-btn> -->
+        </div>
+      </q-btn>
     </div>
 
     <MissingPermissions />
@@ -347,7 +362,7 @@ onMounted(async () => {
 
 <style lang="scss" scoped>
 .dashboard-page {
-  background: linear-gradient(135deg, $secondary, lighten($secondary, 20%));
+  background: linear-gradient(135deg, $primary, darken($primary, 20%));
   min-height: 100vh;
 }
 
@@ -393,6 +408,7 @@ onMounted(async () => {
 .help-button {
   height: 80px;
   font-weight: bold;
+  width: 100%;
   box-shadow: 0 4px 8px rgba(255, 165, 0, 0.3);
 }
 
