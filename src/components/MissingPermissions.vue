@@ -5,9 +5,16 @@
         {{ $t('common.missingPermissions') }}
       </h6>
       <q-list>
-        <q-item v-for="permission in permissions" :key="permission.name" class="q-mb-sm">
+        <q-item
+          v-for="permission in permissions"
+          :key="permission.name"
+          class="q-mb-sm"
+        >
           <q-item-section avatar>
-            <q-icon :name="getPermissionIcon(permission.name)" color="primary" />
+            <q-icon
+              :name="getPermissionIcon(permission.name)"
+              color="primary"
+            />
           </q-item-section>
           <q-item-section>
             <q-item-label>{{ $t(permission.name) }}</q-item-label>
@@ -16,10 +23,22 @@
             }}</q-item-label>
           </q-item-section>
           <q-item-section side>
-            <q-btn v-if="!permission.granted && !permission.denied" :label="$t('common.request')" color="primary"
-              outline @click="requestPermission(permission.name)" />
-            <q-btn v-if="permission.denied" :label="$t('common.helpFor')" color="secondary" outline
-              @click="goToHelp(permission.name)" />
+            <q-btn
+              v-if="!permission.granted && !permission.denied"
+              :label="$t('common.request')"
+              color="primary"
+              outline
+              @click="handleRequestPermission(permission.name)"
+              :loading="loading"
+            />
+            <q-btn
+              v-else-if="permission.denied"
+              :label="$t('common.helpFor')"
+              color="secondary"
+              outline
+              @click="goToHelp(permission.name)"
+            />
+            <q-icon v-else name="check" color="positive" />
           </q-item-section>
         </q-item>
       </q-list>
@@ -28,13 +47,15 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 import { usePermissions } from 'src/composables/usePermissions';
 import { useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
+import { useQuasar } from 'quasar';
 
 const { t } = useI18n();
 const router = useRouter();
+const $q = useQuasar();
 
 const {
   permissions,
@@ -43,23 +64,47 @@ const {
   checkPermissions,
 } = usePermissions();
 
+const loading = ref(false);
+
 const goToHelp = (permissionName: string) => {
   router.push({ path: '/help', query: { section: permissionName } });
 };
 
 const getPermissionIcon = (permissionName: string) => {
   const icons = {
-    location: 'place',
-    camera: 'camera_alt',
-    microphone: 'mic',
-    notification: 'notifications',
+    'common.location': 'place',
+    'common.camera': 'camera_alt',
+    'common.notifications': 'notifications',
   };
   return icons[permissionName] || 'help';
+};
+
+const handleRequestPermission = async (permissionName: string) => {
+  loading.value = true;
+  const granted = await requestPermission(permissionName);
+  loading.value = false;
+
+  if (!granted) {
+    $q.notify({
+      color: 'negative',
+      textColor: 'white',
+      icon: 'warning',
+      message: t('common.permissionRequestFailed'),
+    });
+  }
 };
 
 onMounted(async () => {
   await checkPermissions();
 });
+
+watch(
+  permissions,
+  async () => {
+    await checkPermissions();
+  },
+  { deep: true }
+);
 </script>
 
 <style lang="scss" scoped>

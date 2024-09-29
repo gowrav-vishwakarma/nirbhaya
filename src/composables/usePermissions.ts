@@ -48,6 +48,18 @@ export function usePermissions() {
                 result.location === 'granted',
                 result.location === 'denied'
               );
+              // Additional check for location availability
+              if (result.location === 'granted') {
+                try {
+                  await Geolocation.getCurrentPosition();
+                  // If we can get the current position, the permission is truly granted
+                  updatePermissionStatus(permission.name, true, false);
+                } catch (error) {
+                  console.error('Error getting current position:', error);
+                  // If we can't get the position, the permission might be restricted
+                  updatePermissionStatus(permission.name, false, true);
+                }
+              }
               break;
             case 'common.camera':
               result = await Camera.checkPermissions();
@@ -75,6 +87,20 @@ export function usePermissions() {
               result.state === 'granted',
               result.state === 'denied'
             );
+            // Additional check for location availability
+            if (result.state === 'granted') {
+              try {
+                await new Promise((resolve, reject) => {
+                  navigator.geolocation.getCurrentPosition(resolve, reject);
+                });
+                // If we can get the current position, the permission is truly granted
+                updatePermissionStatus(permission.name, true, false);
+              } catch (error) {
+                console.error('Error getting current position:', error);
+                // If we can't get the position, the permission might be restricted
+                updatePermissionStatus(permission.name, false, true);
+              }
+            }
           } else if (permission.name === 'common.notifications') {
             updatePermissionStatus(
               permission.name,
