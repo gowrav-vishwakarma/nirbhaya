@@ -46,29 +46,26 @@
 
             <q-tab-panel name="permissions">
               <div
-                v-for="section in helpSections"
-                :key="section.id"
+                v-for="permission in permissions"
+                :key="permission.name"
                 class="q-mb-lg"
               >
-                <h2 :id="section.id" class="text-h6 q-mb-sm">
-                  {{ $t(section.title) }}
+                <h2 :id="permission.name" class="text-h6 q-mb-sm">
+                  {{ $t(permission.name) }}
                 </h2>
-                <p>{{ $t(section.content) }}</p>
+                <p>{{ $t(permission.name + 'PermissionHelp') }}</p>
                 <div class="row q-col-gutter-sm q-mt-sm">
                   <div class="col-12 col-sm-6">
                     <q-btn
-                      v-if="section.action"
                       :label="
-                        section.permissionGranted
+                        permission.granted
                           ? $t('common.permissionGranted')
                           : $t('common.requestPermission')
                       "
-                      :color="
-                        section.permissionGranted ? 'positive' : 'primary'
-                      "
-                      @click="section.action.handler"
+                      :color="permission.granted ? 'positive' : 'primary'"
+                      @click="handleRequestPermission(permission.name)"
                       class="full-width"
-                      :disable="section.permissionGranted"
+                      :disable="permission.granted"
                     />
                   </div>
                   <div class="col-12 col-sm-6">
@@ -76,7 +73,7 @@
                       :label="$t('common.howToEnable')"
                       color="secondary"
                       outline
-                      @click="showPlatformSpecificHelp(section.id)"
+                      @click="showPlatformSpecificHelp(permission.name)"
                       class="full-width"
                     />
                   </div>
@@ -130,8 +127,7 @@ import { useRoute } from 'vue-router';
 import { useQuasar } from 'quasar';
 import { useI18n } from 'vue-i18n';
 import { Capacitor } from '@capacitor/core';
-import { Geolocation } from '@capacitor/geolocation';
-import { Camera } from '@capacitor/camera';
+import { usePermissions } from 'src/composables/usePermissions';
 
 const route = useRoute();
 const $q = useQuasar();
@@ -142,6 +138,8 @@ const videoModalOpen = ref(false);
 const currentVideoUrl = ref('');
 const platformHelpOpen = ref(false);
 const currentPlatformHelp = ref('');
+
+const { permissions, checkPermissions, requestPermission } = usePermissions();
 
 const appHelpSections = [
   {
@@ -164,185 +162,24 @@ const appHelpSections = [
   },
 ];
 
-const helpSections = ref([
-  {
-    id: 'location',
-    title: 'common.locationPermission',
-    content: 'common.locationPermissionHelp',
-    action: {
-      handler: () => requestPermission('location'),
-    },
-    permissionGranted: false,
-  },
-  {
-    id: 'camera',
-    title: 'common.cameraPermission',
-    content: 'common.cameraPermissionHelp',
-    action: {
-      handler: () => requestPermission('camera'),
-    },
-    permissionGranted: false,
-  },
-  {
-    id: 'microphone',
-    title: 'common.microphonePermission',
-    content: 'common.microphonePermissionHelp',
-    action: {
-      handler: () => requestPermission('microphone'),
-    },
-    permissionGranted: false,
-  },
-  {
-    id: 'notifications',
-    title: 'common.notificationPermission',
-    content: 'common.notificationPermissionHelp',
-    action: {
-      handler: () => requestPermission('notifications'),
-    },
-    permissionGranted: false,
-  },
-]);
-
-const checkPermissionStatus = async (
-  permissionName: string
-): Promise<boolean> => {
-  try {
-    if (Capacitor.isNativePlatform()) {
-      switch (permissionName) {
-        case 'location':
-          const { location } = await Geolocation.checkPermissions();
-          return location === 'granted';
-        case 'camera':
-          const { camera } = await Camera.checkPermissions();
-          return camera === 'granted';
-        case 'microphone':
-          const { microphone } = await Camera.checkPermissions();
-          return microphone === 'granted';
-        case 'notifications':
-          // For native platforms, you might need to implement a different way to check notification permissions
-          return Notification.permission === 'granted';
-        default:
-          return false;
-      }
-    } else {
-      // Web platform
-      switch (permissionName) {
-        case 'location':
-          const locationStatus = await navigator.permissions.query({
-            name: 'geolocation',
-          });
-          return locationStatus.state === 'granted';
-        case 'camera':
-        case 'microphone':
-          try {
-            await navigator.mediaDevices.getUserMedia({
-              [permissionName]: true,
-            });
-            return true;
-          } catch {
-            return false;
-          }
-        case 'notifications':
-          return Notification.permission === 'granted';
-        default:
-          return false;
-      }
-    }
-  } catch (error) {
-    console.error(`Error checking ${permissionName} permission:`, error);
-    return false;
-  }
-};
-
-const updatePermissionStatus = async () => {
-  for (const section of helpSections.value) {
-    if (section.action) {
-      section.permissionGranted = await checkPermissionStatus(section.id);
-    }
-  }
-};
-
-const requestPermission = async (permissionName: string) => {
-  try {
-    let granted = false;
-    if (Capacitor.isNativePlatform()) {
-      switch (permissionName) {
-        case 'location':
-          const locationResult = await Geolocation.requestPermissions();
-          granted = locationResult.location === 'granted';
-          break;
-        case 'camera':
-        case 'microphone':
-          const cameraResult = await Camera.requestPermissions();
-          granted = cameraResult[permissionName] === 'granted';
-          break;
-        case 'notifications':
-          // For native platforms, you might need to implement a different way to request notification permissions
-          const notificationResult = await Notification.requestPermission();
-          granted = notificationResult === 'granted';
-          break;
-        default:
-          throw new Error('Invalid permission name');
-      }
-    } else {
-      // Web platform
-      switch (permissionName) {
-        case 'location':
-          const locationStatus = await navigator.permissions.query({
-            name: 'geolocation',
-          });
-          if (locationStatus.state === 'prompt') {
-            await new Promise((resolve) =>
-              navigator.geolocation.getCurrentPosition(resolve, resolve)
-            );
-          }
-          granted = locationStatus.state === 'granted';
-          break;
-        case 'camera':
-        case 'microphone':
-          try {
-            await navigator.mediaDevices.getUserMedia({
-              [permissionName]: true,
-            });
-            granted = true;
-          } catch {
-            granted = false;
-          }
-          break;
-        case 'notifications':
-          const result = await Notification.requestPermission();
-          granted = result === 'granted';
-          break;
-        default:
-          throw new Error('Invalid permission name');
-      }
-    }
-
-    if (granted) {
-      const section = helpSections.value.find((s) => s.id === permissionName);
-      if (section) {
-        section.permissionGranted = true;
-      }
-
-      $q.notify({
-        color: 'positive',
-        message: t('common.permissionGranted', {
-          permission: t(permissionName),
-        }),
-        icon: 'check',
-      });
-    } else {
-      throw new Error('Permission not granted');
-    }
-  } catch (error) {
-    console.error(`Error requesting ${permissionName} permission:`, error);
+const handleRequestPermission = async (permissionName: string) => {
+  const granted = await requestPermission(permissionName);
+  if (granted) {
+    $q.notify({
+      color: 'positive',
+      message: t('common.permissionGranted', {
+        permission: t(permissionName),
+      }),
+      icon: 'check',
+    });
+  } else {
     $q.notify({
       color: 'negative',
       message: t('common.permissionDenied', { permission: t(permissionName) }),
       icon: 'error',
     });
   }
-  await updatePermissionStatus();
+  await checkPermissions();
 };
 
 const openVideoModal = (videoUrl: string) => {
@@ -359,7 +196,7 @@ const showPlatformSpecificHelp = (permissionName: string) => {
   let helpContent = '';
 
   switch (permissionName) {
-    case 'location':
+    case 'common.location':
       if (isIOS) {
         helpContent = t('common.iosLocationHelp');
       } else if (isAndroid) {
@@ -368,7 +205,7 @@ const showPlatformSpecificHelp = (permissionName: string) => {
         helpContent = t('common.pwaLocationHelp');
       }
       break;
-    case 'camera':
+    case 'common.camera':
       if (isIOS) {
         helpContent = t('common.iosCameraHelp');
       } else if (isAndroid) {
@@ -377,7 +214,24 @@ const showPlatformSpecificHelp = (permissionName: string) => {
         helpContent = t('common.pwaCameraHelp');
       }
       break;
-    // Add similar cases for other permissions
+    case 'common.microphone':
+      if (isIOS) {
+        helpContent = t('common.iosMicrophoneHelp');
+      } else if (isAndroid) {
+        helpContent = t('common.androidMicrophoneHelp');
+      } else {
+        helpContent = t('common.pwaMicrophoneHelp');
+      }
+      break;
+    case 'common.notifications':
+      if (isIOS) {
+        helpContent = t('common.iosNotificationsHelp');
+      } else if (isAndroid) {
+        helpContent = t('common.androidNotificationsHelp');
+      } else {
+        helpContent = t('common.pwaNotificationsHelp');
+      }
+      break;
   }
 
   currentPlatformHelp.value = helpContent;
@@ -385,7 +239,7 @@ const showPlatformSpecificHelp = (permissionName: string) => {
 };
 
 onMounted(async () => {
-  await updatePermissionStatus();
+  await checkPermissions();
   const section = route.query.section as string;
   if (section) {
     const element = document.getElementById(section);
