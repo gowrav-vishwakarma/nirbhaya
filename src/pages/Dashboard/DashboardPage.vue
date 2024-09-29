@@ -1,22 +1,32 @@
 <template>
   <q-page class="dashboard-page q-pa-md">
     <div class="dashboard-content">
-      <q-card class="welcome-card ">
+      <q-card class="welcome-card">
         <q-card-section>
           <h4 class="text-h6 text-weight-bold text-primary q-ma-none">
             {{ $t('common.welcome', { name: userName }) }}
           </h4>
-          <p class="text-subtitle1 text-grey-7 q-mt-sm" style="line-height: 16px;">
+          <p
+            class="text-subtitle1 text-grey-7 q-mt-sm"
+            style="line-height: 16px"
+          >
             {{ $t('common.dashboardSubtitle') }}
           </p>
         </q-card-section>
       </q-card>
 
-      <div class="sos-buttons q-mb-lg q-pb-md" style="border: 1px solid white; border-radius: 10px; margin-top: 30px;">
-        <q-btn round style="background-color: #e74c3c;" class="sos-button q-my-lg glowing-border"
-          @click="initiateSOSMode">
+      <div
+        class="sos-buttons q-mb-lg q-pb-md"
+        style="border: 1px solid white; border-radius: 10px; margin-top: 30px"
+      >
+        <q-btn
+          round
+          style="background-color: #e74c3c"
+          class="sos-button q-my-lg glowing-border"
+          @click="initiateSOSMode"
+        >
           <div class="row items-center full-width">
-            <span style="margin: auto; font-size: 40px; color: white;">sos</span>
+            <span style="margin: auto; font-size: 40px; color: white">sos</span>
             <!-- <q-icon name="warning" size="3rem" class="q-mr-md col-3" /> -->
             <!-- <div class="text-left col-5">
               <div class="text-h5 text-weight-bold">
@@ -28,19 +38,30 @@
             </div> -->
           </div>
         </q-btn>
-        <div class="q-pr-md" style="margin-top: -30px;">
-          <q-btn @click="() => { contactsOnly = true; initiateSOSMode(); }" round style="height: 50px;width: 50px; color: white; background-color: orange; display: flex; float: right;
-            ">
-            <span style="font-weight: bolder;">
-              sos
-            </span>
+        <div class="q-pr-md" style="margin-top: -30px">
+          <q-btn
+            @click="
+              () => {
+                contactsOnly = true;
+                initiateSOSMode();
+              }
+            "
+            round
+            style="
+              height: 50px;
+              width: 50px;
+              color: white;
+              background-color: orange;
+              display: flex;
+              float: right;
+            "
+          >
+            <span style="font-weight: bolder"> sos </span>
           </q-btn>
         </div>
       </div>
 
-
       <div class="q-mt-sm flex-container">
-
         <!-- <div class="card groupBox welcome-card" @click="router.push('/volunteers')">
           <q-img class="icon" src="/public/volunteers.png" />
           <p class="title">Nearby Volunteers</p>
@@ -60,15 +81,12 @@
 
         </div> -->
 
-
         <!-- <div class="card groupBox welcome-card">
           <q-img class="icon" src="/safety.png" />
           <p class="title">{{ $t('common.safetyTip') }}</p>
           <p class="subtitle">{{ currentSafetyTip }}</p>
         </div> -->
       </div>
-
-
 
       <!-- <q-btn color="orange" class="help-button q-my-lg" @click="() => {
         contactsOnly = true;
@@ -97,50 +115,63 @@
         </q-card-section>
       </q-card> -->
 
-
-
-    <q-card v-if="isVolunteer" class="volunteer-status-card">
-      <q-card-section>
-        <h6 class="text-h6 text-weight-bold q-mb-sm">
-          {{ $t('common.volunteerStatus') }}
-        </h6>
-        <q-toggle v-model="volunteerAvailable" :label="$t(
-          volunteerAvailable
-            ? 'volunteerAvailable'
-            : 'volunteerUnavailable'
-        )
-          " color="positive" @update:model-value="updateVolunteerStatus" />
-      </q-card-section>
-    </q-card>
-
     <q-card class="nearby-volunteers-card q-mb-md">
       <q-card-section>
         <div class="row items-center justify-between q-mb-sm">
           <h6 class="text-h6 text-weight-bold q-my-none">
             {{ $t('common.nearbyVolunteers') }}
           </h6>
-          <q-btn flat color="primary" :label="$t('common.viewAll')" @click="router.push('/volunteers')" />
+          <q-btn
+            flat
+            color="primary"
+            :label="$t('common.viewAll')"
+            @click="router.push('/volunteers')"
+          />
         </div>
         <div v-if="isLoadingLocation" class="text-center">
           <q-spinner color="primary" size="3em" />
           <p>{{ $t('common.gettingLocation') }}</p>
         </div>
-        <div v-else-if="nearbyVolunteers.length > 0" class="volunteer-map" ref="volunteerMap">
+        <div v-else-if="locationError" class="text-center">
+          <p>{{ locationError }}</p>
+          <q-btn
+            @click="retryFetchLocation"
+            color="primary"
+            :label="$t('common.retry')"
+          />
+        </div>
+        <div
+          v-else-if="nearbyVolunteers.length > 0"
+          class="volunteer-map"
+          ref="volunteerMap"
+        >
           <div class="map-center">
-            <q-icon :name="$t('common.icons.myLocation')" size="24px" color="primary" />
+            <q-icon
+              :name="$t('common.icons.myLocation')"
+              size="24px"
+              color="primary"
+            />
           </div>
-          <div v-for="volunteer in nearbyVolunteers" :key="volunteer.id" class="volunteer-icon"
-            :style="getVolunteerPosition(volunteer)">
-            <q-icon :name="getVolunteerIcon(volunteer)" size="20px" :color="getVolunteerColor(volunteer)" />
+          <div
+            v-for="volunteer in nearbyVolunteers"
+            :key="volunteer.id"
+            class="volunteer-icon"
+            :style="getVolunteerPosition(volunteer)"
+          >
+            <q-icon
+              :name="getVolunteerIcon(volunteer)"
+              size="20px"
+              :color="getVolunteerColor(volunteer)"
+            />
             <q-tooltip>
               {{ volunteer.profession }}
             </q-tooltip>
           </div>
         </div>
-        <p v-if="!isLoadingLocation" class="text-center q-mt-sm">
-          {{ nearbyVolunteers.length }} {{ $t('common.volunteersNearby') }}
-        </p>
-        <p v-if="!isLoadingLocation && nearbyVolunteers.length === 0" class="text-center">
+        <p
+          v-else-if="!isLoadingLocation && nearbyVolunteers.length === 0"
+          class="text-center"
+        >
           {{ $t('common.noVolunteersNearby') }}
         </p>
       </q-card-section>
@@ -150,13 +181,32 @@
         <p class="text-h6 text-weight-bold q-mb-sm">
           {{ $t('common.emergencyServices') }}
         </p>
-        <div class="row ">
-          <div v-for="service in emergencyServices" :key="service.name" class="flex">
-            <q-btn class="button-background q-mx-xs q-mb-sm" @click="callEmergencyService(service.number)" size="sm"
-              style=" border-radius: 30px;">
-              <q-btn size="sm" :style="{ marginLeft: '-10px', backgroundColor: `${service.color}` }" round><q-icon
-                  :name="service.icon" style="color: whitesmoke;"></q-icon>
-              </q-btn><span class="q-ml-xs" style="font-weight: bold;">{{ $t(service.visibleName) }}</span>
+        <div class="row">
+          <div
+            v-for="service in emergencyServices"
+            :key="service.name"
+            class="flex"
+          >
+            <q-btn
+              class="button-background q-mx-xs q-mb-sm"
+              @click="callEmergencyService(service.number)"
+              size="sm"
+              style="border-radius: 30px"
+            >
+              <q-btn
+                size="sm"
+                :style="{
+                  marginLeft: '-10px',
+                  backgroundColor: `${service.color}`,
+                }"
+                round
+                ><q-icon
+                  :name="service.icon"
+                  style="color: whitesmoke"
+                ></q-icon> </q-btn
+              ><span class="q-ml-xs" style="font-weight: bold">{{
+                $t(service.visibleName)
+              }}</span>
             </q-btn>
           </div>
         </div>
@@ -181,6 +231,7 @@ import { useUserStore } from 'src/stores/user-store';
 import { Geolocation } from '@capacitor/geolocation';
 import { api } from 'src/boot/axios';
 import MissingPermissions from 'src/components/MissingPermissions.vue';
+import { usePermissions } from 'src/composables/usePermissions';
 
 const router = useRouter();
 const $q = useQuasar();
@@ -228,9 +279,6 @@ const sendInitialSOSRequest = async () => {
   await validateAndSubmit();
 };
 
-const isVolunteer = computed(() => userStore.user.isVolunteer);
-const volunteerAvailable = ref(userStore.user.volunteerAvailable);
-
 const safetyTips = [
   'common.safetyTip1',
   'common.safetyTip2',
@@ -243,15 +291,33 @@ const currentSafetyTip = computed(() =>
 );
 
 const emergencyServices = [
-  { name: 'common.police', visibleName: 'Police Station', icon: 'local_police', number: '100', color: '#800080' },
-  { name: 'common.womenHelpline', visibleName: 'Women Helpline', icon: 'woman', number: '1091', color: '#808080' },
-  { name: 'common.ambulance', visibleName: 'Aambulance', icon: 'emergency', number: '108', color: '#000080' },
+  {
+    name: 'common.police',
+    visibleName: 'Police Station',
+    icon: 'local_police',
+    number: '100',
+    color: '#800080',
+  },
+  {
+    name: 'common.womenHelpline',
+    visibleName: 'Women Helpline',
+    icon: 'woman',
+    number: '1091',
+    color: '#808080',
+  },
+  {
+    name: 'common.ambulance',
+    visibleName: 'Aambulance',
+    icon: 'emergency',
+    number: '108',
+    color: '#000080',
+  },
   {
     name: 'common.fireDepartment',
     icon: 'local_fire_department',
     visibleName: 'Fire Department',
     number: '101',
-    color: '#808000'
+    color: '#808000',
   },
 ];
 
@@ -259,29 +325,44 @@ const callEmergencyService = (number: string) => {
   window.location.href = `tel:${number}`;
 };
 
-const updateVolunteerStatus = async () => {
-  try {
-    await api.post('/user/update-volunteer-status', {
-      available: volunteerAvailable.value,
-    });
-    userStore.updateUser({ volunteerAvailable: volunteerAvailable.value });
-    $q.notify({
-      type: 'positive',
-      message: $t('common.volunteerStatusUpdated'),
-    });
-  } catch (error) {
-    console.error('Failed to update volunteer status:', error);
-    $q.notify({
-      type: 'negative',
-      message: $t('common.volunteerStatusUpdateFailed'),
-    });
-  }
-};
-
 const coords = ref({ latitude: 0, longitude: 0 });
 const nearbyVolunteers = ref([]);
 const volunteerMap = ref(null);
 const isLoadingLocation = ref(true);
+const locationError = ref('');
+const { permissions, checkPermissions, requestPermission } = usePermissions();
+
+const fetchLocation = async () => {
+  isLoadingLocation.value = true;
+  locationError.value = '';
+  try {
+    const position = await Geolocation.getCurrentPosition();
+    coords.value = {
+      latitude: position.coords.latitude,
+      longitude: position.coords.longitude,
+    };
+    await fetchNearbyVolunteers();
+  } catch (error) {
+    console.error('Error getting current position:', error);
+    locationError.value = t('common.errorGettingLocation');
+  } finally {
+    isLoadingLocation.value = false;
+  }
+};
+
+const retryFetchLocation = async () => {
+  const locationPermission = permissions.value.find(
+    (p) => p.name === 'common.location'
+  );
+  if (locationPermission && !locationPermission.granted) {
+    const granted = await requestPermission('common.location');
+    if (!granted) {
+      locationError.value = t('common.locationPermissionDenied');
+      return;
+    }
+  }
+  await fetchLocation();
+};
 
 const fetchNearbyVolunteers = async () => {
   if (coords.value.latitude && coords.value.longitude) {
@@ -295,6 +376,7 @@ const fetchNearbyVolunteers = async () => {
       nearbyVolunteers.value = response.data.slice(0, 5); // Limit to 5 volunteers for simplicity
     } catch (error) {
       console.error('Error fetching nearby volunteers', error);
+      locationError.value = t('common.errorFetchingVolunteers');
     }
   }
 };
@@ -349,18 +431,15 @@ const getVolunteerColor = (volunteer) => {
 };
 
 onMounted(async () => {
-  isLoadingLocation.value = true;
-  try {
-    const position = await Geolocation.getCurrentPosition();
-    coords.value = {
-      latitude: position.coords.latitude,
-      longitude: position.coords.longitude,
-    };
-    await fetchNearbyVolunteers();
-  } catch (error) {
-    console.error('Error getting current position:', error);
-  } finally {
+  await checkPermissions();
+  const locationPermission = permissions.value.find(
+    (p) => p.name === 'common.location'
+  );
+  if (locationPermission && locationPermission.granted) {
+    await fetchLocation();
+  } else {
     isLoadingLocation.value = false;
+    locationError.value = t('common.locationPermissionRequired');
   }
 });
 </script>
@@ -404,11 +483,9 @@ onMounted(async () => {
   margin-top: 20px;
   border-radius: 100%;
   box-shadow: 0 0 20px rgba(255, 255, 255, 0.5),
-    /* Glow effect */
-    0 0 40px rgba(255, 255, 255, 0.5);
+    /* Glow effect */ 0 0 40px rgba(255, 255, 255, 0.5);
   /* Further glow */
 }
-
 
 .help-button {
   height: 80px;
@@ -474,7 +551,11 @@ onMounted(async () => {
 }
 
 .button-background {
-  background: linear-gradient(135deg, white, darken(rgb(255, 255, 255), 0%)) !important;
+  background: linear-gradient(
+    135deg,
+    white,
+    darken(rgb(255, 255, 255), 0%)
+  ) !important;
   border: 1px solid rgba(221, 218, 218, 0.418) !important;
 }
 </style>

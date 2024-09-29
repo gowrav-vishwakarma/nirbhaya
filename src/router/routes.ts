@@ -47,7 +47,7 @@ const routes: RouteRecordRaw[] = [
       },
       {
         path: 'community',
-        component: () => import('pages/CommunityOfferPage.vue'),
+        component: () => import('pages/CommunityPage.vue'),
         meta: { requiresAuth: true },
       },
       {

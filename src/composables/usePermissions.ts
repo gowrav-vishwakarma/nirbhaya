@@ -17,6 +17,7 @@ export function usePermissions() {
     { name: 'common.location', granted: false, denied: false },
     { name: 'common.camera', granted: false, denied: false },
     { name: 'common.notifications', granted: false, denied: false },
+    { name: 'common.microphone', granted: false, denied: false }, // Add microphone permission
   ]);
 
   const allPermissionsGranted = computed(() =>
@@ -115,6 +116,15 @@ export function usePermissions() {
               updatePermissionStatus(permission.name, false, true);
             }
           }
+          // Add microphone permission check
+          if (permission.name === 'common.microphone') {
+            try {
+              await navigator.mediaDevices.getUserMedia({ audio: true });
+              updatePermissionStatus(permission.name, true, false);
+            } catch {
+              updatePermissionStatus(permission.name, false, true);
+            }
+          }
         }
       } catch (error) {
         console.error(`Error checking ${permission.name} permission:`, error);
@@ -152,6 +162,16 @@ export function usePermissions() {
           case 'common.notifications':
             result = await Notification.requestPermission();
             break;
+        }
+      }
+
+      // Add microphone permission request
+      if (permissionName === 'common.microphone') {
+        try {
+          await navigator.mediaDevices.getUserMedia({ audio: true });
+          result = { state: 'granted' };
+        } catch {
+          result = { state: 'denied' };
         }
       }
 
@@ -220,6 +240,15 @@ export function usePermissions() {
             break;
         }
       }
+      // Add microphone permission activation
+      if (permissionName === 'microphone') {
+        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+          await navigator.mediaDevices.getUserMedia({ audio: true });
+        } else {
+          throw new Error('Media Devices API not available');
+        }
+      }
+
       updatePermissionStatus(permissionName, true, false);
       return true;
     } catch (error) {

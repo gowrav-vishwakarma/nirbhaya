@@ -79,6 +79,14 @@ export default {
   platformSpecificHelp: 'प्लेटफ़ॉर्म विशिष्ट मदद', // Added
   pwaCameraHelp: 'पीडब्ल्यूए कैमरा मदद', // Added
   notificationsPermissionHelp: 'notifications Permission Help',
+  errorGettingLocation: 'स्थान मैं गलत है। कृपया फिर से प्रयास करें।',
+  locationPermissionDenied:
+    'स्थान परવાનગી स्वीकृत नहीं। कृपया अपने सेटिंग्स में स्थान परવાનગી सक्षम करें।',
+  errorFetchingVolunteers:
+    'नज़दीकी व्यक्तियों को मदद मोकलने में गलत। कृपया फिर से प्रयास करें।',
+  locationPermissionRequired:
+    'स्थान परવાનગી जरूरी है जिससे नज़दीकी व्यक्तियों को मदद मोकलने में मदद मिले।',
+  retry: 'पुनः प्रयास करें',
 
   // Profile Page
   name: 'नाम',

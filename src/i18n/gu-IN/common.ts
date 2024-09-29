@@ -56,6 +56,13 @@ export default {
   missingPermissions: 'કેટલીક પરવાનગીઓ ખૂટે છે',
   request: '{permission} માટે વિનંતી કરો',
   helpFor: '{permission} માટે મદદ',
+  errorGettingLocation: 'સ્થાન મેળવવામાં ભૂલ',
+  locationPermissionDenied:
+    'સ્થાન પરવાનગી નકારવામાં આવી. કૃપા કરીને તમારા સેટિંગ્સમાં સ્થાન પરવાનગી સક્ષમ કરો.',
+  errorFetchingVolunteers: 'નજીકના વ્યક્તિઓને મદદ મોકલવામાં ભૂલ',
+  locationPermissionRequired:
+    'સ્થાન પરવાનગી જરૂરી છે જેથી નજીકના વ્યક્તિઓને મદદ મોકલવામાં આવે.',
+  retry: 'પુનઃ પ્રયાસ કરો',
 
   // Profile Page
   name: 'નામ',
