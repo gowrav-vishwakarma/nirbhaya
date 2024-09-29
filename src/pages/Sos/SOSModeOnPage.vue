@@ -62,7 +62,7 @@
               <q-item-section>
                 <q-item-label>{{
                   $t('common.emergencyContactsInformed')
-                  }}</q-item-label>
+                }}</q-item-label>
                 <q-item-label caption>{{ $t('common.yes') }}</q-item-label>
               </q-item-section>
             </q-item>
@@ -74,8 +74,8 @@
         </div>
         <div class="row q-col-gutter-sm q-mb-md">
           <div v-for="threat in threats" :key="threat.threatName" class="flex flex-wrap">
-            <q-btn class="button-background q-mx-xs q-mb-xs" @click="handleThreatButtonClick(threat.threatName)"
-              size="sm" style=" border-radius: 30px;">
+            <q-btn class="button-background q-mr-xs" @click="handleThreatButtonClick(threat.threatName)" size="sm"
+              style=" border-radius: 30px;">
               <q-btn round size="sm"
                 :style="{ marginLeft: '-10px', backgroundColor: `${threat.color}`, borderRadius: '50%' }"><q-icon
                   :name="threat.icon" style="color: whitesmoke;"></q-icon>
@@ -94,7 +94,7 @@
           <q-item-section>
             <q-item-label>{{
               currentLocationName || $t('common.gettingLocation')
-              }}</q-item-label>
+            }}</q-item-label>
             <q-item-label caption v-if="currentLocation.latitude && currentLocation.longitude">
               {{ $t('common.coordinates') }}:
               {{ currentLocation.latitude.toFixed(6) }},
@@ -206,6 +206,11 @@ const threats = [
     visibleThreat: 'Physical'
   },
   {
+    color: '#FF00FF', icon: 'gesture',
+    threatName: 'common.followedBySomeone',
+    visibleThreat: 'Someone Followed'
+  },
+  {
     color: '#FF0000', icon: 'diversity_3',
     threatName: 'common.attemptedKidnapping',
     visibleThreat: 'Kidnapping'
@@ -220,11 +225,7 @@ const threats = [
     threatName: 'common.domesticViolence',
     visibleThreat: 'Violence'
   },
-  {
-    color: '#FF00FF', icon: 'gesture',
-    threatName: 'common.followedBySomeone',
-    visibleThreat: 'Someone Followed'
-  },
+
   {
     color: '#008080', icon: 'record_voice_over',
     threatName: 'common.verbalHarassment',

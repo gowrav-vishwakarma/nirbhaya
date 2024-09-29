@@ -13,11 +13,7 @@
 
           <template v-if="!isLoading">
             <q-list v-if="responseData.length > 0" separator>
-              <q-item
-                v-for="notification in responseData"
-                :key="notification.id"
-                class="q-py-md"
-              >
+              <q-item v-for="notification in responseData" :key="notification.id" class="q-py-md">
                 <q-item-section>
                   <q-card flat bordered class="notification-item">
                     <q-card-section>
@@ -31,13 +27,8 @@
                           </div>
                         </div>
                         <div class="col-auto">
-                          <q-chip
-                            :color="
-                              getStatusColor(notification.sosEvent?.status)
-                            "
-                            text-color="white"
-                            size="sm"
-                          >
+                          <q-chip :color="getStatusColor(notification.sosEvent?.status)
+                            " text-color="white" size="sm">
                             {{
                               $t(`sosStatus.${notification.sosEvent?.status}`)
                             }}
@@ -47,22 +38,16 @@
                     </q-card-section>
 
                     <q-card-section>
-                      <div
-                        v-if="notification.sosEvent?.threat"
-                        class="text-body2 q-mb-sm"
-                      >
+                      <div v-if="notification.sosEvent?.threat" class="text-body2 q-mb-sm">
                         {{ $t('common.threat') }}:
                         <span class="text-weight-medium">{{
                           $t(notification.sosEvent.threat)
-                        }}</span>
+                          }}</span>
                       </div>
-                      <div
-                        v-if="
-                          notification.userLocationName &&
-                          notification.distanceToEvent
-                        "
-                        class="text-body2"
-                      >
+                      <div v-if="
+                        notification.userLocationName &&
+                        notification.distanceToEvent
+                      " class="text-body2">
                         {{ formatDistance(notification.distanceToEvent) }}
                         {{ $t('common.awayFrom') }}
                         {{ notification.userLocationName }}
@@ -70,34 +55,15 @@
                     </q-card-section>
 
                     <q-card-actions align="right" class="q-gutter-sm">
-                      <q-btn
-                        v-if="notification.status === 'sent'"
-                        color="primary"
-                        :label="$t('common.accept')"
-                        @click="acceptNotification(notification.id)"
-                        dense
-                        no-caps
-                      />
-                      <q-btn
-                        v-else-if="notification.status === 'accepted'"
-                        color="secondary"
-                        :label="$t('common.follow')"
-                        @click="followLocation(notification.sosEvent.location)"
-                        dense
-                        no-caps
-                      />
-                      <AudioControl
-                        v-if="notification.status === 'accepted'"
-                        :sos-event-id="notification.sosEvent.id"
-                      />
-                      <q-btn
-                        color="negative"
-                        :label="$t('common.discard')"
-                        @click="discardNotification(notification.id)"
-                        flat
-                        dense
-                        no-caps
-                      />
+                      <q-btn v-if="notification.status === 'sent'" color="primary" :label="$t('common.accept')"
+                        @click="acceptNotification(notification.id)" dense no-caps />
+                      <q-btn v-else-if="notification.status === 'accepted'" color="secondary"
+                        :label="$t('common.follow')" @click="followLocation(notification.sosEvent.location)" dense
+                        no-caps />
+                      <AudioControl v-if="notification.status === 'accepted'"
+                        :sos-event-id="notification.sosEvent.id" />
+                      <q-btn color="negative" :label="$t('common.discard')"
+                        @click="discardNotification(notification.id)" flat dense no-caps />
                     </q-card-actions>
                   </q-card>
                 </q-item-section>
@@ -294,15 +260,13 @@ const formatRelativeTime = (dateString: string) => {
 
   const diffInMonths = Math.floor(diffInDays / 30);
   if (diffInMonths < 12) {
-    return `${diffInMonths} ${
-      diffInMonths === 1 ? t('common.monthAgo') : t('common.monthsAgo')
-    }`;
+    return `${diffInMonths} ${diffInMonths === 1 ? t('common.monthAgo') : t('common.monthsAgo')
+      }`;
   }
 
   const diffInYears = Math.floor(diffInDays / 365);
-  return `${diffInYears} ${
-    diffInYears === 1 ? t('common.yearAgo') : t('common.yearsAgo')
-  }`;
+  return `${diffInYears} ${diffInYears === 1 ? t('common.yearAgo') : t('common.yearsAgo')
+    }`;
 };
 
 const refreshNotifications = async () => {

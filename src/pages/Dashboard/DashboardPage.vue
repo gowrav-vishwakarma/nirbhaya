@@ -16,7 +16,7 @@
         <q-btn round style="background-color: #e74c3c;" class="sos-button q-my-lg glowing-border"
           @click="initiateSOSMode">
           <div class="row items-center full-width">
-            <span style="margin: auto; font-size: 40px; color: whitesmoke;">sos</span>
+            <span style="margin: auto; font-size: 40px; color: white;">sos</span>
             <!-- <q-icon name="warning" size="3rem" class="q-mr-md col-3" /> -->
             <!-- <div class="text-left col-5">
               <div class="text-h5 text-weight-bold">
@@ -29,7 +29,7 @@
           </div>
         </q-btn>
         <div class="q-pr-md" style="margin-top: -30px;">
-          <q-btn @click="() => { contactsOnly = true; initiateSOSMode(); }" round style="height: 50px;width: 50px; color: whitesmoke; background-color: orange; display: flex; float: right;
+          <q-btn @click="() => { contactsOnly = true; initiateSOSMode(); }" round style="height: 50px;width: 50px; color: white; background-color: orange; display: flex; float: right;
             ">
             <span style="font-weight: bolder;">
               sos
@@ -156,7 +156,7 @@
               style=" border-radius: 30px;">
               <q-btn size="sm" :style="{ marginLeft: '-10px', backgroundColor: `${service.color}` }" round><q-icon
                   :name="service.icon" style="color: whitesmoke;"></q-icon>
-              </q-btn><span class="q-ml-xs" style="font-weight: bold;">{{ $t(service.name) }}</span>
+              </q-btn><span class="q-ml-xs" style="font-weight: bold;">{{ $t(service.visibleName) }}</span>
             </q-btn>
           </div>
         </div>
@@ -243,12 +243,13 @@ const currentSafetyTip = computed(() =>
 );
 
 const emergencyServices = [
-  { name: 'common.police', icon: 'local_police', number: '100', color: '#800080' },
-  { name: 'common.womenHelpline', icon: 'woman', number: '1091', color: '#808080' },
-  { name: 'common.ambulance', icon: 'emergency', number: '108', color: '#000080' },
+  { name: 'common.police', visibleName: 'Police Station', icon: 'local_police', number: '100', color: '#800080' },
+  { name: 'common.womenHelpline', visibleName: 'Women Helpline', icon: 'woman', number: '1091', color: '#808080' },
+  { name: 'common.ambulance', visibleName: 'Aambulance', icon: 'emergency', number: '108', color: '#000080' },
   {
     name: 'common.fireDepartment',
     icon: 'local_fire_department',
+    visibleName: 'Fire Department',
     number: '101',
     color: '#808000'
   },
