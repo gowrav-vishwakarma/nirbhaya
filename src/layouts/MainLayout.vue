@@ -1,6 +1,6 @@
 <template>
-  <q-layout view="lHh Lpr lFf" class="bg-grey-1">
-    <q-header elevated class="bg-primary text-white">
+  <q-layout view="lHh Lpr lFf" class="mainlayout-page-bg-color" style="z-index: 11;">
+    <q-header :class="['text-white', isScrolled ? 'header-bg-color' : 'background-color-transparent']">
       <q-toolbar>
         <q-toolbar-title class="text-h6" @click="userStore.isLoggedIn ? goToDashboardPage() : goToLoginPage()">
           <q-icon name="campaign" size="2em" />
@@ -30,40 +30,40 @@
       </q-list>
     </q-drawer>
 
-    <q-page-container>
+    <q-page-container class="">
       <router-view />
     </q-page-container>
-
-    <q-footer class="mainlayout-page text-white" style="padding: 5px;">
-      <q-toolbar class=""
-        style=" border-radius: 10px; background-color: rgb(208 10 78); display: flex; justify-content: flex-end;">
-        <q-btn class="" flat aria-label="Nearby Volunteers"
-          @click="userStore.isLoggedIn ? goToDashboardPage() : goToLoginPage()" :disabled="!userStore.isLoggedIn">
+    <!-- :disabled="!userStore.isLoggedIn" -->
+    <q-footer class="text-white background-color-transparent" style="padding: 4px; padding-bottom: 5px;"
+      v-if="userStore.isLoggedIn">
+      <q-toolbar class="footer-toolbar">
+        <q-btn class="" flat aria-label="Nearby Volunteers" :disabled="!userStore.isLoggedIn"
+          @click="userStore.isLoggedIn ? goToDashboardPage() : goToLoginPage()">
           <div>
-            <q-icon name="home" style="font-size: 40px;"></q-icon>
-            <p class="q-ma-none q-pa-none" style="font-family: sans-serif;">Home </p>
+            <q-icon name="home" class="font-size-25"></q-icon>
+            <p class="q-ma-none q-pa-none font-size-11">Home </p>
           </div>
         </q-btn>
         <q-space />
-        <q-btn class=" q-pa-none" flat aria-label="Nearby Volunteers" @click="goToVolunteersPage"
-          :disabled="!userStore.isLoggedIn">
+        <q-btn class=" q-pa-none" flat aria-label="Nearby Volunteers" :disabled="!userStore.isLoggedIn"
+          @click="goToVolunteersPage">
           <div>
-            <q-icon name="emoji_people" style="font-size: 40px;"></q-icon>
-            <p class="q-ma-none q-pa-none" style="font-family: sans-serif;">Nearby</p>
+            <q-icon name="emoji_people" class="font-size-25"></q-icon>
+            <p class="q-ma-none q-pa-none font-size-11">Nearby</p>
           </div>
         </q-btn>
         <q-space />
         <q-btn flat aria-label="Community" @click="goToCommunityPage" :disabled="!userStore.isLoggedIn">
           <div>
-            <q-icon name="diversity_3" style="font-size: 40px;"></q-icon>
-            <p class="q-ma-none q-pa-none" style="font-family: sans-serif;">Community</p>
+            <q-icon name="diversity_3" class="font-size-25"></q-icon>
+            <p class="q-ma-none q-pa-none font-size-11">Community</p>
           </div>
         </q-btn>
         <q-space />
         <q-btn flat aria-label="Profile" @click="goToAccountPage" :disabled="!userStore.isLoggedIn">
           <div>
-            <q-icon name="person" style="font-size: 40px;"></q-icon>
-            <p class="q-ma-none q-pa-none" style="font-family: sans-serif;">Profile</p>
+            <q-icon name="person" class="font-size-25"></q-icon>
+            <p class="q-ma-none q-pa-none font-size-11">Profile</p>
           </div>
         </q-btn>
       </q-toolbar>
@@ -75,9 +75,8 @@
 import { useRouter } from 'vue-router';
 import { useBackgroundNotifications } from 'src/composables/useBackgroundNotifications';
 import { useUserStore } from 'src/stores/user-store';
-import { onMounted } from 'vue';
+import { ref, onMounted, onUnmounted } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { ref } from 'vue';
 import { version } from 'src/../package.json';
 
 const router = useRouter();
@@ -86,9 +85,17 @@ const { unreadNotificationCount, fetchUnreadNotificationCount } =
 const userStore = useUserStore();
 const { locale } = useI18n();
 const drawer = ref(false);
-
+const isScrolled = ref(false);
+const handleScroll = () => {
+  isScrolled.value = window.scrollY > 0;
+};
+// Register and unregister the scroll event listener
 onMounted(() => {
+  window.addEventListener('scroll', handleScroll);
   locale.value = userStore.language;
+});
+onUnmounted(() => {
+  window.removeEventListener('scroll', handleScroll);
 });
 
 const toggleDrawer = () => {
@@ -144,7 +151,40 @@ const goToAboutUsPage = () => {
 };
 </script>
 <style lang="scss" scoped>
-.mainlayout-page {
-  background: linear-gradient(45deg, $primary, darken($primary, 20%));
+.mainlayout-page-bg-color {
+  background: linear-gradient(135deg, $primary, darken($primary, 20%));
+}
+
+.background-color-transparent {
+  background-color: #00000000;
+}
+
+.font-size-11 {
+  font-size: 11px
+}
+
+.font-size-26 {
+  font-size: 26px
+}
+
+.footer-toolbar {
+  border-radius: 10px;
+  background-color: rgb(208 10 78);
+  display: flex;
+  justify-content: flex-end;
+  box-shadow: 0px 4px 8px rgba(78, 25, 25, 0.699);
+}
+
+.bg-green {
+  background-color: green !important;
+}
+
+.background-color-transparent {
+  background-color: transparent !important;
+}
+
+.header-bg-color {
+  background-color: 'rgb(208 10 78)';
+  border-radius: 0 0 3px 3px;
 }
 </style>

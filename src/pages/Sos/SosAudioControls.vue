@@ -1,13 +1,6 @@
 <template>
-  <q-btn
-    v-if="false"
-    round
-    :color="isAudioOpen ? 'primary' : 'grey'"
-    :icon="$t('common.icons.volumeUp')"
-    @click="toggleAudio"
-    :loading="isLoading"
-    :disable="isLoading"
-  >
+  <q-btn v-if="false" round :color="isAudioOpen ? 'primary' : 'grey'" :icon="$t('common.icons.volumeUp')"
+    @click="toggleAudio" :loading="isLoading" :disable="isLoading">
     <q-tooltip>{{ $t(isAudioOpen ? 'muteAudio' : 'unmuteAudio') }}</q-tooltip>
   </q-btn>
 </template>

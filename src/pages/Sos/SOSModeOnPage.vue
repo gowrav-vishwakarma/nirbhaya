@@ -40,12 +40,10 @@
               class="q-ml-sm">
               <q-tooltip>{{
                 getTooltip(locationStatus, 'location')
-              }}</q-tooltip>
+                }}</q-tooltip>
             </q-icon>
           </div>
-
           <AudioControls :sosEventId="createdSosId" @audioStatusChange="handleAudioStatusChange" />
-
           <q-list bordered class="rounded-borders q-mb-md">
             <q-item v-if="!contactsOnly">
               <q-item-section>
@@ -63,7 +61,7 @@
               <q-item-section>
                 <q-item-label>{{
                   $t('common.emergencyContactsInformed')
-                }}</q-item-label>
+                  }}</q-item-label>
                 <q-item-label caption>{{ $t('common.yes') }}</q-item-label>
               </q-item-section>
             </q-item>
@@ -74,9 +72,13 @@
           {{ $t('common.helpUsMore') }}
         </div>
         <div class="row q-col-gutter-sm q-mb-md">
-          <div v-for="threat in threats" :key="threat" class="col-12 col-sm-6">
-            <q-btn class="full-width" color="primary" outline @click="handleThreatButtonClick(threat)">
-              {{ $t(threat) }}
+          <div v-for="threat in threats" :key="threat.threatName" class="flex flex-wrap">
+            <q-btn class="button-background q-mr-xs" @click="handleThreatButtonClick(threat.threatName)" size="sm"
+              style=" border-radius: 30px;">
+              <q-btn round size="sm"
+                :style="{ marginLeft: '-10px', backgroundColor: `${threat.color}`, borderRadius: '50%' }"><q-icon
+                  :name="threat.icon" style="color: whitesmoke;"></q-icon>
+              </q-btn><span class="q-ml-xs" style="font-weight: bold;"> {{ $t(threat.visibleThreat) }}</span>
             </q-btn>
           </div>
         </div>
@@ -91,7 +93,7 @@
           <q-item-section>
             <q-item-label>{{
               currentLocationName || $t('common.gettingLocation')
-            }}</q-item-label>
+              }}</q-item-label>
             <q-item-label caption v-if="currentLocation.latitude && currentLocation.longitude">
               {{ $t('common.coordinates') }}:
               {{ currentLocation.latitude.toFixed(6) }},
@@ -197,12 +199,45 @@ const shouldRecord = computed(() => userStore.user.startAudioVideoRecordOnSos);
 const locationSentToServer = ref(false);
 
 const threats = [
-  'common.followedBySomeone',
-  'common.verbalHarassment',
-  'common.physicalThreat',
-  'common.attemptedKidnapping',
-  'common.sexualAssault',
-  'common.domesticViolence',
+  {
+    color: '#808000', icon: 'touch_app',
+    threatName: 'common.physicalThreat',
+    visibleThreat: 'Physical'
+  },
+  {
+    color: '#FF00FF', icon: 'gesture',
+    threatName: 'common.followedBySomeone',
+    visibleThreat: 'Someone Followed'
+  },
+  {
+    color: '#FF0000', icon: 'diversity_3',
+    threatName: 'common.attemptedKidnapping',
+    visibleThreat: 'Kidnapping'
+  },
+  {
+    color: '#641e16', icon: 'pan_tool',
+    threatName: 'common.sexualAssault',
+    visibleThreat: 'Sexual Assault'
+  },
+  {
+    color: '#000000', icon: 'emergency',
+    threatName: 'common.domesticViolence',
+    visibleThreat: 'Violence'
+  },
+
+  {
+    color: '#008080', icon: 'record_voice_over',
+    threatName: 'common.verbalHarassment',
+    visibleThreat: 'Verbal Harassment'
+  },
+
+
+  // 'common.followedBySomeone',
+  // 'common.verbalHarassment',
+  // 'common.physicalThreat',
+  // 'common.attemptedKidnapping',
+  // 'common.sexualAssault',
+  // 'common.domesticViolence',
 ];
 
 const logs = ref<string[]>([]); // Reactive array to store logs
@@ -964,5 +999,10 @@ const handleAudioStatusChange = (status: string) => {
   100% {
     opacity: 1;
   }
+}
+
+.button-background {
+  background: linear-gradient(135deg, white, darken(rgb(255, 255, 255), 0%)) !important;
+  border: 1px solid rgba(221, 218, 218, 0.418) !important;
 }
 </style>
