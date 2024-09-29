@@ -41,12 +41,12 @@
 
       <div class="q-mt-sm flex-container">
 
-        <div class="card groupBox welcome-card" @click="router.push('/volunteers')">
+        <!-- <div class="card groupBox welcome-card" @click="router.push('/volunteers')">
           <q-img class="icon" src="/public/volunteers.png" />
           <p class="title">Nearby Volunteers</p>
           <p class="subtitle">{{ nearbyVolunteers.length }} {{ $t('common.volunteersNearby') }}</p>
-        </div>
-        <div class="card groupBox welcome-card" style="background-color: orange;"
+        </div> -->
+        <!-- <div class="card groupBox welcome-card" style="background-color: orange; width: 100%;"
           @click="() => { contactsOnly = true; initiateSOSMode(); }">
           <q-img class="icon" src="/icons/nearby.png" />
           <p class="title text-white">{{ $t('common.helpContacts') }}</p>
@@ -58,23 +58,19 @@
             </q-btn>
           </div>
 
-        </div>
+        </div> -->
 
-        <div class="card groupBox welcome-card" @click="router.push('/volunteers')">
-          <q-img class="icon" src="/public/sosicon.png" />
-          <p class="title">Emergency Services</p>
-          <p class="subtitle">5 Emergency Services </p>
-        </div>
-        <div class="card groupBox welcome-card">
+
+        <!-- <div class="card groupBox welcome-card">
           <q-img class="icon" src="/safety.png" />
           <p class="title">{{ $t('common.safetyTip') }}</p>
           <p class="subtitle">{{ currentSafetyTip }}</p>
-        </div>
+        </div> -->
       </div>
 
 
 
-      <q-btn color="orange" class="help-button q-my-lg" @click="() => {
+      <!-- <q-btn color="orange" class="help-button q-my-lg" @click="() => {
         contactsOnly = true;
         initiateSOSMode();
       }
@@ -90,11 +86,8 @@
             </div>
           </div>
         </div>
-      </q-btn>
+      </q-btn> -->
     </div>
-
-    <MissingPermissions />
-
     <!-- <q-card class="safety-card q-mb-md">
         <q-card-section>
           <h6 class="text-h6 text-weight-bold q-mb-sm">
@@ -104,19 +97,7 @@
         </q-card-section>
       </q-card> -->
 
-    <!-- <q-card class="emergency-contacts-card q-mb-md">
-        <q-card-section>
-          <h6 class="text-h6 text-weight-bold q-mb-sm">
-            {{ $t('common.emergencyServices') }}
-          </h6>
-          <div class="row q-col-gutter-md">
-            <div v-for="service in emergencyServices" :key="service.name" class="col-6">
-              <q-btn :label="$t(service.name)" :icon="service.icon" color="primary" outline class="full-width"
-                @click="callEmergencyService(service.number)" size="sm" />
-            </div>
-          </div>
-        </q-card-section>
-      </q-card> -->
+
 
     <q-card v-if="isVolunteer" class="volunteer-status-card">
       <q-card-section>
@@ -133,38 +114,60 @@
     </q-card>
 
     <q-card class="nearby-volunteers-card q-mb-md">
-      <!-- <q-card-section> -->
-      <!-- <div class="row items-center justify-between q-mb-sm">
-            <h6 class="text-h6 text-weight-bold q-my-none">
-              {{ $t('common.nearbyVolunteers') }}
-            </h6>
-            <q-btn flat color="primary" :label="$t('common.viewAll')" @click="router.push('/volunteers')" />
-          </div> -->
-      <!-- <div v-if="isLoadingLocation" class="text-center">
-            <q-spinner color="primary" size="3em" />
-            <p>{{ $t('common.gettingLocation') }}</p>
-          </div> -->
-      <!-- <div v-else-if="nearbyVolunteers.length > 0" class="volunteer-map" ref="volunteerMap">
-            <div class="map-center">
-              <q-icon :name="$t('common.icons.myLocation')" size="24px" color="primary" />
-            </div>
-            <div v-for="volunteer in nearbyVolunteers" :key="volunteer.id" class="volunteer-icon"
-              :style="getVolunteerPosition(volunteer)">
-              <q-icon :name="getVolunteerIcon(volunteer)" size="20px" :color="getVolunteerColor(volunteer)" />
-              <q-tooltip>
-                {{ volunteer.profession }}
-              </q-tooltip>
-            </div>
-          </div> -->
-      <!-- <p v-if="!isLoadingLocation" class="text-center q-mt-sm">
-            {{ nearbyVolunteers.length }} {{ $t('common.volunteersNearby') }}
-          </p>
-          <p v-if="!isLoadingLocation && nearbyVolunteers.length === 0" class="text-center">
-            {{ $t('common.noVolunteersNearby') }}
-          </p> -->
-      <!-- </q-card-section> -->
+      <q-card-section>
+        <div class="row items-center justify-between q-mb-sm">
+          <h6 class="text-h6 text-weight-bold q-my-none">
+            {{ $t('common.nearbyVolunteers') }}
+          </h6>
+          <q-btn flat color="primary" :label="$t('common.viewAll')" @click="router.push('/volunteers')" />
+        </div>
+        <div v-if="isLoadingLocation" class="text-center">
+          <q-spinner color="primary" size="3em" />
+          <p>{{ $t('common.gettingLocation') }}</p>
+        </div>
+        <div v-else-if="nearbyVolunteers.length > 0" class="volunteer-map" ref="volunteerMap">
+          <div class="map-center">
+            <q-icon :name="$t('common.icons.myLocation')" size="24px" color="primary" />
+          </div>
+          <div v-for="volunteer in nearbyVolunteers" :key="volunteer.id" class="volunteer-icon"
+            :style="getVolunteerPosition(volunteer)">
+            <q-icon :name="getVolunteerIcon(volunteer)" size="20px" :color="getVolunteerColor(volunteer)" />
+            <q-tooltip>
+              {{ volunteer.profession }}
+            </q-tooltip>
+          </div>
+        </div>
+        <p v-if="!isLoadingLocation" class="text-center q-mt-sm">
+          {{ nearbyVolunteers.length }} {{ $t('common.volunteersNearby') }}
+        </p>
+        <p v-if="!isLoadingLocation && nearbyVolunteers.length === 0" class="text-center">
+          {{ $t('common.noVolunteersNearby') }}
+        </p>
+      </q-card-section>
     </q-card>
-
+    <q-card class="emergency-contacts-card q-mb-md">
+      <q-card-section>
+        <p class="text-h6 text-weight-bold q-mb-sm">
+          {{ $t('common.emergencyServices') }}
+        </p>
+        <div class="row ">
+          <div v-for="service in emergencyServices" :key="service.name" class="flex">
+            <q-btn class="button-background q-mx-xs q-mb-sm" @click="callEmergencyService(service.number)" size="sm"
+              style=" border-radius: 30px;">
+              <q-btn size="sm" :style="{ marginLeft: '-10px', backgroundColor: `${service.color}` }" round><q-icon
+                  :name="service.icon" style="color: whitesmoke;"></q-icon>
+              </q-btn><span class="q-ml-xs" style="font-weight: bold;">{{ $t(service.name) }}</span>
+            </q-btn>
+          </div>
+        </div>
+      </q-card-section>
+    </q-card>
+    <!-- <div class="card groupBox welcome-card" style="width: 100%;" @click="router.push('/volunteers')">
+      <q-img class="icon" src="/public/sosicon.png" />
+      <p class="title">Emergency Services</p>
+      <p class="subtitle">5 Emergency Services </p>
+    </div> -->
+    <MissingPermissions />
   </q-page>
 </template>
 
@@ -240,14 +243,15 @@ const currentSafetyTip = computed(() =>
 );
 
 const emergencyServices = [
-  { name: 'common.police', icon: 'local_police', number: '100' },
-  { name: 'common.ambulance', icon: 'emergency', number: '108' },
+  { name: 'common.police', icon: 'local_police', number: '100', color: '#800080' },
+  { name: 'common.womenHelpline', icon: 'woman', number: '1091', color: '#808080' },
+  { name: 'common.ambulance', icon: 'emergency', number: '108', color: '#000080' },
   {
     name: 'common.fireDepartment',
     icon: 'local_fire_department',
     number: '101',
+    color: '#808000'
   },
-  { name: 'common.womenHelpline', icon: 'woman', number: '1091' },
 ];
 
 const callEmergencyService = (number: string) => {
@@ -466,5 +470,10 @@ onMounted(async () => {
 .subtitle {
   font-size: 12px;
   padding: 5px;
+}
+
+.button-background {
+  background: linear-gradient(135deg, white, darken(rgb(255, 255, 255), 0%)) !important;
+  border: 1px solid rgba(221, 218, 218, 0.418) !important;
 }
 </style>

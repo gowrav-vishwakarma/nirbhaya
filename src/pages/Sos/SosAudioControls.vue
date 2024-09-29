@@ -1,5 +1,8 @@
 <template>
-  <q-btn
+  <div>
+
+  </div>
+  <!-- <q-btn
     round
     :color="isAudioOpen ? 'primary' : 'grey'"
     :icon="$t('common.icons.volumeUp')"
@@ -8,7 +11,7 @@
     :disable="isLoading"
   >
     <q-tooltip>{{ $t(isAudioOpen ? 'muteAudio' : 'unmuteAudio') }}</q-tooltip>
-  </q-btn>
+  </q-btn> -->
 </template>
 
 <script setup lang="ts">
