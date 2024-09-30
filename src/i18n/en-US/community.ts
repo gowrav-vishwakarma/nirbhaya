@@ -58,4 +58,23 @@ export default {
     option4: '5+ hours',
     option5: 'Flexible, based on project needs',
   },
+
+  // Suggestion feature
+  suggestions: 'Suggestions (Upto 5)',
+  addSuggestion: 'Add Suggestion',
+  editSuggestion: 'Edit Suggestion',
+  suggestionTopic: 'Topic',
+  suggestionContent: 'Content',
+  suggestionTopics: {
+    app_feature: 'App Feature',
+    safety_tip: 'Safety Tip',
+    community_improvement: 'Community Improvement',
+    other: 'Other',
+  },
+  maxSuggestionsReached: 'You can only have up to 5 suggestions',
+  suggestionAdded: 'Suggestion added successfully',
+  suggestionUpdated: 'Suggestion updated successfully',
+  suggestionAddFailed: 'Failed to add suggestion',
+  suggestionUpdateFailed: 'Failed to update suggestion',
+  noSuggestions: "You haven't made any suggestions yet",
 };

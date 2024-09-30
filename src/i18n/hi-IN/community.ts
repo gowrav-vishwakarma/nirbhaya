@@ -59,4 +59,23 @@ export default {
     '5+ घंटे',
     'लचीला, परियोजना की आवश्यकताओं के आधार पर',
   ],
+
+  // Suggestion feature
+  suggestions: 'सुझाव (अधिकतम 5)',
+  addSuggestion: 'सुझाव जोड़ें',
+  editSuggestion: 'सुझाव संपादित करें',
+  suggestionTopic: 'विषय',
+  suggestionContent: 'सामग्री',
+  suggestionTopics: {
+    app_feature: 'ऐप सुविधा',
+    safety_tip: 'सुरक्षा सुझाव',
+    community_improvement: 'समुदाय सुधार',
+    other: 'अन्य',
+  },
+  maxSuggestionsReached: 'आप केवल 5 सुझाव तक ही दे सकते हैं',
+  suggestionAdded: 'सुझाव सफलतापूर्वक जोड़ा गया',
+  suggestionUpdated: 'सुझाव सफलतापूर्वक अपडेट किया गया',
+  suggestionAddFailed: 'सुझाव जोड़ने में विफल',
+  suggestionUpdateFailed: 'सुझाव अपडेट करने में विफल',
+  noSuggestions: 'आपने अभी तक कोई सुझाव नहीं दिया है',
 };

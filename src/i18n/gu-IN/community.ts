@@ -57,4 +57,23 @@ export default {
     '5+ કલાક',
     'પ્રોજેક્ટની જરૂરિયાતો અનુસાર લવચીક',
   ],
+
+  // Suggestion feature
+  suggestions: 'સૂચનો (સુધી 5)',
+  addSuggestion: 'સૂચન ઉમેરો',
+  editSuggestion: 'સૂચન સંપાદિત કરો',
+  suggestionTopic: 'વિષય',
+  suggestionContent: 'સામગ્રી',
+  suggestionTopics: {
+    app_feature: 'એપ્લિકેશન સુવિધા',
+    safety_tip: 'સુરક્ષા ટિપ',
+    community_improvement: 'સમુદાય સુધારણા',
+    other: 'અન્ય',
+  },
+  maxSuggestionsReached: 'તમે માત્ર 5 સૂચનો સુધી જ આપી શકો છો',
+  suggestionAdded: 'સૂચન સફળતાપૂર્વક ઉમેરાયું',
+  suggestionUpdated: 'સૂચન સફળતાપૂર્વક અપડેટ થયું',
+  suggestionAddFailed: 'સૂચન ઉમેરવામાં નિષ્ફળ',
+  suggestionUpdateFailed: 'સૂચન અપડેટ કરવામાં નિષ્ફળ',
+  noSuggestions: 'તમે હજુ સુધી કોઈ સૂચન આપ્યું નથી',
 };
