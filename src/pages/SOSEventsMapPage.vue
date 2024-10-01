@@ -102,7 +102,7 @@ const initMap = () => {
 
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '© OpenStreetMap contributors',
-    maxZoom: 18,
+    maxZoom: 22,
   }).addTo(map.value);
 
   markerClusterGroup.value = L.markerClusterGroup();
@@ -142,17 +142,6 @@ const updateSearchCircle = () => {
   const radius = center.distanceTo(bounds.getNorthEast());
 
   searchRadius.value = radius;
-
-  // if (searchCircle.value) {
-  //   map.value.removeLayer(searchCircle.value);
-  // }
-
-  // searchCircle.value = L.circle(center, {
-  //   color: 'blue',
-  //   fillColor: '#30f',
-  //   fillOpacity: 0.1,
-  //   radius: radius,
-  // }).addTo(map.value);
 
   debouncedFetchSOSEvents();
 };
@@ -247,11 +236,13 @@ const getUserLocation = async () => {
 };
 
 const centerOnUserLocation = async () => {
+  isLoading.value = true;
   const location = await getUserLocation();
   if (location) {
     map.value.setView([location.latitude, location.longitude], 10);
     updateSearchCircle();
   }
+  isLoading.value = false;
 };
 
 // Use the debounced function in the watch
@@ -261,12 +252,14 @@ watch([eventType, duration], () => {
 });
 
 onMounted(async () => {
+  isLoading.value = true;
   initMap();
   const location = await getUserLocation();
   if (location) {
     map.value.setView([location.latitude, location.longitude], 10);
   }
   updateSearchCircle(); // This will now set the initial radius correctly
+  isLoading.value = false;
 });
 </script>
 
@@ -287,7 +280,7 @@ onMounted(async () => {
 }
 
 .sos-events-map {
-  height: 600px;
+  height: 450px;
   width: 100%;
   border: 1px solid #ccc;
   border-radius: 8px;
@@ -298,5 +291,10 @@ onMounted(async () => {
   display: flex;
   justify-content: flex-end;
   margin-top: 10px;
+}
+</style>
+<style>
+.leaflet-bottom {
+  display: none !important;
 }
 </style>
