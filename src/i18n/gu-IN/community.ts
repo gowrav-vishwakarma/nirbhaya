@@ -12,10 +12,12 @@ export default {
   instagram: 'અમારા Instagram પર અનુસરો',
   twitter: 'અમારા Twitter પર અનુસરો',
   youtube: 'અમારા YouTube પર અનુસરો',
+  telegram: 'અમારી Telegram સમુદાયમાં જોડાઓ',
   whatsappLink: 'WhatsApp લિંક',
   instagramHandle: 'NewBharatCommunity',
   twitterHandle: 'NewBharatCommunity',
   youtubeHandle: 'NewBharatCommunity',
+  telegramLink: 'https://t.me/sosbharatcommunity',
 
   // New keys for CommunityOfferPage
   offerTitle: 'નવી ભારત ક્રાંતિનો ભાગ બનો',

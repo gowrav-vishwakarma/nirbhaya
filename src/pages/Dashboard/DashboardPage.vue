@@ -252,13 +252,10 @@ const initiateSOSMode = async () => {
   }
 };
 
-const { values, validateAndSubmit, callbacks } = useUserForm(
-  'auth/sos-update',
-  {
-    status: 'created',
-    contactsOnly: contactsOnly.value,
-  }
-);
+const { values, validateAndSubmit, callbacks } = useUserForm('sos/sos-update', {
+  status: 'created',
+  contactsOnly: contactsOnly.value,
+});
 
 callbacks.onSuccess = (response) => {
   console.log('SOS log started');
@@ -367,7 +364,7 @@ const retryFetchLocation = async () => {
 const fetchNearbyVolunteers = async () => {
   if (coords.value.latitude && coords.value.longitude) {
     try {
-      const response = await api.get('/auth/volunteers-nearby', {
+      const response = await api.get('/community/volunteers-nearby', {
         params: {
           location: `${coords.value.latitude},${coords.value.longitude}`,
           range: 1000, // 1km radius

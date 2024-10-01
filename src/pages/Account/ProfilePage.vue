@@ -314,7 +314,7 @@ const professionOptions = [
 
 const { values, errors, isLoading, validateAndSubmit, callbacks } = useForm(
   api,
-  'auth/user-profile-update',
+  'user/user-profile-update',
   {
     name: '',
     phoneNumber: '',
@@ -344,7 +344,7 @@ const loadUserData = async () => {
   lastCheckedReferralId.value = values.value.referredBy;
   // Fetch emergency contacts status
   try {
-    const response = await api.get('/auth/emergency-contacts-status');
+    const response = await api.get('/user/emergency-contacts-status');
     const contactsStatus = response.data;
     values.value.emergencyContacts = values.value.emergencyContacts.map(
       (contact) => {

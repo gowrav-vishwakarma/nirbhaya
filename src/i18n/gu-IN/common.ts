@@ -37,7 +37,7 @@ export default {
     speaker: 'speaker',
   },
 
-  sosEventMap: 'SOS ઘટનાઓની મેપ',
+  sosEventsMap: 'SOS ઘટનાઓની મેપ',
   eventType: 'ઘટના પ્રકાર',
   eventStatus: {
     created: 'બનાવવામાં આવી',
@@ -148,6 +148,7 @@ export default {
   attemptedKidnapping: 'અપહરણનો પ્રયાસ',
   sexualAssault: 'જાતીય હુમલો',
   domesticViolence: 'ઘરેલુ હિંસા',
+  unknown: 'અજાનું',
 
   // Help Page
   locationPermission: 'સ્થાન પરવાનગી',

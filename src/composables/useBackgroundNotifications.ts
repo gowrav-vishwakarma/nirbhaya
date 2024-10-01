@@ -13,7 +13,7 @@ export function useBackgroundNotifications() {
       return;
     }
     try {
-      const response = await api.get('/auth/notifications/unread-count');
+      const response = await api.get('/notifications/unread-count');
       unreadNotificationCount.value = response.data;
     } catch (error) {
       console.error('Error fetching unread notification count:', error);

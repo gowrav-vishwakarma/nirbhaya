@@ -93,6 +93,24 @@
                 </q-item-section>
               </q-item>
             </div>
+            <div class="col-12 col-sm-6">
+              <q-item>
+                <q-item-section avatar>
+                  <q-icon name="mdi-telegram" color="blue" size="sm" />
+                </q-item-section>
+                <q-item-section>
+                  <q-item-label>{{ t('community.telegram') }}</q-item-label>
+                  <q-item-label caption>
+                    <a
+                      :href="t('community.telegramLink')"
+                      class="text-primary"
+                      target="_blank"
+                      >sosbharatcommunity</a
+                    >
+                  </q-item-label>
+                </q-item-section>
+              </q-item>
+            </div>
           </div>
         </q-card-section>
       </q-card>
@@ -208,7 +226,7 @@ onMounted(async () => {
 
 async function fetchSuggestions() {
   try {
-    const response = await api.get('/auth/suggestions');
+    const response = await api.get('/suggestions');
     suggestions.value = response.data;
   } catch (error) {
     console.error('Error fetching suggestions:', error);
@@ -231,11 +249,11 @@ async function saveSuggestion() {
   try {
     if (editingSuggestion.value) {
       await api.put(
-        `/auth/suggestions/${editingSuggestion.value.id}`,
+        `/suggestions/${editingSuggestion.value.id}`,
         newSuggestion.value
       );
     } else {
-      await api.post('/auth/suggestions', newSuggestion.value);
+      await api.post('/suggestions', newSuggestion.value);
     }
     await fetchSuggestions();
   } catch (error) {

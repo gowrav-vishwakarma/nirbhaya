@@ -118,7 +118,7 @@ const initMap = () => {
 
 const fetchSOSEvents = async () => {
   try {
-    const response = await api.get('/auth/sos-events', {
+    const response = await api.get('/sos/sos-events', {
       params: {
         eventType: eventType.value,
         duration: duration.value,
@@ -148,9 +148,10 @@ const updateMapMarkers = (events) => {
     ]);
     marker.bindPopup(`
       <b>${t('common.eventType')}:</b> ${event.status}<br>
-      <b>${t('common.threat')}:</b> ${
-      event.threat || t('common.notSpecified')
-    }<br>
+      <b>${t('common.threat')}:</b> ${t(
+      'common.' + event.threat || 'common.unknown'
+    )}
+    <br>
       <b>${t('common.createdAt')}:</b> ${new Date(
       event.createdAt
     ).toLocaleString()}

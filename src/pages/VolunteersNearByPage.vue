@@ -155,7 +155,7 @@ const getCurrentLocation = async () => {
 
 const fetchVolunteers = async () => {
   try {
-    const response = await api.get('/auth/volunteers-nearby', {
+    const response = await api.get('/community/volunteers-nearby', {
       params: {
         location: address.value,
         range: range.value,

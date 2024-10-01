@@ -12,10 +12,12 @@ export default {
   instagram: 'Follow us on Instagram',
   twitter: 'Follow us on Twitter',
   youtube: 'Follow us on YouTube',
+  telegram: 'Join our Telegram community',
   whatsappLink: 'https://whatsapp.com/channel/0029VajP3n042DcoI4F6t52L',
   instagramHandle: 'sosbharatcommunity',
   twitterHandle: 'sosbharat',
   youtubeHandle: 'sosbharatcommunity',
+  telegramLink: 'https://t.me/sosbharatcommunity',
   // New keys for CommunityOfferPage
   offerTitle: 'Be a Part of the New Bharat Revolution',
   offerSubtitle: 'Your skills, your passion, our future',

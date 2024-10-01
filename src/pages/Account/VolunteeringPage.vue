@@ -180,7 +180,7 @@ const userStore = useUserStore();
 
 const { values, isLoading, validateAndSubmit, callbacks } = useForm(
   api,
-  'auth/user-profile-update',
+  'user/user-profile-update',
   {
     locations: [],
     availableForCommunity: false,
