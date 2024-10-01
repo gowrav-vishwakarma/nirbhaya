@@ -205,7 +205,7 @@
                   style="color: whitesmoke"
                 ></q-icon> </q-btn
               ><span class="q-ml-xs" style="font-weight: bold">{{
-                $t(service.visibleName)
+                $t(service.name)
               }}</span>
             </q-btn>
           </div>

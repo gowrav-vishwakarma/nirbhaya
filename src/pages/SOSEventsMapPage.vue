@@ -34,12 +34,21 @@
 
           <div class="sos-events-map q-mb-md" ref="sosEventsMap">
             <!-- Map will be rendered here -->
+            <q-inner-loading :showing="isLoading">
+              <q-spinner-gears size="50px" color="primary" />
+            </q-inner-loading>
           </div>
 
           <div class="map-controls q-gutter-sm">
             <q-btn icon="add" round color="primary" @click="zoomIn" />
             <q-btn icon="remove" round color="primary" @click="zoomOut" />
             <q-btn icon="pan_tool" round color="primary" @click="togglePan" />
+            <q-btn
+              :icon="$t('common.icons.myLocation')"
+              round
+              color="primary"
+              @click="centerOnUserLocation"
+            />
           </div>
         </q-card-section>
       </q-card>
@@ -49,7 +58,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, watch } from 'vue';
-import { useQuasar, debounce } from 'quasar'; // Import debounce from Quasar
+import { useQuasar, debounce } from 'quasar';
 import { useI18n } from 'vue-i18n';
 import { api } from 'src/boot/axios';
 import L from 'leaflet';
@@ -57,6 +66,7 @@ import 'leaflet.markercluster';
 import 'leaflet/dist/leaflet.css';
 import 'leaflet.markercluster/dist/MarkerCluster.css';
 import 'leaflet.markercluster/dist/MarkerCluster.Default.css';
+import { Geolocation } from '@capacitor/geolocation';
 
 const $q = useQuasar();
 const { t } = useI18n();
@@ -66,6 +76,8 @@ const eventType = ref('all');
 const duration = ref(0);
 const map = ref(null);
 const markerClusterGroup = ref(null);
+const userLocation = ref(null);
+const isLoading = ref(true);
 
 const eventTypeOptions = [
   { label: t('common.eventStatus.all'), value: 'all' },
@@ -82,10 +94,12 @@ const getDurationLabel = (value: number) => {
   return `${value} ${t('common.minutesAgo')}`;
 };
 
-const initMap = () => {
-  map.value = L.map(sosEventsMap.value).setView([20.5937, 78.9629], 5);
+const searchCircle = ref(null);
+const searchRadius = ref(50000); // Initial value, will be updated dynamically
 
-  // Use OpenStreetMap tiles for the base map
+const initMap = () => {
+  map.value = L.map(sosEventsMap.value).setView([20.5937, 78.9629], 4);
+
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '© OpenStreetMap contributors',
     maxZoom: 18,
@@ -93,6 +107,10 @@ const initMap = () => {
 
   markerClusterGroup.value = L.markerClusterGroup();
   map.value.addLayer(markerClusterGroup.value);
+
+  // Add event listeners for map movement
+  map.value.on('moveend', updateSearchCircle);
+  map.value.on('zoomend', updateSearchCircle);
 
   // Add Indian boundary overlay
   fetch('/india_boundary.geojson')
@@ -116,14 +134,42 @@ const initMap = () => {
     .addTo(map.value);
 };
 
+const updateSearchCircle = () => {
+  const center = map.value.getCenter();
+  const bounds = map.value.getBounds();
+
+  // Calculate the radius based on the distance from the center to the northeast corner of the map
+  const radius = center.distanceTo(bounds.getNorthEast());
+
+  searchRadius.value = radius;
+
+  // if (searchCircle.value) {
+  //   map.value.removeLayer(searchCircle.value);
+  // }
+
+  // searchCircle.value = L.circle(center, {
+  //   color: 'blue',
+  //   fillColor: '#30f',
+  //   fillOpacity: 0.1,
+  //   radius: radius,
+  // }).addTo(map.value);
+
+  debouncedFetchSOSEvents();
+};
+
 const fetchSOSEvents = async () => {
   try {
-    const response = await api.get('/sos/sos-events', {
-      params: {
-        eventType: eventType.value,
-        duration: duration.value,
-      },
-    });
+    isLoading.value = true;
+    const center = map.value.getCenter();
+    const params: any = {
+      eventType: eventType.value,
+      duration: duration.value,
+      latitude: center.lat,
+      longitude: center.lng,
+      radius: searchRadius.value,
+    };
+
+    const response = await api.get('/sos/sos-events', { params });
     updateMapMarkers(response.data);
   } catch (error) {
     console.error('Error fetching SOS events', error);
@@ -132,6 +178,8 @@ const fetchSOSEvents = async () => {
       message: t('common.fetchSOSEventsError'),
       icon: 'error',
     });
+  } finally {
+    isLoading.value = false;
   }
 };
 
@@ -176,12 +224,49 @@ const togglePan = () => {
   }
 };
 
-// Use the debounced function in the watch
-watch([eventType, duration], debouncedFetchSOSEvents);
+const getUserLocation = async () => {
+  try {
+    isLoading.value = true;
+    const position = await Geolocation.getCurrentPosition({ timeout: 10000 }); // 10 seconds timeout
+    userLocation.value = {
+      latitude: position.coords.latitude,
+      longitude: position.coords.longitude,
+    };
+    return userLocation.value;
+  } catch (error) {
+    console.error('Error getting user location', error);
+    $q.notify({
+      color: 'negative',
+      message: t('common.locationError'),
+      icon: 'error',
+    });
+    return null;
+  } finally {
+    isLoading.value = false;
+  }
+};
 
-onMounted(() => {
+const centerOnUserLocation = async () => {
+  const location = await getUserLocation();
+  if (location) {
+    map.value.setView([location.latitude, location.longitude], 10);
+    updateSearchCircle();
+  }
+};
+
+// Use the debounced function in the watch
+watch([eventType, duration], () => {
+  isLoading.value = true;
+  debouncedFetchSOSEvents();
+});
+
+onMounted(async () => {
   initMap();
-  fetchSOSEvents(); // Initial fetch doesn't need to be debounced
+  const location = await getUserLocation();
+  if (location) {
+    map.value.setView([location.latitude, location.longitude], 10);
+  }
+  updateSearchCircle(); // This will now set the initial radius correctly
 });
 </script>
 
@@ -206,6 +291,7 @@ onMounted(() => {
   width: 100%;
   border: 1px solid #ccc;
   border-radius: 8px;
+  position: relative;
 }
 
 .map-controls {
