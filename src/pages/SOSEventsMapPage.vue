@@ -49,7 +49,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, watch } from 'vue';
-import { useQuasar } from 'quasar';
+import { useQuasar, debounce } from 'quasar'; // Import debounce from Quasar
 import { useI18n } from 'vue-i18n';
 import { api } from 'src/boot/axios';
 import L from 'leaflet';
@@ -135,6 +135,9 @@ const fetchSOSEvents = async () => {
   }
 };
 
+// Create a debounced version of fetchSOSEvents
+const debouncedFetchSOSEvents = debounce(fetchSOSEvents, 300);
+
 const updateMapMarkers = (events) => {
   markerClusterGroup.value.clearLayers();
 
@@ -172,11 +175,12 @@ const togglePan = () => {
   }
 };
 
-watch([eventType, duration], fetchSOSEvents);
+// Use the debounced function in the watch
+watch([eventType, duration], debouncedFetchSOSEvents);
 
 onMounted(() => {
   initMap();
-  fetchSOSEvents();
+  fetchSOSEvents(); // Initial fetch doesn't need to be debounced
 });
 </script>
 
