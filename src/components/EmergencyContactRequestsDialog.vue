@@ -68,7 +68,7 @@ onMounted(async () => {
 
 const fetchEmergencyContacts = async () => {
   try {
-    const response = await api.get('/auth/emergency-contacts');
+    const response = await api.get('/user/emergency-contacts');
     emergencyContacts.value = response.data;
   } catch (error) {
     console.error('Error fetching emergency contacts:', error);
@@ -82,7 +82,7 @@ const fetchEmergencyContacts = async () => {
 
 const approveContact = async (contactId: number) => {
   try {
-    await api.post(`/auth/approve-emergency-contact/${contactId}`);
+    await api.post(`/user/approve-emergency-contact/${contactId}`);
     await fetchEmergencyContacts();
     $q.notify({
       color: 'positive',
