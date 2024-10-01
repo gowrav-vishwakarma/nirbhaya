@@ -84,12 +84,36 @@ const getDurationLabel = (value: number) => {
 
 const initMap = () => {
   map.value = L.map(sosEventsMap.value).setView([20.5937, 78.9629], 5);
+
+  // Use OpenStreetMap tiles for the base map
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '© OpenStreetMap contributors',
+    maxZoom: 18,
   }).addTo(map.value);
 
   markerClusterGroup.value = L.markerClusterGroup();
   map.value.addLayer(markerClusterGroup.value);
+
+  // Add Indian boundary overlay
+  fetch('/india_boundary.geojson')
+    .then((response) => response.json())
+    .then((data) => {
+      L.geoJSON(data, {
+        style: {
+          color: '#ff7800',
+          weight: 2,
+          opacity: 0.65,
+          fill: false,
+        },
+      }).addTo(map.value);
+    });
+
+  // Add a disclaimer
+  L.control
+    .attribution({
+      prefix: 'Map boundaries as per Survey of India',
+    })
+    .addTo(map.value);
 };
 
 const fetchSOSEvents = async () => {
