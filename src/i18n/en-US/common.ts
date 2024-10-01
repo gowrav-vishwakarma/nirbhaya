@@ -40,6 +40,16 @@ export default {
     speaker: 'volume_up',
     videocam: 'videocam',
   },
+  sosEventMap: 'SOS Events Map',
+  eventType: 'Event Type',
+  eventStatus: {
+    all: 'All',
+    created: 'Created',
+    active: 'Active',
+    cancelled: 'Cancelled',
+    resolved: 'Resolved',
+  },
+  createdAt: 'Created At',
 
   // Navigation
   dashboard: 'Dashboard',

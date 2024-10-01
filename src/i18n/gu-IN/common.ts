@@ -37,6 +37,16 @@ export default {
     speaker: 'speaker',
   },
 
+  sosEventMap: 'SOS ઘટનાઓની મેપ',
+  eventType: 'ઘટના પ્રકાર',
+  eventStatus: {
+    created: 'બનાવવામાં આવી',
+    active: 'સક્રિય',
+    cancelled: 'રદ કરવામાં આવી',
+    resolved: 'નિરાકરણ કરવામાં આવી',
+  },
+  createdAt: 'બનાવવામાં આવી',
+
   // Navigation
   dashboard: 'ડેશબોર્ડ',
   account: 'એકાઉન્ટ',

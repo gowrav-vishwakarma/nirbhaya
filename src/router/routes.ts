@@ -1,6 +1,7 @@
 import { RouteRecordRaw } from 'vue-router';
 import VolunteersNearByPage from 'pages/VolunteersNearByPage.vue';
 import publicRoutes from './publicRoutes'; // Import public routes
+import SOSEventsMapPage from 'pages/SOSEventsMapPage.vue';
 
 const routes: RouteRecordRaw[] = [
   {
@@ -65,6 +66,11 @@ const routes: RouteRecordRaw[] = [
     path: '/volunteers-nearby',
     component: VolunteersNearByPage,
     meta: { requiresAuth: true },
+  },
+  {
+    path: '/sos-events-map',
+    component: () => import('layouts/MainLayout.vue'),
+    children: [{ path: '', component: SOSEventsMapPage }],
   },
 ];
 

@@ -30,6 +30,8 @@
     "class-validator": "^0.14.1",
     "dotenv": "^16.4.5",
     "firebase": "^10.13.1",
+    "leaflet": "^1.9.4",
+    "leaflet.markercluster": "^1.5.3",
     "peerjs": "^1.5.4",
     "pinia": "^2.2.2",
     "pinia-plugin-persistedstate": "^3.2.3",

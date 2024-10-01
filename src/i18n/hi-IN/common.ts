@@ -37,6 +37,16 @@ export default {
     speaker: 'speaker',
   },
 
+  sosEventMap: 'SOS घटनाओं का मानचित्र',
+  eventType: 'घटना प्रकार',
+  eventStatus: {
+    created: 'बनाया गया',
+    active: 'सक्रिय',
+    cancelled: 'रद्द करवाया गया',
+    resolved: 'सुलझाया गया',
+  },
+  createdAt: 'बनाया गया',
+
   // Navigation
   dashboard: 'डैशबोर्ड',
   account: 'खाता',
