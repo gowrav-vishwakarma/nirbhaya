@@ -20,14 +20,27 @@
               />
             </div>
             <div class="col-12 col-md-6">
-              <q-slider
-                v-model="duration"
-                :min="0"
-                :max="60"
-                :step="1"
-                label
-                :label-value="`${getDurationLabel(duration)}`"
-                color="primary"
+              <q-select
+                v-model="timeRange"
+                :options="timeRangeOptions"
+                :label="$t('common.timeRangeLabel')"
+                outlined
+                dense
+                emit-value
+                map-options
+                @update:model-value="handleTimeRangeChange"
+              />
+            </div>
+          </div>
+
+          <div v-if="showDatePicker" class="row q-col-gutter-md q-mb-md">
+            <div class="col-12 col-md-6">
+              <q-date
+                v-model="dateRange"
+                range
+                :title="$t('common.selectDateRange')"
+                :subtitle="$t('common.tapToSelect')"
+                @update:model-value="handleDateRangeChange"
               />
             </div>
           </div>
@@ -72,26 +85,43 @@ const $q = useQuasar();
 const { t } = useI18n();
 
 const sosEventsMap = ref(null);
-const eventType = ref('all');
-const duration = ref(0);
+const eventType = ref('active');
+const timeRange = ref('live');
+const dateRange = ref({ from: '', to: '' });
+const showDatePicker = ref(false);
 const map = ref(null);
 const markerClusterGroup = ref(null);
 const userLocation = ref(null);
 const isLoading = ref(true);
 
 const eventTypeOptions = [
-  { label: t('common.eventStatus.all'), value: 'all' },
   { label: t('common.eventStatus.active'), value: 'active' },
+  { label: t('common.eventStatus.all'), value: 'all' },
   { label: t('common.eventStatus.resolved'), value: 'resolved' },
   { label: t('common.eventStatus.cancelled'), value: 'cancelled' },
 ];
 
-const getDurationLabel = (value: number) => {
-  if (value === 0) return t('common.live');
-  if (value === 1) return t('common.oneMinuteAgo');
-  if (value === 5) return t('common.fiveMinutesAgo');
-  if (value === 10) return t('common.tenMinutesAgo');
-  return `${value} ${t('common.minutesAgo')}`;
+const timeRangeOptions = [
+  { label: t('common.timeRange.live'), value: 'live' },
+  { label: t('common.timeRange.last3Hours'), value: 'last3Hours' },
+  { label: t('common.timeRange.today'), value: 'today' },
+  { label: t('common.timeRange.last2Days'), value: 'last2Days' },
+  { label: t('common.timeRange.last7Days'), value: 'last7Days' },
+  { label: t('common.timeRange.last30Days'), value: 'last30Days' },
+  { label: t('common.timeRange.custom'), value: 'custom' },
+];
+
+const handleTimeRangeChange = (value) => {
+  showDatePicker.value = value === 'custom';
+  if (value !== 'custom') {
+    fetchSOSEvents();
+  }
+};
+
+const handleDateRangeChange = () => {
+  if (dateRange.value.from && dateRange.value.to) {
+    fetchSOSEvents();
+  }
 };
 
 const searchCircle = ref(null);
@@ -152,11 +182,16 @@ const fetchSOSEvents = async () => {
     const center = map.value.getCenter();
     const params: any = {
       eventType: eventType.value,
-      duration: duration.value,
+      timeRange: timeRange.value,
       latitude: center.lat,
       longitude: center.lng,
       radius: searchRadius.value,
     };
+
+    if (timeRange.value === 'custom') {
+      params.startDate = dateRange.value.from;
+      params.endDate = dateRange.value.to;
+    }
 
     const response = await api.get('/sos/sos-events', { params });
     updateMapMarkers(response.data);
@@ -246,7 +281,7 @@ const centerOnUserLocation = async () => {
 };
 
 // Use the debounced function in the watch
-watch([eventType, duration], () => {
+watch([eventType, timeRange], () => {
   isLoading.value = true;
   debouncedFetchSOSEvents();
 });

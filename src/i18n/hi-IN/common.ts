@@ -337,4 +337,18 @@ export default {
   fillAllFields: 'कृपया सभी फ़ील्ड भरें',
   errorJoiningCommunity:
     'एक त्रुटि हुई जब समुदाय में जोड़ा जा रहा था। कृपया फिर से प्रयास करें।',
+
+  // SOSEVentsMap page
+  timeRangeLabel: 'समय पाला',
+  timeRange: {
+    live: 'जीवनमां',
+    last3Hours: 'तीन घंटे में',
+    today: 'आज',
+    last2Days: 'अंतिम 2 दिनों में',
+    last7Days: 'अंतिम 7 दिनों में',
+    last30Days: 'अंतिम 30 दिनों में',
+    custom: 'स्वयंचायित',
+  },
+  selectDateRange: 'तारीख सेलेक्ट करें',
+  tapToSelect: 'तारीख पसार करें',
 };

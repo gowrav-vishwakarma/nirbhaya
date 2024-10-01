@@ -333,4 +333,18 @@ export default {
   suggestionAddFailed: 'સૂચન ઉમેરવામાં નિષ્ફળ',
   suggestionUpdateFailed: 'સૂચન અપડેટ કરવામાં નિષ્ફળ',
   noSuggestions: 'તમે હજુ સુધી કોઈ સૂચન આપ્યું નથી',
+
+  // SOSEVentsMap page
+  timeRangeLabel: 'સમય પાલા',
+  timeRange: {
+    live: 'જીવનમાં',
+    last3Hours: 'ત્રણ કલામાં',
+    today: 'આજે',
+    last2Days: 'અંતિમ 2 દિવસોમાં',
+    last7Days: 'અંતિમ 7 દિવસોમાં',
+    last30Days: 'અંતિમ 30 દિવસોમાં',
+    custom: 'સ્વયંચયિત',
+  },
+  selectDateRange: 'તારીખ select કરો',
+  tapToSelect: 'તારીખ પસાર કરો',
 };

@@ -346,4 +346,17 @@ export default {
   locationPermissionRequired:
     'Location permission is required to find nearby volunteers.',
   retry: 'Retry',
+
+  timeRangeLabel: 'Time Range',
+  timeRange: {
+    live: 'Live',
+    last3Hours: 'Last 3 Hours',
+    today: 'Today',
+    last2Days: 'Last 2 Days',
+    last7Days: 'Last 7 Days',
+    last30Days: 'Last 30 Days',
+    custom: 'Custom',
+  },
+  selectDateRange: 'Select Date Range',
+  tapToSelect: 'Tap to select',
 };
