@@ -46,8 +46,7 @@
           </div>
 
           <div class="sos-events-map q-mb-md" ref="sosEventsMap">
-            <!-- Map will be rendered here -->
-            <q-inner-loading :showing="isLoading">
+            <q-inner-loading :showing="isLoading || !mapInitialized">
               <q-spinner-gears size="50px" color="primary" />
             </q-inner-loading>
           </div>
@@ -62,6 +61,12 @@
               color="primary"
               @click="centerOnUserLocation"
             />
+            <NotificationAudioControl
+              v-if="activeAudioEventId !== null"
+              :key="activeAudioEventId"
+              :sos-event-id="activeAudioEventId"
+              @audio-closed="handleAudioClosed"
+            />
           </div>
         </q-card-section>
       </q-card>
@@ -70,7 +75,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue';
+import {
+  ref,
+  onMounted,
+  watch,
+  onUnmounted,
+  toRaw,
+  defineAsyncComponent,
+} from 'vue';
 import { useQuasar, debounce } from 'quasar';
 import { useI18n } from 'vue-i18n';
 import { api } from 'src/boot/axios';
@@ -80,6 +92,20 @@ import 'leaflet/dist/leaflet.css';
 import 'leaflet.markercluster/dist/MarkerCluster.css';
 import 'leaflet.markercluster/dist/MarkerCluster.Default.css';
 import { Geolocation } from '@capacitor/geolocation';
+import NotificationAudioControl from './NotificationsPage/NotificationAudioControl.vue';
+
+// Add this function to fix the Leaflet zoom issue
+const fixLeafletZoomIssue = () => {
+  L.Marker.prototype._animateZoom = function (opt) {
+    if (!this._map) {
+      return;
+    }
+    const pos = this._map
+      ._latLngToNewLayerPoint(this._latlng, opt.zoom, opt.center)
+      .round();
+    this._setPos(pos);
+  };
+};
 
 const $q = useQuasar();
 const { t } = useI18n();
@@ -93,6 +119,11 @@ const map = ref(null);
 const markerClusterGroup = ref(null);
 const userLocation = ref(null);
 const isLoading = ref(true);
+const mapInitialized = ref(false);
+
+const initialZoom = ref(10); // Adjust this value to get approximately 20km radius view
+const searchRadius = ref(20000); // 20km in meters
+const isInitialFetch = ref(true);
 
 const eventTypeOptions = [
   { label: t('common.eventStatus.active'), value: 'active' },
@@ -124,23 +155,30 @@ const handleDateRangeChange = () => {
   }
 };
 
-const searchCircle = ref(null);
-const searchRadius = ref(50000); // Initial value, will be updated dynamically
-
 const initMap = () => {
-  map.value = L.map(sosEventsMap.value).setView([20.5937, 78.9629], 4);
+  // Don't initialize the map here, just prepare the configuration
+  map.value = {
+    center: [20.5937, 78.9629],
+    zoom: initialZoom.value,
+  };
+};
+
+const createMap = (center: L.LatLngExpression) => {
+  if (mapInitialized.value) return;
+
+  map.value = L.map(sosEventsMap.value).setView(center, initialZoom.value);
 
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '© OpenStreetMap contributors',
     maxZoom: 22,
-  }).addTo(map.value);
+  }).addTo(toRaw(map.value));
 
   markerClusterGroup.value = L.markerClusterGroup();
-  map.value.addLayer(markerClusterGroup.value);
+  toRaw(map.value).addLayer(markerClusterGroup.value);
 
   // Add event listeners for map movement
-  map.value.on('moveend', updateSearchCircle);
-  map.value.on('zoomend', updateSearchCircle);
+  toRaw(map.value).on('moveend', updateSearchCircle);
+  toRaw(map.value).on('zoomend', updateSearchCircle);
 
   // Add Indian boundary overlay
   fetch('/india_boundary.geojson')
@@ -153,7 +191,7 @@ const initMap = () => {
           opacity: 0.65,
           fill: false,
         },
-      }).addTo(map.value);
+      }).addTo(toRaw(map.value));
     });
 
   // Add a disclaimer
@@ -161,10 +199,14 @@ const initMap = () => {
     .attribution({
       prefix: 'Map boundaries as per Survey of India',
     })
-    .addTo(map.value);
+    .addTo(toRaw(map.value));
+
+  mapInitialized.value = true;
 };
 
-const updateSearchCircle = () => {
+const updateSearchCircle = async () => {
+  if (!mapInitialized.value) return;
+
   const center = map.value.getCenter();
   const bounds = map.value.getBounds();
 
@@ -172,14 +214,28 @@ const updateSearchCircle = () => {
   const radius = center.distanceTo(bounds.getNorthEast());
 
   searchRadius.value = radius;
+  isInitialFetch.value = false;
 
-  debouncedFetchSOSEvents();
+  await debouncedFetchSOSEvents();
 };
 
 const fetchSOSEvents = async () => {
   try {
     isLoading.value = true;
-    const center = map.value.getCenter();
+    let center;
+
+    if (mapInitialized.value) {
+      center = map.value.getCenter();
+    } else if (userLocation.value) {
+      center = {
+        lat: userLocation.value.latitude,
+        lng: userLocation.value.longitude,
+      };
+    } else {
+      // Default to a central point in India if no location is available
+      center = { lat: 20.5937, lng: 78.9629 };
+    }
+
     const params: any = {
       eventType: eventType.value,
       timeRange: timeRange.value,
@@ -194,7 +250,13 @@ const fetchSOSEvents = async () => {
     }
 
     const response = await api.get('/sos/sos-events', { params });
+
+    if (!mapInitialized.value) {
+      createMap([center.lat, center.lng]);
+    }
+
     updateMapMarkers(response.data);
+    isInitialFetch.value = false;
   } catch (error) {
     console.error('Error fetching SOS events', error);
     $q.notify({
@@ -210,26 +272,72 @@ const fetchSOSEvents = async () => {
 // Create a debounced version of fetchSOSEvents
 const debouncedFetchSOSEvents = debounce(fetchSOSEvents, 300);
 
+const activeAudioEventId = ref<number | null>(null);
+
+// Define custom icons
+const createCustomIcon = (color: string) => {
+  return L.divIcon({
+    html: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M12 0C7.58 0 4 3.58 4 8C4 13.54 12 24 12 24C12 24 20 13.54 20 8C20 3.58 16.42 0 12 0Z" fill="${color}"/>
+      <circle cx="12" cy="8" r="4" fill="white"/>
+    </svg>`,
+    className: 'custom-div-icon',
+    iconSize: [24, 24],
+    iconAnchor: [12, 24],
+    popupAnchor: [0, -24],
+  });
+};
+
+const icons = {
+  active: createCustomIcon('#FF0000'),
+  resolved: createCustomIcon('#00FF00'),
+  cancelled: createCustomIcon('#808080'),
+  default: createCustomIcon('#0000FF'),
+};
+
 const updateMapMarkers = (events) => {
   markerClusterGroup.value.clearLayers();
 
   events.forEach((event) => {
-    const marker = L.marker([
-      event.location.coordinates[1],
-      event.location.coordinates[0],
-    ]);
-    marker.bindPopup(`
+    const icon = icons[event.status] || icons.default;
+    const marker = L.marker(
+      [event.location.coordinates[1], event.location.coordinates[0]],
+      { icon }
+    );
+
+    const popupContent = L.DomUtil.create('div');
+    popupContent.innerHTML = `
       <b>${t('common.eventType')}:</b> ${event.status}<br>
       <b>${t('common.threat')}:</b> ${t(
       'common.' + event.threat || 'common.unknown'
-    )}
-    <br>
+    )}<br>
       <b>${t('common.createdAt')}:</b> ${new Date(
       event.createdAt
     ).toLocaleString()}
-    `);
+    `;
+
+    marker.bindPopup(popupContent);
+
+    marker.on('click', () => {
+      if (event.status === 'active') {
+        toggleAudio(event.id);
+      }
+    });
+
     markerClusterGroup.value.addLayer(marker);
   });
+};
+
+const toggleAudio = (eventId: number) => {
+  if (activeAudioEventId.value === eventId) {
+    activeAudioEventId.value = null;
+  } else {
+    activeAudioEventId.value = eventId;
+  }
+};
+
+const handleAudioClosed = () => {
+  activeAudioEventId.value = null;
 };
 
 const zoomIn = () => {
@@ -288,13 +396,16 @@ watch([eventType, timeRange], () => {
 
 onMounted(async () => {
   isLoading.value = true;
+  fixLeafletZoomIssue();
   initMap();
-  const location = await getUserLocation();
-  if (location) {
-    map.value.setView([location.latitude, location.longitude], 10);
-  }
-  updateSearchCircle(); // This will now set the initial radius correctly
+  await getUserLocation(); // This will set userLocation.value if available
+  await fetchSOSEvents(); // This will now use the initial 20km radius and create the map
   isLoading.value = false;
+});
+
+onUnmounted(() => {
+  // Ensure audio is disconnected when component is unmounted
+  activeAudioEventId.value = null;
 });
 </script>
 
@@ -326,6 +437,12 @@ onMounted(async () => {
   display: flex;
   justify-content: flex-end;
   margin-top: 10px;
+  align-items: center;
+}
+
+.custom-div-icon {
+  background: none;
+  border: none;
 }
 </style>
 <style>

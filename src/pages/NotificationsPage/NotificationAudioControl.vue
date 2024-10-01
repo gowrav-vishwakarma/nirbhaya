@@ -12,7 +12,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, computed } from 'vue';
+import { ref, onMounted, onUnmounted, computed, watch } from 'vue';
 import { useQuasar } from 'quasar';
 import { socket } from 'boot/socket';
 import Peer from 'peerjs';
@@ -22,6 +22,8 @@ import { useI18n } from 'vue-i18n';
 const props = defineProps<{
   sosEventId: number;
 }>();
+
+const emit = defineEmits(['audio-closed']);
 
 const $q = useQuasar();
 const { t } = useI18n();
@@ -52,6 +54,10 @@ const unregisterSocketEvents = () => {
 };
 
 onMounted(async () => {
+  console.log(
+    'NotificationAudioControl mounted for eventId:',
+    props.sosEventId
+  );
   try {
     await ensurePeerInitialized();
   } catch (error) {
@@ -60,16 +66,8 @@ onMounted(async () => {
 });
 
 onUnmounted(() => {
+  closeAudio();
   closePeerConnection();
-  if (socket.connected) {
-    console.log('Leaving SOS room');
-    socket.emit('leave_sos_room', {
-      peerId: peerId.value,
-      sosEventId: props.sosEventId,
-    });
-  } else {
-    console.warn('Socket disconnected before leaving SOS room');
-  }
 });
 
 const initializePeer = () => {
@@ -129,6 +127,16 @@ const handleRemoteStream = (
   });
 };
 
+watch(
+  () => props.sosEventId,
+  () => {
+    // When sosEventId changes, reset the audio connection
+    closePeerConnection();
+    isAudioOpen.value = false;
+    initializePeer();
+  }
+);
+
 const toggleAudio = async () => {
   try {
     isLoading.value = true;
@@ -144,16 +152,7 @@ const toggleAudio = async () => {
         });
       }
     } else {
-      isAudioOpen.value = false;
-      if (audioElement.value) {
-        audioElement.value.muted = true;
-        audioElement.value.pause();
-      }
-      unregisterSocketEvents();
-      socket.emit('leave_sos_room', {
-        peerId: peerId.value,
-        sosEventId: props.sosEventId,
-      });
+      closeAudio();
     }
   } catch (error) {
     console.error('Error toggling audio:', error);
@@ -166,6 +165,20 @@ const toggleAudio = async () => {
   } finally {
     isLoading.value = false;
   }
+};
+
+const closeAudio = () => {
+  isAudioOpen.value = false;
+  if (audioElement.value) {
+    audioElement.value.muted = true;
+    audioElement.value.pause();
+  }
+  unregisterSocketEvents();
+  socket.emit('leave_sos_room', {
+    peerId: peerId.value,
+    sosEventId: props.sosEventId,
+  });
+  emit('audio-closed');
 };
 
 const ensurePeerInitialized = async () => {
