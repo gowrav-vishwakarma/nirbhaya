@@ -83,7 +83,7 @@
             </p>
           </div>
 
-          <q-list bordered separator>
+          <!-- <q-list bordered separator>
             <q-item v-for="volunteer in volunteers" :key="volunteer.id">
               <q-item-section avatar>
                 <q-icon
@@ -99,7 +99,14 @@
                 </q-item-label>
               </q-item-section>
             </q-item>
-          </q-list>
+          </q-list> -->
+          <div class="text-center q-mt-md">
+            <q-btn
+              label="View SOS Events Map"
+              color="primary"
+              @click="router.push('/sos-events-map')"
+            />
+          </div>
         </q-card-section>
       </q-card>
     </div>
