@@ -15,9 +15,12 @@
             <div class="text-subtitle1 q-mt-sm">
               {{ $t('common.sosCountdownMessage') }}
             </div>
+            <q-btn @click="cancelSOS" class="cancel-sos-button full-width q-py-sm">
+              <span class="text-bold">{{ $t('common.cancelSOS') }}</span>
+            </q-btn>
           </div>
-          <q-btn color="red" :label="$t('common.cancelSOS')" @click="cancelSOS" class="full-width q-py-sm" />
         </template>
+
 
         <template v-else>
           <!-- <template v-else> -->
@@ -42,8 +45,8 @@
             ">
             <q-icon :name="$t('common.icons.videocam')" :color="getIconColor(recordingStatus)" size="sm">
               <q-tooltip>{{
-            getTooltip(recordingStatus, 'recording')
-          }}</q-tooltip>
+                getTooltip(recordingStatus, 'recording')
+                }}</q-tooltip>
             </q-icon>
             <q-icon :name="$t('common.icons.mic')" :color="getIconColor(audioStatus)" size="sm" class="q-ml-sm">
               <q-tooltip>{{ getTooltip(audioStatus, 'audio') }}</q-tooltip>
@@ -51,57 +54,58 @@
             <q-icon :name="$t('common.icons.locationOn')" :color="getIconColor(locationStatus)" size="sm"
               class="q-ml-sm">
               <q-tooltip>{{
-            getTooltip(locationStatus, 'location')
-          }}</q-tooltip>
+                getTooltip(locationStatus, 'location')
+                }}</q-tooltip>
             </q-icon>
           </div>
           <AudioControls :sosEventId="createdSosId" @audioStatusChange="handleAudioStatusChange" />
+          <q-list bordered class="rounded-borders notify-person-box q-mb-md flex justify-evenly"
+            style="border: 1px solid red;">
+            <q-item v-if="!contactsOnly">
+              <q-item-section style="text-align: center;">
+                <q-item-label>
+                  <span class=""
+                    style="font-size: 20px; font-weight: bolder; color: whitesmoke;  margin: 0;padding: 0;">{{
+                      informed
+                    }}</span> </q-item-label>
+                <q-item-label class="q-px-sm notify-person-box-label"> <q-icon name="person" />
+                  <span style="margin-top: -30px;">
+                    {{ $t('common.notifiedPersons') }}
+                  </span>
+                </q-item-label>
+              </q-item-section>
+            </q-item>
+            <q-item v-if="!contactsOnly">
+              <q-item-section style="text-align: center;">
+                <q-item-label>
+                  <span class=""
+                    style="font-size: 20px; font-weight: bolder; color: whitesmoke;  margin: 0;padding: 0;">{{
+                      accepted
+                    }}</span> </q-item-label>
+                <q-item-label class="q-px-sm notify-person-box-label"> <q-icon name="person" />
+                  <span style="margin-top: -30px;">
+                    {{ $t('common.acceptedPersons') }}
+                  </span>
+                </q-item-label>
+              </q-item-section>
+            </q-item>
+            <q-item>
+              <q-item-section style="text-align: center;">
+                <q-item-label>
+                  <span class=""
+                    style="font-size: 18px; font-weight: bolder; color: whitesmoke;  margin: 0;padding: 0;">{{
+                      $t('common.yes')
+                    }}</span> </q-item-label>
+                <q-item-label class="q-px-sm notify-person-box-label">
+                  <span style="margin-top: -30px;"> {{ $t('common.emergencyContactsInformed')
+                    }}
+                  </span>
+                  <q-icon name="done_all" color="blue" />
+                </q-item-label>
+              </q-item-section>
+            </q-item>
+          </q-list>
         </template>
-        <q-list bordered class="rounded-borders notify-person-box q-mb-md flex justify-evenly"
-          style="border: 1px solid red;">
-          <q-item v-if="!contactsOnly">
-            <q-item-section style="text-align: center;">
-              <q-item-label>
-                <span class=""
-                  style="font-size: 20px; font-weight: bolder; color: whitesmoke;  margin: 0;padding: 0;">{{
-            informed
-          }}</span> </q-item-label>
-              <q-item-label class="q-px-sm notify-person-box-label"> <q-icon name="person" />
-                <span style="margin-top: -30px;">
-                  Notified
-                </span>
-              </q-item-label>
-            </q-item-section>
-          </q-item>
-          <q-item v-if="!contactsOnly">
-            <q-item-section style="text-align: center;">
-              <q-item-label>
-                <span class=""
-                  style="font-size: 20px; font-weight: bolder; color: whitesmoke;  margin: 0;padding: 0;">{{
-            accepted
-          }}</span> </q-item-label>
-              <q-item-label class="q-px-sm notify-person-box-label"> <q-icon name="person" />
-                <span style="margin-top: -30px;">
-                  Accepted
-                </span>
-              </q-item-label>
-            </q-item-section>
-          </q-item>
-          <q-item>
-            <q-item-section style="text-align: center;">
-              <q-item-label>
-                <span class=""
-                  style="font-size: 18px; font-weight: bolder; color: whitesmoke;  margin: 0;padding: 0;">{{
-              $t('common.yes')
-            }}</span> </q-item-label>
-              <q-item-label class="q-px-sm notify-person-box-label">
-                <span style="margin-top: -30px;">
-                  Informed
-                </span>
-              </q-item-label>
-            </q-item-section>
-          </q-item>
-        </q-list>
         <!-- <q-list bordered class="rounded-borders notify-person-box q-mb-md" style="border: 1px solid red;">
           <q-item v-if="!contactsOnly">
             <q-item-section>
@@ -125,7 +129,7 @@
           </q-item>
         </q-list> -->
 
-        <div class="text-h6 text-weight-bold q-mb-sm">
+        <div class=" text-weight-bold q-mb-sm" style="font-size: 16px;">
           {{ $t('common.helpUsMore') }}
         </div>
         <div class=" q-col-gutter-sm q-mb-md">
@@ -133,10 +137,10 @@
             <q-btn v-for="threat in threats" :key="threat.threatName" class="button-background q-mr-xs"
               @click="handleThreatButtonClick(threat.threatName)" size="sm" style="border-radius: 30px">
               <q-btn round size="sm" :style="{
-            marginLeft: '-10px',
-            backgroundColor: `${threat.color}`,
-            borderRadius: '50%',
-          }"><q-icon :name="threat.icon" style="color: whitesmoke"></q-icon> </q-btn><span class="q-ml-xs"
+                marginLeft: '-10px',
+                backgroundColor: `${threat.color}`,
+                borderRadius: '50%',
+              }"><q-icon :name="threat.icon" style="color: whitesmoke"></q-icon> </q-btn><span class="q-ml-xs"
                 style="font-weight: bold">
                 {{ $t(threat.visibleThreat) }}</span>
             </q-btn>
@@ -152,8 +156,8 @@
           </q-item-section>
           <q-item-section>
             <q-item-label>{{
-            currentLocationName || $t('common.gettingLocation')
-          }}</q-item-label>
+              currentLocationName || $t('common.gettingLocation')
+              }}</q-item-label>
             <q-item-label caption v-if="currentLocation.latitude && currentLocation.longitude">
               {{ $t('common.coordinates') }}:
               {{ currentLocation.latitude.toFixed(6) }},
@@ -174,12 +178,12 @@
           </q-item-section>
         </q-item>
 
-        <q-btn @click="updateSOSData({ status: 'active' })" color="primary" class="full-width q-mb-md">
-          <b>{{ $t('common.contactPoliceStation') }}</b>
+        <q-btn @click="updateSOSData({ status: 'active' })" color="" class=" notify-person-box full-width q-mb-md">
+          <span class="text-bold">{{ $t('common.contactPoliceStation') }}</span>
         </q-btn>
-
-        <q-btn v-if="sosSent" @click="showResolveConfirmation" color="positive" class="full-width">
-          <b>{{ $t('common.resolveSOSIssue') }}</b>
+        <!--v-if="sosSent" -->
+        <q-btn @click="showResolveConfirmation" color="" class="green-bg-color full-width">
+          <span class="text-bold">{{ $t('common.resolveSOSIssue') }}</span>
         </q-btn>
       </q-card-section>
 
@@ -1088,6 +1092,19 @@ const handleAudioStatusChange = (status: string) => {
   background: linear-gradient(135deg, $primary, darken($primary, 10%));
   border-radius: 10px;
   margin-top: 30px;
+
+}
+
+.green-bg-color {
+  background: linear-gradient(40deg, green, darken(green, 15%));
+  border-radius: 10px;
+
+}
+
+.cancel-sos-button {
+  background: linear-gradient(40deg, red, darken(red, 15%));
+  border-radius: 10px;
+  color: whitesmoke;
 
 }
 

@@ -9,23 +9,11 @@
 
           <div class="row q-col-gutter-md q-mb-md">
             <div class="col-12">
-              <q-input
-                v-model="address"
-                :label="$t('common.location')"
-                :loading="addressLoading"
-                :readonly="addressLoading"
-                outlined
-                dense
-              >
+              <q-input v-model="address" :label="$t('common.location')" :loading="addressLoading"
+                :readonly="addressLoading" outlined dense>
                 <template v-slot:append>
-                  <q-btn
-                    round
-                    dense
-                    flat
-                    :icon="$t('common.icons.myLocation')"
-                    @click="getCurrentLocation"
-                    :loading="locationLoading"
-                  >
+                  <q-btn round dense flat :icon="$t('common.icons.myLocation')" @click="getCurrentLocation"
+                    :loading="locationLoading">
                     <q-tooltip>{{ $t('common.useCurrentLocation') }}</q-tooltip>
                   </q-btn>
                 </template>
@@ -35,41 +23,21 @@
               <div class="text-subtitle2 q-mb-sm">
                 {{ $t('common.searchRadius') }}
               </div>
-              <q-slider
-                v-model="range"
-                :min="100"
-                :max="5000"
-                :step="100"
-                label
-                label-always
-                :label-value="`${range}m`"
-                color="primary"
-              />
+              <q-slider v-model="range" :min="100" :max="5000" :step="100" label label-always :label-value="`${range}m`"
+                color="primary" />
             </div>
           </div>
 
           <div class="volunteer-map q-mb-md" ref="volunteerMap">
             <div class="map-center">
-              <q-icon
-                :name="$t('common.icons.myLocation')"
-                size="24px"
-                color="primary"
-              />
+              <q-icon :name="$t('common.icons.myLocation')" size="24px" color="primary" />
             </div>
             <div class="north-indicator">
               <q-icon name="north" size="24px" color="red" />
             </div>
-            <div
-              v-for="volunteer in volunteers"
-              :key="volunteer.id"
-              class="volunteer-icon"
-              :style="getVolunteerPosition(volunteer)"
-            >
-              <q-icon
-                :name="getVolunteerIcon(volunteer)"
-                size="20px"
-                :color="getVolunteerColor(volunteer)"
-              />
+            <div v-for="volunteer in volunteers" :key="volunteer.id" class="volunteer-icon"
+              :style="getVolunteerPosition(volunteer)">
+              <q-icon :name="getVolunteerIcon(volunteer)" size="20px" :color="getVolunteerColor(volunteer)" />
               <q-tooltip>
                 {{ volunteer.profession }}
               </q-tooltip>
@@ -101,11 +69,11 @@
             </q-item>
           </q-list> -->
           <div class="text-center q-mt-md">
-            <q-btn
-              label="View SOS Events Map"
-              color="primary"
-              @click="router.push('/sos-events-map')"
-            />
+            <q-btn class="volunteers-bg-color" @click="router.push('/sos-events-map')">
+              <span class="text-bold">
+                View SOS Events Map
+              </span>
+            </q-btn>
           </div>
         </q-card-section>
       </q-card>
@@ -237,9 +205,9 @@ const calculateDistance = (volunteer) => {
   const a =
     Math.sin(dLat / 2) * Math.sin(dLat / 2) +
     Math.cos(latitude * (Math.PI / 180)) *
-      Math.cos(volunteerLat * (Math.PI / 180)) *
-      Math.sin(dLng / 2) *
-      Math.sin(dLng / 2);
+    Math.cos(volunteerLat * (Math.PI / 180)) *
+    Math.sin(dLng / 2) *
+    Math.sin(dLng / 2);
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   const distance = R * c * 1000; // Convert to meters
 
@@ -314,5 +282,10 @@ onMounted(() => {
   &:hover {
     background-color: #f0f0f0;
   }
+}
+
+.volunteers-bg-color {
+  background: linear-gradient(135deg, $primary, darken($primary, 10%));
+  color: whitesmoke;
 }
 </style>
