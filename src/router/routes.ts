@@ -2,6 +2,8 @@ import { RouteRecordRaw } from 'vue-router';
 import VolunteersNearByPage from 'pages/VolunteersNearByPage.vue';
 import publicRoutes from './publicRoutes'; // Import public routes
 import SOSEventsMapPage from 'pages/SOSEventsMapPage.vue';
+import IncidentReelsPage from 'pages/IncidentReelsPage.vue';
+import CreateReelPage from 'pages/CreateReelPage.vue';
 
 const routes: RouteRecordRaw[] = [
   {
@@ -54,6 +56,16 @@ const routes: RouteRecordRaw[] = [
       {
         path: 'joined-community',
         component: () => import('pages/CommunityPage.vue'),
+        meta: { requiresAuth: true },
+      },
+      {
+        path: 'incident-reels',
+        component: IncidentReelsPage,
+        meta: { requiresAuth: true },
+      },
+      {
+        path: 'create-reel',
+        component: CreateReelPage,
         meta: { requiresAuth: true },
       },
     ],

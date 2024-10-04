@@ -31,8 +31,11 @@ export function usePermissions() {
   ) => {
     const index = permissions.value.findIndex((p) => p.name === name);
     if (index !== -1) {
-      permissions.value[index].granted = granted;
-      permissions.value[index].denied = denied;
+      permissions.value[index] = {
+        ...permissions.value[index],
+        granted,
+        denied,
+      };
     }
   };
 
@@ -175,12 +178,11 @@ export function usePermissions() {
         }
       }
 
-      updatePermissionStatus(
-        permissionName,
-        result?.state === 'granted' || result === 'granted',
-        result?.state === 'denied' || result === 'denied'
-      );
-      return result?.state === 'granted' || result === 'granted';
+      const granted = result?.state === 'granted' || result === 'granted';
+      const denied = result?.state === 'denied' || result === 'denied';
+
+      updatePermissionStatus(permissionName, granted, denied);
+      return granted;
     } catch (error) {
       console.error(`Error requesting ${permissionName} permission:`, error);
       updatePermissionStatus(permissionName, false, true);
