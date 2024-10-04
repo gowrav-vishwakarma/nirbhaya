@@ -34,7 +34,7 @@
       <router-view />
     </q-page-container>
     <!-- :disabled="!userStore.isLoggedIn" -->
-    <q-footer class="text-white background-color-transparent" style="padding: 4px; padding-bottom: 5px;"
+    <q-footer class="text-white background-color-transparent" style="padding: 4px; padding-bottom: 5px; display: none;"
       v-if="userStore.isLoggedIn">
       <q-toolbar class="footer-toolbar">
         <q-btn class="" flat aria-label="Nearby Volunteers" :disabled="!userStore.isLoggedIn"

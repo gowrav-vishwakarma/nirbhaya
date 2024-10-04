@@ -1,48 +1,3 @@
-<template>
-  <q-page class="create-reel-page">
-    <div class="video-container">
-      <template v-if="!isPlayingRecordedVideo">
-        <video ref="videoPreview" autoplay playsinline class="video-preview" muted></video>
-        <canvas ref="canvasPreview" width="1280" height="720" class="video-preview"></canvas>
-        <video v-if="secondaryStream" ref="secondaryVideo" autoplay playsinline class="secondary-video"></video>
-      </template>
-      <video v-else ref="videoPlayer" class="recorded-video" controls :src="recordedVideoUrl"></video>
-      <div class="recording-overlay" v-if="isRecording">
-        <q-circular-progress show-value class="text-white q-ma-md" :value="remainingTime" size="50px" :thickness="0.2"
-          color="white" track-color="primary">
-          {{ remainingTime }}
-        </q-circular-progress>
-      </div>
-    </div>
-    <q-page-sticky position="bottom" :offset="[0, 18]">
-      <div class="button-container">
-        <q-btn size="sm" v-if="!isRecording && !isPlayingRecordedVideo" color="red" @click="startRecording"
-          class="record-btn">
-          <q-icon name="fiber_manual_record"></q-icon>
-        </q-btn>
-        <q-btn size="sm" v-else-if="isRecording" color="negative" @click="stopRecording" class="stop-btn">
-          <q-icon name="stop"></q-icon>
-
-        </q-btn>
-        <q-btn size="sm" v-else-if="isPlayingRecordedVideo && isVideoReady" color="secondary" @click="playRecordedVideo"
-          class="play-btn">
-          <q-icon name="play_arrow"></q-icon>
-        </q-btn>
-        <q-btn size="sm" v-if="isPlayingRecordedVideo" color="warning" @click="retakeVideo" class="retake-btn">
-          <q-icon name="refresh"></q-icon>
-
-        </q-btn>
-        <q-btn size="sm" color="secondary" @click="switchCamera" class="rotate-btn">
-          <q-icon name="mdi-rotate-3d-variant"></q-icon>
-        </q-btn>
-        <q-btn size="sm" color="blue" style="background-color:blue;" @click="uploadReel" class="upload-btn">
-          <q-icon name="mdi-send"></q-icon>
-        </q-btn>
-      </div>
-    </q-page-sticky>
-  </q-page>
-</template>
-
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, computed } from 'vue';
 import { useQuasar } from 'quasar';
@@ -458,24 +413,61 @@ onUnmounted(() => {
 });
 </script>
 
+<template>
+  <q-page class="create-reel-page">
+    <div class="video-container">
+      <template v-if="!isPlayingRecordedVideo">
+        <video ref="videoPreview" autoplay playsinline class="video-preview" muted></video>
+        <canvas ref="canvasPreview" width="1280" height="720" class="video-preview"></canvas>
+        <video v-if="secondaryStream" ref="secondaryVideo" autoplay playsinline class="secondary-video"></video>
+      </template>
+      <video v-else ref="videoPlayer" class="recorded-video" controls :src="recordedVideoUrl"></video>
+      <div class="recording-overlay" v-if="isRecording">
+        <q-circular-progress show-value class="text-white q-ma-md" :value="remainingTime" size="50px" :thickness="0.2"
+          color="white" track-color="primary">
+          {{ remainingTime }}
+        </q-circular-progress>
+      </div>
+    </div>
+    <q-page-sticky position="bottom" :offset="[0, 18]">
+      <q-btn-group spread>
+        <q-btn v-if="!isRecording && !isPlayingRecordedVideo" color="primary" icon="videocam" label="Record"
+          @click="startRecording" :disable="!isReady" />
+        <q-btn v-else-if="isRecording" color="negative" icon="stop" label="Stop" @click="stopRecording" />
+        <q-btn v-else-if="isPlayingRecordedVideo && isVideoReady" color="secondary" icon="play_arrow" label="Play"
+          @click="playRecordedVideo" />
+        <q-btn v-if="isPlayingRecordedVideo" color="warning" icon="refresh" label="Retake" @click="retakeVideo" />
+        <q-btn color="secondary" icon="cameraswitch" label="Switch Camera" @click="switchCamera"
+          :disable="isRecording || isPlayingRecordedVideo" />
+        <q-btn color="accent" icon="picture_in_picture" label="Toggle Secondary" @click="toggleSecondaryCamera"
+          :disable="isRecording || isPlayingRecordedVideo || availableCameras.length < 2
+        " />
+        <q-btn color="positive" icon="cloud_upload" label="Upload" :disable="!recordedVideoUrl" @click="uploadReel" />
+      </q-btn-group>
+    </q-page-sticky>
+  </q-page>
+</template>
+
 <style lang="scss" scoped>
 .create-reel-page {
   display: flex;
   flex-direction: column;
   align-items: center;
-  height: 70vh; // Adjusted to 70% of viewport height
-  padding-top: 30px;
-  // background: linear-gradient(to bottom, #f0f0f0, #ffffff);
+  height: 100vh;
+  padding: 0;
 }
 
 .video-container {
-  border-radius: 15px;
-
   position: relative;
   width: 100%;
-  height: calc(90vh - 100px); // Adjusted to 70% of viewport height minus 100px margin
+  height: calc(100% - 70px); // Adjust this value based on your button group height
   overflow: hidden;
-  // padding: 10px;
+}
+
+.hidden-video {
+  position: absolute;
+  top: -9999px;
+  left: -9999px;
 }
 
 .video-preview,
@@ -483,6 +475,16 @@ onUnmounted(() => {
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+
+.secondary-video {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  width: 120px;
+  height: 90px;
+  border: 2px solid white;
+  border-radius: 4px;
 }
 
 .recording-overlay {
@@ -493,34 +495,28 @@ onUnmounted(() => {
   bottom: 0;
   display: flex;
   justify-content: center;
-  align-items: center;
-  background-color: rgba(0, 0, 0, 0.5);
+  align-items: flex-start;
+  background-color: rgba(255, 0, 0, 0.2);
 }
 
-.button-container {
-  display: flex;
-  justify-content: space-around;
+.q-page-sticky {
   width: 100%;
-  padding: 10px;
 }
 
-.record-btn,
-.stop-btn,
-.play-btn,
-.retake-btn,
-.rotate-btn,
-.upload-btn {
-  border-radius: 50%;
-  width: 40px;
-  height: 40px;
-  font-size: 24px;
+.q-btn-group {
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
 }
 
-.rotate-btn {
-  /* Add any specific styles for the rotate button if needed */
+.recorded-video {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background-color: black;
 }
 
-.upload-btn {
-  /* Add any specific styles for the upload button if needed */
+.hidden {
+  display: none;
 }
 </style>
