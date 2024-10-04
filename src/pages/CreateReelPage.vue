@@ -473,7 +473,7 @@ onUnmounted(() => {
 
   position: relative;
   width: 100%;
-  height: calc(90vh - 100px); // Adjusted to 70% of viewport height minus 100px margin
+  height: calc(80vh - 100px); // Adjusted to 70% of viewport height minus 100px margin
   overflow: hidden;
   // padding: 10px;
 }
