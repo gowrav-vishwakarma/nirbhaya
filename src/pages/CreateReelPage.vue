@@ -27,17 +27,17 @@
       </q-btn>
       <q-btn size="sm" v-if="!isRecording && !isPlayingRecordedVideo" color="red" @click="startRecording"
         class="record-btn">
-        <q-icon name="fiber_manual_record"></q-icon>
+        <q-icon style="font-size: 20px;" name="fiber_manual_record"></q-icon>
       </q-btn>
       <q-btn size="sm" v-else-if="isRecording" color="negative" @click="stopRecording" class="stop-btn">
-        <q-icon name="stop"></q-icon>
+        <q-icon style="font-size: 23px;" name="stop"></q-icon>
       </q-btn>
       <q-btn size="sm" v-else-if="isPlayingRecordedVideo && isVideoReady" color="secondary" @click="playRecordedVideo"
         class="play-btn">
-        <q-icon name="play_arrow"></q-icon>
+        <q-icon style="font-size: 26px;" name="play_arrow"></q-icon>
       </q-btn>
       <q-btn size="sm" v-if="isPlayingRecordedVideo" color="negative" @click="retakeVideo" class="retake-btn">
-        <q-icon name="refresh"></q-icon>
+        <q-icon style="font-size: 23px;" name="refresh"></q-icon>
       </q-btn>
 
       <q-btn size="sm" color="blue" style="background-color:blue;" @click="uploadReel" class="upload-btn">
