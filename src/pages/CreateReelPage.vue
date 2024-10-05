@@ -6,7 +6,10 @@
         <canvas ref="canvasPreview" width="1280" height="720" class="video-preview"></canvas>
         <video v-if="secondaryStream" ref="secondaryVideo" autoplay playsinline class="secondary-video"></video>
       </template>
-      <video v-else ref="videoPlayer" class="recorded-video" controls :src="recordedVideoUrl"></video>
+      <video v-else ref="videoPlayer" class="recorded-video" controls :src="recordedVideoUrl"
+        @mouseover="showControls = true" @mouseleave="showControls = false">
+        <track kind="captions" />
+      </video>
       <div class="recording-overlay" v-if="isRecording">
         <q-circular-progress show-value class="text-white q-ma-md" :value="remainingTime" size="50px" :thickness="0.2"
           color="white" track-color="primary">
@@ -14,32 +17,32 @@
         </q-circular-progress>
       </div>
     </div>
-    <q-page-sticky position="bottom" :offset="[0, 18]">
-      <div class="button-container">
-        <q-btn size="sm" v-if="!isRecording && !isPlayingRecordedVideo" color="red" @click="startRecording"
-          class="record-btn">
-          <q-icon name="fiber_manual_record"></q-icon>
-        </q-btn>
-        <q-btn size="sm" v-else-if="isRecording" color="negative" @click="stopRecording" class="stop-btn">
-          <q-icon name="stop"></q-icon>
+    <!-- <q-page-sticky position="bottom" :offset="[0, 18]"> -->
 
-        </q-btn>
-        <q-btn size="sm" v-else-if="isPlayingRecordedVideo && isVideoReady" color="secondary" @click="playRecordedVideo"
-          class="play-btn">
-          <q-icon name="play_arrow"></q-icon>
-        </q-btn>
-        <q-btn size="sm" v-if="isPlayingRecordedVideo" color="warning" @click="retakeVideo" class="retake-btn">
-          <q-icon name="refresh"></q-icon>
+    <div class="button-container ">
+      <q-btn size="sm" color="black" @click="switchCamera" class="rotate-btn">
+        <q-icon style="font-size: 26px;" name="mdi-orbit-variant"></q-icon>
+      </q-btn>
+      <q-btn size="sm" v-if="!isRecording && !isPlayingRecordedVideo" color="red" @click="startRecording"
+        class="record-btn">
+        <q-icon name="fiber_manual_record"></q-icon>
+      </q-btn>
+      <q-btn size="sm" v-else-if="isRecording" color="negative" @click="stopRecording" class="stop-btn">
+        <q-icon name="stop"></q-icon>
+      </q-btn>
+      <q-btn size="sm" v-else-if="isPlayingRecordedVideo && isVideoReady" color="secondary" @click="playRecordedVideo"
+        class="play-btn">
+        <q-icon name="play_arrow"></q-icon>
+      </q-btn>
+      <q-btn size="sm" v-if="isPlayingRecordedVideo" color="negative" @click="retakeVideo" class="retake-btn">
+        <q-icon name="refresh"></q-icon>
+      </q-btn>
 
-        </q-btn>
-        <q-btn size="sm" color="secondary" @click="switchCamera" class="rotate-btn">
-          <q-icon name="mdi-rotate-3d-variant"></q-icon>
-        </q-btn>
-        <q-btn size="sm" color="blue" style="background-color:blue;" @click="uploadReel" class="upload-btn">
-          <q-icon name="mdi-send"></q-icon>
-        </q-btn>
-      </div>
-    </q-page-sticky>
+      <q-btn size="sm" color="blue" style="background-color:blue;" @click="uploadReel" class="upload-btn">
+        <q-icon style="transform: rotate(-15deg); font-size: 20px;" name="mdi-send"></q-icon>
+      </q-btn>
+    </div>
+    <!-- </q-page-sticky> -->
   </q-page>
 </template>
 
@@ -463,17 +466,16 @@ onUnmounted(() => {
   display: flex;
   flex-direction: column;
   align-items: center;
-  height: 70vh; // Adjusted to 70% of viewport height
-  padding-top: 30px;
+  height: 100%; // Adjusted to 70% of viewport height
+  padding-top: 20px;
   // background: linear-gradient(to bottom, #f0f0f0, #ffffff);
 }
 
 .video-container {
   border-radius: 15px;
-
   position: relative;
   width: 100%;
-  height: calc(80vh - 100px); // Adjusted to 70% of viewport height minus 100px margin
+  height: calc(83vh - 100px); // Adjusted to 70% of viewport height minus 100px margin
   overflow: hidden;
   // padding: 10px;
 }
@@ -488,13 +490,12 @@ onUnmounted(() => {
 .recording-overlay {
   position: absolute;
   top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  right: 0; // Changed to right
   display: flex;
-  justify-content: center;
-  align-items: center;
-  background-color: rgba(0, 0, 0, 0.5);
+  justify-content: flex-end; // Align items to the right
+  align-items: flex-start; // Align items to the top
+  // background-color: rgba(0, 0, 0, 0.5);
+  padding: 10px; // Optional: Add some padding for better spacing
 }
 
 .button-container {
@@ -522,5 +523,55 @@ onUnmounted(() => {
 
 .upload-btn {
   /* Add any specific styles for the upload button if needed */
+}
+
+.video-container {
+  position: relative;
+  border-radius: 15px;
+  overflow: hidden;
+}
+
+.recorded-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 15px; // Rounded corners for the video
+}
+
+.recorded-video:hover {
+  cursor: pointer; // Change cursor on hover
+}
+
+// Custom controls styling
+.button-container {
+  display: flex;
+  justify-content: space-around;
+  width: 80%;
+  padding: 5px;
+  margin-top: 30px;
+  background-color: rgba(0, 0, 0, 0.7); // Semi-transparent background
+  border-radius: 10px; // Rounded corners for the button container
+}
+
+.record-btn,
+.stop-btn,
+.play-btn,
+.retake-btn,
+.rotate-btn,
+.upload-btn {
+  border-radius: 50%;
+  width: 50px; // Increased size for better touch targets
+  height: 50px;
+  font-size: 24px;
+  transition: background-color 0.3s; // Smooth transition for hover effects
+}
+
+.record-btn:hover,
+.stop-btn:hover,
+.play-btn:hover,
+.retake-btn:hover,
+.rotate-btn:hover,
+.upload-btn:hover {
+  background-color: rgba(255, 255, 255, 0.2); // Lighten on hover
 }
 </style>
