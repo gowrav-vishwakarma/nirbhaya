@@ -1,6 +1,8 @@
 <template>
   <q-page class="create-reel-page">
-    <div class="video-container">
+    <!-- <div class="video-container" :style="{ paddingTop: $q.screen.gt ? '10px ' : '30px' }"> -->
+    <div class="video-container" :style="{ marginTop: $q.screen.gt.md ? '10px' : '25px' }">
+
       <template v-if="!isPlayingRecordedVideo">
         <video ref="videoPreview" autoplay playsinline class="video-preview" muted></video>
         <canvas ref="canvasPreview" width="1280" height="720" class="video-preview"></canvas>
@@ -467,7 +469,7 @@ onUnmounted(() => {
   flex-direction: column;
   align-items: center;
   height: 100%; // Adjusted to 70% of viewport height
-  padding-top: 20px;
+  // padding-top: 20px;
   // background: linear-gradient(to bottom, #f0f0f0, #ffffff);
 }
 
