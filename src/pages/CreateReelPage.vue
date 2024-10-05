@@ -519,19 +519,11 @@ onUnmounted(() => {
   font-size: 24px;
 }
 
-.rotate-btn {
-  /* Add any specific styles for the rotate button if needed */
-}
-
-.upload-btn {
-  /* Add any specific styles for the upload button if needed */
-}
-
-.video-container {
-  position: relative;
-  border-radius: 15px;
-  overflow: hidden;
-}
+// .video-container {
+//   position: relative;
+//   border-radius: 15px;
+//   overflow: hidden;
+// }
 
 .recorded-video {
   width: 100%;
