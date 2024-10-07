@@ -1,53 +1,125 @@
 <template>
   <q-page class="create-reel-page">
-    <div class="aspect-ratio-container" v-if="!isPlayingRecordedVideo && !isRecording">
+    <div
+      class="aspect-ratio-container"
+      v-if="!isPlayingRecordedVideo && !isRecording"
+    >
       <q-btn v-if="!showAllAspectRatios" @click="toggleAspectRatios">
-        <div style="font-weight: bolder; color: whitesmoke;">
+        <div style="font-weight: bolder; color: whitesmoke">
           {{ aspectRatioLabel }}
         </div>
       </q-btn>
-      <q-btn class="q-mx-xs" style="font-weight: bolder; color: whitesmoke;" v-if="showAllAspectRatios"
-        @click="setAspectRatio('9:16')" label="9:16" />
-      <q-btn class="q-mx-xs" style="font-weight: bolder; color: whitesmoke;" v-if="showAllAspectRatios"
-        @click="setAspectRatio('1:1')" label="1:1" />
-      <q-btn class="q-mx-xs" style="font-weight: bolder; color: whitesmoke;" v-if="showAllAspectRatios"
-        @click="setAspectRatio('full')" label="Full" />
+      <q-btn
+        class="q-mx-xs"
+        style="font-weight: bolder; color: whitesmoke"
+        v-if="showAllAspectRatios"
+        @click="setAspectRatio('9:16')"
+        label="9:16"
+      />
+      <q-btn
+        class="q-mx-xs"
+        style="font-weight: bolder; color: whitesmoke"
+        v-if="showAllAspectRatios"
+        @click="setAspectRatio('1:1')"
+        label="1:1"
+      />
+      <q-btn
+        class="q-mx-xs"
+        style="font-weight: bolder; color: whitesmoke"
+        v-if="showAllAspectRatios"
+        @click="setAspectRatio('full')"
+        label="Full"
+      />
     </div>
     <div class="video-container">
-      <video v-if="!isRecording && isPlayingRecordedVideo" ref="videoPlayer" class="video-preview"
-        :src="recordedVideoUrl">
+      <video
+        v-if="isPlayingRecordedVideo"
+        ref="videoPlayer"
+        class="video-preview"
+        :src="recordedVideoUrl"
+      >
         <track kind="captions" />
       </video>
-      <canvas v-else ref="canvasPreview" :width="videoWidth" :height="videoHeight" class="video-preview"></canvas>
-      <video ref="videoPreview" autoplay playsinline muted class="hidden-video"></video>
+      <canvas
+        v-else
+        ref="canvasPreview"
+        :width="videoWidth"
+        :height="videoHeight"
+        class="video-preview"
+      ></canvas>
+      <video
+        ref="videoPreview"
+        autoplay
+        playsinline
+        muted
+        class="hidden-video"
+      ></video>
       <div class="recording-overlay" v-if="isRecording">
-        <q-circular-progress show-value class="text-white q-ma-md" :value="remainingTime" size="50px" :thickness="0.2"
-          color="white" track-color="primary">
+        <q-circular-progress
+          show-value
+          class="text-white q-ma-md"
+          :value="remainingTime"
+          size="50px"
+          :thickness="0.2"
+          color="white"
+          track-color="primary"
+        >
           {{ remainingTime }}
         </q-circular-progress>
       </div>
       <!-- Play/Pause Button -->
-      <q-btn round v-if="isPlayingRecordedVideo" @click="togglePlayback" class="play-pause-btn">
+      <q-btn
+        round
+        v-if="isPlayingRecordedVideo"
+        @click="togglePlayback"
+        class="play-pause-btn"
+      >
         <q-icon :name="isVideoPlaying ? 'mdi-pause' : 'mdi-play'" />
       </q-btn>
     </div>
 
     <div class="button-container">
       <q-btn size="sm" color="black" @click="switchCamera" class="rotate-btn">
-        <q-icon style="font-size: 26px;" name="mdi-orbit-variant"></q-icon>
+        <q-icon style="font-size: 26px" name="mdi-orbit-variant"></q-icon>
       </q-btn>
-      <q-btn size="sm" v-if="!isRecording && !isPlayingRecordedVideo" color="red" @click="startRecording"
-        class="record-btn">
-        <q-icon style="font-size: 20px;" name="fiber_manual_record"></q-icon>
+      <q-btn
+        size="sm"
+        v-if="!isRecording && !isPlayingRecordedVideo"
+        color="red"
+        @click="startRecording"
+        class="record-btn"
+      >
+        <q-icon style="font-size: 20px" name="fiber_manual_record"></q-icon>
       </q-btn>
-      <q-btn size="sm" v-else-if="isRecording" color="negative" @click="stopRecording" class="stop-btn">
-        <q-icon style="font-size: 23px;" name="stop"></q-icon>
+      <q-btn
+        size="sm"
+        v-else-if="isRecording"
+        color="negative"
+        @click="stopRecording"
+        class="stop-btn"
+      >
+        <q-icon style="font-size: 23px" name="stop"></q-icon>
       </q-btn>
-      <q-btn size="sm" v-if="isPlayingRecordedVideo" color="black" @click="retakeVideo" class="retake-btn">
-        <q-icon style="font-size: 23px;" name="refresh"></q-icon>
+      <q-btn
+        size="sm"
+        v-if="isPlayingRecordedVideo"
+        color="black"
+        @click="retakeVideo"
+        class="retake-btn"
+      >
+        <q-icon style="font-size: 23px" name="refresh"></q-icon>
       </q-btn>
-      <q-btn size="sm" color="blue" style="background-color:blue;" @click="uploadReel" class="upload-btn">
-        <q-icon style="transform: rotate(-15deg); font-size: 20px;" name="mdi-send"></q-icon>
+      <q-btn
+        size="sm"
+        color="blue"
+        style="background-color: blue"
+        @click="uploadReel"
+        class="upload-btn"
+      >
+        <q-icon
+          style="transform: rotate(-15deg); font-size: 20px"
+          name="mdi-send"
+        ></q-icon>
       </q-btn>
     </div>
   </q-page>
@@ -61,6 +133,8 @@ import { api } from 'src/boot/axios';
 import { usePermissions } from 'src/composables/usePermissions';
 import { Geolocation } from '@capacitor/geolocation';
 import { useI18n } from 'vue-i18n';
+import { dom } from 'quasar';
+const { height, width, style } = dom;
 
 const { t } = useI18n();
 const $q = useQuasar();
@@ -83,8 +157,10 @@ const recordedVideoUrl = ref<string | null>(null);
 const isPlayingRecordedVideo = ref(false);
 
 // Set video dimensions for 1:16 aspect ratio
-const videoWidth = ref(Math.min(window.innerWidth, window.innerHeight / 16 * 9));
-const videoHeight = ref(videoWidth.value * 16 / 9);
+const videoWidth = ref(
+  Math.min(window.innerWidth, (window.innerHeight / 16) * 9)
+);
+const videoHeight = ref((videoWidth.value * 16) / 9);
 
 const aspectRatio = ref('9:16'); // Default aspect ratio
 
@@ -117,20 +193,39 @@ const resetTimer = () => {
 };
 
 const updateVideoDimensions = () => {
+  const containerWidth = width(document.body);
+  const containerHeight = height(document.body);
+
+  let newWidth, newHeight;
+
   switch (aspectRatio.value) {
     case '1:1':
-      videoWidth.value = Math.min(window.innerWidth, window.innerHeight);
-      videoHeight.value = videoWidth.value; // Square
+      newWidth = newHeight = Math.min(containerWidth, containerHeight);
       break;
     case 'full':
-      videoWidth.value = window.innerWidth;
-      videoHeight.value = window.innerHeight; // Full screen
+      newWidth = containerWidth;
+      newHeight = containerHeight;
       break;
     case '9:16':
     default:
-      videoWidth.value = Math.min(window.innerWidth, window.innerHeight / 16 * 9);
-      videoHeight.value = videoWidth.value * 16 / 9; // 9:16 aspect ratio
+      if (containerWidth / containerHeight > 9 / 16) {
+        newHeight = containerHeight;
+        newWidth = (newHeight * 9) / 16;
+      } else {
+        newWidth = containerWidth;
+        newHeight = (newWidth * 16) / 9;
+      }
       break;
+  }
+
+  videoWidth.value = newWidth;
+  videoHeight.value = newHeight;
+
+  if (canvasPreview.value) {
+    style(canvasPreview.value, {
+      width: `${newWidth}px`,
+      height: `${newHeight}px`,
+    });
   }
 };
 
@@ -138,13 +233,36 @@ const updateVideoDimensions = () => {
 updateVideoDimensions();
 resetTimer(); // Start the timer on component mount
 
+const initializeCamera = async () => {
+  isPlayingRecordedVideo.value = false;
+  try {
+    await checkPermissions();
+    const position = await Geolocation.getCurrentPosition({
+      enableHighAccuracy: true,
+    });
+    location.value = position;
+  } catch (error) {
+    console.error('Error getting location:', error);
+  }
+  await startCamera();
+};
+
+onMounted(() => {
+  initializeCamera();
+  window.addEventListener('resize', updateVideoDimensions);
+});
+
 const startCamera = async () => {
   try {
     const constraints = {
       video: {
         facingMode: currentCamera.value,
-        width: { ideal: videoWidth.value },
-        height: { ideal: videoHeight.value },
+        aspectRatio:
+          aspectRatio.value === '9:16'
+            ? 9 / 16
+            : aspectRatio.value === '1:1'
+            ? 1
+            : undefined,
       },
       audio: true,
     };
@@ -153,10 +271,9 @@ const startCamera = async () => {
 
     if (videoPreview.value) {
       videoPreview.value.srcObject = stream.value;
-      videoPreview.value.onloadedmetadata = () => {
-        videoPreview.value!.play();
-        drawVideoFrame();
-      };
+      await videoPreview.value.play();
+      updateVideoDimensions(); // Call this after setting up the stream
+      drawVideoFrame();
     }
   } catch (error) {
     console.error('Error starting camera:', error);
@@ -176,6 +293,17 @@ const switchCamera = async () => {
   await startCamera();
 };
 
+const updateLocation = async () => {
+  try {
+    const position = await Geolocation.getCurrentPosition({
+      enableHighAccuracy: true,
+    });
+    location.value = position;
+  } catch (error) {
+    console.error('Error updating location:', error);
+  }
+};
+
 const startRecording = async () => {
   if (recordedVideoUrl.value) {
     URL.revokeObjectURL(recordedVideoUrl.value);
@@ -183,9 +311,20 @@ const startRecording = async () => {
   }
   recordedChunks.value = [];
 
-  const mediaStream = canvasPreview.value!.captureStream(30);
-  const audioTrack = stream.value!.getAudioTracks()[0];
-  mediaStream.addTrack(audioTrack);
+  await updateLocation(); // Update location before starting to record
+
+  if (!canvasPreview.value) {
+    console.error('Canvas preview is not available');
+    return;
+  }
+
+  const mediaStream = canvasPreview.value.captureStream(30); // Capture at 30 fps
+  if (stream.value) {
+    const audioTrack = stream.value.getAudioTracks()[0];
+    if (audioTrack) {
+      mediaStream.addTrack(audioTrack);
+    }
+  }
 
   mediaRecorder.value = new MediaRecorder(mediaStream, {
     mimeType: 'video/webm; codecs=vp8,opus',
@@ -198,10 +337,13 @@ const startRecording = async () => {
   };
 
   mediaRecorder.value.onstop = () => {
-    isRecording.value = false;
     const blob = new Blob(recordedChunks.value, { type: 'video/webm' });
     recordedVideoUrl.value = URL.createObjectURL(blob);
     isPlayingRecordedVideo.value = true;
+    // Stop the camera preview
+    if (stream.value) {
+      stream.value.getTracks().forEach((track) => track.stop());
+    }
   };
 
   mediaRecorder.value.start(1000 / 30);
@@ -214,52 +356,64 @@ const startRecording = async () => {
       clearInterval(countdownInterval);
       stopRecording();
     }
+    // Update location every 10 seconds during recording
+    if (remainingTime.value % 10 === 0) {
+      updateLocation();
+    }
   }, 1000);
 };
 
 const stopRecording = () => {
   if (mediaRecorder.value) {
     mediaRecorder.value.stop();
+    isRecording.value = false;
+    // Stop the camera stream
+    if (stream.value) {
+      stream.value.getTracks().forEach((track) => track.stop());
+    }
   }
 };
 
 const drawVideoFrame = () => {
   if (videoPreview.value && canvasPreview.value) {
     const ctx = canvasPreview.value.getContext('2d')!;
-    const aspectRatio = 9 / 16;
-    let drawWidth = videoPreview.value.videoWidth;
-    let drawHeight = videoPreview.value.videoWidth / aspectRatio;
-    let offsetX = 0;
-    let offsetY = (videoPreview.value.videoHeight - drawHeight) / 2;
 
-    if (drawHeight > videoPreview.value.videoHeight) {
-      drawHeight = videoPreview.value.videoHeight;
-      drawWidth = videoPreview.value.videoHeight * aspectRatio;
-      offsetX = (videoPreview.value.videoWidth - drawWidth) / 2;
-      offsetY = 0;
-    }
+    // Clear the canvas before drawing the new frame
+    ctx.clearRect(0, 0, videoWidth.value, videoHeight.value);
 
+    // Calculate the scaling factors
+    const scaleX = videoWidth.value / videoPreview.value.videoWidth;
+    const scaleY = videoHeight.value / videoPreview.value.videoHeight;
+    const scale = Math.max(scaleX, scaleY);
+
+    // Calculate the centered position
+    const x = (videoWidth.value - videoPreview.value.videoWidth * scale) / 2;
+    const y = (videoHeight.value - videoPreview.value.videoHeight * scale) / 2;
+
+    // Draw the video frame
     ctx.drawImage(
       videoPreview.value,
-      offsetX, offsetY, drawWidth, drawHeight,
-      0, 0, videoWidth.value, videoHeight.value
+      x,
+      y,
+      videoPreview.value.videoWidth * scale,
+      videoPreview.value.videoHeight * scale
     );
 
-    // Draw location and timestamp only if not recording and not playing back
-    if (!isRecording.value && isPlayingRecordedVideo.value) {
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
-      ctx.fillRect(0, videoHeight.value - 60, videoWidth.value, 60);
-      ctx.fillStyle = 'white';
-      ctx.font = '14px Arial';
-      if (location.value) {
-        ctx.fillText(
-          `Lat: ${location.value.coords.latitude.toFixed(6)}, Lon: ${location.value.coords.longitude.toFixed(6)}`,
-          10,
-          videoHeight.value - 40
-        );
-      }
-      ctx.fillText(new Date().toLocaleString(), 10, videoHeight.value - 20);
+    // Draw location and timestamp
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+    ctx.fillRect(0, videoHeight.value - 60, videoWidth.value, 60);
+    ctx.fillStyle = 'white';
+    ctx.font = '14px Arial';
+    if (location.value) {
+      ctx.fillText(
+        `Lat: ${location.value.coords.latitude.toFixed(
+          6
+        )}, Lon: ${location.value.coords.longitude.toFixed(6)}`,
+        10,
+        videoHeight.value - 40
+      );
     }
+    ctx.fillText(new Date().toLocaleString(), 10, videoHeight.value - 20);
 
     requestAnimationFrame(drawVideoFrame);
   }
@@ -272,7 +426,7 @@ const retakeVideo = () => {
   recordedVideoUrl.value = null;
   isPlayingRecordedVideo.value = false;
   recordedChunks.value = [];
-  startCamera();
+  initializeCamera(); // Restart the camera
 };
 
 const uploadReel = async () => {
@@ -322,24 +476,11 @@ const togglePlayback = () => {
   }
 };
 
-onMounted(() => {
-  checkPermissions().then(() => {
-    Geolocation.getCurrentPosition({ enableHighAccuracy: true })
-      .then((position) => {
-        location.value = position;
-        startCamera();
-      })
-      .catch((error) => {
-        console.error('Error getting location:', error);
-        startCamera();
-      });
-  });
-});
-
 onUnmounted(() => {
   if (stream.value) {
     stream.value.getTracks().forEach((track) => track.stop());
   }
+  window.removeEventListener('resize', updateVideoDimensions);
 });
 </script>
 
