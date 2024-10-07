@@ -1,6 +1,6 @@
 <template>
   <q-page class="create-reel-page">
-    <div class="aspect-ratio-container" v-if="!isPlayingRecordedVideo">
+    <div class="aspect-ratio-container" v-if="!isPlayingRecordedVideo && !isRecording">
       <q-btn v-if="!showAllAspectRatios" @click="toggleAspectRatios">
         <div style="font-weight: bolder; color: whitesmoke;">
           {{ aspectRatioLabel }}
@@ -224,7 +224,7 @@ const stopRecording = () => {
 };
 
 const drawVideoFrame = () => {
-  if (videoPreview.value && canvasPreview.value && !isPlayingRecordedVideo.value) {
+  if (videoPreview.value && canvasPreview.value) {
     const ctx = canvasPreview.value.getContext('2d')!;
     const aspectRatio = 9 / 16;
     let drawWidth = videoPreview.value.videoWidth;
@@ -245,19 +245,21 @@ const drawVideoFrame = () => {
       0, 0, videoWidth.value, videoHeight.value
     );
 
-    // Draw location and timestamp
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
-    ctx.fillRect(0, videoHeight.value - 60, videoWidth.value, 60);
-    ctx.fillStyle = 'white';
-    ctx.font = '14px Arial';
-    if (location.value) {
-      ctx.fillText(
-        `Lat: ${location.value.coords.latitude.toFixed(6)}, Lon: ${location.value.coords.longitude.toFixed(6)}`,
-        10,
-        videoHeight.value - 40
-      );
+    // Draw location and timestamp only if not recording and not playing back
+    if (!isRecording.value && isPlayingRecordedVideo.value) {
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+      ctx.fillRect(0, videoHeight.value - 60, videoWidth.value, 60);
+      ctx.fillStyle = 'white';
+      ctx.font = '14px Arial';
+      if (location.value) {
+        ctx.fillText(
+          `Lat: ${location.value.coords.latitude.toFixed(6)}, Lon: ${location.value.coords.longitude.toFixed(6)}`,
+          10,
+          videoHeight.value - 40
+        );
+      }
+      ctx.fillText(new Date().toLocaleString(), 10, videoHeight.value - 20);
     }
-    ctx.fillText(new Date().toLocaleString(), 10, videoHeight.value - 20);
 
     requestAnimationFrame(drawVideoFrame);
   }
@@ -398,9 +400,13 @@ onUnmounted(() => {
 }
 
 .recording-overlay {
-  position: absolute;
-  top: 10px;
-  right: 10px;
+  position: absolute; // Position it absolutely
+  top: 10px; // Adjust as needed
+  left: 0; // Start from the left
+  right: 0; // End at the right
+  margin: 0 auto; // Center it horizontally
+  text-align: center; // Center text inside the overlay
+  z-index: 5; // Ensure it is above other elements
 }
 
 .record-btn,
@@ -426,6 +432,5 @@ onUnmounted(() => {
   height: 70px;
   width: 70px;
   font-size: large;
-
 }
 </style>

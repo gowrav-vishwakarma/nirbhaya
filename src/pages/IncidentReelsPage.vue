@@ -55,12 +55,8 @@ watch(currentReelIndex, (newIndex) => {
 <template>
   <q-page class="incident-reels-page">
     <q-scroll-area class="full-height" @scroll="handleScroll">
-      <IncidentReelPlayer
-        v-for="(reel, index) in reels"
-        :key="reel.id"
-        :reel="reel"
-        :is-active="index === currentReelIndex"
-      />
+      <IncidentReelPlayer v-for="(reel, index) in reels" :key="reel.id" :reel="reel"
+        :is-active="index === currentReelIndex" />
     </q-scroll-area>
     <AddIncidentFab @incident-added="fetchReels" />
   </q-page>
