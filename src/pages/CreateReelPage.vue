@@ -237,14 +237,13 @@ const initializeCamera = async () => {
   isPlayingRecordedVideo.value = false;
   try {
     await checkPermissions();
-    const position = await Geolocation.getCurrentPosition({
-      enableHighAccuracy: true,
-    });
-    location.value = position;
+    // Start camera immediately
+    startCamera();
+    // Fetch location in parallel
+    updateLocation();
   } catch (error) {
-    console.error('Error getting location:', error);
+    console.error('Error initializing camera:', error);
   }
-  await startCamera();
 };
 
 onMounted(() => {
@@ -301,6 +300,8 @@ const updateLocation = async () => {
     location.value = position;
   } catch (error) {
     console.error('Error updating location:', error);
+    // Set location to null if there's an error
+    location.value = null;
   }
 };
 
@@ -310,8 +311,6 @@ const startRecording = async () => {
     recordedVideoUrl.value = null;
   }
   recordedChunks.value = [];
-
-  await updateLocation(); // Update location before starting to record
 
   if (!canvasPreview.value) {
     console.error('Canvas preview is not available');
@@ -349,6 +348,9 @@ const startRecording = async () => {
   mediaRecorder.value.start(1000 / 30);
   isRecording.value = true;
   remainingTime.value = 60;
+
+  // Start updating location in parallel
+  updateLocation();
 
   const countdownInterval = setInterval(() => {
     remainingTime.value--;
@@ -412,6 +414,8 @@ const drawVideoFrame = () => {
         10,
         videoHeight.value - 40
       );
+    } else {
+      ctx.fillText('Location unavailable', 10, videoHeight.value - 40);
     }
     ctx.fillText(new Date().toLocaleString(), 10, videoHeight.value - 20);
 
@@ -435,6 +439,12 @@ const uploadReel = async () => {
   const blob = new Blob(recordedChunks.value, { type: 'video/webm' });
   const formData = new FormData();
   formData.append('video', blob, 'incident.webm');
+
+  // Include location data if available
+  if (location.value) {
+    formData.append('latitude', location.value.coords.latitude.toString());
+    formData.append('longitude', location.value.coords.longitude.toString());
+  }
 
   try {
     await api.post('/incidents/upload', formData, {
