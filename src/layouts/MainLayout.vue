@@ -1,6 +1,7 @@
 <template>
   <q-layout view="lHh Lpr lFf" class="mainlayout-page-bg-color" style="z-index: 11;">
-    <q-header :class="['text-white', isScrolled ? 'header-bg-color' : 'background-color-transparent']">
+    <q-header
+      :class="['text-white', isScrolled ? 'header-bg-color' : 'background-color-transparent', { 'hidden': isCreateReelRoute }]">
       <q-toolbar>
         <q-toolbar-title class="text-h6" @click="userStore.isLoggedIn ? goToDashboardPage() : goToLoginPage()">
           <q-icon name="campaign" size="2em" />
@@ -35,7 +36,7 @@
     </q-page-container>
     <!-- :disabled="!userStore.isLoggedIn" -->
     <q-footer class="text-white background-color-transparent" style="padding: 4px; padding-bottom: 5px;"
-      v-if="userStore.isLoggedIn">
+      v-if="userStore.isLoggedIn && !isCreateReelRoute">
       <q-toolbar class="footer-toolbar">
         <q-btn class="" flat aria-label="Nearby Volunteers" :disabled="!userStore.isLoggedIn"
           @click="userStore.isLoggedIn ? goToDashboardPage() : goToLoginPage()">
@@ -75,7 +76,7 @@
 import { useRouter } from 'vue-router';
 import { useBackgroundNotifications } from 'src/composables/useBackgroundNotifications';
 import { useUserStore } from 'src/stores/user-store';
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, onMounted, onUnmounted, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { version } from 'src/../package.json';
 
@@ -149,6 +150,13 @@ const goToAboutUsPage = () => {
   router.push('/about-us');
   drawer.value = false;
 };
+
+// Computed property to check if the current route is 'create-reel'
+const isCreateReelRoute = computed(() => {
+  console.log('router.currentRoute.value.fullPath....', router.currentRoute.value.fullPath);
+
+  return router.currentRoute.value.fullPath === '/create-reel';
+});
 </script>
 <style lang="scss" scoped>
 .mainlayout-page-bg-color {
@@ -157,6 +165,11 @@ const goToAboutUsPage = () => {
 
 .background-color-transparent {
   background-color: #00000000;
+}
+
+.hidden {
+  display: none;
+  /* CSS class to hide elements */
 }
 
 .font-size-11 {
