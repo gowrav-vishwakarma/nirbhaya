@@ -1,3 +1,21 @@
+<template>
+  <div class="incident-reel-player">
+    <video ref="videoRef" :src="reel.videoUrl" loop muted playsinline preload="auto"></video>
+    <div class="reel-info">
+      <h3>{{ reel.title }}</h3>
+      <p>{{ reel.description }}</p>
+    </div>
+    <div class="reel-actions">
+      <q-btn color="red" flat round @click="handleLike">
+        <q-icon class="action-font-size " name="favorite"></q-icon>
+      </q-btn>
+      <br />
+      <q-btn color="white" flat round @click="handleShare">
+        <q-icon class="action-font-size " name="mdi-share"></q-icon>
+      </q-btn>
+    </div>
+  </div>
+</template>
 <script setup lang="ts">
 import { ref, watch, onMounted, onUnmounted } from 'vue';
 import { useQuasar } from 'quasar';
@@ -54,39 +72,22 @@ onUnmounted(() => {
 });
 </script>
 
-<template>
-  <div class="incident-reel-player">
-    <video
-      ref="videoRef"
-      :src="reel.videoUrl"
-      loop
-      muted
-      playsinline
-      preload="auto"
-    ></video>
-    <div class="reel-info">
-      <h3>{{ reel.title }}</h3>
-      <p>{{ reel.description }}</p>
-    </div>
-    <div class="reel-actions">
-      <q-btn icon="favorite" color="red" flat round @click="handleLike" />
-      <q-btn icon="share" color="white" flat round @click="handleShare" />
-    </div>
-  </div>
-</template>
+
 
 <style lang="scss" scoped>
 .incident-reel-player {
-  height: 100vh;
+  height: 100%;
   width: 100%;
   position: relative;
   display: flex;
   justify-content: center;
   align-items: center;
+  margin: auto;
 
   video {
-    width: 100%;
+    width: auto;
     height: 100%;
+    max-height: 100%;
     object-fit: cover;
   }
 
@@ -100,8 +101,12 @@ onUnmounted(() => {
 
   .reel-actions {
     position: absolute;
-    bottom: 16px;
-    right: 16px;
+    bottom: 170px;
+    right: 26px;
+  }
+
+  .action-font-size {
+    font-size: 35px;
   }
 }
 </style>

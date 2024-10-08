@@ -1,7 +1,7 @@
 <template>
   <q-layout view="lHh Lpr lFf" class="mainlayout-page-bg-color" style="z-index: 11">
     <q-header
-      :class="['text-white', isScrolled ? 'header-bg-color' : 'background-color-transparent', { 'hidden': isCreateReelRoute }]">
+      :class="['text-white', isScrolled ? 'header-bg-color' : 'background-color-transparent', { 'hidden': isHeaderHide }]">
       <q-toolbar>
         <q-toolbar-title class="text-h6" @click="userStore.isLoggedIn ? goToDashboardPage() : goToLoginPage()">
           <q-icon name="campaign" size="2em" />
@@ -40,13 +40,22 @@
       <router-view />
     </q-page-container>
     <q-footer class="text-white background-color-transparent" style="padding: 4px; padding-bottom: 5px"
-      v-if="userStore.isLoggedIn && !isCreateReelRoute">
+      v-if="userStore.isLoggedIn && !isFooterHide">
       <q-toolbar class="footer-toolbar">
         <q-btn class="" flat aria-label="Nearby Volunteers" :disabled="!userStore.isLoggedIn"
           @click="userStore.isLoggedIn ? goToDashboardPage() : goToLoginPage()">
           <div>
             <q-icon name="home" class="font-size-25"></q-icon>
             <p class="q-ma-none q-pa-none font-size-11">Home</p>
+          </div>
+        </q-btn>
+        <q-space />
+
+        <q-btn class="q-pa-none" flat aria-label="Nearby Volunteers" :disabled="!userStore.isLoggedIn"
+          @click="goToVolunteersPage">
+          <div>
+            <q-icon name="emoji_people" class="font-size-25"></q-icon>
+            <p class="q-ma-none q-pa-none font-size-11">Nearby</p>
           </div>
         </q-btn>
 
@@ -155,11 +164,15 @@ const goToReelsPage = () => {
   drawer.value = false;
 };
 // Computed property to check if the current route is 'create-reel'
-const isCreateReelRoute = computed(() => {
+const isHeaderHide = computed(() => {
   console.log('router.currentRoute.value.fullPath....', router.currentRoute.value.fullPath);
-
-  return router.currentRoute.value.fullPath === '/create-reel';
+  return ['/create-reel', '/incident-reels'].includes(router.currentRoute.value.fullPath);
 });
+const isFooterHide = computed(() => {
+  console.log('router.currentRoute.value.fullPath....', router.currentRoute.value.fullPath);
+  return ['/create-reel'].includes(router.currentRoute.value.fullPath);
+});
+
 </script>
 <style lang="scss" scoped>
 .mainlayout-page-bg-color {
