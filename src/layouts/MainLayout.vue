@@ -1,48 +1,26 @@
 <template>
-  <q-layout
-    view="lHh Lpr lFf"
-    class="mainlayout-page-bg-color"
-    style="z-index: 11"
-  >
+  <q-layout view="lHh Lpr lFf" class="mainlayout-page-bg-color" style="z-index: 11">
     <q-header
-      :class="[
-        'text-white',
-        isScrolled ? 'header-bg-color' : 'background-color-transparent',
-      ]"
-    >
+      :class="['text-white', isScrolled ? 'header-bg-color' : 'background-color-transparent', { 'hidden': isCreateReelRoute }]">
       <q-toolbar>
-        <q-toolbar-title
-          class="text-h6"
-          @click="userStore.isLoggedIn ? goToDashboardPage() : goToLoginPage()"
-        >
+        <q-toolbar-title class="text-h6" @click="userStore.isLoggedIn ? goToDashboardPage() : goToLoginPage()">
           <q-icon name="campaign" size="2em" />
-          <span class="text-weight-bold"
-            >{{ $t('common.appname') }} - {{ version }}</span
-          >
+          <span class="text-weight-bold">{{ $t('common.appname') }} - {{ version }}</span>
         </q-toolbar-title>
 
         <div>
-          <q-btn
-            flat
-            dense
-            round
-            icon="notifications"
-            aria-label="Notifications"
-            @click="refreshNotifications"
-            :disabled="!userStore.isLoggedIn"
-          >
+          <q-btn flat dense round icon="notifications" aria-label="Notifications" @click="refreshNotifications"
+            :disabled="!userStore.isLoggedIn">
             <q-badge color="red" floating v-if="unreadNotificationCount > 0">
               {{ unreadNotificationCount }}
             </q-badge>
           </q-btn>
-          <q-btn
-            flat
-            dense
-            round
-            icon="help"
-            aria-label="Help"
-            @click="goToHelpPage"
-          />
+          <q-btn flat dense round icon="help" aria-label="Help" @click="goToHelpPage" />
+          <q-btn flat round aria-label="Profile" @click="goToAccountPage" v-if="userStore.isLoggedIn">
+            <div>
+              <q-icon name="person"></q-icon>
+            </div>
+          </q-btn>
         </div>
       </q-toolbar>
     </q-header>
@@ -61,72 +39,33 @@
     <q-page-container class="">
       <router-view />
     </q-page-container>
-    <q-footer
-      class="text-white background-color-transparent"
-      style="padding: 4px; padding-bottom: 5px"
-      v-if="userStore.isLoggedIn"
-    >
+    <q-footer class="text-white background-color-transparent" style="padding: 4px; padding-bottom: 5px"
+      v-if="userStore.isLoggedIn && !isCreateReelRoute">
       <q-toolbar class="footer-toolbar">
-        <q-btn
-          class=""
-          flat
-          aria-label="Nearby Volunteers"
-          :disabled="!userStore.isLoggedIn"
-          @click="userStore.isLoggedIn ? goToDashboardPage() : goToLoginPage()"
-        >
+        <q-btn class="" flat aria-label="Nearby Volunteers" :disabled="!userStore.isLoggedIn"
+          @click="userStore.isLoggedIn ? goToDashboardPage() : goToLoginPage()">
           <div>
             <q-icon name="home" class="font-size-25"></q-icon>
             <p class="q-ma-none q-pa-none font-size-11">Home</p>
           </div>
         </q-btn>
+
         <q-space />
-        <q-btn
-          class="q-pa-none"
-          flat
-          aria-label="Nearby Volunteers"
-          :disabled="!userStore.isLoggedIn"
-          @click="goToVolunteersPage"
-        >
-          <div>
-            <q-icon name="emoji_people" class="font-size-25"></q-icon>
-            <p class="q-ma-none q-pa-none font-size-11">Nearby</p>
-          </div>
-        </q-btn>
-        <q-space />
-        <q-btn
-          flat
-          aria-label="Community"
-          @click="goToCommunityPage"
-          :disabled="!userStore.isLoggedIn"
-        >
-          <div>
-            <q-icon name="diversity_3" class="font-size-25"></q-icon>
-            <p class="q-ma-none q-pa-none font-size-11">Community</p>
-          </div>
-        </q-btn>
-        <q-space />
-        <q-btn
-          flat
-          aria-label="Profile"
-          @click="goToAccountPage"
-          :disabled="!userStore.isLoggedIn"
-        >
-          <div>
-            <q-icon name="person" class="font-size-25"></q-icon>
-            <p class="q-ma-none q-pa-none font-size-11">Profile</p>
-          </div>
-        </q-btn>
-        <q-btn
-          flat
-          aria-label="Incidents"
-          @click="goToReelsPage"
-          :disabled="!userStore.isLoggedIn"
-        >
+        <q-btn flat aria-label="Incidents" @click="goToReelsPage" :disabled="!userStore.isLoggedIn">
           <div>
             <q-icon name="video_file" class="font-size-25"></q-icon>
             <p class="q-ma-none q-pa-none font-size-11">Incidents</p>
           </div>
         </q-btn>
+        <q-space />
+
+        <q-btn flat aria-label="Community" @click="goToCommunityPage" :disabled="!userStore.isLoggedIn">
+          <div>
+            <q-icon name="diversity_3" class="font-size-25"></q-icon>
+            <p class="q-ma-none q-pa-none font-size-11">Community</p>
+          </div>
+        </q-btn>
+
       </q-toolbar>
     </q-footer>
   </q-layout>
@@ -215,6 +154,12 @@ const goToReelsPage = () => {
   router.push('/incident-reels');
   drawer.value = false;
 };
+// Computed property to check if the current route is 'create-reel'
+const isCreateReelRoute = computed(() => {
+  console.log('router.currentRoute.value.fullPath....', router.currentRoute.value.fullPath);
+
+  return router.currentRoute.value.fullPath === '/create-reel';
+});
 </script>
 <style lang="scss" scoped>
 .mainlayout-page-bg-color {
@@ -256,6 +201,6 @@ const goToReelsPage = () => {
 
 .header-bg-color {
   background-color: 'rgb(208 10 78)';
-  border-radius: 0 0 3px 3px;
+  border-radius: 0 03px 3px;
 }
 </style>
