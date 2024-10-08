@@ -497,19 +497,42 @@ const uploadReel = async () => {
   if (recordedChunks.value.length === 0) return;
 
   const blob = new Blob(recordedChunks.value, { type: 'video/webm' });
-  const formData = new FormData();
-  formData.append('video', blob, 'incident.webm');
-
-  // Include location data if available
-  if (location.value) {
-    formData.append('latitude', location.value.coords.latitude.toString());
-    formData.append('longitude', location.value.coords.longitude.toString());
-  }
+  const fileName = `incident_${Date.now()}.webm`;
 
   try {
-    await api.post('/incidents/upload', formData, {
-      headers: { 'Content-Type': 'multipart/form-data' },
+    // Get presigned URL
+    const {
+      data: { presignedUrl },
+    } = await api.get('/incidents/get-presigned-url', {
+      params: {
+        fileName,
+        contentType: 'video/webm',
+      },
     });
+
+    // Upload video to presigned URL
+    await fetch(presignedUrl, {
+      method: 'PUT',
+      body: blob,
+      headers: {
+        'Content-Type': 'video/webm',
+        'x-amz-acl': 'public-read',
+      },
+    });
+
+    // Create incident record
+    const formData = {
+      videoUrl: presignedUrl.split('?')[0],
+    };
+
+    // Include location data if available
+    if (location.value) {
+      formData.latitude = location.value.coords.latitude.toString();
+      formData.longitude = location.value.coords.longitude.toString();
+    }
+
+    await api.post('/incidents/upload', formData);
+
     $q.notify({
       color: 'positive',
       message: 'Incident reel uploaded successfully',

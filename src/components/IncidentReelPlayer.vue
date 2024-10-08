@@ -12,7 +12,9 @@ const videoRef = ref<HTMLVideoElement | null>(null);
 
 const playVideo = () => {
   if (videoRef.value && props.isActive) {
-    videoRef.value.play();
+    videoRef.value.play().catch((error) => {
+      console.error('Error playing video:', error);
+    });
   }
 };
 
@@ -54,7 +56,14 @@ onUnmounted(() => {
 
 <template>
   <div class="incident-reel-player">
-    <video ref="videoRef" :src="reel.videoUrl" loop muted playsinline></video>
+    <video
+      ref="videoRef"
+      :src="reel.videoUrl"
+      loop
+      muted
+      playsinline
+      preload="auto"
+    ></video>
     <div class="reel-info">
       <h3>{{ reel.title }}</h3>
       <p>{{ reel.description }}</p>
@@ -71,6 +80,9 @@ onUnmounted(() => {
   height: 100vh;
   width: 100%;
   position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 
   video {
     width: 100%;

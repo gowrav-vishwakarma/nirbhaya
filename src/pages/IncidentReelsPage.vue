@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue';
+import { ref, onMounted, watch, computed } from 'vue';
 import { useQuasar } from 'quasar';
 import { api } from 'src/boot/axios';
 import IncidentReelPlayer from 'components/IncidentReelPlayer.vue';
@@ -7,7 +7,27 @@ import AddIncidentFab from 'components/AddIncidentFab.vue';
 
 const $q = useQuasar();
 
-const reels = ref<any[]>([]);
+interface Reel {
+  id: number;
+  userId: number;
+  title: string | null;
+  description: string | null;
+  videoUrl: string;
+  location: {
+    x: number;
+    y: number;
+  };
+  likes: number | null;
+  shares: number | null;
+  createdAt: string;
+  updatedAt: string;
+  user: {
+    id: number;
+    name: string;
+  };
+}
+
+const reels = ref<Reel[]>([]);
 const currentReelIndex = ref(0);
 const isLoading = ref(false);
 const page = ref(1);
@@ -17,7 +37,7 @@ const fetchReels = async () => {
   if (isLoading.value) return;
   isLoading.value = true;
   try {
-    const response = await api.get('/incidents/reels', {
+    const response = await api.get<Reel[]>('/incidents/reels', {
       params: { page: page.value, pageSize },
     });
     reels.value.push(...response.data);
@@ -34,11 +54,64 @@ const fetchReels = async () => {
   }
 };
 
-const handleScroll = (index: number) => {
-  currentReelIndex.value = index;
-  if (reels.value.length - index <= 3) {
-    fetchReels();
+const reelsContainerRef = ref<HTMLElement | null>(null);
+
+const scrollToReel = (index: number) => {
+  if (reelsContainerRef.value) {
+    const targetReel = reelsContainerRef.value.children[index] as HTMLElement;
+    if (targetReel) {
+      targetReel.scrollIntoView({ behavior: 'smooth' });
+    }
   }
+};
+
+const handleSwipe = (direction: 'up' | 'down') => {
+  if (direction === 'up' && currentReelIndex.value < reels.value.length - 1) {
+    currentReelIndex.value++;
+    scrollToReel(currentReelIndex.value);
+  } else if (direction === 'down' && currentReelIndex.value > 0) {
+    currentReelIndex.value--;
+    scrollToReel(currentReelIndex.value);
+  }
+};
+
+const handleWheel = (event: WheelEvent) => {
+  if (event.deltaY > 0 && currentReelIndex.value < reels.value.length - 1) {
+    currentReelIndex.value++;
+    scrollToReel(currentReelIndex.value);
+  } else if (event.deltaY < 0 && currentReelIndex.value > 0) {
+    currentReelIndex.value--;
+    scrollToReel(currentReelIndex.value);
+  }
+  event.preventDefault();
+};
+
+let startY = 0;
+let currentY = 0;
+
+const handleMouseDown = (event: MouseEvent) => {
+  startY = event.clientY;
+  document.addEventListener('mousemove', handleMouseMove);
+  document.addEventListener('mouseup', handleMouseUp);
+};
+
+const handleMouseMove = (event: MouseEvent) => {
+  currentY = event.clientY;
+};
+
+const handleMouseUp = () => {
+  const diff = startY - currentY;
+  if (Math.abs(diff) > 50) {
+    if (diff > 0 && currentReelIndex.value < reels.value.length - 1) {
+      currentReelIndex.value++;
+      scrollToReel(currentReelIndex.value);
+    } else if (diff < 0 && currentReelIndex.value > 0) {
+      currentReelIndex.value--;
+      scrollToReel(currentReelIndex.value);
+    }
+  }
+  document.removeEventListener('mousemove', handleMouseMove);
+  document.removeEventListener('mouseup', handleMouseUp);
 };
 
 onMounted(() => {
@@ -54,10 +127,20 @@ watch(currentReelIndex, (newIndex) => {
 
 <template>
   <q-page class="incident-reels-page">
-    <q-scroll-area class="full-height" @scroll="handleScroll">
-      <IncidentReelPlayer v-for="(reel, index) in reels" :key="reel.id" :reel="reel"
-        :is-active="index === currentReelIndex" />
-    </q-scroll-area>
+    <div
+      ref="reelsContainerRef"
+      class="reels-container"
+      v-touch-swipe.mouse.vertical="handleSwipe"
+      @wheel="handleWheel"
+      @mousedown="handleMouseDown"
+    >
+      <div v-for="(reel, index) in reels" :key="reel.id" class="reel-item">
+        <IncidentReelPlayer
+          :reel="reel"
+          :is-active="index === currentReelIndex"
+        />
+      </div>
+    </div>
     <AddIncidentFab @incident-added="fetchReels" />
   </q-page>
 </template>
@@ -66,5 +149,18 @@ watch(currentReelIndex, (newIndex) => {
 .incident-reels-page {
   background-color: $dark;
   height: 100vh;
+  overflow: hidden;
+}
+
+.reels-container {
+  height: 100%;
+  overflow-y: auto;
+  scroll-snap-type: y mandatory;
+  -webkit-overflow-scrolling: touch;
+}
+
+.reel-item {
+  height: 100vh;
+  scroll-snap-align: start;
 }
 </style>
