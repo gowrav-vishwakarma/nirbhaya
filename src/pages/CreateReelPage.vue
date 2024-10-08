@@ -274,8 +274,10 @@ const initializeCamera = async () => {
 
 onMounted(() => {
   initializeCamera();
-  window.addEventListener('resize', updateVideoDimensions);
-  updateCanvasRect();
+  window.addEventListener('resize', () => {
+    updateVideoDimensions();
+    updateCanvasRect();
+  });
 });
 
 const startCamera = async () => {
@@ -290,18 +292,11 @@ const startCamera = async () => {
             ? 1
             : undefined,
       },
-      audio: true, // Always enable audio
+      audio: true,
     };
 
     stream.value = await navigator.mediaDevices.getUserMedia(constraints);
-
-    if (videoPreview.value) {
-      videoPreview.value.srcObject = stream.value;
-      await videoPreview.value.play();
-      updateVideoDimensions();
-      drawVideoFrame();
-      initializeZoom();
-    }
+    await initializePreview();
   } catch (error) {
     console.error('Error starting camera:', error);
     $q.notify({
@@ -309,6 +304,17 @@ const startCamera = async () => {
       message: 'Failed to start camera. Please check your permissions.',
       icon: 'error',
     });
+  }
+};
+
+const initializePreview = async () => {
+  if (videoPreview.value && stream.value) {
+    videoPreview.value.srcObject = stream.value;
+    await videoPreview.value.play();
+    updateVideoDimensions();
+    drawVideoFrame();
+    initializeZoom();
+    updateCanvasRect();
   }
 };
 
@@ -420,6 +426,15 @@ const drawVideoFrame = () => {
     const x = (videoWidth.value - videoPreview.value.videoWidth * scale) / 2;
     const y = (videoHeight.value - videoPreview.value.videoHeight * scale) / 2;
 
+    // Save the current context state
+    ctx.save();
+
+    // Flip the image horizontally if using the front-facing camera
+    if (currentCamera.value === 'user') {
+      ctx.scale(-1, 1);
+      ctx.translate(-videoWidth.value, 0);
+    }
+
     // Draw the video frame
     ctx.drawImage(
       videoPreview.value,
@@ -428,6 +443,9 @@ const drawVideoFrame = () => {
       videoPreview.value.videoWidth * scale,
       videoPreview.value.videoHeight * scale
     );
+
+    // Restore the context state
+    ctx.restore();
 
     // Draw location and timestamp
     ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
@@ -532,16 +550,21 @@ const handleZoom = () => {
   if (videoPreview.value && stream.value) {
     const track = stream.value.getVideoTracks()[0];
     const capabilities = track.getCapabilities();
-    const settings = track.getSettings();
 
     if ('zoom' in capabilities) {
-      track.applyConstraints({ advanced: [{ zoom: zoomLevel.value }] });
+      track
+        .applyConstraints({ advanced: [{ zoom: zoomLevel.value }] })
+        .catch((error) => {
+          console.error('Error applying zoom:', error);
+        });
     } else {
-      // If hardware zoom is not supported, implement digital zoom
+      // Digital zoom implementation
       const scale = zoomLevel.value;
       const translateX = (videoWidth.value * (1 - scale)) / 2;
       const translateY = (videoHeight.value * (1 - scale)) / 2;
-      videoPreview.value.style.transform = `scale(${scale}) translate(${translateX}px, ${translateY}px)`;
+      if (canvasPreview.value) {
+        canvasPreview.value.style.transform = `scale(${scale}) translate(${translateX}px, ${translateY}px)`;
+      }
     }
   }
 };
@@ -555,6 +578,7 @@ const initializeZoom = () => {
     } else {
       maxZoom.value = 3; // Set a default max digital zoom
     }
+    zoomLevel.value = 1; // Reset zoom level
   }
 };
 
