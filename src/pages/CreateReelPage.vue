@@ -54,6 +54,23 @@
         muted
         class="hidden-video"
       ></video>
+      <div
+        class="pointer-overlay"
+        v-if="!isPlayingRecordedVideo"
+        @touchstart="handlePointerStart"
+        @touchmove="handlePointerMove"
+        @touchend="handlePointerEnd"
+      ></div>
+      <div class="zoom-slider-container" v-if="!isPlayingRecordedVideo">
+        <q-slider
+          v-model="zoomLevel"
+          :min="1"
+          :max="maxZoom"
+          :step="0.1"
+          vertical
+          @change="handleZoom"
+        />
+      </div>
       <div class="recording-overlay" v-if="isRecording">
         <q-circular-progress
           show-value
@@ -170,6 +187,15 @@ let timer: ReturnType<typeof setTimeout> | null = null;
 
 const isVideoPlaying = ref(false); // Track if the video is playing
 
+// New refs
+const zoomLevel = ref(1);
+const maxZoom = ref(1);
+const pointerPosition = ref({ x: 0, y: 0 });
+const isPointerVisible = ref(false);
+let pointerTimeout: number | null = null;
+
+const canvasRect = ref<DOMRect | null>(null);
+
 const setAspectRatio = (ratio: string) => {
   aspectRatio.value = ratio;
   aspectRatioLabel.value = ratio; // Update the label to the selected ratio
@@ -249,6 +275,7 @@ const initializeCamera = async () => {
 onMounted(() => {
   initializeCamera();
   window.addEventListener('resize', updateVideoDimensions);
+  updateCanvasRect();
 });
 
 const startCamera = async () => {
@@ -263,7 +290,7 @@ const startCamera = async () => {
             ? 1
             : undefined,
       },
-      audio: true,
+      audio: true, // Always enable audio
     };
 
     stream.value = await navigator.mediaDevices.getUserMedia(constraints);
@@ -271,8 +298,9 @@ const startCamera = async () => {
     if (videoPreview.value) {
       videoPreview.value.srcObject = stream.value;
       await videoPreview.value.play();
-      updateVideoDimensions(); // Call this after setting up the stream
+      updateVideoDimensions();
       drawVideoFrame();
+      initializeZoom();
     }
   } catch (error) {
     console.error('Error starting camera:', error);
@@ -419,6 +447,20 @@ const drawVideoFrame = () => {
     }
     ctx.fillText(new Date().toLocaleString(), 10, videoHeight.value - 20);
 
+    // Draw pointer if visible
+    if (isPointerVisible.value) {
+      ctx.beginPath();
+      ctx.arc(
+        pointerPosition.value.x,
+        pointerPosition.value.y,
+        10,
+        0,
+        2 * Math.PI
+      );
+      ctx.fillStyle = 'rgba(255, 0, 0, 0.5)';
+      ctx.fill();
+    }
+
     requestAnimationFrame(drawVideoFrame);
   }
 };
@@ -486,11 +528,90 @@ const togglePlayback = () => {
   }
 };
 
+const handleZoom = () => {
+  if (videoPreview.value && stream.value) {
+    const track = stream.value.getVideoTracks()[0];
+    const capabilities = track.getCapabilities();
+    const settings = track.getSettings();
+
+    if ('zoom' in capabilities) {
+      track.applyConstraints({ advanced: [{ zoom: zoomLevel.value }] });
+    } else {
+      // If hardware zoom is not supported, implement digital zoom
+      const scale = zoomLevel.value;
+      const translateX = (videoWidth.value * (1 - scale)) / 2;
+      const translateY = (videoHeight.value * (1 - scale)) / 2;
+      videoPreview.value.style.transform = `scale(${scale}) translate(${translateX}px, ${translateY}px)`;
+    }
+  }
+};
+
+const initializeZoom = () => {
+  if (stream.value) {
+    const track = stream.value.getVideoTracks()[0];
+    const capabilities = track.getCapabilities();
+    if ('zoom' in capabilities) {
+      maxZoom.value = capabilities.zoom.max || 1;
+    } else {
+      maxZoom.value = 3; // Set a default max digital zoom
+    }
+  }
+};
+
+const handlePointerStart = (event: TouchEvent) => {
+  if (!canvasRect.value) return;
+  const touch = event.touches[0];
+  const x = touch.clientX - canvasRect.value.left;
+  const y = touch.clientY - canvasRect.value.top;
+  if (
+    x >= 0 &&
+    x <= canvasRect.value.width &&
+    y >= 0 &&
+    y <= canvasRect.value.height
+  ) {
+    pointerPosition.value = { x, y };
+    isPointerVisible.value = true;
+    if (pointerTimeout) clearTimeout(pointerTimeout);
+    pointerTimeout = setTimeout(() => {
+      isPointerVisible.value = false;
+    }, 3000);
+  }
+};
+
+const handlePointerMove = (event: TouchEvent) => {
+  if (!canvasRect.value || !isPointerVisible.value) return;
+  const touch = event.touches[0];
+  const x = touch.clientX - canvasRect.value.left;
+  const y = touch.clientY - canvasRect.value.top;
+  if (
+    x >= 0 &&
+    x <= canvasRect.value.width &&
+    y >= 0 &&
+    y <= canvasRect.value.height
+  ) {
+    pointerPosition.value = { x, y };
+  }
+};
+
+const handlePointerEnd = () => {
+  if (pointerTimeout) clearTimeout(pointerTimeout);
+  pointerTimeout = setTimeout(() => {
+    isPointerVisible.value = false;
+  }, 3000);
+};
+
+const updateCanvasRect = () => {
+  if (canvasPreview.value) {
+    canvasRect.value = canvasPreview.value.getBoundingClientRect();
+  }
+};
+
 onUnmounted(() => {
   if (stream.value) {
     stream.value.getTracks().forEach((track) => track.stop());
   }
   window.removeEventListener('resize', updateVideoDimensions);
+  if (pointerTimeout) clearTimeout(pointerTimeout);
 });
 </script>
 
@@ -583,5 +704,28 @@ onUnmounted(() => {
   height: 70px;
   width: 70px;
   font-size: large;
+}
+
+.pointer-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 2; /* Lower z-index to allow interaction with buttons */
+}
+
+.button-container {
+  /* ... other styles ... */
+  z-index: 3; /* Higher z-index to ensure buttons are clickable */
+}
+
+.zoom-slider-container {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 150px;
+  z-index: 10;
 }
 </style>
