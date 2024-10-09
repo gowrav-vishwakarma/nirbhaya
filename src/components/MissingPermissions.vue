@@ -6,7 +6,7 @@
       </h6>
       <q-list>
         <q-item
-          v-for="permission in permissions"
+          v-for="permission in permissionsToShow"
           :key="permission.name"
           class="q-mb-sm"
         >
@@ -29,7 +29,6 @@
               color="primary"
               outline
               @click="handleRequestPermission(permission.name)"
-              :loading="loading"
             />
             <q-btn
               v-else-if="permission.denied"
@@ -47,7 +46,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, watch } from 'vue';
+import { computed, onMounted } from 'vue';
 import { usePermissions } from 'src/composables/usePermissions';
 import { useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
@@ -64,47 +63,47 @@ const {
   checkPermissions,
 } = usePermissions();
 
-const loading = ref(false);
+const permissionsToShow = computed(() =>
+  permissions.value.filter((p) => p.name !== 'common.microphone' || !p.granted)
+);
+
+const icons = {
+  'common.location': 'place',
+  'common.camera': 'camera_alt',
+  'common.notifications': 'notifications',
+  'common.microphone': 'mic',
+};
+
+const getPermissionIcon = (permissionName: string): string =>
+  icons[permissionName] || 'help';
 
 const goToHelp = (permissionName: string) => {
   router.push({ path: '/help', query: { section: permissionName } });
 };
 
-const getPermissionIcon = (permissionName: string) => {
-  const icons = {
-    'common.location': 'place',
-    'common.camera': 'camera_alt',
-    'common.notifications': 'notifications',
-  };
-  return icons[permissionName] || 'help';
-};
-
 const handleRequestPermission = async (permissionName: string) => {
-  loading.value = true;
-  const granted = await requestPermission(permissionName);
-  loading.value = false;
-
-  if (!granted) {
+  try {
+    const granted = await requestPermission(permissionName);
+    if (!granted) {
+      $q.notify({
+        color: 'negative',
+        textColor: 'white',
+        icon: 'warning',
+        message: t('common.permissionRequestFailed'),
+      });
+    }
+  } catch (error) {
+    console.error('Error requesting permission:', error);
     $q.notify({
       color: 'negative',
       textColor: 'white',
-      icon: 'warning',
-      message: t('common.permissionRequestFailed'),
+      icon: 'error',
+      message: t('common.unexpectedError'),
     });
   }
 };
 
-onMounted(async () => {
-  await checkPermissions();
-});
-
-watch(
-  permissions,
-  async () => {
-    await checkPermissions();
-  },
-  { deep: true }
-);
+onMounted(checkPermissions);
 </script>
 
 <style lang="scss" scoped>
