@@ -1,31 +1,38 @@
 <template>
   <div class="incident-reel-player">
-    <video ref="videoRef" :src="reel.videoUrl" loop muted playsinline preload="auto"></video>
+    <video
+      ref="videoRef"
+      :src="reel.videoUrl"
+      loop
+      muted
+      playsinline
+      preload="auto"
+    ></video>
     <div class="reel-info">
       <h3>{{ reel.title }}</h3>
       <p>{{ reel.description }}</p>
     </div>
     <div class="reel-actions">
       <q-btn color="red" flat round @click="handleLike">
-        <q-icon class="action-font-size " name="favorite"></q-icon>
+        <q-icon class="action-font-size" name="favorite"></q-icon>
       </q-btn>
       <br />
       <q-btn color="white" flat round @click="handleShare">
-        <q-icon class="action-font-size " name="mdi-share"></q-icon>
+        <q-icon class="action-font-size" name="mdi-share"></q-icon>
       </q-btn>
     </div>
   </div>
 </template>
 <script setup lang="ts">
 import { ref, watch, onMounted, onUnmounted } from 'vue';
-import { useQuasar } from 'quasar';
+// import { useQuasar } from 'quasar';
 
 const props = defineProps<{
   reel: any;
   isActive: boolean;
 }>();
 
-const $q = useQuasar();
+// const $q = useQuasar();
 const videoRef = ref<HTMLVideoElement | null>(null);
 
 const playVideo = () => {
@@ -71,8 +78,6 @@ onUnmounted(() => {
   pauseVideo();
 });
 </script>
-
-
 
 <style lang="scss" scoped>
 .incident-reel-player {

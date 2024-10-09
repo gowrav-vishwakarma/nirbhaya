@@ -12,11 +12,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, computed, watch } from 'vue';
+import { ref, onMounted, onUnmounted, watch } from 'vue';
 import { useQuasar } from 'quasar';
 import { socket } from 'boot/socket';
 import Peer from 'peerjs';
-import { useUserStore } from 'src/stores/user-store';
+// import { useUserStore } from 'src/stores/user-store';
 import { useI18n } from 'vue-i18n';
 
 const props = defineProps<{
@@ -27,7 +27,7 @@ const emit = defineEmits(['audio-closed']);
 
 const $q = useQuasar();
 const { t } = useI18n();
-const userStore = useUserStore();
+// const userStore = useUserStore();
 
 const peer = ref<Peer | null>(null);
 const peerId = ref<string>('');
@@ -37,9 +37,9 @@ const sosPeerId = ref<string | null>(null);
 const isLoading = ref(false);
 const activeSosPeerId = ref<string | null>(null);
 
-const isNavigatorMediaSupported = computed(() => {
-  return !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
-});
+// const isNavigatorMediaSupported = computed(() => {
+//   return !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
+// });
 
 const registerSocketEvents = () => {
   socket.on('sos_audio_started', handleSosAudioStarted);

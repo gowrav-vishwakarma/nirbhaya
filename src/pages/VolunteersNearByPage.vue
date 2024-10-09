@@ -9,11 +9,23 @@
 
           <div class="row q-col-gutter-md q-mb-md">
             <div class="col-12">
-              <q-input v-model="address" :label="$t('common.location')" :loading="addressLoading"
-                :readonly="addressLoading" outlined dense>
+              <q-input
+                v-model="address"
+                :label="$t('common.location')"
+                :loading="addressLoading"
+                :readonly="addressLoading"
+                outlined
+                dense
+              >
                 <template v-slot:append>
-                  <q-btn round dense flat :icon="$t('common.icons.myLocation')" @click="getCurrentLocation"
-                    :loading="locationLoading">
+                  <q-btn
+                    round
+                    dense
+                    flat
+                    :icon="$t('common.icons.myLocation')"
+                    @click="getCurrentLocation"
+                    :loading="locationLoading"
+                  >
                     <q-tooltip>{{ $t('common.useCurrentLocation') }}</q-tooltip>
                   </q-btn>
                 </template>
@@ -23,21 +35,41 @@
               <div class="text-subtitle2 q-mb-sm">
                 {{ $t('common.searchRadius') }}
               </div>
-              <q-slider v-model="range" :min="100" :max="5000" :step="100" label label-always :label-value="`${range}m`"
-                color="primary" />
+              <q-slider
+                v-model="range"
+                :min="100"
+                :max="5000"
+                :step="100"
+                label
+                label-always
+                :label-value="`${range}m`"
+                color="primary"
+              />
             </div>
           </div>
 
           <div class="volunteer-map q-mb-md" ref="volunteerMap">
             <div class="map-center">
-              <q-icon :name="$t('common.icons.myLocation')" size="24px" color="primary" />
+              <q-icon
+                :name="$t('common.icons.myLocation')"
+                size="24px"
+                color="primary"
+              />
             </div>
             <div class="north-indicator">
               <q-icon name="north" size="24px" color="red" />
             </div>
-            <div v-for="volunteer in volunteers" :key="volunteer.id" class="volunteer-icon"
-              :style="getVolunteerPosition(volunteer)">
-              <q-icon :name="getVolunteerIcon(volunteer)" size="20px" :color="getVolunteerColor(volunteer)" />
+            <div
+              v-for="volunteer in volunteers"
+              :key="volunteer.id"
+              class="volunteer-icon"
+              :style="getVolunteerPosition(volunteer)"
+            >
+              <q-icon
+                :name="getVolunteerIcon(volunteer)"
+                size="20px"
+                :color="getVolunteerColor(volunteer)"
+              />
               <q-tooltip>
                 {{ volunteer.profession }}
               </q-tooltip>
@@ -69,10 +101,11 @@
             </q-item>
           </q-list> -->
           <div class="text-center q-mt-md">
-            <q-btn class="volunteers-bg-color" @click="router.push('/sos-events-map')">
-              <span class="text-bold">
-                View SOS Events Map
-              </span>
+            <q-btn
+              class="volunteers-bg-color"
+              @click="router.push('/sos-events-map')"
+            >
+              <span class="text-bold"> View SOS Events Map </span>
             </q-btn>
           </div>
         </q-card-section>
@@ -194,25 +227,25 @@ const getVolunteerColor = (volunteer) => {
   return professionColors[volunteer.profession] || professionColors.default;
 };
 
-const calculateDistance = (volunteer) => {
-  const [latitude, longitude] = address.value.split(',').map(Number);
-  const volunteerLat = volunteer.location.coordinates[1];
-  const volunteerLng = volunteer.location.coordinates[0];
+// const calculateDistance = (volunteer) => {
+//   const [latitude, longitude] = address.value.split(',').map(Number);
+//   const volunteerLat = volunteer.location.coordinates[1];
+//   const volunteerLng = volunteer.location.coordinates[0];
 
-  const R = 6371; // Radius of the earth in kilometers
-  const dLat = (volunteerLat - latitude) * (Math.PI / 180);
-  const dLng = (volunteerLng - longitude) * (Math.PI / 180);
-  const a =
-    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos(latitude * (Math.PI / 180)) *
-    Math.cos(volunteerLat * (Math.PI / 180)) *
-    Math.sin(dLng / 2) *
-    Math.sin(dLng / 2);
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-  const distance = R * c * 1000; // Convert to meters
+//   const R = 6371; // Radius of the earth in kilometers
+//   const dLat = (volunteerLat - latitude) * (Math.PI / 180);
+//   const dLng = (volunteerLng - longitude) * (Math.PI / 180);
+//   const a =
+//     Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+//     Math.cos(latitude * (Math.PI / 180)) *
+//     Math.cos(volunteerLat * (Math.PI / 180)) *
+//     Math.sin(dLng / 2) *
+//     Math.sin(dLng / 2);
+//   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+//   const distance = R * c * 1000; // Convert to meters
 
-  return Math.round(distance);
-};
+//   return Math.round(distance);
+// };
 
 onMounted(() => {
   if (!userStore.isLoggedIn) {

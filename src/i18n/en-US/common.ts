@@ -80,13 +80,6 @@ export default {
   getHelp: 'Get Help',
   notificationsPermissionHelp: 'notifications Permission Help',
   errorGettingLocation: 'Error getting location. Please try again.',
-  locationPermissionDenied:
-    'Location permission denied. Please enable location access in your settings.',
-  errorFetchingVolunteers:
-    'Error fetching nearby volunteers. Please try again.',
-  locationPermissionRequired:
-    'Location permission is required to find nearby volunteers.',
-  retry: 'Retry',
 
   // Profile Page
   name: 'Name',
@@ -340,14 +333,6 @@ export default {
     'An error occurred while joining the community. Please try again.',
 
   // Added translations for DashboardPage
-  errorGettingLocation: 'Error getting location. Please try again.',
-  locationPermissionDenied:
-    'Location permission denied. Please enable location access in your settings.',
-  errorFetchingVolunteers:
-    'Error fetching nearby volunteers. Please try again.',
-  locationPermissionRequired:
-    'Location permission is required to find nearby volunteers.',
-  retry: 'Retry',
 
   timeRangeLabel: 'Time Range',
   timeRange: {

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, watch, computed } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 import { useQuasar } from 'quasar';
 import { api } from 'src/boot/axios';
 import IncidentReelPlayer from 'components/IncidentReelPlayer.vue';
@@ -127,10 +127,18 @@ watch(currentReelIndex, (newIndex) => {
 
 <template>
   <q-page class="incident-reels-page">
-    <div ref="reelsContainerRef" class="reels-container" v-touch-swipe.mouse.vertical="handleSwipe" @wheel="handleWheel"
-      @mousedown="handleMouseDown">
+    <div
+      ref="reelsContainerRef"
+      class="reels-container"
+      v-touch-swipe.mouse.vertical="handleSwipe"
+      @wheel="handleWheel"
+      @mousedown="handleMouseDown"
+    >
       <div v-for="(reel, index) in reels" :key="reel.id" class="reel-item">
-        <IncidentReelPlayer :reel="reel" :is-active="index === currentReelIndex" />
+        <IncidentReelPlayer
+          :reel="reel"
+          :is-active="index === currentReelIndex"
+        />
       </div>
     </div>
     <AddIncidentFab @incident-added="fetchReels" />

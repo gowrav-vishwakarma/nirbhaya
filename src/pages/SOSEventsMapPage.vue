@@ -75,14 +75,7 @@
 </template>
 
 <script setup lang="ts">
-import {
-  ref,
-  onMounted,
-  watch,
-  onUnmounted,
-  toRaw,
-  defineAsyncComponent,
-} from 'vue';
+import { ref, onMounted, watch, onUnmounted, toRaw } from 'vue';
 import { useQuasar, debounce } from 'quasar';
 import { useI18n } from 'vue-i18n';
 import { api } from 'src/boot/axios';
@@ -236,7 +229,7 @@ const fetchSOSEvents = async () => {
       center = { lat: 20.5937, lng: 78.9629 };
     }
 
-    const params: any = {
+    const params = {
       eventType: eventType.value,
       timeRange: timeRange.value,
       latitude: center.lat,

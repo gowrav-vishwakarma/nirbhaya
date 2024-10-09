@@ -5,9 +5,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, defineProps } from 'vue';
+import { defineProps } from 'vue';
 
-const props = defineProps({
+defineProps({
   isLoading: {
     type: Boolean,
     required: true,
