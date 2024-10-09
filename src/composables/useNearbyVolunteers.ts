@@ -1,13 +1,21 @@
-import { ref, Ref } from 'vue';
+import { ref, Ref, onMounted, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { Geolocation } from '@capacitor/geolocation';
 import { api } from 'src/boot/axios';
+
+export interface Volunteer {
+  id: string;
+  profession: string;
+  location: {
+    coordinates: [number, number];
+  };
+}
 
 export function useNearbyVolunteers(volunteerMap: Ref<HTMLElement | null>) {
   const { t } = useI18n();
 
   const coords = ref({ latitude: 0, longitude: 0 });
-  const nearbyVolunteers = ref([]);
+  const nearbyVolunteers = ref<Volunteer[]>([]);
   const isLoadingLocation = ref(true);
   const locationError = ref('');
 
@@ -15,7 +23,7 @@ export function useNearbyVolunteers(volunteerMap: Ref<HTMLElement | null>) {
     isLoadingLocation.value = true;
     locationError.value = '';
     try {
-      const position = await Geolocation.getCurrentPosition();
+      const position = await Geolocation.getCurrentPosition({ timeout: 10000 });
       coords.value = {
         latitude: position.coords.latitude,
         longitude: position.coords.longitude,
@@ -32,13 +40,16 @@ export function useNearbyVolunteers(volunteerMap: Ref<HTMLElement | null>) {
   const fetchNearbyVolunteers = async () => {
     if (coords.value.latitude && coords.value.longitude) {
       try {
-        const response = await api.get('/community/volunteers-nearby', {
-          params: {
-            location: `${coords.value.latitude},${coords.value.longitude}`,
-            range: 1000, // 1km radius
-          },
-        });
-        nearbyVolunteers.value = response.data.slice(0, 5); // Limit to 5 volunteers for simplicity
+        const response = await api.get<Volunteer[]>(
+          '/community/volunteers-nearby',
+          {
+            params: {
+              location: `${coords.value.latitude},${coords.value.longitude}`,
+              range: 1000, // 1km radius
+            },
+          }
+        );
+        nearbyVolunteers.value = response.data.slice(0, 5);
       } catch (error) {
         console.error('Error fetching nearby volunteers', error);
         locationError.value = t('common.errorFetchingVolunteers');
@@ -46,7 +57,7 @@ export function useNearbyVolunteers(volunteerMap: Ref<HTMLElement | null>) {
     }
   };
 
-  const getVolunteerPosition = (volunteer) => {
+  const getVolunteerPosition = (volunteer: Volunteer) => {
     const mapWidth = volunteerMap.value?.offsetWidth || 300;
     const mapHeight = volunteerMap.value?.offsetHeight || 150;
 
@@ -68,15 +79,26 @@ export function useNearbyVolunteers(volunteerMap: Ref<HTMLElement | null>) {
     };
   };
 
-  const getVolunteerIcon = (volunteer) => {
+  const getVolunteerIcon = (volunteer: Volunteer) => {
     // Implement logic to determine volunteer icon based on profession
     return 'person';
   };
 
-  const getVolunteerColor = (volunteer) => {
+  const getVolunteerColor = (volunteer: Volunteer) => {
     // Implement logic to determine volunteer color based on profession
-    return 'primary';
+    return 'green';
   };
+
+  onMounted(() => {
+    fetchLocation();
+  });
+
+  watch(volunteerMap, () => {
+    if (volunteerMap.value && nearbyVolunteers.value.length > 0) {
+      // Recalculate positions when the map is resized
+      nearbyVolunteers.value = [...nearbyVolunteers.value];
+    }
+  });
 
   return {
     nearbyVolunteers,

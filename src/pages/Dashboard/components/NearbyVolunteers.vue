@@ -69,7 +69,7 @@ import { useNearbyVolunteers } from 'src/composables/useNearbyVolunteers';
 import { usePermissions } from 'src/composables/usePermissions';
 
 const router = useRouter();
-const volunteerMap = ref(null);
+const volunteerMap = ref<HTMLElement | null>(null);
 
 const {
   nearbyVolunteers,
