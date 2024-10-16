@@ -1,25 +1,31 @@
 <template>
   <div class="incident-reel-player">
-    <video
-      ref="videoRef"
-      :src="reel.videoUrl"
-      loop
-      muted
-      playsinline
-      preload="auto"
-    ></video>
+    <div class="reelText">
+      Reels <q-icon name="mdi-chevron-down"></q-icon>
+    </div>
+    <video ref="videoRef" :src="reel.videoUrl" loop muted playsinline preload="auto"></video>
     <div class="reel-info">
       <h3>{{ reel.title }}</h3>
       <p>{{ reel.description }}</p>
     </div>
     <div class="reel-actions">
-      <q-btn color="red" flat round @click="handleLike">
-        <q-icon class="action-font-size" name="favorite"></q-icon>
+      <q-icon @click="handleLike" :class="{ 'heartbeat': wasLiked }"
+        :style="{ marginTop: '10px', color: isLiked ? 'red' : 'white' }" class="action-font-size"
+        :name="isLiked ? 'mdi-heart' : 'mdi-heart-outline'"></q-icon>
+      <br />
+      <span class="text-white q-ml-sm">100k</span>
+      <br />
+      <q-btn color="white" style="margin-top: 7px;" flat round>
+        <q-icon class="action-font-size" name="mdi-message-outline"></q-icon>
       </q-btn>
       <br />
-      <q-btn color="white" flat round @click="handleShare">
-        <q-icon class="action-font-size" name="mdi-share"></q-icon>
+      <span class="text-white q-ml-sm">110k</span>
+      <br />
+      <q-btn color="white" style="margin-top: 5px; margin-bottom: 4px;" flat round @click="handleShare">
+        <q-icon style="transform: rotate(-20deg);" class="action-font-size" name="mdi-send"></q-icon>
       </q-btn>
+      <br />
+      <span class="text-white q-ml-sm">80k</span>
     </div>
   </div>
 </template>
@@ -31,6 +37,8 @@ const props = defineProps<{
   reel: any;
   isActive: boolean;
 }>();
+const isLiked = ref(false);
+const wasLiked = ref(false); // Track the previous state for animation
 
 // const $q = useQuasar();
 const videoRef = ref<HTMLVideoElement | null>(null);
@@ -50,7 +58,13 @@ const pauseVideo = () => {
 };
 
 const handleLike = () => {
-  // Implement like functionality
+  wasLiked.value = true; // Set wasLiked to true to trigger animation
+  isLiked.value = !isLiked.value; // Toggle the like state
+
+  // Reset wasLiked after the animation duration
+  setTimeout(() => {
+    wasLiked.value = false; // Reset after animation
+  }, 1000); // Duration of the animation
 };
 
 const handleShare = () => {
@@ -106,12 +120,39 @@ onUnmounted(() => {
 
   .reel-actions {
     position: absolute;
-    bottom: 170px;
+    bottom: 110px;
     right: 26px;
   }
 
   .action-font-size {
     font-size: 35px;
+  }
+
+  .reelText {
+    position: absolute;
+    font-size: 26px;
+    font-weight: bold;
+    z-index: 1;
+    top: 10px;
+    left: 20px;
+    text-align: start;
+    color: whitesmoke;
+  }
+
+  .heartbeat {
+    animation: heartbeat .6s ease forwards;
+  }
+
+  @keyframes heartbeat {
+
+    0%,
+    100% {
+      transform: scale(1);
+    }
+
+    50% {
+      transform: scale(1.2);
+    }
   }
 }
 </style>

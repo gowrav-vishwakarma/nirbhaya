@@ -9,9 +9,10 @@ const navigateToCreateReel = () => {
 </script>
 
 <template>
-  <q-page-sticky position="bottom-right" :offset="[18, 18]">
-    <q-fab icon="add" color="primary" @click="navigateToCreateReel">
-      <q-tooltip>Create new incident reel</q-tooltip>
-    </q-fab>
+  <q-page-sticky position="top-right" :offset="[18, 18]">
+    <q-icon style="font-size: 40px; margin-left: 30px;" name="mdi-camera-outline" color="white"
+      @click="navigateToCreateReel" />
+    <!-- <q-tooltip>Create new incident reel</q-tooltip> -->
+    <!-- <q-icon style="font-size: 50px;" name="mdi-camera-enhance" color="primary" @click="navigateToCreateReel" /> -->
   </q-page-sticky>
 </template>

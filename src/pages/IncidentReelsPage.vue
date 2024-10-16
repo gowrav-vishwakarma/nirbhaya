@@ -127,18 +127,10 @@ watch(currentReelIndex, (newIndex) => {
 
 <template>
   <q-page class="incident-reels-page">
-    <div
-      ref="reelsContainerRef"
-      class="reels-container"
-      v-touch-swipe.mouse.vertical="handleSwipe"
-      @wheel="handleWheel"
-      @mousedown="handleMouseDown"
-    >
+    <div ref="reelsContainerRef" class="reels-container" v-touch-swipe.mouse.vertical="handleSwipe" @wheel="handleWheel"
+      @mousedown="handleMouseDown">
       <div v-for="(reel, index) in reels" :key="reel.id" class="reel-item">
-        <IncidentReelPlayer
-          :reel="reel"
-          :is-active="index === currentReelIndex"
-        />
+        <IncidentReelPlayer :reel="reel" :is-active="index === currentReelIndex" />
       </div>
     </div>
     <AddIncidentFab @incident-added="fetchReels" />
