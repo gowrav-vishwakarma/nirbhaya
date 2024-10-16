@@ -8,24 +8,24 @@
       <h3>{{ reel.title }}</h3>
       <p>{{ reel.description }}</p>
     </div>
-    <div class="reel-actions">
+    <div class="reel-actions" style="text-align: center;">
       <q-icon @click="handleLike" :class="{ 'heartbeat': wasLiked }"
-        :style="{ marginTop: '10px', color: isLiked ? 'red' : 'white' }" class="action-font-size"
+        :style="{ marginBottom: '2px', color: isLiked ? 'red' : 'white' }" class="action-font-size"
         :name="isLiked ? 'mdi-heart' : 'mdi-heart-outline'"></q-icon>
       <br />
-      <span class="text-white q-ml-sm">100k</span>
+      <span class="text-white">165k</span>
       <br />
       <q-btn color="white" style="margin-top: 7px;" flat round>
         <q-icon class="action-font-size" name="mdi-message-outline"></q-icon>
       </q-btn>
       <br />
-      <span class="text-white q-ml-sm">110k</span>
+      <span class="text-white">180k</span>
       <br />
-      <q-btn color="white" style="margin-top: 5px; margin-bottom: 4px;" flat round @click="handleShare">
+      <q-btn color="white" style="margin-top: 3px; margin-bottom: 4px;" flat round @click="handleShare">
         <q-icon style="transform: rotate(-20deg);" class="action-font-size" name="mdi-send"></q-icon>
       </q-btn>
       <br />
-      <span class="text-white q-ml-sm">80k</span>
+      <span class="text-white marginLeftone">100k</span>
     </div>
   </div>
 </template>
@@ -130,7 +130,7 @@ onUnmounted(() => {
 
   .reelText {
     position: absolute;
-    font-size: 26px;
+    font-size: 22px;
     font-weight: bold;
     z-index: 1;
     top: 10px;

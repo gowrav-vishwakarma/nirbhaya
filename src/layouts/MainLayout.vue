@@ -46,7 +46,7 @@
           @click="userStore.isLoggedIn ? goToDashboardPage() : goToLoginPage()">
           <div>
             <q-icon name="home" class="font-size-25"></q-icon>
-            <p class="q-ma-none q-pa-none font-size-11">Home</p>
+            <p class="q-ma-none q-pa-none  font-size-11">Home</p>
           </div>
         </q-btn>
         <q-space />
@@ -60,7 +60,8 @@
         </q-btn>
 
         <q-space />
-        <q-btn flat aria-label="Incidents" @click="goToReelsPage" :disabled="!userStore.isLoggedIn">
+        <q-btn class="q-pa-none q-ml-sm" flat aria-label="Incidents" @click="goToReelsPage"
+          :disabled="!userStore.isLoggedIn">
           <div>
             <q-icon name="video_file" class="font-size-25"></q-icon>
             <p class="q-ma-none q-pa-none font-size-11">Incidents</p>
