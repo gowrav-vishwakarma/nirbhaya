@@ -95,7 +95,7 @@ onUnmounted(() => {
 
 <style lang="scss" scoped>
 .incident-reel-player {
-  height: 100%;
+  height: 100vh;
   width: 100%;
   position: relative;
   display: flex;
@@ -104,9 +104,9 @@ onUnmounted(() => {
   margin: auto;
 
   video {
-    width: auto;
-    height: 100%;
-    max-height: 100%;
+    width: 100%;
+    height: 100vh;
+    // max-height: 100%;
     object-fit: cover;
   }
 

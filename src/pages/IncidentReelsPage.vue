@@ -72,12 +72,13 @@ const fetchReels = async () => {
 const scrollToReel = (index: number) => {
   if (reelsContainerRef.value && !isScrolling.value) {
     isScrolling.value = true;
+
     const targetReel = reelsContainerRef.value.children[index] as HTMLElement;
     if (targetReel) {
       targetReel.scrollIntoView({ behavior: 'smooth' });
       setTimeout(() => {
         isScrolling.value = false;
-      }, 1000); // Adjust this timeout based on your scroll animation duration
+      }, 0); // Adjust this timeout based on your scroll animation duration
     }
   }
 };
@@ -149,7 +150,8 @@ watch(currentReelIndex, (newIndex) => {
 <style lang="scss" scoped>
 .incident-reels-page {
   background-color: $dark;
-  height: 100px;
+  height: 10vh;
+  /* Changed from 100px to 100vh */
   overflow: hidden;
 }
 
@@ -164,6 +166,7 @@ watch(currentReelIndex, (newIndex) => {
   scroll-snap-align: start;
 }
 </style>
+
 
 
 
