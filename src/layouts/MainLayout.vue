@@ -171,7 +171,7 @@ const isHeaderHide = computed(() => {
 });
 const isFooterHide = computed(() => {
   console.log('router.currentRoute.value.fullPath....', router.currentRoute.value.fullPath);
-  return ['/create-reel'].includes(router.currentRoute.value.fullPath);
+  return ['/create-reel', '/incident-reels'].includes(router.currentRoute.value.fullPath);
 });
 
 </script>
