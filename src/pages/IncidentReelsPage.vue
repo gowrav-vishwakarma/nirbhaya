@@ -2,7 +2,7 @@
   <q-page class="incident-reels-page">
     <div class="reels-container" ref="reelsContainerRef" @wheel="handleWheel">
       <div v-for="(reel, index) in reels" :key="reel.id" class="reel-item">
-        <IncidentReelPlayer :ref="el => reelPlayers[index] = el" :reel="reel" :isActive="index == currentReelIndex" />
+        <IncidentReelPlayer :ref="el => reelPlayers[index] = el" :reel="reel" :isActive="index === currentReelIndex" />
       </div>
     </div>
     <AddIncidentFab @incident-added="fetchReels" />

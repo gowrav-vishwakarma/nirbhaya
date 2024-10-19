@@ -82,6 +82,7 @@ const isVideoLoaded = ref(false);
 
 const play = () => {
   if (videoRef.value && isVideoLoaded.value) {
+    console.log('Playing video:', props.reel.title);
     videoRef.value.play().catch((error) => {
       console.error('Error playing video:', error);
     });
@@ -90,12 +91,14 @@ const play = () => {
 
 const pause = () => {
   if (videoRef.value) {
+    console.log('Pausing video:', props.reel.title);
     videoRef.value.pause();
   }
 };
 
 const onVideoLoaded = () => {
   isVideoLoaded.value = true;
+  console.log('Video loaded:', props.reel.title);
   if (props.isActive) {
     play();
   }
@@ -188,6 +191,7 @@ watch(allComments, () => {
 watch(
   () => props.isActive,
   (newValue) => {
+    console.log('isActive changed:', newValue);
     if (newValue && isVideoLoaded.value) {
       play();
     } else {
