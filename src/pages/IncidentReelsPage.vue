@@ -3,7 +3,7 @@
     <vue-scroll-snap>
       <div class="reels-container">
         <div v-for="(reel, index) in reels" :key="reel.id" class="reel-item">
-          <IncidentReelPlayer :reel="reel" :isActive="index === currentReelIndex" />
+          <IncidentReelPlayer :reel="reel" :isActive="index == currentReelIndex" />
         </div>
       </div>
     </vue-scroll-snap>
