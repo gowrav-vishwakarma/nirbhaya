@@ -3,7 +3,7 @@
     <vue-scroll-snap>
       <div class="reels-container" ref="reelsContainerRef">
         <div v-for="(reel, index) in reels" :key="reel.id" class="reel-item">
-          <IncidentReelPlayer :reel="reel" :isActive="index === currentReelIndex" />
+          <IncidentReelPlayer :reel="reel" :isActive="index == currentReelIndex" />
         </div>
       </div>
     </vue-scroll-snap>
@@ -68,16 +68,32 @@ const fetchReels = async () => {
   }
 };
 
+let lastScrollTop = 0;
+let lastScrollTime = 0;
+
 const handleScroll = () => {
   if (!reelsContainerRef.value) return;
 
   const containerHeight = reelsContainerRef.value.clientHeight;
   const scrollPosition = reelsContainerRef.value.scrollTop;
-  const newIndex = Math.round(scrollPosition / containerHeight);
+  const currentTime = performance.now();
+  const timeDelta = currentTime - lastScrollTime;
+  const scrollDelta = scrollPosition - lastScrollTop;
+
+  // Calculate the number of steps to move based on scroll speed
+  const speed = Math.abs(scrollDelta / timeDelta);
+  const stepMultiplier = Math.min(Math.floor(speed * 10), 3); // Adjust multiplier and max steps as needed
+
+  const newIndex = Math.round(scrollPosition / containerHeight) + stepMultiplier * Math.sign(scrollDelta);
 
   if (newIndex !== currentReelIndex.value) {
-    currentReelIndex.value = newIndex;
+    currentReelIndex.value = Number(Math.max(0, Math.min(reels.value.length - 1, newIndex)));
+    console.log(currentReelIndex.value);
+
   }
+
+  lastScrollTop = scrollPosition;
+  lastScrollTime = currentTime;
 };
 
 onMounted(() => {
