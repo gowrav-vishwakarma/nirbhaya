@@ -41,7 +41,8 @@
     "socket.io-client": "^4.7.5",
     "vue": "^3.0.0",
     "vue-i18n": "^9.2.2",
-    "vue-router": "^4.0.0"
+    "vue-router": "^4.0.0",
+    "vue-scroll-snap": "^0.1.11"
   },
   "devDependencies": {
     "@capacitor/cli": "^6.0.0",

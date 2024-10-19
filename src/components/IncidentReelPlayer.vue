@@ -32,7 +32,7 @@
         <q-card style="width: 100%;">
           <div class="">
             <div class="comments-left" v-if="allComments.length">
-              <h6 class="q-ma-none q-mt-sm q-ml-sm">Comments</h6>
+              <h6 class="q-ma-none q-mt-sm q-ml-sm q-mb-sm">Comments</h6>
               <div ref="commentsContainer" class="comments-container">
                 <div v-for="comment in allComments" :key="comment.id">
                   <div class="q-px-sm">
@@ -59,20 +59,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted, onUnmounted, Comment } from 'vue';
+import { ref, watch, onMounted, onUnmounted } from 'vue';
 import { api } from 'src/boot/axios';
 import { useUserStore } from 'src/stores/user-store';
-
-// Define the Comment type
-interface Comment {
-  id: string;
-  user: {
-    name: string;
-  };
-  comment_text: string;
-  createdAt: string;
-  userId: string; // Assuming userId is a string
-}
 
 const props = defineProps<{
   reel: any;
@@ -83,13 +72,10 @@ const userStore = useUserStore();
 const isLiked = ref(false);
 const wasLiked = ref(false);
 const commentDialog = ref(false);
-const comments = ref<Comment[]>([]); // Specify the type for comments
-const userComments = ref<Comment[]>([]); // Specify the type for userComments
-const allComments = ref<Comment[]>([]); // Specify the type for otherComments
+const allComments = ref([]); // Specify the type for otherComments
 const newComment = ref(''); // New data property for the comment input
 
 const videoRef = ref<HTMLVideoElement | null>(null);
-const commentsContainer = ref<HTMLElement | null>(null); // Ref for the comments container
 
 const playVideo = () => {
   if (videoRef.value && props.isActive) {
@@ -139,7 +125,6 @@ const handleShare = (reel) => {
       .catch((error) => {
         console.error('Error sharing:', error);
       });
-
   } else {
     console.log('Share not supported on this browser, fallback to other sharing methods.');
     // Implement fallback sharing method if needed
@@ -157,14 +142,9 @@ const showComments = async () => {
     scrollToBottom(); // Scroll to bottom after loading comments
   } else {
     console.error('Expected an array but received:', response.data);
-    comments.value = []; // Reset comments if the data is not as expected
+    allComments.value = []; // Reset comments if the data is not as expected
   }
 };
-
-// const formatDate = (dateString: string) => {
-//   const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
-//   return new Date(dateString).toLocaleDateString('en-US', options);
-// };
 
 const submitComment = async () => {
   if (newComment.value.trim()) {
@@ -181,12 +161,13 @@ const submitComment = async () => {
 
 // Function to scroll to the bottom of the comments container
 const scrollToBottom = () => {
-  if (commentsContainer.value) {
-    commentsContainer.value.scrollTop = commentsContainer.value.scrollHeight;
+  const commentsContainer = document.querySelector('.comments-container');
+  if (commentsContainer) {
+    commentsContainer.scrollTop = commentsContainer.scrollHeight;
   }
 };
 
-// Watch for changes in otherComments to scroll to the bottom
+// Watch for changes in allComments to scroll to the bottom
 watch(allComments, () => {
   scrollToBottom();
 });
@@ -213,9 +194,9 @@ onUnmounted(() => {
 });
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
 .incident-reel-player {
-  height: 100vh;
+  height: 100%;
   width: 100%;
   position: relative;
   display: flex;
@@ -273,22 +254,5 @@ onUnmounted(() => {
       transform: scale(1.2);
     }
   }
-}
-
-.comments-container {
-  display: flex;
-  flex-direction: column;
-  /* Ensure comments stack vertically */
-  justify-content: flex-start;
-  overflow-y: auto;
-  /* Allow scrolling */
-  max-height: 300px;
-  /* Set a max height for the comments section */
-}
-
-.comment-time {
-  display: block;
-  font-size: 12px;
-  color: #999;
 }
 </style>
