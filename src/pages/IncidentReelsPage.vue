@@ -95,7 +95,6 @@ const handleScroll = (event: WheelEvent) => {
   event.preventDefault(); // Prevent default scroll behavior
   if (isScrolling.value) return; // If already scrolling, exit
 
-  const container = event.currentTarget as HTMLElement;
   const delta = event.deltaY; // Get the scroll direction
 
   isScrolling.value = true; // Set scrolling to true

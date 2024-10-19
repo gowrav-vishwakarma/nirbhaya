@@ -55,6 +55,7 @@
         </q-card>
       </q-dialog>
     </div>
+    <div class="centered-div" @click="togglePlayPause"></div> <!-- Added rounded div -->
   </div>
 </template>
 
@@ -91,7 +92,21 @@ const pauseVideo = () => {
   }
 };
 
+console.log('isActive.......', props.isActive);
+
+
+const togglePlayPause = () => {
+  if (videoRef.value) {
+    if (videoRef.value.paused) {
+      videoRef.value.play();
+    } else {
+      videoRef.value.pause();
+    }
+  }
+};
+
 const handleLike = async (reel: any) => {
+  // Remove the togglePlayPause call to prevent video from pausing
   wasLiked.value = true;
   isLiked.value = !isLiked.value;
 
@@ -115,11 +130,9 @@ const handleShare = (reel) => {
     })
       .then(async () => {
         console.log('Share successful');
-        // Log the share event in the share table
         await api.post('/incidents/log-share', {
           incidentId: props.reel.id,
           userId: userStore.user.id,
-          // Send the incident ID to the backend
         });
       })
       .catch((error) => {
@@ -127,7 +140,6 @@ const handleShare = (reel) => {
       });
   } else {
     console.log('Share not supported on this browser, fallback to other sharing methods.');
-    // Implement fallback sharing method if needed
   }
 };
 
@@ -254,5 +266,16 @@ onUnmounted(() => {
       transform: scale(1.2);
     }
   }
+}
+
+.centered-div {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  background-color: 00000000;
 }
 </style>
