@@ -1,5 +1,5 @@
 <template>
-  <q-page class="profile-page q-pa-md">
+  <q-page class="profile-page">
     <div class="profile-content">
       <q-card class="profile-card q-mb-md">
         <q-card-section>

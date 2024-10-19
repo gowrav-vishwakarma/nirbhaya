@@ -1,5 +1,5 @@
 <template>
-  <div class="community-impact-page q-pa-md">
+  <div class="community-impact-page">
     <h4 class="text-h4 text-white q-mb-md q-ma-none">{{ $t('common.communityImpact') }}</h4>
 
     <q-card class="q-mb-md">
