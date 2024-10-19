@@ -100,10 +100,13 @@ const handleScroll = (event: WheelEvent) => {
   isScrolling.value = true; // Set scrolling to true
 
   if (delta > 0) {
+
     // Scrolling down
     if (currentReelIndex.value < reels.value.length - 1) {
       currentReelIndex.value++;
     }
+    console.log('currentReelIndex.value', currentReelIndex.value);
+
   } else {
     // Scrolling up
     if (currentReelIndex.value > 0) {
@@ -138,6 +141,7 @@ watch(currentReelIndex, (newIndex) => {
   if (reels.value.length - newIndex <= 3) {
     fetchReels();
   }
+
   // Call smoothScrollTo when currentReelIndex changes
   const targetScrollPosition = newIndex * window.innerHeight; // Calculate target position
   smoothScrollTo(targetScrollPosition); // Call the smooth scroll function
