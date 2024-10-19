@@ -89,6 +89,7 @@ watch(currentReelIndex, (newIndex) => {
   height: 100%;
   overflow-y: auto; // Allow vertical scrolling
   scroll-snap-type: y mandatory; // Enable snap scrolling
+  scroll-behavior: smooth; // Add smooth scrolling behavior
 }
 
 .reel-item {
