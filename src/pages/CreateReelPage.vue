@@ -3,103 +3,40 @@
     <FullScreenLoader :isLoading="isUploading" />
     <!-- Add Back Button -->
     <q-btn size="sm" flat class="back-button" @click="goBack">
-      <q-icon
-        class="back-icon"
-        name="mdi-arrow-left"
-        :class="{ animate: backIconAnimation }"
-      />
+      <q-icon class="back-icon" name="mdi-arrow-left" :class="{ animate: backIconAnimation }" />
     </q-btn>
-    <div
-      class="aspect-ratio-container"
-      v-if="!isPlayingRecordedVideo && !isRecording"
-    >
+    <div class="aspect-ratio-container" v-if="!isPlayingRecordedVideo && !isRecording">
       <q-btn v-if="!showAllAspectRatios" @click="toggleAspectRatios">
         <div style="font-weight: bolder; color: whitesmoke">
           {{ aspectRatioLabel }}
         </div>
       </q-btn>
-      <q-btn
-        class="q-mx-xs"
-        style="font-weight: bolder; color: whitesmoke"
-        v-if="showAllAspectRatios"
-        @click="setAspectRatio('9:16')"
-        label="9:16"
-      />
-      <q-btn
-        class="q-mx-xs"
-        style="font-weight: bolder; color: whitesmoke"
-        v-if="showAllAspectRatios"
-        @click="setAspectRatio('1:1')"
-        label="1:1"
-      />
-      <q-btn
-        class="q-mx-xs"
-        style="font-weight: bolder; color: whitesmoke"
-        v-if="showAllAspectRatios"
-        @click="setAspectRatio('full')"
-        label="Full"
-      />
+      <q-btn class="q-mx-xs" style="font-weight: bolder; color: whitesmoke" v-if="showAllAspectRatios"
+        @click="setAspectRatio('9:16')" label="9:16" />
+      <q-btn class="q-mx-xs" style="font-weight: bolder; color: whitesmoke" v-if="showAllAspectRatios"
+        @click="setAspectRatio('1:1')" label="1:1" />
+      <q-btn class="q-mx-xs" style="font-weight: bolder; color: whitesmoke" v-if="showAllAspectRatios"
+        @click="setAspectRatio('full')" label="Full" />
     </div>
     <div class="video-container">
-      <video
-        v-if="isPlayingRecordedVideo"
-        ref="videoPlayer"
-        class="video-preview"
-        :src="recordedVideoUrl"
-      >
+      <video v-if="isPlayingRecordedVideo" ref="videoPlayer" class="video-preview" :src="recordedVideoUrl">
         <track kind="captions" />
       </video>
-      <canvas
-        v-else
-        ref="canvasPreview"
-        :width="videoWidth"
-        :height="videoHeight"
-        class="video-preview"
-      ></canvas>
-      <video
-        ref="videoPreview"
-        autoplay
-        playsinline
-        muted
-        class="hidden-video"
-      ></video>
-      <div
-        class="pointer-overlay"
-        v-if="!isPlayingRecordedVideo"
-        @touchstart="handlePointerStart"
-        @touchmove="handlePointerMove"
-        @touchend="handlePointerEnd"
-      ></div>
+      <canvas v-else ref="canvasPreview" :width="videoWidth" :height="videoHeight" class="video-preview"></canvas>
+      <video ref="videoPreview" autoplay playsinline muted class="hidden-video"></video>
+      <div class="pointer-overlay" v-if="!isPlayingRecordedVideo" @touchstart="handlePointerStart"
+        @touchmove="handlePointerMove" @touchend="handlePointerEnd"></div>
       <div class="zoom-slider-container" v-if="!isPlayingRecordedVideo">
-        <q-slider
-          v-model="zoomLevel"
-          :min="1"
-          :max="maxZoom"
-          :step="0.1"
-          vertical
-          @change="handleZoom"
-        />
+        <q-slider v-model="zoomLevel" :min="1" :max="maxZoom" :step="0.1" vertical @change="handleZoom" />
       </div>
       <div class="recording-overlay" v-if="isRecording">
-        <q-circular-progress
-          show-value
-          class="text-white q-ma-md"
-          :value="remainingTime"
-          size="50px"
-          :thickness="0.2"
-          color="white"
-          track-color="primary"
-        >
+        <q-circular-progress show-value class="text-white q-ma-md" :value="remainingTime" size="50px" :thickness="0.2"
+          color="white" track-color="primary">
           {{ remainingTime }}
         </q-circular-progress>
       </div>
       <!-- Play/Pause Button -->
-      <q-btn
-        round
-        v-if="isPlayingRecordedVideo"
-        @click="togglePlayback"
-        class="play-pause-btn"
-      >
+      <q-btn round v-if="isPlayingRecordedVideo" @click="togglePlayback" class="play-pause-btn">
         <q-icon :name="isVideoPlaying ? 'mdi-pause' : 'mdi-play'" />
       </q-btn>
     </div>
@@ -108,44 +45,18 @@
       <q-btn size="sm" color="black" @click="switchCamera" class="rotate-btn">
         <q-icon style="font-size: 26px" name="mdi-orbit-variant"></q-icon>
       </q-btn>
-      <q-btn
-        size="sm"
-        v-if="!isRecording && !isPlayingRecordedVideo"
-        color="red"
-        @click="startRecording"
-        class="record-btn"
-      >
+      <q-btn size="sm" v-if="!isRecording && !isPlayingRecordedVideo" color="red" @click="startRecording"
+        class="record-btn">
         <q-icon style="font-size: 20px" name="fiber_manual_record"></q-icon>
       </q-btn>
-      <q-btn
-        size="sm"
-        v-else-if="isRecording"
-        color="negative"
-        @click="stopRecording"
-        class="stop-btn"
-      >
+      <q-btn size="sm" v-else-if="isRecording" color="negative" @click="stopRecording" class="stop-btn">
         <q-icon style="font-size: 23px" name="stop"></q-icon>
       </q-btn>
-      <q-btn
-        size="sm"
-        v-if="isPlayingRecordedVideo"
-        color="black"
-        @click="retakeVideo"
-        class="retake-btn"
-      >
+      <q-btn size="sm" v-if="isPlayingRecordedVideo" color="black" @click="retakeVideo" class="retake-btn">
         <q-icon style="font-size: 23px" name="refresh"></q-icon>
       </q-btn>
-      <q-btn
-        size="sm"
-        color="blue"
-        style="background-color: blue"
-        @click="uploadReel"
-        class="upload-btn"
-      >
-        <q-icon
-          style="transform: rotate(-15deg); font-size: 20px"
-          name="mdi-send"
-        ></q-icon>
+      <q-btn size="sm" color="blue" style="background-color: blue" @click="uploadReel" class="upload-btn">
+        <q-icon style="transform: rotate(-15deg); font-size: 20px" name="mdi-send"></q-icon>
       </q-btn>
     </div>
   </q-page>
@@ -324,8 +235,8 @@ const startCamera = async () => {
           aspectRatio.value === '9:16'
             ? 9 / 16
             : aspectRatio.value === '1:1'
-            ? 1
-            : undefined,
+              ? 1
+              : undefined,
       },
       audio: true,
     };
@@ -529,7 +440,11 @@ const retakeVideo = () => {
 };
 
 const uploadReel = async () => {
-  // if (recordedChunks.value.length === 0) return;
+  // Check if there are recorded chunks before proceeding
+  if (recordedChunks.value.length === 0) {
+
+    return; // Exit the function if no video is recorded
+  }
 
   const blob = new Blob(recordedChunks.value, { type: 'video/webm' });
   const fileName = `incident_${Date.now()}.webm`;
@@ -845,6 +760,7 @@ const goBack = () => {
   }
 
   @keyframes blink {
+
     0%,
     100% {
       opacity: 1; // Fully visible
