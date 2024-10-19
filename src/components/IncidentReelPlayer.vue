@@ -124,8 +124,8 @@ const handleLike = async (reel: any) => {
 const handleShare = (reel) => {
   if (navigator.share) {
     navigator.share({
-      title: reel.title,
-      text: reel.description,
+      // title: reel.title,
+      // text: reel.description,
       url: reel.videoUrl // or any other URL you want to share
     })
       .then(async () => {
