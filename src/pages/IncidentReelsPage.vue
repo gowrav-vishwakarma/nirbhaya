@@ -67,6 +67,28 @@ const fetchReels = async () => {
   }
 };
 
+const smoothScrollTo = (target: number) => {
+  const container = document.querySelector('.reels-container') as HTMLElement;
+  const start = container.scrollTop;
+  const change = target - start;
+  const duration = 1000; // Duration in ms
+  let startTime: number | null = null;
+
+  const animateScroll = (currentTime: number) => {
+    if (startTime === null) startTime = currentTime;
+    const elapsed = currentTime - startTime;
+    const progress = Math.min(elapsed / duration, 1);
+    container.scrollTop = start + change * easeInOutQuad(progress);
+    if (progress < 1) requestAnimationFrame(animateScroll);
+  };
+
+  const easeInOutQuad = (t: number) => {
+    return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
+  };
+
+  requestAnimationFrame(animateScroll);
+};
+
 onMounted(() => {
   fetchReels();
 });
@@ -75,7 +97,13 @@ watch(currentReelIndex, (newIndex) => {
   if (reels.value.length - newIndex <= 3) {
     fetchReels();
   }
+  // Call smoothScrollTo when currentReelIndex changes
+  const targetScrollPosition = newIndex * window.innerHeight; // Calculate target position
+  smoothScrollTo(targetScrollPosition); // Call the smooth scroll function
 });
+
+// Call smoothScrollTo when you want to scroll to a specific index
+// Example: smoothScrollTo(currentReelIndex.value * window.innerHeight);
 </script>
 
 <style lang="scss">
@@ -90,6 +118,11 @@ watch(currentReelIndex, (newIndex) => {
   overflow-y: auto; // Allow vertical scrolling
   scroll-snap-type: y mandatory; // Enable snap scrolling
   scroll-behavior: smooth; // Add smooth scrolling behavior
+
+  /* Hide scrollbar for WebKit browsers */
+  &::-webkit-scrollbar {
+    display: none; // Hide scrollbar
+  }
 }
 
 .reel-item {
