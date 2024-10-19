@@ -44,7 +44,7 @@ const reels = ref<Reel[]>([]);
 const currentReelIndex = ref(0);
 const isLoading = ref(false);
 const page = ref(1);
-const pageSize = 10;
+const pageSize = 2;
 const reelsContainerRef = ref<HTMLElement | null>(null);
 
 const fetchReels = async () => {
@@ -82,7 +82,7 @@ const handleScroll = () => {
 
   // Calculate the number of steps to move based on scroll speed
   const speed = Math.abs(scrollDelta / timeDelta);
-  const stepMultiplier = Math.min(Math.floor(speed * 10), 3); // Adjust multiplier and max steps as needed
+  const stepMultiplier = Math.min(Math.floor(speed * 10), 1); // Adjust multiplier and max steps as needed
 
   const newIndex = Math.round(scrollPosition / containerHeight) + stepMultiplier * Math.sign(scrollDelta);
 
@@ -110,7 +110,7 @@ onBeforeUnmount(() => {
 });
 
 watch(currentReelIndex, (newIndex) => {
-  if (reels.value.length - newIndex <= 3) {
+  if (reels.value.length - newIndex <= 1) {
     fetchReels();
   }
 });
