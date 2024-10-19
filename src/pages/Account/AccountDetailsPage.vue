@@ -1,15 +1,8 @@
 <template>
-  <q-page class="bg-grey-1">
-    <q-card class="account-card q-mt-lg" v-if="userStore?.user">
-      <q-tabs
-        v-model="tab"
-        dense
-        class="text-grey"
-        active-color="primary"
-        indicator-color="primary"
-        align="justify"
-        narrow-indicator
-      >
+  <q-page class="">
+    <div class="account-card bg-transparent q-mt-lg" v-if="userStore?.user">
+      <q-tabs v-model="tab" dense class="text-white q-mt-md" active-color="white" indicator-color="white"
+        align="justify" narrow-indicator>
         <q-tab :name="'profile'" :label="$t('common.profile')" />
         <q-tab :name="'volunteering'" :label="$t('common.volunteering')" />
         <q-tab :name="'impact'" :label="$t('common.communityImpact')" />
@@ -17,7 +10,7 @@
 
       <q-separator />
 
-      <q-tab-panels v-model="tab" animated>
+      <q-tab-panels v-model="tab" animated class="bg-transparent">
         <q-tab-panel name="profile">
           <ProfilePage />
         </q-tab-panel>
@@ -36,7 +29,7 @@
           <b>{{ $t('common.logout') }}</b>
         </q-btn>
       </div>
-    </q-card>
+    </div>
   </q-page>
 </template>
 
@@ -95,5 +88,9 @@ const logout = async () => {
   margin: 0 auto;
   border-radius: 8px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.bg-transparent {
+  background-color: 00000000;
 }
 </style>

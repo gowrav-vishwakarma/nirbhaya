@@ -1,6 +1,6 @@
 <template>
   <div class="community-impact-page q-pa-md">
-    <h4 class="text-h4 q-mb-md">{{ $t('common.communityImpact') }}</h4>
+    <h4 class="text-h4 text-white q-mb-md q-ma-none">{{ $t('common.communityImpact') }}</h4>
 
     <q-card class="q-mb-md">
       <q-card-section>
@@ -33,12 +33,7 @@
     <q-card class="q-mb-md">
       <q-card-section>
         <div class="text-h6 q-mb-sm">Share your impact</div>
-        <q-btn
-          color="primary"
-          icon="content_copy"
-          label="Copy Referral Link"
-          @click="copyReferralLink"
-        />
+        <q-btn color="primary" icon="content_copy" label="Copy Referral Link" @click="copyReferralLink" />
       </q-card-section>
     </q-card>
 
@@ -47,78 +42,33 @@
         <div class="text-h6 q-mb-md">Record and Share Your Message</div>
         <div class="video-section q-mb-md">
           <q-btn-group>
-            <q-btn
-              size="sm"
-              @click="startRecording"
-              color="primary"
-              :disable="isRecording || recordedVideoUrl !== ''"
-              icon="videocam"
-              :label="isRecording ? 'Recording...' : 'Record Video Message'"
-            />
-            <q-btn
-              size="sm"
-              @click="stopRecording"
-              color="negative"
-              :disable="!isRecording"
-              icon="stop"
-              label="Stop Recording"
-            />
+            <q-btn size="sm" @click="startRecording" color="primary" :disable="isRecording || recordedVideoUrl !== ''"
+              icon="videocam" :label="isRecording ? 'Recording...' : 'Record Video Message'" />
+            <q-btn size="sm" @click="stopRecording" color="negative" :disable="!isRecording" icon="stop"
+              label="Stop Recording" />
           </q-btn-group>
         </div>
 
         <div class="video-container q-mt-sm" style="position: relative">
-          <video
-            ref="videoPreview"
-            style="display: none"
-            autoplay
-            muted
-          ></video>
-          <canvas
-            ref="overlayCanvas"
-            :style="{
-              display: isRecording ? 'block' : 'none',
-              width: '100%',
-              height: 'auto',
-            }"
-          ></canvas>
+          <video ref="videoPreview" style="display: none" autoplay muted></video>
+          <canvas ref="overlayCanvas" :style="{
+            display: isRecording ? 'block' : 'none',
+            width: '100%',
+            height: 'auto',
+          }"></canvas>
         </div>
 
         <canvas ref="canvas" style="display: none"></canvas>
 
         <div v-if="recordedVideoUrl" class="q-mt-md">
-          <video
-            :src="recordedVideoUrl"
-            controls
-            style="max-width: 100%"
-          ></video>
+          <video :src="recordedVideoUrl" controls style="max-width: 100%"></video>
           <div class="q-mt-sm">
             <q-btn-group size="sm">
-              <q-btn
-                @click="discardVideo"
-                color="negative"
-                size="sm"
-                flat
-                icon="delete"
-                label="Discard"
-              />
-              <q-btn
-                @click="shareToWhatsApp"
-                color="positive"
-                class="q-ml-sm"
-                size="sm"
-                icon="share"
-                flat
-                label="Share to WhatsApp"
-              />
-              <q-btn
-                @click="downloadVideo"
-                color="primary"
-                class="q-ml-sm"
-                size="sm"
-                icon="download"
-                flat
-                label="Download Video"
-              />
+              <q-btn @click="discardVideo" color="negative" size="sm" flat icon="delete" label="Discard" />
+              <q-btn @click="shareToWhatsApp" color="positive" class="q-ml-sm" size="sm" icon="share" flat
+                label="Share to WhatsApp" />
+              <q-btn @click="downloadVideo" color="primary" class="q-ml-sm" size="sm" icon="download" flat
+                label="Download Video" />
             </q-btn-group>
           </div>
         </div>
@@ -131,57 +81,20 @@
           <div class="text-h6">Customize Video Overlay</div>
         </q-card-section>
         <q-card-section class="q-pt-none">
-          <q-input
-            v-model="watermarkConfig.imageSrc"
-            label="Watermark Image URL"
-          />
+          <q-input v-model="watermarkConfig.imageSrc" label="Watermark Image URL" />
           <div class="row q-gutter-sm">
-            <q-input
-              v-model.number="watermarkConfig.imageX"
-              type="number"
-              label="X"
-              style="width: 80px"
-            />
-            <q-input
-              v-model.number="watermarkConfig.imageY"
-              type="number"
-              label="Y"
-              style="width: 80px"
-            />
-            <q-input
-              v-model.number="watermarkConfig.imageWidth"
-              type="number"
-              label="Width"
-              style="width: 80px"
-            />
-            <q-input
-              v-model.number="watermarkConfig.imageHeight"
-              type="number"
-              label="Height"
-              style="width: 80px"
-            />
+            <q-input v-model.number="watermarkConfig.imageX" type="number" label="X" style="width: 80px" />
+            <q-input v-model.number="watermarkConfig.imageY" type="number" label="Y" style="width: 80px" />
+            <q-input v-model.number="watermarkConfig.imageWidth" type="number" label="Width" style="width: 80px" />
+            <q-input v-model.number="watermarkConfig.imageHeight" type="number" label="Height" style="width: 80px" />
           </div>
           <q-input v-model="watermarkConfig.text" label="Overlay Text" />
           <q-input v-model="watermarkConfig.textColor" label="Text Color" />
           <div class="row q-gutter-sm">
-            <q-input
-              v-model.number="watermarkConfig.textX"
-              type="number"
-              label="X"
-              style="width: 80px"
-            />
-            <q-input
-              v-model.number="watermarkConfig.textY"
-              type="number"
-              label="Y"
-              style="width: 80px"
-            />
+            <q-input v-model.number="watermarkConfig.textX" type="number" label="X" style="width: 80px" />
+            <q-input v-model.number="watermarkConfig.textY" type="number" label="Y" style="width: 80px" />
           </div>
-          <q-input
-            v-model.number="watermarkConfig.textSize"
-            type="number"
-            label="Text Size"
-          />
+          <q-input v-model.number="watermarkConfig.textSize" type="number" label="Text Size" />
         </q-card-section>
         <q-card-actions align="right">
           <q-btn flat label="Close" color="primary" v-close-popup />
@@ -451,6 +364,7 @@ watch(
   max-width: 800px;
   margin: 0 auto;
 }
+
 .video-container {
   position: relative;
   width: 100%;

@@ -153,9 +153,7 @@ const showComments = async () => {
   });
 
   if (Array.isArray(response.data)) {
-    // comments.value = response.data; // Ensure response.data matches Comment[]
-    // Replace with actual user ID logic
-    allComments.value = response.data;// New array for other comments
+    allComments.value = response.data; // New array for other comments
     scrollToBottom(); // Scroll to bottom after loading comments
   } else {
     console.error('Expected an array but received:', response.data);
@@ -170,7 +168,6 @@ const showComments = async () => {
 
 const submitComment = async () => {
   if (newComment.value.trim()) {
-    // Logic to submit the comment
     await api.post('/incidents/add-comment', {
       incidentId: props.reel.id,
       userId: userStore.user.id,
@@ -178,8 +175,8 @@ const submitComment = async () => {
     });
     newComment.value = ''; // Clear the input after submission
     showComments(); // Refresh comments to include the new one
+    scrollToBottom(); // Ensure to scroll to bottom after submitting a new comment
   }
-  scrollToBottom(); // Scroll to bottom after submitting a new comment
 };
 
 // Function to scroll to the bottom of the comments container
