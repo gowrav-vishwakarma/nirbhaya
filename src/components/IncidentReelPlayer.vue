@@ -3,7 +3,8 @@
     <div class="reelText">
       Reels <q-icon name="mdi-chevron-down"></q-icon>
     </div>
-    <video ref="videoRef" :src="reel.videoUrl" loop muted playsinline preload="auto"></video>
+    <video ref="videoRef" :src="reel.videoUrl" loop muted playsinline preload="auto"
+      @loadedmetadata="onVideoLoaded"></video>
     <div class="reel-info">
       <h3>{{ reel.title }}</h3>
       <p>{{ reel.description }}</p>
@@ -44,7 +45,7 @@
                 </div>
               </div>
             </div>
-            <div style="width: 100%; " class="q-px-md q-pb-xs">
+            <div style="width: 100%;" class="q-px-md q-pb-xs">
               <q-input v-model="newComment" label="Add a comment" @keyup.enter="submitComment">
                 <template v-slot:append>
                   <q-icon name="mdi-send" color="pink" @click="submitComment" class="cursor-pointer" />
@@ -55,7 +56,7 @@
         </q-card>
       </q-dialog>
     </div>
-    <div class="centered-div" @click="togglePlayPause"></div> <!-- Added rounded div -->
+    <div class="centered-div" @click="togglePlayPause"></div>
   </div>
 </template>
 
@@ -73,13 +74,14 @@ const userStore = useUserStore();
 const isLiked = ref(false);
 const wasLiked = ref(false);
 const commentDialog = ref(false);
-const allComments = ref([]); // Specify the type for otherComments
-const newComment = ref(''); // New data property for the comment input
+const allComments = ref([]);
+const newComment = ref('');
 
 const videoRef = ref<HTMLVideoElement | null>(null);
+const isVideoLoaded = ref(false);
 
 const playVideo = () => {
-  if (videoRef.value && props.isActive) {
+  if (videoRef.value && props.isActive && isVideoLoaded.value) {
     videoRef.value.play().catch((error) => {
       console.error('Error playing video:', error);
     });
@@ -92,8 +94,12 @@ const pauseVideo = () => {
   }
 };
 
-console.log('isActive.......', props.isActive);
-
+const onVideoLoaded = () => {
+  isVideoLoaded.value = true;
+  if (props.isActive) {
+    playVideo();
+  }
+};
 
 const togglePlayPause = () => {
   if (videoRef.value) {
@@ -106,14 +112,13 @@ const togglePlayPause = () => {
 };
 
 const handleLike = async (reel: any) => {
-  // Remove the togglePlayPause call to prevent video from pausing
   wasLiked.value = true;
   isLiked.value = !isLiked.value;
 
   setTimeout(() => {
     wasLiked.value = false;
   }, 1000);
-  console.log('reel........', reel);
+
   await api.post('/incidents/like-incident', {
     userId: reel.userId,
     incidentId: reel.id,
@@ -124,9 +129,7 @@ const handleLike = async (reel: any) => {
 const handleShare = (reel) => {
   if (navigator.share) {
     navigator.share({
-      // title: reel.title,
-      // text: reel.description,
-      url: reel.videoUrl // or any other URL you want to share
+      url: reel.videoUrl
     })
       .then(async () => {
         console.log('Share successful');
@@ -150,11 +153,11 @@ const showComments = async () => {
   });
 
   if (Array.isArray(response.data)) {
-    allComments.value = response.data; // New array for other comments
-    scrollToBottom(); // Scroll to bottom after loading comments
+    allComments.value = response.data;
+    scrollToBottom();
   } else {
     console.error('Expected an array but received:', response.data);
-    allComments.value = []; // Reset comments if the data is not as expected
+    allComments.value = [];
   }
 };
 
@@ -165,13 +168,12 @@ const submitComment = async () => {
       userId: userStore.user.id,
       comment_text: newComment.value,
     });
-    newComment.value = ''; // Clear the input after submission
-    showComments(); // Refresh comments to include the new one
-    scrollToBottom(); // Ensure to scroll to bottom after submitting a new comment
+    newComment.value = '';
+    showComments();
+    scrollToBottom();
   }
 };
 
-// Function to scroll to the bottom of the comments container
 const scrollToBottom = () => {
   const commentsContainer = document.querySelector('.comments-container');
   if (commentsContainer) {
@@ -179,7 +181,6 @@ const scrollToBottom = () => {
   }
 };
 
-// Watch for changes in allComments to scroll to the bottom
 watch(allComments, () => {
   scrollToBottom();
 });
@@ -187,7 +188,7 @@ watch(allComments, () => {
 watch(
   () => props.isActive,
   (newValue) => {
-    if (newValue) {
+    if (newValue && isVideoLoaded.value) {
       playVideo();
     } else {
       pauseVideo();
@@ -196,7 +197,7 @@ watch(
 );
 
 onMounted(() => {
-  if (props.isActive) {
+  if (props.isActive && isVideoLoaded.value) {
     playVideo();
   }
 });

@@ -1,9 +1,9 @@
 <template>
   <q-page class="incident-reels-page">
     <vue-scroll-snap>
-      <div class="reels-container">
+      <div class="reels-container" ref="reelsContainerRef">
         <div v-for="(reel, index) in reels" :key="reel.id" class="reel-item">
-          <IncidentReelPlayer :reel="reel" :isActive="index == currentReelIndex" />
+          <IncidentReelPlayer :reel="reel" :isActive="index === currentReelIndex" />
         </div>
       </div>
     </vue-scroll-snap>
@@ -45,6 +45,7 @@ const currentReelIndex = ref(0);
 const isLoading = ref(false);
 const page = ref(1);
 const pageSize = 10;
+const reelsContainerRef = ref<HTMLElement | null>(null);
 
 const fetchReels = async () => {
   if (isLoading.value) return;
@@ -67,111 +68,58 @@ const fetchReels = async () => {
   }
 };
 
-const smoothScrollTo = (target: number) => {
-  const container = document.querySelector('.reels-container') as HTMLElement;
-  const start = container.scrollTop;
-  const change = target - start;
-  const duration = 1000; // Duration in ms
-  let startTime: number | null = null;
+const handleScroll = () => {
+  if (!reelsContainerRef.value) return;
 
-  const animateScroll = (currentTime: number) => {
-    if (startTime === null) startTime = currentTime;
-    const elapsed = currentTime - startTime;
-    const progress = Math.min(elapsed / duration, 1);
-    container.scrollTop = start + change * easeInOutQuad(progress);
-    if (progress < 1) requestAnimationFrame(animateScroll);
-  };
+  const containerHeight = reelsContainerRef.value.clientHeight;
+  const scrollPosition = reelsContainerRef.value.scrollTop;
+  const newIndex = Math.round(scrollPosition / containerHeight);
 
-  const easeInOutQuad = (t: number) => {
-    return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
-  };
-
-  requestAnimationFrame(animateScroll);
-};
-
-const isScrolling = ref(false); // Flag to track if scrolling is in progress
-
-const handleScroll = (event: WheelEvent) => {
-  event.preventDefault(); // Prevent default scroll behavior
-  if (isScrolling.value) return; // If already scrolling, exit
-
-  const delta = event.deltaY; // Get the scroll direction
-
-  isScrolling.value = true; // Set scrolling to true
-
-  if (delta > 0) {
-
-    // Scrolling down
-    if (currentReelIndex.value < reels.value.length - 1) {
-      currentReelIndex.value++;
-    }
-    console.log('currentReelIndex.value', currentReelIndex.value);
-
-  } else {
-    // Scrolling up
-    if (currentReelIndex.value > 0) {
-      currentReelIndex.value--;
-    }
+  if (newIndex !== currentReelIndex.value) {
+    currentReelIndex.value = newIndex;
   }
-
-  // Calculate target scroll position and smooth scroll to it
-  const targetScrollPosition = currentReelIndex.value * window.innerHeight;
-  smoothScrollTo(targetScrollPosition);
-
-  // Reset the scrolling flag after the animation duration
-  setTimeout(() => {
-    isScrolling.value = false; // Allow scrolling again after the duration
-  }, 1000); // Match this duration with the smoothScrollTo duration
 };
 
-// Add the scroll event listener
 onMounted(() => {
   fetchReels();
-  const container = document.querySelector('.reels-container') as HTMLElement;
-  container.addEventListener('wheel', handleScroll, { passive: false });
+  if (reelsContainerRef.value) {
+    reelsContainerRef.value.addEventListener('scroll', handleScroll);
+  }
 });
 
-// Clean up the event listener on unmount
 onBeforeUnmount(() => {
-  const container = document.querySelector('.reels-container') as HTMLElement;
-  container.removeEventListener('wheel', handleScroll);
+  if (reelsContainerRef.value) {
+    reelsContainerRef.value.removeEventListener('scroll', handleScroll);
+  }
 });
 
 watch(currentReelIndex, (newIndex) => {
   if (reels.value.length - newIndex <= 3) {
     fetchReels();
   }
-
-  // Call smoothScrollTo when currentReelIndex changes
-  const targetScrollPosition = newIndex * window.innerHeight; // Calculate target position
-  smoothScrollTo(targetScrollPosition); // Call the smooth scroll function
 });
-
-// Call smoothScrollTo when you want to scroll to a specific index
-// Example: smoothScrollTo(currentReelIndex.value * window.innerHeight);
 </script>
 
 <style lang="scss">
 .incident-reels-page {
   background-color: $dark;
-  height: 100vh; // Ensure full height for snap scrolling
-  overflow: hidden; // Prevent overflow
+  height: 100vh;
+  overflow: hidden;
 }
 
 .reels-container {
   height: 100%;
-  overflow-y: auto; // Allow vertical scrolling
-  scroll-snap-type: y mandatory; // Enable snap scrolling
-  scroll-behavior: smooth; // Add smooth scrolling behavior
+  overflow-y: auto;
+  scroll-snap-type: y mandatory;
+  scroll-behavior: smooth;
 
-  /* Hide scrollbar for WebKit browsers */
   &::-webkit-scrollbar {
-    display: none; // Hide scrollbar
+    display: none;
   }
 }
 
 .reel-item {
-  height: 100vh; // Each reel takes full viewport height
-  scroll-snap-align: start; // Align to start for snapping
+  height: 100vh;
+  scroll-snap-align: start;
 }
 </style>
