@@ -12,7 +12,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue';
+import { ref, onMounted, watch, onBeforeUnmount } from 'vue';
 import { useQuasar } from 'quasar';
 import { api } from 'src/boot/axios';
 import IncidentReelPlayer from 'components/IncidentReelPlayer.vue';
@@ -89,8 +89,50 @@ const smoothScrollTo = (target: number) => {
   requestAnimationFrame(animateScroll);
 };
 
+const isScrolling = ref(false); // Flag to track if scrolling is in progress
+
+const handleScroll = (event: WheelEvent) => {
+  event.preventDefault(); // Prevent default scroll behavior
+  if (isScrolling.value) return; // If already scrolling, exit
+
+  const container = event.currentTarget as HTMLElement;
+  const delta = event.deltaY; // Get the scroll direction
+
+  isScrolling.value = true; // Set scrolling to true
+
+  if (delta > 0) {
+    // Scrolling down
+    if (currentReelIndex.value < reels.value.length - 1) {
+      currentReelIndex.value++;
+    }
+  } else {
+    // Scrolling up
+    if (currentReelIndex.value > 0) {
+      currentReelIndex.value--;
+    }
+  }
+
+  // Calculate target scroll position and smooth scroll to it
+  const targetScrollPosition = currentReelIndex.value * window.innerHeight;
+  smoothScrollTo(targetScrollPosition);
+
+  // Reset the scrolling flag after the animation duration
+  setTimeout(() => {
+    isScrolling.value = false; // Allow scrolling again after the duration
+  }, 1000); // Match this duration with the smoothScrollTo duration
+};
+
+// Add the scroll event listener
 onMounted(() => {
   fetchReels();
+  const container = document.querySelector('.reels-container') as HTMLElement;
+  container.addEventListener('wheel', handleScroll, { passive: false });
+});
+
+// Clean up the event listener on unmount
+onBeforeUnmount(() => {
+  const container = document.querySelector('.reels-container') as HTMLElement;
+  container.removeEventListener('wheel', handleScroll);
 });
 
 watch(currentReelIndex, (newIndex) => {
