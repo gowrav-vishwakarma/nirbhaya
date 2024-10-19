@@ -80,15 +80,15 @@ const newComment = ref('');
 const videoRef = ref<HTMLVideoElement | null>(null);
 const isVideoLoaded = ref(false);
 
-const playVideo = () => {
-  if (videoRef.value && props.isActive && isVideoLoaded.value) {
+const play = () => {
+  if (videoRef.value && isVideoLoaded.value) {
     videoRef.value.play().catch((error) => {
       console.error('Error playing video:', error);
     });
   }
 };
 
-const pauseVideo = () => {
+const pause = () => {
   if (videoRef.value) {
     videoRef.value.pause();
   }
@@ -97,7 +97,7 @@ const pauseVideo = () => {
 const onVideoLoaded = () => {
   isVideoLoaded.value = true;
   if (props.isActive) {
-    playVideo();
+    play();
   }
 };
 
@@ -189,21 +189,24 @@ watch(
   () => props.isActive,
   (newValue) => {
     if (newValue && isVideoLoaded.value) {
-      playVideo();
+      play();
     } else {
-      pauseVideo();
+      pause();
     }
   }
 );
 
+// Expose the play and pause methods
+defineExpose({ play, pause });
+
 onMounted(() => {
   if (props.isActive && isVideoLoaded.value) {
-    playVideo();
+    play();
   }
 });
 
 onUnmounted(() => {
-  pauseVideo();
+  pause();
 });
 </script>
 

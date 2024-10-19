@@ -2,7 +2,7 @@
   <q-page class="incident-reels-page">
     <div class="reels-container" ref="reelsContainerRef" @wheel="handleWheel">
       <div v-for="(reel, index) in reels" :key="reel.id" class="reel-item">
-        <IncidentReelPlayer :reel="reel" :isActive="index === currentReelIndex" />
+        <IncidentReelPlayer :ref="el => reelPlayers[index] = el" :reel="reel" :isActive="index == currentReelIndex" />
       </div>
     </div>
     <AddIncidentFab @incident-added="fetchReels" />
@@ -38,6 +38,12 @@ interface Reel {
   };
 }
 
+// Define the type for the player instance
+type ReelPlayerInstance = InstanceType<typeof IncidentReelPlayer> & {
+  play: () => void;
+  pause: () => void;
+};
+
 const reels = ref<Reel[]>([]);
 const currentReelIndex = ref(0);
 const isLoading = ref(false);
@@ -45,6 +51,7 @@ const page = ref(1);
 const pageSize = 10;
 const reelsContainerRef = ref<HTMLElement | null>(null);
 const isScrolling = ref(false);
+const reelPlayers = ref<(ReelPlayerInstance | null)[]>([]); // Store references to the player instances
 
 const fetchReels = async () => {
   if (isLoading.value) return;
@@ -86,6 +93,7 @@ const smoothScrollTo = (target: number, duration: number) => {
       requestAnimationFrame(animateScroll);
     } else {
       isScrolling.value = false;
+      playVideo(currentReelIndex.value); // Play video after scrolling
     }
   };
 
@@ -108,6 +116,15 @@ const handleWheel = (event: WheelEvent) => {
     currentReelIndex.value = newIndex;
     const targetScroll = newIndex * window.innerHeight;
     smoothScrollTo(targetScroll, 500); // 500ms duration for smooth scroll
+  }
+};
+
+const playVideo = (index: number) => {
+  const reelPlayer = reelPlayers.value[index];
+  if (reelPlayer && typeof reelPlayer.play === 'function') {
+    reelPlayer.play();
+  } else {
+    console.error(`No play method found for reelPlayer at index ${index}`);
   }
 };
 
