@@ -137,5 +137,6 @@ watch(currentReelIndex, (newIndex) => {
 .reel-item {
   height: 100vh;
   scroll-snap-align: start;
+  scroll-snap-stop: always
 }
 </style>
