@@ -32,9 +32,9 @@
       <q-dialog v-model="commentDialog" position="bottom">
         <q-card style="width: 100%;">
           <div class="">
-            <div class="comments-left" v-if="allComments.length">
+            <div v-if="allComments.length">
               <h6 class="q-ma-none q-mt-sm q-ml-sm q-mb-sm">Comments</h6>
-              <div ref="commentsContainer" class="comments-container">
+              <div class="comments-container" style="max-height:60vh; overflow-y: auto;" ref="commentsContainer">
                 <div v-for="comment in allComments" :key="comment.id">
                   <div class="q-px-sm">
                     <q-chat-message bg-color="pink-1"
@@ -46,7 +46,7 @@
               </div>
             </div>
             <div style="width: 100%;" class="q-px-md q-pb-xs">
-              <q-input v-model="newComment" label="Add a comment" @keyup.enter="submitComment">
+              <q-input style="width: 100%;" v-model="newComment" label="Add a comment" @keyup.enter="submitComment">
                 <template v-slot:append>
                   <q-icon name="mdi-send" color="pink" @click="submitComment" class="cursor-pointer" />
                 </template>
@@ -61,7 +61,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted, onUnmounted } from 'vue';
+import { ref, watch, onMounted, onUnmounted, nextTick } from 'vue';
 import { api } from 'src/boot/axios';
 import { useUserStore } from 'src/stores/user-store';
 
@@ -74,11 +74,12 @@ const userStore = useUserStore();
 const isLiked = ref(false);
 const wasLiked = ref(false);
 const commentDialog = ref(false);
-const allComments = ref([]);
+const allComments = ref<Comment[]>([]);
 const newComment = ref('');
 
 const videoRef = ref<HTMLVideoElement | null>(null);
 const isVideoLoaded = ref(false);
+const commentsContainer = ref<HTMLElement | null>(null);
 
 const play = () => {
   if (videoRef.value && isVideoLoaded.value) {
@@ -129,7 +130,7 @@ const handleLike = async (reel: any) => {
   });
 };
 
-const handleShare = (reel) => {
+const handleShare = (reel: { videoUrl: string; id: string }) => {
   if (navigator.share) {
     navigator.share({
       url: reel.videoUrl
@@ -149,6 +150,14 @@ const handleShare = (reel) => {
   }
 };
 
+const scrollToBottom = () => {
+  nextTick(() => {
+    if (commentsContainer.value) {
+      commentsContainer.value.scrollTop = commentsContainer.value.scrollHeight;
+    }
+  });
+};
+
 const showComments = async () => {
   commentDialog.value = true;
   const response = await api.get('/incidents/reels-comments', {
@@ -157,6 +166,7 @@ const showComments = async () => {
 
   if (Array.isArray(response.data)) {
     allComments.value = response.data;
+    await nextTick();
     scrollToBottom();
   } else {
     console.error('Expected an array but received:', response.data);
@@ -172,15 +182,7 @@ const submitComment = async () => {
       comment_text: newComment.value,
     });
     newComment.value = '';
-    showComments();
-    scrollToBottom();
-  }
-};
-
-const scrollToBottom = () => {
-  const commentsContainer = document.querySelector('.comments-container');
-  if (commentsContainer) {
-    commentsContainer.scrollTop = commentsContainer.scrollHeight;
+    await showComments();
   }
 };
 
@@ -203,10 +205,28 @@ watch(
 // Expose the play and pause methods
 defineExpose({ play, pause });
 
+// Function to check if the reel was liked in the past
+const checkIfLiked = async () => {
+  try {
+    const response = await api.get('/incidents/check-like', {
+      params: {
+        userId: userStore.user.id,
+        incidentId: props.reel.id,
+      },
+    });
+    console.log('response,,,,,,,,,', response);
+
+    isLiked.value = response.data;
+  } catch (error) {
+    console.error('Error checking if liked:', error);
+  }
+};
+
 onMounted(() => {
   if (props.isActive && isVideoLoaded.value) {
     play();
   }
+  checkIfLiked();
 });
 
 onUnmounted(() => {
@@ -274,6 +294,24 @@ onUnmounted(() => {
       transform: scale(1.2);
     }
   }
+
+  .comments-container {
+    padding-bottom: 60px;
+    scroll-behavior: smooth;
+  }
+
+  .q-card {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+
+  .q-px-md.q-pb-xs {
+    position: sticky;
+    bottom: 0;
+    background-color: white;
+    z-index: 1;
+  }
 }
 
 .centered-div {
@@ -284,6 +322,6 @@ onUnmounted(() => {
   width: 200px;
   height: 200px;
   border-radius: 50%;
-  background-color: 00000000;
+  background-color: transparent;
 }
 </style>
