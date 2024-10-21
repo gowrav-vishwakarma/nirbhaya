@@ -16,7 +16,7 @@
       <br />
       <span class="text-white">{{ reel.likes }}</span>
       <br />
-      <q-btn color="white" style="margin-top: 7px;" flat round @click="showComments">
+      <q-btn color="white" style="margin-top: 7px;" flat round @click="showComments(reel)">
         <q-icon class="action-font-size" name="mdi-message-outline"></q-icon>
       </q-btn>
       <br />
@@ -46,9 +46,10 @@
               </div>
             </div>
             <div style="width: 100%;" class="q-px-md q-pb-xs">
-              <q-input style="width: 100%;" v-model="newComment" label="Add a comment" @keyup.enter="submitComment">
+              <q-input style="width: 100%;" v-model="newComment" label="Add a comment"
+                @keyup.enter="submitComment(reel)">
                 <template v-slot:append>
-                  <q-icon name="mdi-send" color="pink" @click="submitComment" class="cursor-pointer" />
+                  <q-icon name="mdi-send" color="pink" @click="submitComment(reel)" class="cursor-pointer" />
                 </template>
               </q-input>
             </div>
@@ -124,23 +125,31 @@ const handleLike = async (reel: any) => {
   }, 1000);
 
   await api.post('/incidents/like-incident', {
-    userId: reel.userId,
+    userId: userStore.user.id,
     incidentId: reel.id,
     isLiked: isLiked.value
   });
+  if (isLiked.value) {
+    reel.likes++
+  } else {
+    reel.likes--
+  }
 };
 
-const handleShare = (reel: { videoUrl: string; id: string }) => {
+const handleShare = (reel) => {
   if (navigator.share) {
     navigator.share({
       url: reel.videoUrl
     })
       .then(async () => {
         console.log('Share successful');
-        await api.post('/incidents/log-share', {
+        const res = await api.post('/incidents/log-share', {
           incidentId: props.reel.id,
           userId: userStore.user.id,
         });
+        if (res) {
+          reel.shares++
+        }
       })
       .catch((error) => {
         console.error('Error sharing:', error);
@@ -158,10 +167,10 @@ const scrollToBottom = () => {
   });
 };
 
-const showComments = async () => {
+const showComments = async (reel) => {
   commentDialog.value = true;
   const response = await api.get('/incidents/reels-comments', {
-    params: { incidentId: props.reel.id },
+    params: { incidentId: reel.id },
   });
 
   if (Array.isArray(response.data)) {
@@ -174,15 +183,18 @@ const showComments = async () => {
   }
 };
 
-const submitComment = async () => {
+const submitComment = async (reel) => {
   if (newComment.value.trim()) {
-    await api.post('/incidents/add-comment', {
+    const res = await api.post('/incidents/add-comment', {
       incidentId: props.reel.id,
       userId: userStore.user.id,
       comment_text: newComment.value,
     });
     newComment.value = '';
-    await showComments();
+    if (res) {
+      reel.comments++
+    }
+    await showComments(props.reel);
   }
 };
 
@@ -215,6 +227,7 @@ const checkIfLiked = async () => {
       },
     });
     console.log('response,,,,,,,,,', response);
+
 
     isLiked.value = response.data;
   } catch (error) {
