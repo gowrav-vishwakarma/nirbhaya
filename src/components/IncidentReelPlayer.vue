@@ -16,7 +16,7 @@
       <br />
       <span class="text-white">{{ reel.likes }}</span>
       <br />
-      <q-btn color="white" style="margin-top: 7px;" flat round @click="showComments(reel)">
+      <q-btn color="white" style="margin-top: 7px;" flat round @click="showComments(reel, true)">
         <q-icon class="action-font-size" name="mdi-message-outline"></q-icon>
       </q-btn>
       <br />
@@ -167,7 +167,7 @@ const scrollToBottom = () => {
   });
 };
 
-const showComments = async (reel: { id: string; }) => {
+const showComments = async (reel: { id: string; }, runScroolToBottom = true) => {
   commentDialog.value = true;
   const response = await api.get('/incidents/reels-comments', {
     params: { incidentId: reel.id, limit: 50 }, // Fetch the latest 5 comments
@@ -175,8 +175,10 @@ const showComments = async (reel: { id: string; }) => {
 
   if (Array.isArray(response.data)) {
     allComments.value = response.data;
-    await nextTick();
-    scrollToBottom();
+    if (runScroolToBottom) {
+      await nextTick();
+      scrollToBottom();
+    }
   } else {
     console.error('Expected an array but received:', response.data);
     allComments.value = [];
@@ -194,13 +196,13 @@ const submitComment = async (reel: { id: string; comments: number; }) => {
     if (res) {
       reel.comments++
     }
-    await showComments(props.reel);
+    await showComments(props.reel, true);
   }
 };
 
-watch(allComments, () => {
-  scrollToBottom();
-});
+// watch(allComments, () => {
+//   scrollToBottom();
+// });
 
 watch(
   () => props.isActive,
@@ -244,17 +246,19 @@ onMounted(() => {
   checkIfLiked();
 
   // Set up an interval to check if the comment dialog is open
-  const intervalId = setInterval(() => {
+  intervalId.value = setInterval(() => { // Use the ref to store the interval ID
     if (commentDialog.value) {
-      showComments(props.reel); // Keep showing comments without scrolling
-      // scrollToBottom(); // Remove this line to prevent automatic scrolling
+      showComments(props.reel, false); // Keep showing comments without scrolling
+      // scrollToBottom(); // Ensure this line is commented out or removed
     }
   }, 5000);
+});
 
-  // Clear the interval on component unmount
-  onUnmounted(() => {
-    clearInterval(intervalId);
-  });
+// Clear the interval on component unmount
+onUnmounted(() => {
+  if (intervalId.value) {
+    clearInterval(intervalId.value);
+  }
 });
 
 // Watch for changes in commentDialog to clear the interval when closed
