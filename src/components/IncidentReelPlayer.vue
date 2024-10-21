@@ -136,7 +136,7 @@ const handleLike = async (reel: any) => {
   }
 };
 
-const handleShare = (reel) => {
+const handleShare = (reel: { videoUrl: string; id: string; shares: number; }) => {
   if (navigator.share) {
     navigator.share({
       url: reel.videoUrl
@@ -167,7 +167,7 @@ const scrollToBottom = () => {
   });
 };
 
-const showComments = async (reel) => {
+const showComments = async (reel: { id: string; }) => {
   commentDialog.value = true;
   const response = await api.get('/incidents/reels-comments', {
     params: { incidentId: reel.id, limit: 50 }, // Fetch the latest 5 comments
@@ -183,7 +183,7 @@ const showComments = async (reel) => {
   }
 };
 
-const submitComment = async (reel) => {
+const submitComment = async (reel: { id: string; comments: number; }) => {
   if (newComment.value.trim()) {
     const res = await api.post('/incidents/add-comment', {
       incidentId: props.reel.id,
@@ -235,6 +235,8 @@ const checkIfLiked = async () => {
   }
 };
 
+const intervalId = ref<number | null>(null); // Declare intervalId
+
 onMounted(() => {
   if (props.isActive && isVideoLoaded.value) {
     play();
@@ -257,7 +259,9 @@ onMounted(() => {
 // Watch for changes in commentDialog to clear the interval when closed
 watch(commentDialog, (newValue) => {
   if (!newValue) {
-    clearInterval(intervalId);
+    if (intervalId.value) { // Check if intervalId is defined
+      clearInterval(intervalId.value);
+    }
   }
 });
 
