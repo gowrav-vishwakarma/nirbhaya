@@ -170,7 +170,7 @@ const scrollToBottom = () => {
 const showComments = async (reel) => {
   commentDialog.value = true;
   const response = await api.get('/incidents/reels-comments', {
-    params: { incidentId: reel.id },
+    params: { incidentId: reel.id, limit: 50 }, // Fetch the latest 5 comments
   });
 
   if (Array.isArray(response.data)) {
