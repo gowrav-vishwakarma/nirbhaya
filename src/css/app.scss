@@ -1,1 +1,17 @@
-// app global css in SCSS form
+// src/css/app.scss
+
+// Importing variables to ensure they are available
+@import 'quasar.variables';
+
+// Global styles
+body {
+  background-color: $primary;
+  font-family: "Nunito", sans-serif;
+  font-weight: 500;
+  font-style: normal;
+}
+.primary-text-color {
+  color: $primary;
+}
+
+// Mixin for Poppins font styling with optical sizing

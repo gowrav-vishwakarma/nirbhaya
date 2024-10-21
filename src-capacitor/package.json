@@ -1,17 +1,21 @@
 {
-  "name": "nirbhaya",
-  "version": "0.0.1",
+  "name": "Shoutout",
+  "version": "0.0.19",
   "description": "A power tool for every girl and child",
   "author": "Gowrav Vishwakarma <gowravvishwkarma@gmail.com>",
   "private": true,
   "dependencies": {
     "@capacitor/android": "^6.1.2",
     "@capacitor/app": "^6.0.0",
+    "@capacitor/camera": "^6.0.0",
     "@capacitor/cli": "^6.0.0",
     "@capacitor/core": "^6.0.0",
-    "@capacitor/geolocation": "^6.0.1",
+    "@capacitor/device": "^6.0.0",
+    "@capacitor/filesystem": "^6.0.0",
+    "@capacitor/geolocation": "^6.0.0",
     "@capacitor/ios": "^6.1.2",
-    "@capacitor/network": "^6.0.2",
-    "@capacitor/push-notifications": "^6.0.2"
+    "@capacitor/network": "^6.0.0",
+    "@capacitor/push-notifications": "^6.0.0",
+    "@ionic/pwa-elements": "^3.3.0"
   }
 }

@@ -1,10 +1,10 @@
 import { boot } from 'quasar/wrappers';
-import { messaging, vapidKey } from './firebase';
+import { messagingReadyPromise, vapidKey } from './firebase';
 import { Capacitor } from '@capacitor/core';
 import { PushNotifications } from '@capacitor/push-notifications';
 import { useUserStore } from 'src/stores/user-store';
 
-export default boot(async ({ app }) => {
+export default boot(async ({ router }) => {
   const userStore = useUserStore();
   console.log('Initializing push notifications');
 
@@ -35,9 +35,18 @@ export default boot(async ({ app }) => {
           'pushNotificationActionPerformed',
           (notification) => {
             console.log('Push notification action performed', notification);
-            // Action handling logic here
+            const { sosEventId, location } = notification.notification.data;
+            router.push({
+              name: 'notifications', // Updated to point to the notifications page
+              params: { sosEventId, location },
+            });
           }
         );
+
+        // Some issue with our setup and push will not work
+        PushNotifications.addListener('registrationError', (error: any) => {
+          console.log('Error on registration:', error);
+        });
 
         await PushNotifications.register();
         console.log('Push notifications registered');
@@ -47,13 +56,10 @@ export default boot(async ({ app }) => {
     } catch (error) {
       console.error('Error setting up push notifications:', error);
     }
-  } else if (
-    typeof window !== 'undefined' &&
-    'serviceWorker' in navigator &&
-    messaging
-  ) {
+  } else if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
     console.log('Running on web platform');
     try {
+      const messaging = await messagingReadyPromise;
       const { getToken, onMessage } = await import('firebase/messaging');
       const currentToken = await getToken(messaging, { vapidKey });
       if (currentToken) {
@@ -70,7 +76,23 @@ export default boot(async ({ app }) => {
 
       onMessage(messaging, (payload) => {
         console.log('Message received:', payload);
-        // Web notification handling logic here (without showNotification)
+        const { title, body } = payload.notification;
+        const { sosEventId, location } = payload.data;
+
+        if (Notification.permission === 'granted') {
+          const notification = new Notification(title, {
+            body,
+            data: { sosEventId, location },
+          });
+
+          notification.onclick = () => {
+            window.focus();
+            router.push({
+              name: 'notifications', // Updated to point to the notifications page
+              params: { sosEventId, location },
+            });
+          };
+        }
       });
     } catch (error) {
       console.error('Error setting up push notifications:', error);

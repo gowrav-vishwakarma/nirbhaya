@@ -35,6 +35,7 @@ module.exports = configure(function (/* ctx */) {
       'capacitor',
       'firebase',
       'push-notifications',
+      'socket',
     ],
 
     // https://v2.quasar.dev/quasar-cli-vite/quasar-config-js#css
@@ -43,7 +44,7 @@ module.exports = configure(function (/* ctx */) {
     // https://github.com/quasarframework/quasar/tree/dev/extras
     extras: [
       // 'ionicons-v4',
-      // 'mdi-v5',
+      'mdi-v6',
       // 'fontawesome-v6',
       // 'eva-icons',
       // 'themify',
@@ -90,7 +91,7 @@ module.exports = configure(function (/* ctx */) {
 
             // if you want to use named tokens in your Vue I18n messages, such as 'Hello {name}',
             // you need to set `runtimeOnly: false`
-            // runtimeOnly: false,
+            runtimeOnly: false,
 
             // you need to set i18n resource including paths !
             include: path.resolve(__dirname, './src/i18n/**'),
@@ -103,13 +104,27 @@ module.exports = configure(function (/* ctx */) {
     devServer: {
       // https: true
       open: false, // opens browser window automatically
+      host: '0.0.0.0',
     },
 
     // https://v2.quasar.dev/quasar-cli-vite/quasar-config-js#framework
     framework: {
-      config: {},
+      config: {
+        brand: {
+          primary: '#E91E63', // Pink 500 from Material Colors
+          secondary: '#FFC107', // Amber 500 from Material Colors
+          accent: '#9C27B0', // Purple 500 from Material Colors
 
-      // iconSet: 'material-icons', // Quasar icon set
+          dark: '#1D1D1D', // Keeping dark as is for better contrast
+
+          positive: '#4CAF50', // Green 500 from Material Colors
+          negative: '#F44336', // Red 500 from Material Colors
+          info: '#2196F3', // Blue 500 from Material Colors
+          warning: '#FFEB3B', // Yellow 500 from Material Colors
+        },
+      },
+
+      iconSet: 'material-icons', // Quasar icon set
       // lang: 'en-US', // Quasar language pack
 
       // For special cases outside of where the auto-import strategy can have an impact
@@ -120,7 +135,7 @@ module.exports = configure(function (/* ctx */) {
       // directives: [],
 
       // Quasar plugins
-      plugins: ['Notify'],
+      plugins: ['Notify', 'Dialog'],
     },
 
     // animations: 'all', // --- includes all animations
@@ -162,22 +177,16 @@ module.exports = configure(function (/* ctx */) {
 
     // https://v2.quasar.dev/quasar-cli-vite/developing-pwa/configuring-pwa
     pwa: {
-      workboxMode: 'injectManifest',
+      workboxMode: 'generateSW', // Change to generateSW
       injectPwaMetaTags: true,
       swFilename: 'sw.js',
       manifestFilename: 'manifest.json',
       useCredentialsForManifestTag: false,
-      extendInjectManifestOptions(cfg) {
-        cfg.additionalManifestEntries = [
-          { url: 'index.html', revision: Date.now().toString() },
-        ];
-        return cfg;
-      },
-      // useFilenameHashes: true,
-      // extendGenerateSWOptions (cfg) {}
-      // extendInjectManifestOptions (cfg) {},
-      // extendManifestJson (json) {}
-      // extendPWACustomSWConf (esbuildConf) {}
+      // Remove swSrc as it is not needed for generateSW
+      // swSrc: 'public/firebase-messaging-sw.js',
+      // extendGenerateSWOptions (cfg) {
+      //   // Customize Workbox options here if needed
+      // },
     },
 
     // Full list of options: https://v2.quasar.dev/quasar-cli-vite/developing-cordova-apps/configuring-cordova
@@ -188,6 +197,13 @@ module.exports = configure(function (/* ctx */) {
     // Full list of options: https://v2.quasar.dev/quasar-cli-vite/developing-capacitor-apps/configuring-capacitor
     capacitor: {
       hideSplashscreen: true,
+      appName: 'Shoutout',
+      appId: 'com.xavoc.shoutout',
+      webDir: 'www',
+      server: {
+        androidScheme: 'https',
+        url: 'https://192.168.1.3:9500',
+      },
     },
 
     // Full list of options: https://v2.quasar.dev/quasar-cli-vite/developing-electron-apps/configuring-electron

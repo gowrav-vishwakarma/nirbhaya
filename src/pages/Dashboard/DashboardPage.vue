@@ -1,62 +1,62 @@
 <template>
-  <q-page class="flex flex-center">
-    <q-card class="q-pa-lg" style="width: 100%; max-width: 400px">
-      <h2 class="text-center q-mb-xl">
-        {{ $t('welcome', { name: userName }) }}
-      </h2>
-
-      <div class="flex justify-center">
-        <q-btn
-          round
-          color="red"
-          size="xl"
-          class="sos-button"
-          @click="initiateSOSMode"
-        >
-          <span class="text-h5">SOS</span>
-        </q-btn>
-      </div>
-    </q-card>
+  <q-page class="dashboard-page q-pa-md">
+    <div class="dashboard-content">
+      <WelcomeCard :user-name="userName" />
+      <SOSButtons @initiate-sos="initiateSOSMode" />
+      <EmergencyContacts />
+      <NearbyVolunteers v-if="locationPermissionGranted" />
+      <MissingPermissions />
+    </div>
   </q-page>
 </template>
 
-<script lang="ts" setup>
-import { ref } from 'vue';
+<script setup lang="ts">
+import { computed, defineAsyncComponent, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { useUserForm } from 'src/composables/use-user-form';
+import { useUserStore } from 'src/stores/user-store';
+import { useSOSMode } from 'src/composables/useSOSMode';
+import { usePermissions } from 'src/composables/usePermissions';
+import MissingPermissions from 'src/components/MissingPermissions.vue';
+
+const WelcomeCard = defineAsyncComponent(
+  () => import('./components/WelcomeCard.vue')
+);
+const SOSButtons = defineAsyncComponent(
+  () => import('./components/SOSButtons.vue')
+);
+const EmergencyContacts = defineAsyncComponent(
+  () => import('./components/EmergencyContacts.vue')
+);
+const NearbyVolunteers = defineAsyncComponent(
+  () => import('./components/NearbyVolunteers.vue')
+);
 
 const router = useRouter();
+const userStore = useUserStore();
+const { initiateSOSMode } = useSOSMode();
+const { permissions, checkPermissions } = usePermissions();
 
-const userName = ref('User');
+const userName = computed(() => userStore.user.name || 'User');
 
-const initiateSOSMode = async () => {
-  try {
-    // TODO: Implement API call to send initial SOS request
-    await sendInitialSOSRequest();
-    router.push('sos-mode');
-  } catch (error) {
-    console.error('Failed to send initial SOS request:', error);
-    // TODO: Show error message to user
-  }
-};
+const locationPermissionGranted = computed(
+  () =>
+    permissions.value.find((p) => p.name === 'common.location')?.granted ||
+    false
+);
 
-const { validateAndSubmit, callbacks } = useUserForm('auth/sos-location-crud', {
-  status: 'created',
+onMounted(async () => {
+  await checkPermissions();
 });
-
-callbacks.onSuccess = () => {
-  console.log('SOS log started');
-};
-
-const sendInitialSOSRequest = async () => {
-  validateAndSubmit();
-  console.log('Sending initial SOS request');
-};
 </script>
 
-<style scoped>
-.sos-button {
-  width: 150px;
-  height: 150px;
+<style lang="scss" scoped>
+.dashboard-page {
+  background: linear-gradient(135deg, $primary, darken($primary, 20%));
+  min-height: 100vh;
+}
+
+.dashboard-content {
+  max-width: 600px;
+  margin: 0 auto;
 }
 </style>

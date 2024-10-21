@@ -1,59 +1,90 @@
 <template>
-  <q-page class="row justify-center items-center container">
-    <div class="image"></div>
-    <div class="auth-container flex flex-center">
-      <q-card class="q-pa-md admin-login-card">
-        <q-card-section class="q-pb-none">
-          <div class="text-h6 text-center">Login</div>
-        </q-card-section>
-        <q-card-section>
-          <q-form @submit="handleSubmit">
-            <q-input
-              filled
-              v-model="values.mobileNumber"
-              label="Mobile Number"
-              :error="!!errors.mobileNumber"
-              :error-message="errors.mobileNumber?.join('; ')"
-              mask="##########"
-              :disable="otpSent"
-            />
+  <q-page class="flex flex-center">
+    <q-card class="login-card q-pa-lg">
+      <q-card-section class="text-center">
+        <div class="text-h3 text-weight-bold text-primary q-mb-md">
+          Shoutout
+        </div>
+        <div class="text-subtitle1 text-weight-medium text-grey-7 q-mb-lg">
+          Community SOS
+        </div>
+        <div class="text-h5 text-weight-bold text-primary q-mb-md">
+          {{ $t('common.login') }}
+        </div>
+        <LanguageSelector class="q-mb-md" />
+      </q-card-section>
 
-            <q-input
-              v-if="otpSent"
-              filled
-              v-model="values.otp"
-              label="Enter OTP"
-              :error="!!errors.otp"
-              :error-message="errors.otp?.join('; ')"
-              mask="####"
-            />
+      <q-card-section v-if="isIosNotSafari">
+        <q-banner class="bg-negative text-white" rounded>
+          {{ $t('common.iosNotSafariWarning') }}
+        </q-banner>
+      </q-card-section>
 
-            <div class="q-mt-md">
-              <q-btn
-                :label="otpSent ? 'Login' : 'Send OTP'"
-                type="submit"
-                color="primary"
-                full-width
-              />
-            </div>
-          </q-form>
-        </q-card-section>
-      </q-card>
-    </div>
+      <q-card-section v-else>
+        <q-form @submit="handleSubmit" class="q-gutter-md">
+          <q-input filled v-model="values.mobileNumber" :label="$t('common.mobileNumber')"
+            :error="!!errors.mobileNumber" :error-message="errors.mobileNumber?.join('; ')" mask="##########"
+            :disable="otpSent">
+            <template v-slot:prepend>
+              <q-icon :name="$t('common.icons.phone')" color="primary" />
+            </template>
+          </q-input>
+
+          <q-input v-if="otpSent" filled v-model="values.otp" :label="$t('common.enterOTP')" :error="!!errors.otp"
+            :error-message="errors.otp?.join('; ')" mask="####">
+            <template v-slot:prepend>
+              <q-icon :name="$t('common.icons.lock')" color="primary" />
+            </template>
+          </q-input>
+
+          <q-btn :label="otpSent ? $t('common.login') : $t('common.sendOTP')" type="submit" color="primary"
+            class="full-width q-py-sm" :loading="isLoading" />
+        </q-form>
+      </q-card-section>
+
+      <q-card-section v-if="otpSent" class="text-center">
+        <q-btn flat color="primary" @click="resendOTP" :disable="isLoading">
+          {{ $t('common.resendOTP') }}
+        </q-btn>
+      </q-card-section>
+      <q-card-section class="text-center">
+        <q-btn flat @click="goToAboutUs" class="q-mb-md">
+          {{ $t('common.aboutUs') }}
+        </q-btn>
+      </q-card-section>
+    </q-card>
   </q-page>
 </template>
 
-<script setup>
-import { ref } from 'vue';
+<script setup lang="ts">
+import { ref, computed, onMounted } from 'vue';
+import { useQuasar } from 'quasar';
 import { useUserStore } from 'stores/user-store';
 import { useRouter } from 'vue-router';
 import { useForm } from 'src/qnatk/composibles/use-form';
 import { api } from 'src/boot/axios';
 import { Notify } from 'quasar';
+import LanguageSelector from 'src/components/LanguageSelector.vue';
+import { Device } from '@capacitor/device';
 
+const $q = useQuasar();
 const userStore = useUserStore();
 const router = useRouter();
 const otpSent = ref(false);
+
+const isIosNotSafari = computed(() => {
+  return (
+    $q.platform.is.ios && !$q.platform.is.safari && !$q.platform.is.nativeMobile
+  );
+});
+
+onMounted(() => {
+  const referrer = router.currentRoute.value.params.referrer;
+  console.log('referrer', referrer);
+  if (referrer) {
+    userStore.setReferrer(referrer);
+  }
+});
 
 const { values, errors, validateAndSubmit, updateUrl, callbacks } = useForm(
   api,
@@ -61,10 +92,14 @@ const { values, errors, validateAndSubmit, updateUrl, callbacks } = useForm(
   {
     mobileNumber: '',
     otp: '',
+    deviceId: '',
   }
 );
 
-const handleSubmit = () => {
+const handleSubmit = async () => {
+  const { identifier } = await Device.getId(); // Retrieve deviceId
+  values.value.deviceId = identifier;
+
   validateAndSubmit(false); // Pass false to prevent form reset
 };
 
@@ -105,7 +140,7 @@ callbacks.onSuccess = async (userData) => {
     userStore.setUser(userData);
     await userStore.sendTokenIfAvailable(); // Send FCM token after user is set
     if (userData.name) {
-      router.push('/dashboard');
+      router.push('/sos');
     } else {
       router.push('/account');
     }
@@ -113,6 +148,7 @@ callbacks.onSuccess = async (userData) => {
 };
 
 callbacks.onError = (error) => {
+  console.log('Error in login page', error);
   Notify.create({
     type: 'negative',
     message: otpSent.value
@@ -120,45 +156,42 @@ callbacks.onError = (error) => {
       : 'Failed to send OTP. Please try again.',
   });
 };
+
+const isLoading = ref(false);
+
+const resendOTP = async () => {
+  isLoading.value = true;
+  try {
+    await api.post('auth/sendOtp', { mobileNumber: values.value.mobileNumber });
+    Notify.create({
+      type: 'positive',
+      message: 'OTP resent successfully',
+    });
+  } catch (error) {
+    console.error('Error resending OTP:', error);
+    Notify.create({
+      type: 'negative',
+      message: 'Failed to resend OTP. Please try again.',
+    });
+  } finally {
+    isLoading.value = false;
+  }
+};
+
+const goToAboutUs = () => {
+  router.push('/about-us'); // Navigate to About Us page
+};
 </script>
 
 <style scoped lang="scss">
-.admin-login-card {
+.login-card {
   max-width: 400px;
-  width: 80%;
-  margin: 0 auto;
+  width: 90%;
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
 }
-.container {
-  position: relative;
-  height: 100vh;
-}
-.image {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  color: white;
-  font-weight: 600;
-  font-family: sans-serif;
-  background-color: var(--midnight-blue-2);
-  background-image: linear-gradient(#0707400c, transparent 40%),
-    linear-gradient(transparent, #070740 95%),
-    linear-gradient(transparent, transparent),
-    url(https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQhWXv_XZLA4D4Ptn67GnmCRU9S9raRiIIF2rCebk15P8z4RZfcb4ibNBVOnrRASRuWCKA&usqp=CAU);
-  background-repeat: no-repeat;
-  background-size: cover;
-  z-index: 1;
-}
-.auth-container {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  z-index: 2;
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+
+.q-page {
+  background: linear-gradient(135deg, $primary, darken($primary, 20%));
 }
 </style>

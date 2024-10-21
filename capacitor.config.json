@@ -1,7 +1,12 @@
 {
   "appId": "com.xavoc.shoutout",
-  "appName": "Nirbhaya, freedom from violence",
+  "appName": "Shoutout",
   "webDir": "www",
+  "server": {
+    "hostname": "localhost",
+    "iosScheme": "https",
+    "androidScheme": "https"
+  },
   "plugins": {
     "Geolocation": {
       "permissions": [

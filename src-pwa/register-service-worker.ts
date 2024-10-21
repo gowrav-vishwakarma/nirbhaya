@@ -5,7 +5,8 @@ import { Notify } from 'quasar';
 // events passes a ServiceWorkerRegistration instance in their arguments.
 // ServiceWorkerRegistration: https://developer.mozilla.org/en-US/docs/Web/API/ServiceWorkerRegistration
 
-register(process.env.SERVICE_WORKER_FILE, {
+register('/firebase-messaging-sw.js', {
+  // Ensure this path is correct
   // The registrationOptions object will be passed as the second argument
   // to ServiceWorkerContainer.register()
   // https://developer.mozilla.org/en-US/docs/Web/API/ServiceWorkerContainer/register#Parameter
@@ -13,24 +14,57 @@ register(process.env.SERVICE_WORKER_FILE, {
   // registrationOptions: { scope: './' },
 
   ready(registration) {
-    console.log('Service worker is active.');
-    initializeWebPush(registration);
+    console.log('Service worker is active.', registration);
+    // Removed initializeWebPush call
   },
 
   registered(registration) {
-    console.log('Service worker has been registered.');
+    console.log('Service worker has been registered.', registration);
   },
 
   cached(/* registration */) {
     // console.log('Content has been cached for offline use.')
   },
 
-  updatefound(/* registration */) {
-    // console.log('New content is downloading.')
+  updatefound(registration) {
+    console.log('New content is downloading.', registration);
+    Notify.create({
+      message: 'A new version is available',
+      caption: 'Please refresh to update.',
+      color: 'info',
+      actions: [
+        {
+          label: 'Refresh',
+          color: 'white',
+          handler: () => {
+            if (typeof window !== 'undefined') {
+              window.location.reload();
+            }
+          },
+        },
+      ],
+    });
   },
 
-  updated(/* registration */) {
-    // console.log('New content is available; please refresh.')
+  updated(registration) {
+    console.log('New content is available; please refresh.', registration);
+    Notify.create({
+      message: 'App updated',
+      caption:
+        'New version is ready. Please refresh to use the latest version.',
+      color: 'positive',
+      actions: [
+        {
+          label: 'Refresh',
+          color: 'white',
+          handler: () => {
+            if (typeof window !== 'undefined') {
+              window.location.reload();
+            }
+          },
+        },
+      ],
+    });
   },
 
   offline() {
@@ -42,42 +76,6 @@ register(process.env.SERVICE_WORKER_FILE, {
   },
 });
 
-function initializeWebPush(registration: ServiceWorkerRegistration) {
-  if ('PushManager' in self) {
-    const vapidPublicKey = 'YOUR_PUBLIC_VAPID_KEY'; // Replace with your actual VAPID public key
-    const convertedVapidKey = urlBase64ToUint8Array(vapidPublicKey);
-
-    registration.pushManager
-      .subscribe({
-        userVisibleOnly: true,
-        applicationServerKey: convertedVapidKey,
-      })
-      .then(function (subscription) {
-        console.log('User is subscribed:', subscription);
-        // TODO: Send subscription to your server
-      })
-      .catch(function (err) {
-        console.log('Failed to subscribe the user: ', err);
-      });
-  }
-}
-
-// Helper function to convert base64 to Uint8Array
-function urlBase64ToUint8Array(base64String: string) {
-  const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
-  const base64 = (base64String + padding)
-    .replace(/\-/g, '+')
-    .replace(/_/g, '/');
-
-  const rawData = atob(base64);
-  const outputArray = new Uint8Array(rawData.length);
-
-  for (let i = 0; i < rawData.length; ++i) {
-    outputArray[i] = rawData.charCodeAt(i);
-  }
-  return outputArray;
-}
-
 // Add this function to handle showing notifications
 function showNotification(title: string, options: NotificationOptions) {
   Notify.create({
@@ -88,7 +86,9 @@ function showNotification(title: string, options: NotificationOptions) {
         label: 'Go to SOS',
         color: 'red',
         handler: () => {
-          window.location.href = '/#/sos';
+          if (typeof window !== 'undefined') {
+            window.location.href = '/#/sos';
+          }
         },
       },
     ],
@@ -105,7 +105,10 @@ function handleIncomingMessage(event: MessageEvent) {
 
 // Listen for messages from the service worker
 if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
-  navigator.serviceWorker.addEventListener('message', handleIncomingMessage);
+  (navigator.serviceWorker as ServiceWorkerContainer).addEventListener(
+    'message',
+    handleIncomingMessage
+  );
 }
 
 // Export the showNotification function

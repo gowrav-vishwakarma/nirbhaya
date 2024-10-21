@@ -1,336 +1,486 @@
 <template>
-  <q-page>
-    <q-card
-      class="q-mt-lg"
-      style="
-        background-color: white;
-        border-radius: 20px 20px 0 0;
-        height: 100%;
-        bottom: 0;
-        left: 0;
-        top: 5px;
-        width: 100%;
-        overflow-y: auto;
-      "
-    >
-      <div class="row">
-        <div class="col-12 col-md-12 q-px-md q-mt-xl">
-          <h6 class="q-ma-none q-ml-xs">{{ $t('sosWarning') }}</h6>
+  <q-page class="sos-page q-pa-md">
+    <q-card class="sos-card q-pa-lg">
+      <q-card-section>
+        <div class="text-h5 text-weight-bold text-center q-mb-md">
+          {{ $t('common.sosMode') }}
         </div>
 
-        <!-- Timer and Cancel SOS button -->
         <template v-if="!sosSent">
-          <div class="col-12 col-md-12 q-px-md q-mt-md text-center">
-            <q-circular-progress
-              show-value
-              class="text-red q-ma-md"
-              :value="timeLeft"
-              size="100px"
-              :thickness="0.22"
-              color="red"
-              track-color="grey-3"
-              :min="0"
-              :max="countdownDuration"
-              @click="resetCountdown"
-            >
-              {{ timeLeft }}
+          <div class="text-center q-mb-lg">
+            <q-circular-progress show-value class="text-red q-ma-md" :value="timeLeft" size="150px" :thickness="0.22"
+              color="red" track-color="grey-3" :min="0" :max="countdownDuration" @click="resetCountdown">
+              <div class="text-h5">{{ timeLeft }}</div>
             </q-circular-progress>
-          </div>
-          <div class="col-12 col-md-12 q-px-md q-mt-md text-center">
-            <q-btn color="red" :label="$t('cancelSOS')" @click="cancelSOS" />
+            <div class="text-subtitle1 q-mt-sm">
+              {{ $t('common.sosCountdownMessage') }}
+            </div>
+            <q-btn @click="cancelSOS" class="cancel-sos-button full-width q-py-sm">
+              <span class="text-bold">{{ $t('common.cancelSOS') }}</span>
+            </q-btn>
           </div>
         </template>
 
-        <!-- SOS Sent message -->
-        <div v-else class="col-12 col-md-12 q-px-md q-mt-md text-center">
-          <h4 class="text-red">SOS Sent</h4>
-        </div>
 
-        <!-- Notification status -->
-        <div v-if="sosSent" class="col-12 col-md-12 q-px-md q-mt-md">
-          <p>Notification sent to {{ informed }} nearby persons</p>
-          <p>Accepted by {{ accepted }} persons</p>
-          <p>Emergency contacts informed</p>
-        </div>
-
-        <div class="col-12 col-md-12 q-px-md">
-          <h5 class="q-ma-none q-ml-xs text-bold q-mt-md">
-            {{ $t('helpUsMore') }}
-          </h5>
-        </div>
-        <div
-          class="col-12 col-md-12 q-px-md q-mt-lg flex flex-wrap justify-between"
-        >
-          <q-btn
-            style="width: 48%"
-            class="q-mb-md"
-            @click="updateThreat('followedBySomeone')"
-          >
-            <span class="q-ml-xs">{{ $t('followedBySomeone') }}</span>
-          </q-btn>
-          <q-btn
-            style="width: 48%"
-            class="q-mb-md"
-            @click="updateThreat('verbalHarassment')"
-          >
-            <span class="q-ml-xs">{{ $t('verbalHarassment') }}</span>
-          </q-btn>
-          <q-btn
-            style="width: 48%"
-            class="q-mb-md"
-            @click="updateThreat('physicalThreat')"
-          >
-            <span class="q-ml-xs">{{ $t('physicalThreat') }}</span>
-          </q-btn>
-          <q-btn
-            style="width: 48%"
-            class="q-mb-md"
-            @click="updateThreat('attemptedKidnapping')"
-          >
-            <span class="q-ml-xs">{{ $t('attemptedKidnapping') }}</span>
-          </q-btn>
-          <q-btn
-            style="width: 48%"
-            class="q-mb-md"
-            @click="updateThreat('sexualAssault')"
-          >
-            <span class="q-ml-xs">{{ $t('sexualAssault') }}</span>
-          </q-btn>
-          <q-btn
-            style="width: 48%"
-            class="q-mb-md"
-            @click="updateThreat('domesticViolence')"
-          >
-            <span class="q-ml-xs">{{ $t('domesticViolence') }}</span>
-          </q-btn>
-        </div>
-        <div class="col-12 col-md-12 q-px-md q-mt-lg">
-          <h6 class="q-ma-none q-ml-xs">{{ $t('currentLocation') }}</h6>
-          <div>
-            <q-icon name="my_location" color="deep-orange" size="sm" />
-            <span class="q-ml-sm" style="font-size: 20px">
-              {{ currentLocationName || $t('gettingLocation') }}
-            </span>
+        <template v-else>
+          <!-- <template v-else> -->
+          <div class="text-center q-mb-lg">
+            <q-icon name="warning" color="red" size="4rem" />
+            <div class="text-h6 text-red text-weight-bold q-mt-sm">
+              {{ $t('common.sosSent') }}
+            </div>
           </div>
-          <p
-            v-if="currentLocation.latitude && currentLocation.longitude"
-            class="text-caption q-mt-sm"
-          >
-            {{ $t('coordinates') }}: {{ currentLocation.latitude.toFixed(6) }},
-            {{ currentLocation.longitude.toFixed(6) }}
-          </p>
+
+          <!-- Move status icons here -->
+          <div class="status-icons q-mb-md" style="
+              display: flex;
+              justify-content: center;
+              align-items: center;
+              background-color: antiquewhite;
+              border-radius: 20px;
+              width: 200px;
+              margin: auto;
+              padding: 3px;
+              margin-bottom: 20px;
+            ">
+            <q-icon :name="$t('common.icons.videocam')" :color="getIconColor(recordingStatus)" size="sm">
+              <q-tooltip>{{
+                getTooltip(recordingStatus, 'recording')
+                }}</q-tooltip>
+            </q-icon>
+            <q-icon :name="$t('common.icons.mic')" :color="getIconColor(audioStatus)" size="sm" class="q-ml-sm">
+              <q-tooltip>{{ getTooltip(audioStatus, 'audio') }}</q-tooltip>
+            </q-icon>
+            <q-icon :name="$t('common.icons.locationOn')" :color="getIconColor(locationStatus)" size="sm"
+              class="q-ml-sm">
+              <q-tooltip>{{
+                getTooltip(locationStatus, 'location')
+                }}</q-tooltip>
+            </q-icon>
+          </div>
+          <AudioControls :sosEventId="createdSosId" @audioStatusChange="handleAudioStatusChange" />
+          <q-list bordered class="rounded-borders notify-person-box q-mb-md flex justify-evenly"
+            style="border: 1px solid red;">
+            <q-item v-if="!contactsOnly">
+              <q-item-section style="text-align: center;">
+                <q-item-label>
+                  <span class=""
+                    style="font-size: 20px; font-weight: bolder; color: whitesmoke;  margin: 0;padding: 0;">{{
+                      informed
+                    }}</span> </q-item-label>
+                <q-item-label class="q-px-sm notify-person-box-label"> <q-icon name="person" />
+                  <span style="margin-top: -30px;">
+                    {{ $t('common.notifiedPersons') }}
+                  </span>
+                </q-item-label>
+              </q-item-section>
+            </q-item>
+            <q-item v-if="!contactsOnly">
+              <q-item-section style="text-align: center;">
+                <q-item-label>
+                  <span class=""
+                    style="font-size: 20px; font-weight: bolder; color: whitesmoke;  margin: 0;padding: 0;">{{
+                      accepted
+                    }}</span> </q-item-label>
+                <q-item-label class="q-px-sm notify-person-box-label"> <q-icon name="person" />
+                  <span style="margin-top: -30px;">
+                    {{ $t('common.acceptedPersons') }}
+                  </span>
+                </q-item-label>
+              </q-item-section>
+            </q-item>
+            <q-item>
+              <q-item-section style="text-align: center;">
+                <q-item-label>
+                  <span class=""
+                    style="font-size: 18px; font-weight: bolder; color: whitesmoke;  margin: 0;padding: 0;">{{
+                      $t('common.yes')
+                    }}</span> </q-item-label>
+                <q-item-label class="q-px-sm notify-person-box-label">
+                  <span style="margin-top: -30px;"> {{ $t('common.emergencyContactsInformed')
+                    }}
+                  </span>
+                  <q-icon name="done_all" color="blue" />
+                </q-item-label>
+              </q-item-section>
+            </q-item>
+          </q-list>
+        </template>
+        <!-- <q-list bordered class="rounded-borders notify-person-box q-mb-md" style="border: 1px solid red;">
+          <q-item v-if="!contactsOnly">
+            <q-item-section>
+              <q-item-label>{{ $t('common.notifiedPersons') }}</q-item-label>
+              <q-item-label caption>{{ informed }}</q-item-label>
+            </q-item-section>
+          </q-item>
+          <q-item v-if="!contactsOnly">
+            <q-item-section>
+              <q-item-label>{{ $t('common.acceptedPersons') }}</q-item-label>
+              <q-item-label caption>{{ accepted }}</q-item-label>
+            </q-item-section>
+          </q-item>
+          <q-item>
+            <q-item-section>
+              <q-item-label>{{
+                $t('common.emergencyContactsInformed')
+              }}</q-item-label>
+              <q-item-label caption>{{ $t('common.yes') }}</q-item-label>
+            </q-item-section>
+          </q-item>
+        </q-list> -->
+
+        <div class=" text-weight-bold q-mb-sm" style="font-size: 16px;">
+          {{ $t('common.helpUsMore') }}
         </div>
-        <div class="col-12 col-md-12 q-px-md q-mt-lg">
-          <h6 class="q-ma-none q-ml-xs">{{ $t('nearbyPoliceStations') }}</h6>
-          <div>
-            <q-btn round color="deep-orange" icon="edit_location" />
-            <span class="q-ml-sm" style="font-size: 20px"
-              >South Bopal Ahmedabad</span
-            >
+        <div class=" q-col-gutter-sm q-mb-md">
+          <div class="flex " style="width: 100%; ">
+            <q-btn v-for="threat in threats" :key="threat.threatName" class="button-background q-mr-xs"
+              @click="handleThreatButtonClick(threat.threatName)" size="sm" style="border-radius: 30px">
+              <q-btn round size="sm" :style="{
+                marginLeft: '-10px',
+                backgroundColor: `${threat.color}`,
+                borderRadius: '50%',
+              }"><q-icon :name="threat.icon" style="color: whitesmoke"></q-icon> </q-btn><span class="q-ml-xs"
+                style="font-weight: bold">
+                {{ $t(threat.visibleThreat) }}</span>
+            </q-btn>
           </div>
         </div>
 
-        <div
-          class="col-12 col-md-12 q-px-md q-mt-lg flex justify-center q-mb-lg"
-        >
-          <q-btn
-            @click="sendLocationUpdate('edit', 'active')"
-            style="width: 100%"
-            class="primaryBackGroundColor text-white"
-            ><b class="q-ml-xs q-my-md">{{
-              $t('contactPoliceStation')
-            }}</b></q-btn
-          >
+        <div class="text-subtitle1 text-weight-bold q-mb-sm">
+          {{ $t('common.currentLocation') }}
         </div>
+        <q-item class="bg-grey-2 rounded-borders q-mb-md">
+          <q-item-section avatar>
+            <q-icon :name="$t('common.icons.myLocation')" color="primary" />
+          </q-item-section>
+          <q-item-section>
+            <q-item-label>{{
+              currentLocationName || $t('common.gettingLocation')
+              }}</q-item-label>
+            <q-item-label caption v-if="currentLocation.latitude && currentLocation.longitude">
+              {{ $t('common.coordinates') }}:
+              {{ currentLocation.latitude.toFixed(6) }},
+              {{ currentLocation.longitude.toFixed(6) }}
+            </q-item-label>
+          </q-item-section>
+        </q-item>
 
-        <div v-if="isGettingLocation" class="text-center q-mt-md">
-          <q-spinner color="primary" size="3em" />
-          <p>{{ $t('gettingLocation') }}</p>
+        <div class="text-subtitle1 text-weight-bold q-mb-sm">
+          {{ $t('common.nearbyPoliceStations') }}
         </div>
-      </div>
+        <q-item class="bg-grey-2 rounded-borders q-mb-md">
+          <q-item-section avatar>
+            <q-icon :name="$t('common.icons.locationOn')" color="primary" />
+          </q-item-section>
+          <q-item-section>
+            <q-item-label>South Bopal Ahmedabad</q-item-label>
+          </q-item-section>
+        </q-item>
+
+        <q-btn @click="updateSOSData({ status: 'active' })" color="" class=" notify-person-box full-width q-mb-md">
+          <span class="text-bold">{{ $t('common.contactPoliceStation') }}</span>
+        </q-btn>
+        <!--v-if="sosSent" -->
+        <q-btn @click="showResolveConfirmation" color="" class="green-bg-color full-width">
+          <span class="text-bold">{{ $t('common.resolveSOSIssue') }}</span>
+        </q-btn>
+      </q-card-section>
+
+      <q-card-section>
+        <q-expansion-item label="Logs" icon="mdi-clipboard-text" class="text-subtitle1 text-weight-bold">
+          <q-card>
+            <q-card-section>
+              <div v-for="(log, index) in logs" :key="index" class="text-body2 q-mb-xs">
+                {{ log }}
+                <q-separator v-if="index < logs.length - 1" class="q-my-sm" />
+              </div>
+            </q-card-section>
+          </q-card>
+        </q-expansion-item>
+      </q-card-section>
     </q-card>
   </q-page>
 </template>
-
 <script lang="ts" setup>
-import { ref, onMounted, onUnmounted, watch } from 'vue';
+import { ref, onMounted, onUnmounted, watch, computed, reactive } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useI18n } from 'vue-i18n';
-import { Geolocation } from '@capacitor/geolocation';
+import {
+  Geolocation,
+  Position,
+  WatchPositionCallback,
+} from '@capacitor/geolocation';
 import { Capacitor } from '@capacitor/core';
-import { Camera, CameraResultType } from '@capacitor/camera';
-import { Filesystem, Directory } from '@capacitor/filesystem';
-import { Microphone } from '@capacitor/microphone';
 import { Network } from '@capacitor/network';
 import { useUserForm } from 'src/composables/use-user-form';
-
-// import { SMS } from '@capacitor/sms';
+import { usePermissions } from 'src/composables/usePermissions';
+import { useQuasar } from 'quasar';
+import { onBeforeRouteLeave } from 'vue-router';
+import { useUserStore } from 'src/stores/user-store';
+import { api } from 'boot/axios';
+import { throttle } from 'quasar';
+import AudioControls from './SosAudioControls.vue';
+import { Filesystem, Directory } from '@capacitor/filesystem';
 
 const router = useRouter();
 const route = useRoute();
 const { t } = useI18n();
+const $q = useQuasar();
+const userStore = useUserStore();
+
+const STREAM_SAVE = process.env.STREAM_SAVE;
 
 const countdownDuration = 10; // seconds
 const timeLeft = ref(countdownDuration);
 let countdownInterval: number | null = null;
 const sosSent = ref(false);
+const isResolvingManually = ref(false);
 const notifiedPersons = ref(0);
 const acceptedPersons = ref(0);
-const createdSosId = ref(0);
 
-const initialRequestTime =
-  Number(route.params.initialRequestTime) || Date.now();
+const createdSosId = ref(parseInt(route.query.sosEventId) || 0);
+const contactsOnly = ref(route.query.contactsOnly === 'true');
 
 const currentLocation = ref({ latitude: null, longitude: null });
 const currentLocationName = ref('');
-let locationUpdateInterval: number | null = null;
+let watchId: string | null = null;
 
 const isRecording = ref(false);
-let mediaRecorder: MediaRecorder | null = null;
-let audioStream: MediaStream | null = null;
-let videoStream: MediaStream | null = null;
-
-const isGettingLocation = ref(false);
 const isLocationReceived = ref(false);
-const selectedThreat = ref('');
 
-const updateCurrentLocation = async (action = 'edit'): Promise<void> => {
-  isGettingLocation.value = true;
-  try {
-    let position;
-    if (Capacitor.isNativePlatform()) {
-      position = await Geolocation.getCurrentPosition({
-        enableHighAccuracy: true,
-        timeout: 10000,
-      });
-    } else {
-      position = await new Promise((resolve, reject) => {
-        navigator.geolocation.getCurrentPosition(resolve, reject, {
-          enableHighAccuracy: true,
-          timeout: 10000,
-        });
-      });
-    }
+const { permissions, checkPermissions, requestPermission, activatePermission } =
+  usePermissions();
 
-    currentLocation.value.latitude = position.coords.latitude;
-    currentLocation.value.longitude = position.coords.longitude;
+const shouldStream = computed(
+  () => STREAM_SAVE === 'true' && userStore.user.streamAudioVideoOnSos
+);
 
-    currentLocationName.value = `Lat: ${position.coords.latitude.toFixed(
-      4
-    )}, Lon: ${position.coords.longitude.toFixed(4)}`;
+const presignedUrl = ref<string | null>(null); // Create a ref for presigned URL
 
-    isLocationReceived.value = true;
+const shouldRecord = computed(() => userStore.user.startAudioVideoRecordOnSos);
 
-    if (action == 'create') {
-      await sendLocationUpdate('create');
-    } else {
-      if (sosSent.value) {
-        await sendLocationUpdate('edit');
-      }
-    }
-  } catch (error) {
-    console.error('Error getting location', error);
-  } finally {
-    isGettingLocation.value = false;
-  }
+const locationSentToServer = ref(false);
+
+const threats = [
+  {
+    color: '#000000',
+    icon: 'emergency',
+    threatName: 'domesticViolence',
+    visibleThreat: 'Violence',
+  },
+  {
+    color: '#FF0000',
+    icon: 'diversity_3',
+    threatName: 'attemptedKidnapping',
+    visibleThreat: 'Kidnapping',
+  },
+
+  {
+    color: '#808000',
+    icon: 'touch_app',
+    threatName: 'physicalThreat',
+    visibleThreat: 'Physical Threat',
+  },
+  {
+    color: '#641e16',
+    icon: 'pan_tool',
+    threatName: 'sexualAssault',
+    visibleThreat: 'Sexual Assault',
+  },
+  {
+    color: '#FF00FF',
+    icon: 'gesture',
+    threatName: 'followedBySomeone',
+    visibleThreat: 'Someone Followed',
+  },
+
+
+
+
+  {
+    color: '#008080',
+    icon: 'record_voice_over',
+    threatName: 'verbalHarassment',
+    visibleThreat: 'Verbal Harassment',
+  },
+
+  // 'common.followedBySomeone',
+  // 'common.verbalHarassment',
+  // 'common.physicalThreat',
+  // 'common.attemptedKidnapping',
+  // 'common.sexualAssault',
+  // 'common.domesticViolence',
+];
+
+const logs = ref<string[]>([]); // Reactive array to store logs
+
+const logMessage = (message: string) => {
+  logs.value.push(message); // Add new log message
 };
 
-const startRecording = async () => {
-  try {
-    if (Capacitor.isNativePlatform()) {
-      // For mobile platforms
-      const image = await Camera.getPhoto({
-        quality: 90,
-        allowEditing: false,
-        resultType: CameraResultType.Uri,
-      });
+const recordingIntervals = ref([5000, 10000, 20000, 30000]); // in milliseconds
+const currentIntervalIndex = ref(0);
+const recordingStartTime = ref(0);
+const nextUploadTimeout = ref<number | null>(null);
+const accumulatedChunks = ref<Blob[]>([]);
+const entireRecording = ref<Blob[]>([]);
 
-      // Save the image file
-      const fileName = new Date().getTime() + '.jpeg';
-      await Filesystem.writeFile({
-        path: fileName,
-        data: image.path,
-        directory: Directory.Data,
-      });
+const lastUpdateTime = ref(0);
+const significantChange = ref(false);
 
-      console.log('Recording saved:', fileName);
-    } else {
-      // For web platform, use the existing implementation
-      audioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      videoStream = await navigator.mediaDevices.getUserMedia({ video: true });
+const mediaRecorder = ref<MediaRecorder | null>(null);
+const mediaStream = ref<MediaStream | null>(null);
+const recordedChunks = ref<Blob[]>([]);
 
-      const combinedStream = new MediaStream([
-        ...audioStream.getAudioTracks(),
-        ...videoStream.getVideoTracks(),
-      ]);
+// Add these new refs for status
+const recordingStatus = ref('pending');
+const audioStatus = ref('pending');
+const locationStatus = ref('pending');
 
-      mediaRecorder = new MediaRecorder(combinedStream);
-      const chunks: Blob[] = [];
-
-      mediaRecorder.ondataavailable = (event) => {
-        if (event.data.size > 0) {
-          chunks.push(event.data);
-          // Here you would send the chunk for streaming
-          streamChunk(event.data);
-        }
-      };
-
-      mediaRecorder.onstop = () => {
-        const blob = new Blob(chunks, { type: 'video/webm' });
-        saveRecording(blob);
-      };
-
-      mediaRecorder.start(1000); // Capture in 1-second intervals
-    }
-
-    isRecording.value = true;
-  } catch (error) {
-    console.error('Failed to start recording:', error);
-  }
-};
-
-const stopRecording = () => {
-  if (mediaRecorder) {
-    mediaRecorder.stop();
-    isRecording.value = false;
-  }
-  if (audioStream) audioStream.getTracks().forEach((track) => track.stop());
-  if (videoStream) videoStream.getTracks().forEach((track) => track.stop());
-};
-
-const saveRecording = async (blob: Blob) => {
-  // Implement saving the recording locally
-  // This is a placeholder implementation
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.style.display = 'none';
-  a.href = url;
-  a.download = 'sos_recording.webm';
-  document.body.appendChild(a);
-  a.click();
-  URL.revokeObjectURL(url);
-};
-
-const streamChunk = (chunk: Blob) => {
-  // Implement your streaming logic here
-  // This could involve sending the chunk to a server using WebSockets or WebRTC
-  console.log('Streaming chunk:', chunk);
-};
-
-onMounted(() => {
-  startCountdown();
-  // updateCurrentLocation('create');
-  startLocationUpdates();
+// Add this constant to determine video format
+const VIDEO_FORMAT = computed(() => {
+  const isIOS = Capacitor.getPlatform() === 'ios';
+  return {
+    extension: isIOS ? 'mp4' : 'webm',
+    mimeType: isIOS ? 'video/mp4' : 'video/webm;codecs=vp8,opus',
+  };
 });
 
-onUnmounted(() => {
+// Add this new function to get icon color based on status
+const getIconColor = (status: string) => {
+  switch (status) {
+    case 'success':
+      return 'green';
+    case 'error':
+      return 'red';
+    case 'pending':
+      return 'grey';
+    default:
+      return 'grey';
+  }
+};
+
+// Add this new function to get tooltip text based on status
+const getTooltip = (status: string, type: string) => {
+  switch (status) {
+    case 'success':
+      return `${type} is working properly`;
+    case 'error':
+      return `Error with ${type}`;
+    case 'pending':
+      return `Initializing ${type}`;
+    default:
+      return `Unknown ${type} status`;
+  }
+};
+
+onMounted(async () => {
+  await checkPermissions();
+  await activateSOSPermissions();
+  startCountdown();
+  await startLocationWatching();
+  if (shouldRecord.value || shouldStream.value) {
+    await startRecordingAndStreaming();
+  }
+
+  // Add this to update audio status based on SosAudioControls
+  if (shouldRecord.value || shouldStream.value) {
+    audioStatus.value = 'pending';
+  }
+});
+
+const showResolveConfirmation = (): Promise<boolean> => {
+  return new Promise((resolve) => {
+    isResolvingManually.value = true;
+    console.log('showResolveConfirmation');
+    const locationMessage = locationSentToServer.value
+      ? 'Your location has been sent to the server.'
+      : 'Your location has not been sent to the server yet.';
+
+    $q.dialog({
+      title: 'SOS Event Options',
+      message: `What would you like to do with your SOS event? ${locationMessage}`,
+      options: {
+        type: 'radio',
+        model: 'close',
+        items: [
+          { label: 'Cancel the SOS event', value: 'cancel' },
+          { label: 'Resolve the SOS event', value: 'resolve' },
+          { label: 'Keep the SOS event active', value: 'keep' },
+        ],
+      },
+      cancel: true,
+      persistent: true,
+    })
+      .onOk(async (action) => {
+        switch (action) {
+          case 'cancel':
+            await updateSOSData({ status: 'cancelled' });
+            $q.notify({
+              message: 'Your SOS event has been closed.',
+              color: 'info',
+            });
+            sosSent.value = false; // Reset sosSent
+            router.push('/sos'); // Redirect to dashboard
+            resolve(true);
+            break;
+          case 'resolve':
+            await updateSOSData({ status: 'resolved' });
+            $q.notify({
+              message: 'Your SOS event has been resolved.',
+              color: 'positive',
+            });
+            sosSent.value = false; // Reset sosSent
+            router.push('/sos'); // Redirect to dashboard
+            resolve(true);
+            break;
+          case 'keep':
+            $q.notify({
+              message: 'Your SOS event remains active.',
+              color: 'warning',
+            });
+            resolve(false);
+            break;
+        }
+      })
+      .onCancel(() => {
+        $q.notify({
+          message: 'Action cancelled. Your SOS event remains active.',
+          color: 'warning',
+        });
+        resolve(false);
+      })
+      .onDismiss(() => {
+        isResolvingManually.value = false;
+      });
+  });
+};
+
+onBeforeRouteLeave(async (to, from, next) => {
+  console.log('Leaving SOSModeOnPage');
   if (countdownInterval) {
     clearInterval(countdownInterval);
   }
-  if (locationUpdateInterval) {
-    clearInterval(locationUpdateInterval);
+  await stopLocationWatching();
+  await stopRecordingAndStreaming();
+
+  // Only show the confirmation if SOS is still active
+  if (sosSent.value) {
+    const shouldProceed = await showResolveConfirmation();
+    if (shouldProceed) {
+      next(); // Allow navigation only if the user chose to cancel or resolve
+    } else {
+      next(false); // Prevent navigation
+    }
+  } else {
+    next(); // Allow navigation if SOS not sent or already resolved/cancelled
   }
-  stopRecording();
+});
+
+onUnmounted(async () => {
+  console.log('Unmounting SOSModeOnPage');
+  await stopRecordingAndStreaming();
 });
 
 const startCountdown = () => {
@@ -342,7 +492,7 @@ const startCountdown = () => {
     timeLeft.value--;
     if (timeLeft.value <= 0) {
       clearInterval(countdownInterval!);
-      confirmSOS();
+      updateSOSData({ status: 'active', confirm: true });
     }
   }, 1000);
 };
@@ -353,41 +503,86 @@ const resetCountdown = () => {
 
 const cancelSOS = async () => {
   try {
-    await sendCancelSOSRequest();
-    router.push('/dashboard');
+    // await sendCancelSOSRequest();
+    logMessage('SOS request cancelled.');
+    router.push('/sos');
   } catch (error) {
-    console.error('Failed to cancel SOS request:', error);
-    // TODO: Show error message to user
+    logMessage('Failed to cancel SOS request: ' + error);
   }
 };
 
-const confirmSOS = async (threatType?: string) => {
-  try {
-    // Start location update in the background
-    updateCurrentLocation();
-
-    // Set a timeout for waiting for location
-    setTimeout(async () => {
-      if (!isLocationReceived.value) {
-        await sendConfirmSOSRequest(threatType);
-      }
-    }, 3000); // Wait for 3 seconds
-
-    sosSent.value = true;
-    notifiedPersons.value = 10;
-    acceptedPersons.value = 3;
-    if (countdownInterval) {
-      clearInterval(countdownInterval);
+const activateSOSPermissions = async () => {
+  const requiredPermissions = ['location', 'camera'];
+  for (const permissionName of requiredPermissions) {
+    const permission = permissions.value.find((p) => p.name === permissionName);
+    if (permission && !permission.granted) {
+      await requestPermission(permissionName);
+      logMessage(`${permissionName} permission granted.`);
     }
-    startRecording();
-  } catch (error) {
-    console.error('Failed to confirm SOS request:', error);
-    // TODO: Show error message to user
+    await activatePermission(permissionName);
   }
+};
+
+const updateSOSData = async (data: {
+  location?: { latitude: number | null; longitude: number | null };
+  status?: string;
+  threat?: string;
+  confirm?: boolean;
+}) => {
+  try {
+    if (data.confirm || !sosSent.value) {
+      if (countdownInterval) {
+        clearInterval(countdownInterval);
+      }
+      sosSent.value = true;
+      notifiedPersons.value = 10;
+      acceptedPersons.value = 3;
+    }
+
+    // Always update all available values
+    if (currentLocation.value.longitude && currentLocation.value.latitude) {
+      values.value.location = currentLocation.value;
+      locationSentToServer.value = true; // Set this to true when data is successfully sent
+    }
+    if (data.status) values.value.status = data.status;
+    if (data.threat) values.value.threat = data.threat;
+    values.value.contactsOnly = contactsOnly.value;
+    values.value.sosEventId = createdSosId.value;
+
+    await validateAndSubmit();
+    console.log('SOS data updated:', values.value);
+    logMessage(
+      'SOS data updated: ' +
+      JSON.stringify(
+        {
+          location: currentLocation.value,
+          status: data.status,
+          threat: data.threat,
+          contactsOnly: contactsOnly.value,
+          sosEventId: createdSosId.value,
+        },
+        null,
+        2
+      )
+    );
+
+    if (!isLocationReceived.value) {
+      updateCurrentLocation();
+    }
+  } catch (error) {
+    logMessage('Failed to update SOS data: ' + error);
+    console.error('Failed to update SOS data:', error);
+  }
+};
+
+const handleThreatButtonClick = (threatType: string) => {
+  updateSOSData({ threat: threatType, status: 'active', confirm: true });
 };
 
 const sendCancelSOSRequest = async () => {
   // TODO: Implement actual API call
+  await updateSOSData({ status: 'cancelled' });
+  logMessage('Sending cancel SOS request');
   console.log('Sending cancel SOS request');
 };
 
@@ -433,9 +628,8 @@ const sendConfirmSOSRequest = async (threatType?: string) => {
 };
 
 const sendSOSviaSMS = async (sosData: any) => {
-  const message = `SOS: ${sosData.threatType || 'Emergency'} at ${
-    sosData.location.latitude
-  }, ${sosData.location.longitude}. Time: ${sosData.timestamp}`;
+  const message = `SOS: ${sosData.threatType || 'Emergency'} at ${sosData.location.latitude
+    }, ${sosData.location.longitude}. Time: ${sosData.timestamp}`;
 
   try {
     await SMS.send({
@@ -465,44 +659,113 @@ const startBackgroundAPIRetry = (sosData: any) => {
   }, 30000); // Retry every 30 seconds
 };
 
-const updateThreat = async (threatType: string) => {
-  if (!sosSent.value) {
-    // If SOS hasn't been sent yet, send it immediately with the threat information
-    await confirmSOS(threatType);
-    console.log('threatType.........', threatType);
-  } else {
-    try {
-      await sendUpdateThreatRequest(threatType);
-      // You might want to update the UI to show that the threat has been updated
-      selectedThreat.value = threatType;
-      console.log(`Threat updated: ${threatType}`);
-    } catch (error) {
-      console.error('Failed to update threat:', error);
-      // TODO: Show error message to user
-    }
+const startLocationWatching = async () => {
+  try {
+    locationStatus.value = 'pending'; // Set initial status to pending
+    watchId = await Geolocation.watchPosition(
+      {
+        enableHighAccuracy: true,
+        timeout: 30000,
+        maximumAge: 10000,
+      },
+      handleLocationUpdate
+    );
+    logMessage('Started watching location');
+    console.log('Started watching location');
+  } catch (error) {
+    logMessage('Error starting location watch: ' + error);
+    console.error('Error starting location watch:', error);
+    currentLocationName.value = t('common.locationWatchError');
+    locationStatus.value = 'error'; // Set status to error
   }
 };
 
-const sendUpdateThreatRequest = async (threatType: string) => {
-  // TODO: Implement actual API call to update the threat
-  console.log(
-    `Sending update threat request: ${threatType}`,
-    'Current location:',
-    currentLocation.value
-  );
+const handleLocationUpdate: WatchPositionCallback = (
+  position: Position | null,
+  err?: any
+) => {
+  if (err) {
+    logMessage('Error in location update: ' + err);
+    console.error('Error in location update:', err);
+    locationStatus.value = 'error'; // Set status to error when there's a location error
+    currentLocationName.value = t('common.locationError');
+    return;
+  }
+
+  logMessage('Location updated: ' + JSON.stringify(position, null, 2));
+
+  if (position) {
+    const newLocation = {
+      latitude: position.coords.latitude,
+      longitude: position.coords.longitude,
+    };
+
+    // Check if the location has changed significantly (e.g., more than 10 meters)
+    if (
+      currentLocation.value.latitude !== null &&
+      currentLocation.value.longitude !== null
+    ) {
+      const distance = calculateDistance(currentLocation.value, newLocation);
+      significantChange.value = distance > 10; // 10 meters threshold
+    } else {
+      significantChange.value = true;
+    }
+
+    currentLocation.value = newLocation;
+    currentLocationName.value = `Lat: ${newLocation.latitude.toFixed(
+      4
+    )}, Lon: ${newLocation.longitude.toFixed(4)}`;
+    isLocationReceived.value = true;
+    locationStatus.value = 'success'; // Set status to success when location is received
+
+    throttledUpdateSOS();
+  }
 };
 
-const startLocationUpdates = () => {
-  locationUpdateInterval = setInterval(() => {
-    updateCurrentLocation();
-  }, 10000); // Update every 10 seconds
+const calculateDistance = (loc1, loc2) => {
+  const R = 6371; // Radius of the earth in kilometers
+  const dLat = (loc2.latitude - loc1.latitude) * (Math.PI / 180);
+  const dLon = (loc2.longitude - loc1.longitude) * (Math.PI / 180);
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(loc1.latitude * (Math.PI / 180)) *
+    Math.cos(loc2.latitude * (Math.PI / 180)) *
+    Math.sin(dLon / 2) *
+    Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  const distance = R * c * 1000; // Convert to meters
+
+  return Math.round(distance);
+};
+
+const throttledUpdateSOS = throttle(() => {
+  const now = Date.now();
+  if (
+    sosSent.value &&
+    (now - lastUpdateTime.value > 10000 || significantChange.value)
+  ) {
+    updateSOSData({}).catch(console.error);
+    logMessage('Location updated and sent to server');
+    lastUpdateTime.value = now;
+    significantChange.value = false;
+  }
+}, 10000);
+
+const stopLocationWatching = async () => {
+  if (watchId !== null) {
+    await Geolocation.clearWatch({ id: watchId });
+    watchId = null;
+    console.log('Stopped watching location');
+  }
 };
 
 const { values, validateAndSubmit, errors, callbacks, isLoading, updateUrl } =
-  useUserForm('auth/sos-location-crud', {
+  useUserForm('sos/sos-update', {
     location: '',
     status: '',
     threat: '',
+    contactsOnly: contactsOnly.value,
+    sosEventId: createdSosId.value,
   });
 
 const informed = ref(0);
@@ -512,30 +775,370 @@ callbacks.onSuccess = (data) => {
   console.log('data...........', data);
   informed.value = data.informed;
   accepted.value = data.accepted;
+  createdSosId.value = parseInt(data.sosEventId);
+  presignedUrl.value = data.presignedUrl; // Set the presigned URL
   return data;
 };
 
-const sendLocationUpdate = async (action = 'edit', threat = 'active') => {
-  try {
-    values.value.status = threat;
-    values.value.location = currentLocation.value;
-    values.value.threat = selectedThreat.value;
-    await validateAndSubmit();
-    // TODO: Implement actual API call to update location on the server
-    console.log('Sending location update:', currentLocation.value);
-    // Example API call:
-    // await api.updateSOSLocation(currentLocation.value);
-  } catch (error) {
-    console.error('Failed to send location update:', error);
+const updateCurrentLocation = async (): Promise<void> => {
+  if (!watchId) {
+    await startLocationWatching();
+  }
+
+  if (isLocationReceived.value) {
+    await updateSOSData({ location: currentLocation.value, status: 'active' });
   }
 };
 
-// Add a watcher for isLocationReceived
-watch(isLocationReceived, async (newValue) => {
-  if (newValue && sosSent.value) {
-    await sendLocationUpdate('edit');
+const getSupportedMimeType = (types: string[]): string | null => {
+  // Add VIDEO_FORMAT.value.mimeType as the first option
+  const allTypes = [VIDEO_FORMAT.value.mimeType, ...types];
+  for (const type of allTypes) {
+    if (MediaRecorder.isTypeSupported(type)) {
+      logMessage('Supported MIME type found: ' + type);
+      return type;
+    }
   }
-});
+  return null;
+};
+
+const startRecordingAndStreaming = async () => {
+  try {
+    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+      mediaStream.value = await navigator.mediaDevices.getUserMedia({
+        video: { width: 640, height: 480 },
+        audio: true,
+      });
+
+      const mimeType = getSupportedMimeType([
+        'video/webm;codecs=vp8,opus',
+        'video/webm;codecs=vp9,opus',
+        'video/webm;codecs=h264,opus',
+        'video/mp4;codecs=h264,aac',
+        'video/mp4;codecs=h265,aac',
+        'video/mp4;codecs=avc1,aac',
+        'video/webm',
+        'video/mp4',
+        'video/x-matroska',
+        'video/quicktime',
+      ]);
+
+      if (!mimeType) {
+        throw new Error('No supported mime type found for video recording');
+      }
+
+      const options = {
+        mimeType,
+        videoBitsPerSecond: 250000,
+        audioBitsPerSecond: 128000,
+      };
+
+      mediaRecorder.value = new MediaRecorder(mediaStream.value, options);
+      mediaRecorder.value.ondataavailable = handleDataAvailable;
+      mediaRecorder.value.start(5000); // Record in 5-second chunks
+      isRecording.value = true;
+      recordingStartTime.value = Date.now();
+      recordingStatus.value = 'success'; // Set status to success
+
+      if (shouldStream.value) {
+        scheduleNextProcessing();
+      }
+    } else {
+      throw new Error('Media Devices API not available');
+    }
+  } catch (error) {
+    console.error('Failed to start recording:', error);
+    logMessage('Failed to start recording: ' + error);
+    recordingStatus.value = 'error'; // Set status to error
+  }
+};
+
+const stopRecordingAndStreaming = async () => {
+  if (mediaRecorder.value && isRecording.value) {
+    mediaRecorder.value.stop();
+    isRecording.value = false;
+
+    if (mediaStream.value) {
+      mediaStream.value.getTracks().forEach((track) => track.stop());
+    }
+
+    if (nextUploadTimeout.value) {
+      clearTimeout(nextUploadTimeout.value);
+    }
+
+    // Final processing of any remaining chunks for streaming
+    if (shouldStream.value) {
+      await processAccumulatedChunks();
+    }
+
+    // Save the entire recording locally
+    if (shouldRecord.value) {
+      await saveLocalRecording();
+    }
+  }
+};
+
+const scheduleNextProcessing = () => {
+  const currentInterval = recordingIntervals.value[currentIntervalIndex.value];
+
+  if (nextUploadTimeout.value) {
+    clearTimeout(nextUploadTimeout.value);
+  }
+
+  nextUploadTimeout.value = setTimeout(() => {
+    processAccumulatedChunks();
+
+    if (currentIntervalIndex.value < recordingIntervals.value.length - 1) {
+      currentIntervalIndex.value++;
+    }
+
+    scheduleNextProcessing();
+  }, currentInterval);
+};
+
+const handleDataAvailable = (event: BlobEvent) => {
+  if (event.data.size > 0) {
+    if (shouldStream.value) {
+      accumulatedChunks.value.push(event.data);
+    }
+    if (shouldRecord.value) {
+      entireRecording.value.push(event.data);
+    }
+  }
+};
+
+const processAccumulatedChunks = async () => {
+  if (accumulatedChunks.value.length > 0 && shouldStream.value) {
+    const blob = new Blob(accumulatedChunks.value, {
+      type: VIDEO_FORMAT.value.mimeType,
+    });
+    const fileName = `video_${Date.now()}.${VIDEO_FORMAT.value.extension}`;
+
+    await uploadVideo(blob, fileName);
+
+    accumulatedChunks.value = []; // Clear the chunks after processing
+  }
+};
+
+const uploadVideo = async (blob: Blob, fileName: string) => {
+  try {
+    const { data } = await api.get('/sos/get-presigned-url', {
+      params: {
+        sosEventId: createdSosId.value,
+        fileName,
+        contentType: VIDEO_FORMAT.value.mimeType,
+      },
+    });
+
+    await fetch(data.presignedUrl, {
+      method: 'PUT',
+      body: blob,
+      headers: {
+        'Content-Type': VIDEO_FORMAT.value.mimeType,
+      },
+    });
+
+    console.log(`Uploaded ${fileName} successfully`);
+    logMessage(`Uploaded ${fileName} successfully`);
+  } catch (error) {
+    console.error('Failed to upload video:', error);
+    logMessage('Failed to upload video: ' + error);
+  }
+};
+
+const saveLocalRecording = async () => {
+  if (entireRecording.value.length > 0) {
+    const blob = new Blob(entireRecording.value, {
+      type: VIDEO_FORMAT.value.mimeType,
+    });
+
+    const fileName = `sos_recording_${Date.now()}.${VIDEO_FORMAT.value.extension
+      }`;
+
+    if (Capacitor.isNativePlatform()) {
+      const { Filesystem, Directory } = await import('@capacitor/filesystem');
+      const base64Data = await blobToBase64(blob);
+
+      try {
+        // Save to external storage (usually accessible to the user)
+        const result = await Filesystem.writeFile({
+          path: `DCIM/Nirbhaya/${fileName}`,
+          data: base64Data,
+          directory: Directory.ExternalStorage,
+          recursive: true,
+        });
+
+        console.log('File saved:', result.uri);
+        logMessage(`Full recording saved to DCIM/Nirbhaya/${fileName}`);
+
+        // Optionally, you can show a notification to the user
+        $q.notify({
+          message: `Video saved to DCIM/Nirbhaya/${fileName}`,
+          color: 'positive',
+          icon: 'save',
+        });
+      } catch (error) {
+        console.error('Failed to save full recording:', error);
+        logMessage('Failed to save full recording: ' + error);
+
+        // Show error notification
+        $q.notify({
+          message: 'Failed to save video. Please check app permissions.',
+          color: 'negative',
+          icon: 'error',
+        });
+      }
+    } else {
+      // For web platform, we'll save the blob directly
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.style.display = 'none';
+      a.href = url;
+      a.download = fileName;
+      document.body.appendChild(a);
+      a.click();
+      URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      logMessage('Full recording downloaded in browser: ' + fileName);
+    }
+
+    entireRecording.value = []; // Clear the recording after saving
+  }
+};
+
+const blobToBase64 = (blob: Blob): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onloadend = () => resolve(reader.result as string);
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
+};
+
+const handleAudioStatusChange = (status: string) => {
+  audioStatus.value = status;
+};
 </script>
 
-<style scoped></style>
+<style lang="scss" scoped>
+.sos-page {
+  background: linear-gradient(135deg, $primary, darken($primary, 20%));
+  min-height: 100vh;
+}
+
+.sos-card {
+  max-width: 600px;
+  margin: 0 auto;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.q-circular-progress {
+  cursor: pointer;
+}
+
+.q-btn {
+  border-radius: 8px;
+}
+
+.q-item {
+  border-radius: 8px;
+}
+
+.q-expansion-item {
+  border: 1px solid $grey-4;
+  border-radius: 8px;
+}
+
+.status-icons {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.q-icon {
+  animation: blink 2s infinite;
+}
+
+@keyframes blink {
+  0% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.5;
+  }
+
+  100% {
+    opacity: 1;
+  }
+}
+
+.button-background {
+  background: linear-gradient(135deg,
+      white,
+      darken(rgb(255, 255, 255), 0%)) !important;
+  border: 1px solid rgba(221, 218, 218, 0.418) !important;
+  width: 180px;
+  margin-bottom: 5px;
+  margin-left: 5px;
+  // display: flex;
+  justify-content: space-between;
+  text-align: start;
+  align-items: self-start;
+}
+
+.notify-person-box {
+  background: linear-gradient(135deg, $primary, darken($primary, 10%));
+  border-radius: 10px;
+  margin-top: 30px;
+
+}
+
+.green-bg-color {
+  background: linear-gradient(40deg, green, darken(green, 15%));
+  border-radius: 10px;
+
+}
+
+.cancel-sos-button {
+  background: linear-gradient(40deg, red, darken(red, 15%));
+  border-radius: 10px;
+  color: whitesmoke;
+
+}
+
+.notify-person-box-label {
+  background-color: rgba(233, 232, 231, 0.178);
+  height: auto;
+  border-radius: 20px;
+  padding: 5px;
+  color: whitesmoke;
+  margin-bottom: -5px;
+
+}
+
+.q-list {
+  display: flex; // Use flexbox to align items in a row
+  flex-wrap: nowrap; // Prevent items from wrapping to the next line
+  justify-content: space-between; // Space items evenly
+  max-width: 100%; // Set maximum width to 100% of the parent
+}
+
+.q-item {
+  flex: 1; // Allow items to grow and shrink
+  min-width: 0; // Prevent items from overflowing their container
+  font-size: 2vw; // Responsive font size based on viewport width
+  height: auto;
+  margin: 5px;
+}
+
+.q-item-label {
+  font-size: 2vw; // Responsive font size for item labels
+}
+
+.q-icon {
+  font-size: 3vw;
+  // Responsive size for icons
+}
+</style>
