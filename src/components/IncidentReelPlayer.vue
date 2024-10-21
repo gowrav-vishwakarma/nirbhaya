@@ -240,6 +240,25 @@ onMounted(() => {
     play();
   }
   checkIfLiked();
+
+  // Set up an interval to check if the comment dialog is open
+  const intervalId = setInterval(() => {
+    if (commentDialog.value) {
+      showComments(props.reel);
+    }
+  }, 5000);
+
+  // Clear the interval on component unmount
+  onUnmounted(() => {
+    clearInterval(intervalId);
+  });
+});
+
+// Watch for changes in commentDialog to clear the interval when closed
+watch(commentDialog, (newValue) => {
+  if (!newValue) {
+    clearInterval(intervalId);
+  }
 });
 
 onUnmounted(() => {
