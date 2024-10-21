@@ -170,7 +170,7 @@ const scrollToBottom = () => {
 const showComments = async (reel) => {
   commentDialog.value = true;
   const response = await api.get('/incidents/reels-comments', {
-    params: { incidentId: reel.id },
+    params: { incidentId: reel.id, limit: 50 }, // Fetch the latest 5 comments
   });
 
   if (Array.isArray(response.data)) {
@@ -240,6 +240,25 @@ onMounted(() => {
     play();
   }
   checkIfLiked();
+
+  // Set up an interval to check if the comment dialog is open
+  const intervalId = setInterval(() => {
+    if (commentDialog.value) {
+      showComments(props.reel);
+    }
+  }, 5000);
+
+  // Clear the interval on component unmount
+  onUnmounted(() => {
+    clearInterval(intervalId);
+  });
+});
+
+// Watch for changes in commentDialog to clear the interval when closed
+watch(commentDialog, (newValue) => {
+  if (!newValue) {
+    clearInterval(intervalId);
+  }
 });
 
 onUnmounted(() => {
