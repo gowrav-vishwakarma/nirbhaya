@@ -246,7 +246,8 @@ onMounted(() => {
   // Set up an interval to check if the comment dialog is open
   const intervalId = setInterval(() => {
     if (commentDialog.value) {
-      showComments(props.reel);
+      showComments(props.reel); // Keep showing comments without scrolling
+      // scrollToBottom(); // Remove this line to prevent automatic scrolling
     }
   }, 5000);
 
