@@ -150,7 +150,7 @@ const canvasStream = ref<MediaStream | null>(null);
 const copyButtonLabel = ref('Copy');
 
 const copyReferralId = () => {
-  const url = `https://sosbharat.com/#/login/${userStore.user.referralId}`;
+  const url = `${userStore.user.referralId}`;
   copyToClipboard(url)
     .then(() => {
       copyButtonLabel.value = 'Copied!';
