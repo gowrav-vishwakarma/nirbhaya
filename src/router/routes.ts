@@ -4,6 +4,8 @@ import publicRoutes from './publicRoutes'; // Import public routes
 import SOSEventsMapPage from 'pages/SOSEventsMapPage.vue';
 import IncidentReelsPage from 'pages/IncidentReelsPage.vue';
 import CreateReelPage from 'pages/CreateReelPage.vue';
+import CommunityFeeds from 'pages/CommunityFeeds/CommunityFeedsPage.vue';
+import CommunityFeedback from 'pages/Sos/SosRating.vue';
 
 const routes: RouteRecordRaw[] = [
   {
@@ -66,6 +68,16 @@ const routes: RouteRecordRaw[] = [
       {
         path: 'create-reel',
         component: CreateReelPage,
+        meta: { requiresAuth: true },
+      },
+      {
+        path: 'community-feeds',
+        component: CommunityFeeds,
+        meta: { requiresAuth: true },
+      },
+      {
+        path: 'feedback',
+        component: CommunityFeedback,
         meta: { requiresAuth: true },
       },
     ],
