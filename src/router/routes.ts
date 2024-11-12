@@ -88,6 +88,11 @@ const routes: RouteRecordRaw[] = [
         component: CommunityFeedback,
         meta: { requiresAuth: true },
       },
+      {
+        path: '/community-feeds/manage',
+        component: () => import('pages/CommunityFeeds/CommunityFeedCrud.vue'),
+        // meta: { requiresAuth: true },
+      },
     ],
   },
   {
