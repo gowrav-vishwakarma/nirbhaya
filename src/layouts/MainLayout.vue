@@ -166,8 +166,9 @@ const goToReelsPage = () => {
 };
 // Computed property to check if the current route is 'create-reel'
 const isHeaderHide = computed(() => {
-  console.log('router.currentRoute.value.fullPath....', router.currentRoute.value.fullPath);
-  return ['/create-reel', '/incident-reels'].includes(router.currentRoute.value.fullPath);
+  const path = router.currentRoute.value.fullPath;
+  console.log('router.currentRoute.value.fullPath:', path);
+  return ['/create-reel', '/incident-reels'].includes(path) || /^\/news\/\d+$/.test(path);
 });
 const isFooterHide = computed(() => {
   console.log('router.currentRoute.value.fullPath....', router.currentRoute.value.fullPath);
