@@ -68,6 +68,14 @@
           </div>
         </q-btn>
         <q-space />
+        <q-btn class="q-pa-none q-ml-sm" flat aria-label="Incidents" @click="goToNewsPage"
+          :disabled="!userStore.isLoggedIn">
+          <div>
+            <i class="fas fa-newspaper" style=" font-size: 18px;"></i>
+            <p class="q-ma-none q-pa-none font-size-11">News</p>
+          </div>
+        </q-btn>
+        <q-space />
 
         <q-btn flat aria-label="Community" @click="goToCommunityPage" :disabled="!userStore.isLoggedIn">
           <div>
@@ -164,6 +172,10 @@ const goToReelsPage = () => {
   router.push('/incident-reels');
   drawer.value = false;
 };
+const goToNewsPage = () => {
+  router.push('/all-news');
+  drawer.value = false;
+};
 // Computed property to check if the current route is 'create-reel'
 const isHeaderHide = computed(() => {
   const path = router.currentRoute.value.fullPath;
@@ -191,7 +203,8 @@ const isFooterHide = computed(() => {
 }
 
 .font-size-11 {
-  font-size: 11px;
+  font-size: 9px;
+  font-weight: 700;
 }
 
 .font-size-26 {
