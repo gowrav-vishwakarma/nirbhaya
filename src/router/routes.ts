@@ -4,7 +4,7 @@ import publicRoutes from './publicRoutes'; // Import public routes
 import SOSEventsMapPage from 'pages/SOSEventsMapPage.vue';
 import IncidentReelsPage from 'pages/IncidentReelsPage.vue';
 import CreateReelPage from 'pages/CreateReelPage.vue';
-import CommunityFeeds from 'pages/CommunityFeeds/CommunityFeedsPage.vue';
+import NewsPage from 'pages/CommunityFeeds/NewsPage.vue';
 import CommunityFeedback from 'pages/Sos/SosRating.vue';
 
 const routes: RouteRecordRaw[] = [
@@ -71,8 +71,16 @@ const routes: RouteRecordRaw[] = [
         meta: { requiresAuth: true },
       },
       {
-        path: 'community-feeds',
-        component: CommunityFeeds,
+        path: 'all-news',
+        name: 'news',
+        component: NewsPage,
+        meta: { requiresAuth: true },
+      },
+      {
+        path: 'news/:id',
+        name: 'news-article',
+        component: () => import('pages/CommunityFeeds/NewsArticlePage.vue'),
+        props: true,
         meta: { requiresAuth: true },
       },
       {
