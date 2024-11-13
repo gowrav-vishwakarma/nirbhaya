@@ -1,0 +1,317 @@
+<template>
+  <q-page padding>
+    <div class="row q-col-gutter-md">
+      <!-- Compact Filter Button -->
+      <div class="col-12">
+        <div class="row items-center justify-between q-mb-md">
+          <div class="text-h6">News Feed</div>
+          <q-btn
+            flat
+            color="text-white"
+            class="q-px-md"
+            @click="showFilters = true"
+          >
+            <div class="row items-center">
+              <q-icon name="tune" class="q-mr-sm" />
+              Filters
+              <q-badge
+                v-if="activeFiltersCount"
+                color="primary"
+                floating
+                class="q-ml-sm"
+              >
+                {{ activeFiltersCount }}
+              </q-badge>
+            </div>
+          </q-btn>
+        </div>
+      </div>
+
+      <!-- News List -->
+      <div class="col-12">
+        <div class="row q-col-gutter-md">
+          <div
+            v-for="newsItem in news"
+            :key="newsItem.id"
+            class="col-12 col-sm-6 col-md-4"
+          >
+            <q-card class="news-card">
+              <q-img
+                v-if="newsItem.mediaUrls?.length"
+                :src="getImageUrl(newsItem.mediaUrls[0])"
+                :ratio="16 / 9"
+              />
+              <q-card-section>
+                <div class="row items-center q-gutter-x-sm">
+                  <q-chip
+                    v-for="category in newsItem.categories"
+                    :key="category"
+                    size="sm"
+                    :label="getCategoryLabel(category)"
+                  />
+                </div>
+                <div class="text-h6 q-mt-sm">{{ getNewsTitle(newsItem) }}</div>
+                <div class="text-body2 q-mt-sm text-grey-8 ellipsis-3-lines">
+                  {{ getNewsContent(newsItem) }}
+                </div>
+              </q-card-section>
+              <q-card-actions align="right">
+                <q-btn
+                  v-if="newsItem.source"
+                  flat
+                  color="secondary"
+                  icon="link"
+                  label="Source"
+                  @click="openSource(newsItem.source)"
+                />
+              </q-card-actions>
+            </q-card>
+          </div>
+        </div>
+
+        <!-- Load More Button -->
+        <div class="row justify-center q-mt-md">
+          <q-btn
+            v-if="hasMoreNews"
+            color="primary"
+            :loading="loading"
+            label="Load More"
+            @click="loadMore"
+          />
+        </div>
+      </div>
+    </div>
+
+    <!-- Filters Dialog -->
+    <q-dialog v-model="showFilters" position="right">
+      <q-card style="min-width: 350px; max-width: 95vw">
+        <q-card-section class="row items-center">
+          <div class="text-h6">Filter News</div>
+          <q-space />
+          <q-btn icon="close" flat round dense v-close-popup />
+        </q-card-section>
+
+        <q-card-section class="q-pt-none">
+          <div class="column q-gutter-y-md">
+            <q-select
+              v-model="selectedLanguage"
+              :options="languageOptions"
+              label="Language"
+              emit-value
+              map-options
+              @update:model-value="onLanguageChange"
+            />
+
+            <q-select
+              v-model="selectedCategories"
+              :options="newsCategories"
+              label="Categories"
+              multiple
+              emit-value
+              map-options
+              use-chips
+              clearable
+              @update:model-value="onCategoriesChange"
+            />
+          </div>
+        </q-card-section>
+
+        <q-card-actions align="right">
+          <q-btn
+            flat
+            label="Clear All"
+            color="grey-7"
+            @click="clearFilters"
+            :disable="!activeFiltersCount"
+            :loading="loading"
+          />
+          <q-btn
+            flat
+            label="Apply"
+            color="primary"
+            @click="showFilters = false"
+          />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+  </q-page>
+</template>
+
+<script setup lang="ts">
+import { ref, onMounted, computed } from 'vue';
+import { useUserStore } from 'stores/user-store';
+import { api } from 'src/boot/axios';
+
+const userStore = useUserStore();
+const news = ref([]);
+const loading = ref(false);
+const page = ref(1);
+const pageSize = 12;
+const hasMoreNews = ref(true);
+
+const selectedLanguage = ref(userStore.newsPreferences.language || 'en');
+const selectedCategories = ref(userStore.newsPreferences.categories || []);
+
+const languageOptions = [
+  { label: 'English', value: 'en' },
+  { label: 'Hindi', value: 'hi' },
+  { label: 'Bengali', value: 'bn' },
+  { label: 'Tamil', value: 'ta' },
+  { label: 'Telugu', value: 'te' },
+  { label: 'Gujarati', value: 'gu' },
+  { label: 'Marathi', value: 'mr' },
+  { label: 'Urdu', value: 'ur' },
+  { label: 'Malayalam', value: 'ml' },
+  { label: 'Kannada', value: 'kn' },
+];
+
+const newsCategories = [
+  { label: 'Politics', value: 'politics' },
+  { label: 'Business', value: 'business' },
+  { label: 'Technology', value: 'technology' },
+  { label: 'Science', value: 'science' },
+  { label: 'Health', value: 'health' },
+  { label: 'Sports', value: 'sports' },
+  { label: 'Entertainment', value: 'entertainment' },
+  { label: 'Education', value: 'education' },
+  { label: 'World News', value: 'world_news' },
+  { label: 'Local News', value: 'local_news' },
+  { label: 'Crime', value: 'crime' },
+  { label: 'Environment', value: 'environment' },
+  { label: 'Culture', value: 'culture' },
+  { label: 'Lifestyle', value: 'lifestyle' },
+  { label: 'Economy', value: 'economy' },
+];
+
+const showFilters = ref(false);
+
+const activeFiltersCount = computed(() => {
+  let count = 0;
+  if (selectedLanguage.value !== 'en') count++;
+  if (selectedCategories.value?.length > 0) count++;
+  return count;
+});
+
+const getCategoryLabel = (value: string) => {
+  return newsCategories.find((cat) => cat.value === value)?.label || value;
+};
+
+const getNewsTitle = (newsItem: any) => {
+  const translation = newsItem.translations?.find(
+    (t: any) => t.languageCode === selectedLanguage.value
+  );
+  return translation?.title || newsItem.title;
+};
+
+const getNewsContent = (newsItem: any) => {
+  const translation = newsItem.translations?.find(
+    (t: any) => t.languageCode === selectedLanguage.value
+  );
+  return translation?.content || newsItem.content;
+};
+
+const getImageUrl = (url: string) => {
+  const IMAGE_CDN_URL = process.env.IMAGE_CDN_URL || '';
+  if (!url) return '';
+  if (url.startsWith('http')) return url;
+  return `${IMAGE_CDN_URL}${url}`;
+};
+
+async function fetchNews(reset = false) {
+  if (reset) {
+    page.value = 1;
+    news.value = [];
+    hasMoreNews.value = true;
+  }
+
+  if (!hasMoreNews.value || loading.value) return;
+
+  try {
+    loading.value = true;
+    const response = await api.get('/news/user-news', {
+      params: {
+        page: page.value,
+        pageSize,
+        language: selectedLanguage.value,
+        categories:
+          selectedCategories.value?.length > 0
+            ? selectedCategories.value
+            : undefined,
+      },
+    });
+
+    if (reset) {
+      news.value = response.data.items;
+    } else {
+      news.value = [...news.value, ...response.data.items];
+    }
+
+    hasMoreNews.value = news.value.length < response.data.total;
+    page.value++;
+  } catch (error) {
+    console.error('Error fetching news:', error);
+  } finally {
+    loading.value = false;
+  }
+}
+
+function onLanguageChange(value: string) {
+  selectedLanguage.value = value;
+  userStore.setNewsPreferences({ language: value });
+  fetchNews(true);
+}
+
+function onCategoriesChange(value: string[] | null) {
+  selectedCategories.value = value || [];
+  userStore.setNewsPreferences({ categories: value || [] });
+  fetchNews(true);
+}
+
+function loadMore() {
+  fetchNews();
+}
+
+async function clearFilters() {
+  selectedLanguage.value = 'en';
+  selectedCategories.value = [];
+  userStore.setNewsPreferences({
+    language: 'en',
+    categories: [],
+  });
+  showFilters.value = false;
+  await fetchNews(true);
+}
+
+function openSource(url: string) {
+  if (!url) return;
+
+  // Add http:// if the URL doesn't start with http:// or https://
+  const formattedUrl = url.match(/^https?:\/\//) ? url : `http://${url}`;
+
+  // Open in new tab
+  window.open(formattedUrl, '_blank', 'noopener,noreferrer');
+}
+
+onMounted(() => {
+  fetchNews();
+});
+</script>
+
+<style lang="scss" scoped>
+.ellipsis-3-lines {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.news-card {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.q-dialog__inner--minimized {
+  padding: 0;
+}
+</style>

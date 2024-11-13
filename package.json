@@ -1,6 +1,6 @@
 {
   "name": "SOS: Shoutout",
-  "version": "0.0.66",
+  "version": "0.0.67",
   "description": "A power tool for every girl and child",
   "productName": "Community SOS",
   "author": "Gowrav Vishwakarma <gowravvishwkarma@gmail.com>",
@@ -11,7 +11,7 @@
     "test": "echo \"No test specified\" && exit 0",
     "dev": "quasar dev",
     "pwa": "quasar dev -m pwa",
-    "start:dev": "quasar dev",
+    "start:dev": "quasar dev -m pwa",
     "build": "quasar build"
   },
   "dependencies": {
