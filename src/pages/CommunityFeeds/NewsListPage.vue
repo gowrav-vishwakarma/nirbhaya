@@ -158,6 +158,11 @@ const languageOptions = [
   { label: 'Bengali', value: 'bn' },
   { label: 'Tamil', value: 'ta' },
   { label: 'Telugu', value: 'te' },
+  { label: 'Gujarati', value: 'gu' },
+  { label: 'Marathi', value: 'mr' },
+  { label: 'Urdu', value: 'ur' },
+  { label: 'Malayalam', value: 'ml' },
+  { label: 'Kannada', value: 'kn' },
 ];
 
 const newsCategories = [
