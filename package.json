@@ -11,7 +11,7 @@
     "test": "echo \"No test specified\" && exit 0",
     "dev": "quasar dev",
     "pwa": "quasar dev -m pwa",
-    "start:dev": "quasar dev",
+    "start:dev": "quasar dev -m pwa",
     "build": "quasar build"
   },
   "dependencies": {
