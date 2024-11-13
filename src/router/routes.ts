@@ -93,6 +93,11 @@ const routes: RouteRecordRaw[] = [
         component: () => import('pages/CommunityFeeds/CommunityFeedCrud.vue'),
         // meta: { requiresAuth: true },
       },
+      {
+        path: '/news/manage',
+        component: () => import('pages/CommunityFeeds/NewsManagement.vue'),
+        meta: { requiresAuth: true },
+      },
     ],
   },
   {
