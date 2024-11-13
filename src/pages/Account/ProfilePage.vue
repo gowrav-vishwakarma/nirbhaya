@@ -1,11 +1,11 @@
 <template>
   <q-page class="profile-page">
     <div class="profile-content">
-      <q-card class="profile-card q-mb-md">
+      <q-card flat class="profile-card ">
         <q-card-section>
-          <div class="text-h6 text-weight-bold q-mb-md">
+          <!-- <div class="text-h6 text-weight-bold q-mb-md">
             {{ $t('common.profileSettings') }}
-          </div>
+          </div> -->
           <LanguageSelector class="q-mb-md" />
 
           <q-form @submit.prevent="handleSubmit">
@@ -46,7 +46,7 @@
                 <q-icon :name="$t('common.icons.help')" size="xs" class="q-ml-sm">
                   <q-tooltip>{{
                     $t('common.emergencyContactsHelp')
-                    }}</q-tooltip>
+                  }}</q-tooltip>
                 </q-icon>
               </div>
 
@@ -513,17 +513,12 @@ const lastCheckedReferralId = ref('');
 
 <style lang="scss" scoped>
 .profile-page {
-  background: linear-gradient(135deg, $primary, darken($primary, 20%));
+  // background: linear-gradient(135deg, $primary, darken($primary, 20%));
   min-height: 100vh;
 }
 
 .profile-content {
   max-width: 600px;
   margin: 0 auto;
-}
-
-.profile-card {
-  border-radius: 12px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 </style>
