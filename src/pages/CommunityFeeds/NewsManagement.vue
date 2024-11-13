@@ -122,6 +122,13 @@
               :rules="[(val) => !!val || 'Content is required']"
             />
 
+            <q-input
+              v-model="newsForm.source"
+              label="Source URL"
+              type="url"
+              hint="Enter the source URL of the news (optional)"
+            />
+
             <q-file
               v-model="newsForm.mediaFiles"
               label="Media Files"
@@ -317,6 +324,7 @@ const newsForm = ref({
   defaultLanguage: 'en',
   mediaFiles: [],
   categories: [],
+  source: '',
 });
 
 const translationForm = ref({
@@ -354,6 +362,7 @@ function openNewsDialog(newsItem = null) {
       ...newsItem,
       categories: Array.isArray(newsItem.categories) ? newsItem.categories : [],
       mediaFiles: [],
+      source: newsItem.source || '',
     };
   } else {
     editingNews.value = false;
@@ -364,6 +373,7 @@ function openNewsDialog(newsItem = null) {
       defaultLanguage: 'en',
       mediaFiles: [],
       categories: [],
+      source: '',
     };
   }
   newsDialog.value = true;
@@ -391,17 +401,21 @@ async function saveNews() {
       ? newsForm.value.categories
       : [];
 
-    Object.keys(newsForm.value).forEach((key) => {
-      if (key === 'mediaFiles') {
-        newsForm.value.mediaFiles.forEach((file) => {
-          formData.append('files', file);
-        });
-      } else if (key === 'categories') {
-        formData.append('categories', JSON.stringify(categories));
-      } else {
-        formData.append(key, newsForm.value[key]);
-      }
-    });
+    if (editingNews.value && newsForm.value.id) {
+      formData.append('id', newsForm.value.id.toString());
+    }
+
+    formData.append('title', newsForm.value.title);
+    formData.append('content', newsForm.value.content);
+    formData.append('defaultLanguage', newsForm.value.defaultLanguage);
+    formData.append('categories', JSON.stringify(categories));
+    formData.append('source', newsForm.value.source || '');
+
+    if (newsForm.value.mediaFiles) {
+      newsForm.value.mediaFiles.forEach((file) => {
+        formData.append('files', file);
+      });
+    }
 
     if (editingNews.value) {
       await api.put(`/news/update-news/${newsForm.value.id}`, formData);
