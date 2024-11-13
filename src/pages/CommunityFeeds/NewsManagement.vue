@@ -8,6 +8,20 @@
             <div class="text-h6">News Management</div>
             <q-space />
             <q-btn color="primary" label="Add News" @click="openNewsDialog()" />
+            <q-input
+              v-model="fetchDate"
+              type="date"
+              label="Fetch news for date"
+              class="q-mx-sm"
+              style="width: 200px"
+            />
+            <q-btn
+              color="secondary"
+              label="Fetch External News"
+              class="q-ml-sm"
+              :loading="fetchingExternal"
+              @click="fetchExternalNews"
+            />
           </q-card-section>
 
           <q-card-section>
@@ -251,6 +265,8 @@ const editingNews = ref(false);
 const news = ref([]);
 const currentNewsTranslations = ref([]);
 const editingTranslation = ref(false);
+const fetchingExternal = ref(false);
+const fetchDate = ref(new Date().toISOString().split('T')[0]);
 
 const languageOptions = [
   { label: 'English', value: 'en' },
@@ -571,6 +587,50 @@ const availableLanguageOptions = computed(() => {
       lang.value === translationForm.value.languageCode
   );
 });
+
+async function fetchExternalNews() {
+  try {
+    fetchingExternal.value = true;
+
+    const mediastackCategories = {
+      business: 'business',
+      entertainment: 'entertainment',
+      health: 'health',
+      science: 'science',
+      sports: 'sports',
+      technology: 'technology',
+      general: 'general',
+    };
+
+    const categories = newsCategories
+      .map((cat) => cat.value)
+      .filter((cat) => cat in mediastackCategories)
+      .map((cat) => mediastackCategories[cat]);
+
+    const response = await api.post('/news/fetch-external', {
+      categories: categories,
+      languages: ['en'],
+      date: fetchDate.value,
+    });
+
+    $q.notify({
+      color: 'positive',
+      message: `Successfully imported ${response.data.saved} news articles (${response.data.indianNews} Indian, ${response.data.globalNews} Global) out of ${response.data.total}`,
+    });
+
+    await loadNews();
+  } catch (error) {
+    console.error('Error fetching external news:', error);
+    $q.notify({
+      color: 'negative',
+      message:
+        'Failed to fetch external news: ' +
+        (error.response?.data?.message || error.message),
+    });
+  } finally {
+    fetchingExternal.value = false;
+  }
+}
 
 onMounted(() => {
   loadNews();
