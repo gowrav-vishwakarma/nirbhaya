@@ -39,6 +39,11 @@ export interface User {
   referredBy: string;
 }
 
+interface NewsPreferences {
+  language: string;
+  categories: string[];
+}
+
 const defaultUser: User = {
   id: 0,
   phoneNumber: '',
@@ -66,6 +71,10 @@ export const useUserStore = defineStore('userStore', {
     language: localStorage.getItem('userLanguage') || 'en-US',
     availableLanguages: ['en-US', 'hi-IN', 'gu-IN'],
     referredBy: '',
+    newsPreferences: {
+      language: localStorage.getItem('newsLanguage') || 'en',
+      categories: JSON.parse(localStorage.getItem('newsCategories') || '[]'),
+    } as NewsPreferences,
   }),
   actions: {
     setUser(newUser: User) {
@@ -108,6 +117,18 @@ export const useUserStore = defineStore('userStore', {
     },
     setReferrer(referrer: string) {
       this.referredBy = referrer;
+    },
+    setNewsPreferences(preferences: Partial<NewsPreferences>) {
+      this.newsPreferences = { ...this.newsPreferences, ...preferences };
+      if (preferences.language) {
+        localStorage.setItem('newsLanguage', preferences.language);
+      }
+      if (preferences.categories) {
+        localStorage.setItem(
+          'newsCategories',
+          JSON.stringify(preferences.categories)
+        );
+      }
     },
   },
   getters: {
