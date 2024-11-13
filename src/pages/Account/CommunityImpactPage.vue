@@ -1,12 +1,16 @@
 <template>
   <div class="community-impact-page">
-    <h4 class="text-h4 text-white q-mb-md q-ma-none">{{ $t('common.communityImpact') }}</h4>
+    <!-- <h4 class="text-h4  q-mb-md q-ma-none">{{ $t('common.communityImpact') }}</h4> -->
 
     <q-card class="q-mb-md">
       <q-card-section>
         <div class="text-h6">{{ $t('common.yourReferralId') }}</div>
-        <div class="text-h3 text-primary q-mt-sm">
+        <div class="text-h3 text-primary q-mt-sm q-pr-xl" style="position: relative">
           {{ userStore.user.referralId }}
+          <q-btn flat round class="absolute-right" @click="copyReferralId">
+            <q-icon name="content_copy"></q-icon>
+            <q-tooltip>{{ copyButtonLabel }}</q-tooltip>
+          </q-btn>
         </div>
       </q-card-section>
     </q-card>
@@ -30,14 +34,14 @@
       </q-card-section>
     </q-card>
 
-    <q-card class="q-mb-md">
+    <!-- <q-card class="q-mb-md">
       <q-card-section>
         <div class="text-h6 q-mb-sm">Share your impact</div>
         <q-btn color="primary" icon="content_copy" label="Copy Referral Link" @click="copyReferralLink" />
       </q-card-section>
-    </q-card>
+    </q-card> -->
 
-    <q-card>
+    <!-- <q-card>
       <q-card-section>
         <div class="text-h6 q-mb-md">Record and Share Your Message</div>
         <div class="video-section q-mb-md">
@@ -73,9 +77,9 @@
           </div>
         </div>
       </q-card-section>
-    </q-card>
+    </q-card> -->
 
-    <q-dialog v-model="showWatermarkConfig">
+    <!-- <q-dialog v-model="showWatermarkConfig">
       <q-card style="min-width: 350px">
         <q-card-section>
           <div class="text-h6">Customize Video Overlay</div>
@@ -100,7 +104,7 @@
           <q-btn flat label="Close" color="primary" v-close-popup />
         </q-card-actions>
       </q-card>
-    </q-dialog>
+    </q-dialog> -->
   </div>
 </template>
 
@@ -142,6 +146,22 @@ const watermarkConfig = ref({
 
 const showWatermarkConfig = ref(false);
 const canvasStream = ref<MediaStream | null>(null);
+
+const copyButtonLabel = ref('Copy');
+
+const copyReferralId = () => {
+  const url = `${userStore.user.referralId}`;
+  copyToClipboard(url)
+    .then(() => {
+      copyButtonLabel.value = 'Copied!';
+      setTimeout(() => {
+        copyButtonLabel.value = 'Copy';
+      }, 2000);
+    })
+    .catch((err) => {
+      console.error('Failed to copy: ', err);
+    });
+};
 
 const drawOverlay = () => {
   if (!overlayCanvas.value || !videoPreview.value) return;
@@ -363,6 +383,8 @@ watch(
 .community-impact-page {
   max-width: 800px;
   margin: 0 auto;
+  min-height: auto !important;
+  background-color: #00000000;
 }
 
 .video-container {
@@ -370,5 +392,7 @@ watch(
   width: 100%;
   max-width: 640px;
   margin: 0 auto;
+  background-color: #00000000;
+
 }
 </style>

@@ -46,7 +46,7 @@
             <q-icon :name="$t('common.icons.videocam')" :color="getIconColor(recordingStatus)" size="sm">
               <q-tooltip>{{
                 getTooltip(recordingStatus, 'recording')
-                }}</q-tooltip>
+              }}</q-tooltip>
             </q-icon>
             <q-icon :name="$t('common.icons.mic')" :color="getIconColor(audioStatus)" size="sm" class="q-ml-sm">
               <q-tooltip>{{ getTooltip(audioStatus, 'audio') }}</q-tooltip>
@@ -55,7 +55,7 @@
               class="q-ml-sm">
               <q-tooltip>{{
                 getTooltip(locationStatus, 'location')
-                }}</q-tooltip>
+              }}</q-tooltip>
             </q-icon>
           </div>
           <AudioControls :sosEventId="createdSosId" @audioStatusChange="handleAudioStatusChange" />
@@ -157,7 +157,7 @@
           <q-item-section>
             <q-item-label>{{
               currentLocationName || $t('common.gettingLocation')
-              }}</q-item-label>
+            }}</q-item-label>
             <q-item-label caption v-if="currentLocation.latitude && currentLocation.longitude">
               {{ $t('common.coordinates') }}:
               {{ currentLocation.latitude.toFixed(6) }},
@@ -420,6 +420,9 @@ const showResolveConfirmation = (): Promise<boolean> => {
             $q.notify({
               message: 'Your SOS event has been closed.',
               color: 'info',
+              position: 'top',
+              multiLine: true,
+              timeout: 3000
             });
             sosSent.value = false; // Reset sosSent
             router.push('/sos'); // Redirect to dashboard
@@ -430,15 +433,21 @@ const showResolveConfirmation = (): Promise<boolean> => {
             $q.notify({
               message: 'Your SOS event has been resolved.',
               color: 'positive',
+              position: 'top',
+              multiLine: true,
+              timeout: 3000
             });
             sosSent.value = false; // Reset sosSent
-            router.push('/sos'); // Redirect to dashboard
+            router.push({ path: '/feedback', query: { eventId: createdSosId.value } }); // Redirect to feedback with event ID
             resolve(true);
             break;
           case 'keep':
             $q.notify({
               message: 'Your SOS event remains active.',
               color: 'warning',
+              position: 'top',
+              multiLine: true,
+              timeout: 3000
             });
             resolve(false);
             break;
@@ -976,6 +985,9 @@ const saveLocalRecording = async () => {
           message: `Video saved to DCIM/Nirbhaya/${fileName}`,
           color: 'positive',
           icon: 'save',
+          position: 'top',
+          multiLine: true,
+          timeout: 3000
         });
       } catch (error) {
         console.error('Failed to save full recording:', error);
@@ -986,6 +998,9 @@ const saveLocalRecording = async () => {
           message: 'Failed to save video. Please check app permissions.',
           color: 'negative',
           icon: 'error',
+          position: 'top',
+          multiLine: true,
+          timeout: 3000
         });
       }
     } else {

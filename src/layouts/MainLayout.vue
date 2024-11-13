@@ -1,7 +1,10 @@
 <template>
   <q-layout view="lHh Lpr lFf" class="mainlayout-page-bg-color" style="z-index: 11">
-    <q-header
-      :class="['text-white', isScrolled ? 'header-bg-color' : 'background-color-transparent', { 'hidden': isHeaderHide }]">
+    <q-header :class="[
+      'text-white',
+      isScrolled ? 'header-bg-color' : 'background-color-transparent',
+      { hidden: isHeaderHide },
+    ]">
       <q-toolbar>
         <q-toolbar-title class="text-h6" @click="userStore.isLoggedIn ? goToDashboardPage() : goToLoginPage()">
           <q-icon name="campaign" size="2em" />
@@ -46,7 +49,7 @@
           @click="userStore.isLoggedIn ? goToDashboardPage() : goToLoginPage()">
           <div>
             <q-icon name="home" class="font-size-25"></q-icon>
-            <p class="q-ma-none q-pa-none  font-size-11">Home</p>
+            <p class="q-ma-none q-pa-none font-size-11">Home</p>
           </div>
         </q-btn>
         <q-space />
@@ -68,6 +71,14 @@
           </div>
         </q-btn>
         <q-space />
+        <q-btn class="q-pa-none q-ml-sm" flat aria-label="Incidents" @click="goToNewsPage"
+          :disabled="!userStore.isLoggedIn">
+          <div>
+            <i class="fas fa-newspaper" style="font-size: 18px"></i>
+            <p class="q-ma-none q-pa-none font-size-11">News</p>
+          </div>
+        </q-btn>
+        <q-space />
 
         <q-btn flat aria-label="Community" @click="goToCommunityPage" :disabled="!userStore.isLoggedIn">
           <div>
@@ -75,7 +86,6 @@
             <p class="q-ma-none q-pa-none font-size-11">Community</p>
           </div>
         </q-btn>
-
       </q-toolbar>
     </q-footer>
   </q-layout>
@@ -164,16 +174,26 @@ const goToReelsPage = () => {
   router.push('/incident-reels');
   drawer.value = false;
 };
+const goToNewsPage = () => {
+  router.push('/news');
+  drawer.value = false;
+};
 // Computed property to check if the current route is 'create-reel'
 const isHeaderHide = computed(() => {
-  console.log('router.currentRoute.value.fullPath....', router.currentRoute.value.fullPath);
-  return ['/create-reel', '/incident-reels'].includes(router.currentRoute.value.fullPath);
+  const path = router.currentRoute.value.fullPath;
+  console.log('router.currentRoute.value.fullPath:', path);
+  return (
+    ['/create-reel', '/incident-reels', '/account'].includes(path) ||
+    /^\/news\/\d+$/.test(path)
+  );
 });
 const isFooterHide = computed(() => {
-  console.log('router.currentRoute.value.fullPath....', router.currentRoute.value.fullPath);
-  return ['/create-reel',].includes(router.currentRoute.value.fullPath);
+  console.log(
+    'router.currentRoute.value.fullPath....',
+    router.currentRoute.value.fullPath
+  );
+  return ['/create-reel'].includes(router.currentRoute.value.fullPath);
 });
-
 </script>
 <style lang="scss" scoped>
 .mainlayout-page-bg-color {
@@ -190,7 +210,8 @@ const isFooterHide = computed(() => {
 }
 
 .font-size-11 {
-  font-size: 11px;
+  font-size: 9px;
+  font-weight: 700;
 }
 
 .font-size-26 {

@@ -59,6 +59,7 @@ export function usePermissions() {
   };
 
   const checkLocationPermission = async () => {
+    await Geolocation.getCurrentPosition({ timeout: 10000 });
     if (Capacitor.isNativePlatform()) {
       const result = await Geolocation.checkPermissions();
       const granted = result.location === 'granted';

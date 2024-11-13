@@ -4,6 +4,8 @@ import publicRoutes from './publicRoutes'; // Import public routes
 import SOSEventsMapPage from 'pages/SOSEventsMapPage.vue';
 import IncidentReelsPage from 'pages/IncidentReelsPage.vue';
 import CreateReelPage from 'pages/CreateReelPage.vue';
+import NewsPage from 'pages/CommunityFeeds/NewsPage.vue';
+import CommunityFeedback from 'pages/Sos/SosRating.vue';
 
 const routes: RouteRecordRaw[] = [
   {
@@ -23,7 +25,7 @@ const routes: RouteRecordRaw[] = [
       },
       {
         path: 'account',
-        component: () => import('pages/Account/AccountDetailsPage.vue'),
+        component: () => import('pages/Account/ProfileTabs.vue'),
         meta: { requiresAuth: true },
       },
       {
@@ -66,6 +68,40 @@ const routes: RouteRecordRaw[] = [
       {
         path: 'create-reel',
         component: CreateReelPage,
+        meta: { requiresAuth: true },
+      },
+      {
+        path: 'all-news',
+        name: 'news',
+        component: NewsPage,
+        meta: { requiresAuth: true },
+      },
+      {
+        path: 'news/:id',
+        name: 'news-article',
+        component: () => import('pages/CommunityFeeds/NewsArticlePage.vue'),
+        props: true,
+        meta: { requiresAuth: true },
+      },
+      {
+        path: 'feedback',
+        component: CommunityFeedback,
+        meta: { requiresAuth: true },
+      },
+      {
+        path: '/community-feeds/manage',
+        component: () => import('pages/CommunityFeeds/CommunityFeedCrud.vue'),
+        // meta: { requiresAuth: true },
+      },
+      {
+        path: '/news/manage',
+        component: () => import('pages/CommunityFeeds/NewsManagement.vue'),
+        meta: { requiresAuth: true },
+      },
+      {
+        path: 'news',
+        name: 'news-list',
+        component: () => import('pages/CommunityFeeds/NewsListPage.vue'),
         meta: { requiresAuth: true },
       },
     ],

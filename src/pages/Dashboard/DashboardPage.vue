@@ -4,8 +4,8 @@
       <WelcomeCard :user-name="userName" />
       <SOSButtons @initiate-sos="initiateSOSMode" />
       <EmergencyContacts />
-      <NearbyVolunteers v-if="locationPermissionGranted" />
-      <MissingPermissions />
+      <!-- <NearbyVolunteers v-if="locationPermissionGranted" /> -->
+      <!-- <MissingPermissions /> -->
     </div>
   </q-page>
 </template>
@@ -16,7 +16,7 @@ import { useRouter } from 'vue-router';
 import { useUserStore } from 'src/stores/user-store';
 import { useSOSMode } from 'src/composables/useSOSMode';
 import { usePermissions } from 'src/composables/usePermissions';
-import MissingPermissions from 'src/components/MissingPermissions.vue';
+// import MissingPermissions from 'src/components/MissingPermissions.vue';
 
 const WelcomeCard = defineAsyncComponent(
   () => import('./components/WelcomeCard.vue')
@@ -45,7 +45,7 @@ const locationPermissionGranted = computed(
 );
 
 onMounted(async () => {
-  await checkPermissions();
+  // await checkPermissions();
 });
 </script>
 
