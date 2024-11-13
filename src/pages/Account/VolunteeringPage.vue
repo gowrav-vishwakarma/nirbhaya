@@ -1,7 +1,7 @@
 <template>
   <q-page class="volunteering-page ">
     <div class="volunteering-content">
-      <q-card class="volunteering-card q-mb-md">
+      <q-card flat class="volunteering-card q-mb-md">
         <q-card-section>
           <div class="text-h6 text-weight-bold q-mb-md">
             {{ $t('common.volunteeringSettings') }}
@@ -287,8 +287,8 @@ const openGoogleMaps = (coordinates: [number, number]) => {
 
 <style lang="scss" scoped>
 .volunteering-page {
-  background: linear-gradient(135deg, $primary, darken($primary, 20%));
-  min-height: 100vh;
+  // background: linear-gradient(135deg, $primary, darken($primary, 20%));
+  min-height: auto !important;
 }
 
 .volunteering-content {
