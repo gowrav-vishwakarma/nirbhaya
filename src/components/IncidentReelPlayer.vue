@@ -1,10 +1,15 @@
 <template>
   <div class="incident-reel-player">
     <div class="reelText">
-      Reels <q-icon name="mdi-chevron-down"></q-icon>
+      Shorts <q-icon name="mdi-chevron-down"></q-icon>
     </div>
-    <video ref="videoRef" :src="reel.videoUrl" loop muted playsinline preload="auto"
+    <video v-if="reel.videoSource == 'normal'" ref="videoRef" :src="reel.videoUrl" loop muted playsinline preload="auto"
       @loadedmetadata="onVideoLoaded"></video>
+    <iframe v-else :id="youtubeIframeId" width="100%" height="100%"
+      :src="getYoutubeEmbedUrl(reel.videoId || 'QPOLrbKI5oQ')" title="YouTube video player" frameborder="0"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+      allowfullscreen></iframe>
+
     <div class="reel-info">
       <h3>{{ reel.title }}</h3>
       <p>{{ reel.description }}</p>
@@ -57,7 +62,8 @@
         </q-card>
       </q-dialog>
     </div>
-    <div class="centered-div" @click="togglePlayPause"></div>
+    <div class="centered-div" @click="handleClick">
+    </div>
   </div>
 </template>
 
@@ -65,6 +71,143 @@
 import { ref, watch, onMounted, onUnmounted, nextTick } from 'vue';
 import { api } from 'src/boot/axios';
 import { useUserStore } from 'src/stores/user-store';
+import type { YTPlayer } from '../youtube';
+
+const isYTReady = ref(false);
+const player = ref<YTPlayer | null>(null);
+const youtubeIframeId = 'youtube-player';
+const playerState = ref<number | null>(null);
+const canTogglePlayPause = ref(false);
+const isInitializing = ref(false);
+
+// Update the YouTube embed URL function
+const getYoutubeEmbedUrl = (videoId: string) => {
+  return `https://www.youtube.com/embed/${videoId}?enablejsapi=1&controls=0&rel=0&playsinline=1&origin=${window.location.origin}`;
+};
+
+let ytPlayer: YTPlayer | null = null;
+
+// Add this function to check if YouTube API is loaded
+const loadYouTubeAPI = () => {
+  return new Promise<void>((resolve) => {
+    if (window.YT) {
+      isYTReady.value = true;
+      resolve();
+      return;
+    }
+
+    // Create script element if it doesn't exist
+    if (!document.querySelector('script[src*="youtube.com/iframe_api"]')) {
+      const tag = document.createElement('script');
+      tag.src = 'https://www.youtube.com/iframe_api';
+      const firstScriptTag = document.getElementsByTagName('script')[0];
+      firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+    }
+
+    window.onYouTubeIframeAPIReady = () => {
+      console.log('YouTube API is ready');
+      isYTReady.value = true;
+      resolve();
+    };
+  });
+};
+
+// Update the createYoutubePlayer function
+const createYoutubePlayer = async () => {
+  if (isInitializing.value) return;
+  isInitializing.value = true;
+
+  try {
+    await loadYouTubeAPI();
+    await nextTick();
+
+    const iframe = document.getElementById(youtubeIframeId) as HTMLIFrameElement;
+    if (!iframe) {
+      console.warn('YouTube iframe not found');
+      return;
+    }
+
+    player.value = new window.YT.Player(youtubeIframeId, {
+      events: {
+        onReady: (event) => {
+          console.log('YouTube player is ready');
+          canTogglePlayPause.value = true;
+          // Automatically play if this is the active reel
+          if (props.isActive) {
+            event.target.mute(); // Mute first to allow autoplay
+            event.target.playVideo();
+          }
+        },
+        onStateChange: (event) => {
+          console.log('Player state changed:', event.data);
+          playerState.value = event.data;
+          // If video ends, restart it
+          if (event.data === window.YT.PlayerState.ENDED) {
+            event.target.seekTo(0);
+            event.target.playVideo();
+          }
+        }
+      },
+      playerVars: {
+        autoplay: 1,
+        controls: 0,
+        rel: 0,
+        playsinline: 1,
+        mute: 1, // Start muted to enable autoplay
+        loop: 1, // Enable looping
+        playlist: props.reel.videoId // Required for looping
+      }
+    });
+  } catch (error) {
+    console.error('Error creating YouTube player:', error);
+  } finally {
+    isInitializing.value = false;
+  }
+};
+
+const toggleYoutubePlayPause = () => {
+  try {
+    if (!player.value) {
+      console.error('YouTube player not initialized');
+      return;
+    }
+
+    const currentState = playerState.value;
+    console.log('Current player state:', currentState);
+
+    if (currentState === window.YT.PlayerState.PLAYING) {
+      console.log('Pausing video...');
+      player.value.pauseVideo();
+    } else {
+      console.log('Playing video...');
+      player.value.playVideo();
+    }
+  } catch (error) {
+    console.error('Error toggling YouTube video:', error);
+  }
+};
+
+// Initialize YouTube player when API is ready
+window.onYouTubeIframeAPIReady = () => {
+  console.log('YouTube API is ready');
+  isYTReady.value = true;
+  nextTick(() => {
+    createYoutubePlayer();
+  });
+};
+
+// Clean up on unmount
+onUnmounted(() => {
+  if (player.value) {
+    try {
+      player.value.destroy();
+    } catch (error) {
+      console.error('Error destroying YouTube player:', error);
+    }
+  }
+  player.value = null;
+  ytPlayer = null;
+});
 
 const props = defineProps<{
   reel: any;
@@ -77,7 +220,6 @@ const wasLiked = ref(false);
 const commentDialog = ref(false);
 const allComments = ref<Comment[]>([]);
 const newComment = ref('');
-
 const videoRef = ref<HTMLVideoElement | null>(null);
 const isVideoLoaded = ref(false);
 const commentsContainer = ref<HTMLElement | null>(null);
@@ -239,17 +381,16 @@ const checkIfLiked = async () => {
 
 const intervalId = ref<number | null>(null); // Declare intervalId
 
-onMounted(() => {
-  if (props.isActive && isVideoLoaded.value) {
-    play();
+onMounted(async () => {
+  if (props.reel.videoSource !== 'normal') {
+    await createYoutubePlayer();
   }
   checkIfLiked();
 
   // Set up an interval to check if the comment dialog is open
-  intervalId.value = setInterval(() => { // Use the ref to store the interval ID
+  intervalId.value = setInterval(() => {
     if (commentDialog.value) {
-      showComments(props.reel, false); // Keep showing comments without scrolling
-      // scrollToBottom(); // Ensure this line is commented out or removed
+      showComments(props.reel, false);
     }
   }, 5000);
 });
@@ -272,6 +413,80 @@ watch(commentDialog, (newValue) => {
 
 onUnmounted(() => {
   pause();
+});
+
+// Update the click handler
+const handleClick = async () => {
+  if (props.reel.videoSource === 'normal') {
+    togglePlayPause();
+    return;
+  }
+
+  if (!canTogglePlayPause.value) {
+    console.warn('Initializing YouTube player...');
+    await createYoutubePlayer();
+    return;
+  }
+
+  console.log('Attempting to toggle YouTube video...');
+  toggleYoutubePlayPause();
+};
+
+// Watch for active state changes
+watch(() => props.isActive, async (newValue) => {
+  if (props.reel.videoSource !== 'normal') {
+    // Wait for player to be initialized
+    if (!player.value) {
+      await createYoutubePlayer();
+      return; // Return here as player will autoplay on ready if active
+    }
+
+    if (player.value) {
+      try {
+        if (newValue) {
+          console.log('Playing YouTube video');
+          player.value.playVideo();
+        } else {
+          console.log('Stopping YouTube video');
+          player.value.pauseVideo();
+          // Additionally stop and reset the video
+          player.value.seekTo(0);
+          player.value.stopVideo();
+        }
+      } catch (error) {
+        console.error('Error controlling YouTube player:', error);
+      }
+    }
+  } else {
+    // Handle normal video
+    if (newValue && isVideoLoaded.value) {
+      play();
+    } else {
+      pause();
+    }
+  }
+}, { immediate: true });
+
+// Update onUnmounted to properly cleanup both video types
+onUnmounted(() => {
+  // Stop normal video
+  pause();
+
+  // Cleanup YouTube player
+  if (player.value) {
+    try {
+      player.value.stopVideo();
+      player.value.destroy();
+    } catch (error) {
+      console.error('Error destroying YouTube player:', error);
+    }
+    player.value = null;
+  }
+
+  // Clear interval if exists
+  if (intervalId.value) {
+    clearInterval(intervalId.value);
+  }
 });
 </script>
 
@@ -352,6 +567,12 @@ onUnmounted(() => {
     bottom: 0;
     background-color: white;
     z-index: 1;
+  }
+
+  iframe {
+    width: 100%;
+    height: 100vh;
+    object-fit: cover;
   }
 }
 
