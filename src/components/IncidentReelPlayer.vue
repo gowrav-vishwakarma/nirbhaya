@@ -6,7 +6,7 @@
     <video v-if="reel.videoSource == 'normal'" ref="videoRef" :src="reel.videoUrl" loop muted playsinline preload="auto"
       @loadedmetadata="onVideoLoaded"></video>
     <iframe v-else :id="youtubeIframeId" width="100%" height="100%"
-      :src="getYoutubeEmbedUrl(reel.videoId || 'QPOLrbKI5oQ')" title="YouTube video player" frameborder="0"
+      :src="getYoutubeEmbedUrl(reel.videoUrl || 'QPOLrbKI5oQ')" title="YouTube video player" frameborder="0"
       allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
       allowfullscreen></iframe>
 
