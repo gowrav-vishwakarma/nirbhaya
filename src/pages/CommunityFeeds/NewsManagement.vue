@@ -290,7 +290,6 @@ const newsCategories = [
   { label: 'Sports', value: 'sports' },
   { label: 'Entertainment', value: 'entertainment' },
   { label: 'Education', value: 'education' },
-  { label: 'World News', value: 'world_news' },
   { label: 'Local News', value: 'local_news' },
   { label: 'Crime', value: 'crime' },
   { label: 'Environment', value: 'environment' },
