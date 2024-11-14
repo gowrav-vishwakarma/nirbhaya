@@ -11,18 +11,6 @@
             class="q-px-md"
             @click="showFilters = true"
           >
-            <div class="row items-center">
-              <q-icon name="tune" class="q-mr-sm" />
-              Filters
-              <q-badge
-                v-if="activeFiltersCount"
-                color="primary"
-                floating
-                class="q-ml-sm"
-              >
-                {{ activeFiltersCount }}
-              </q-badge>
-            </div>
           </q-btn>
         </div>
       </div>
@@ -82,6 +70,20 @@
       </div>
     </div>
 
+    <q-page-sticky position="bottom-left" :offset="[18, 18]">
+      <q-btn rounded color="primary" icon="tune" @click="showFilters = true">
+        Filters
+        <q-badge
+          v-if="activeFiltersCount"
+          color="primary"
+          floating
+          class="q-ml-sm"
+        >
+          {{ activeFiltersCount }}
+        </q-badge>
+      </q-btn>
+    </q-page-sticky>
+
     <!-- Filters Dialog -->
     <q-dialog v-model="showFilters" position="right">
       <q-card style="min-width: 350px; max-width: 95vw">
@@ -93,6 +95,15 @@
 
         <q-card-section class="q-pt-none">
           <div class="column q-gutter-y-md">
+            <q-select
+              v-model="selectedNewsType"
+              :options="newsTypeOptions"
+              label="News Type"
+              emit-value
+              map-options
+              @update:model-value="onNewsTypeChange"
+            />
+
             <q-select
               v-model="selectedLanguage"
               :options="languageOptions"
@@ -151,6 +162,7 @@ const hasMoreNews = ref(true);
 
 const selectedLanguage = ref(userStore.newsPreferences.language || 'en');
 const selectedCategories = ref(userStore.newsPreferences.categories || []);
+const selectedNewsType = ref(userStore.newsPreferences.newsType || 'all');
 
 const languageOptions = [
   { label: 'English', value: 'en' },
@@ -166,21 +178,19 @@ const languageOptions = [
 ];
 
 const newsCategories = [
-  { label: 'Politics', value: 'politics' },
+  { label: 'General', value: 'general' },
   { label: 'Business', value: 'business' },
-  { label: 'Technology', value: 'technology' },
-  { label: 'Science', value: 'science' },
-  { label: 'Health', value: 'health' },
-  { label: 'Sports', value: 'sports' },
   { label: 'Entertainment', value: 'entertainment' },
-  { label: 'Education', value: 'education' },
-  { label: 'World News', value: 'world_news' },
-  { label: 'Local News', value: 'local_news' },
-  { label: 'Crime', value: 'crime' },
-  { label: 'Environment', value: 'environment' },
-  { label: 'Culture', value: 'culture' },
-  { label: 'Lifestyle', value: 'lifestyle' },
-  { label: 'Economy', value: 'economy' },
+  { label: 'Health', value: 'health' },
+  { label: 'Science', value: 'science' },
+  { label: 'Sports', value: 'sports' },
+  { label: 'Technology', value: 'technology' },
+];
+
+const newsTypeOptions = [
+  { label: 'All News', value: 'all' },
+  { label: 'Indian News', value: 'indian' },
+  { label: 'International News', value: 'international' },
 ];
 
 const showFilters = ref(false);
@@ -189,6 +199,7 @@ const activeFiltersCount = computed(() => {
   let count = 0;
   if (selectedLanguage.value !== 'en') count++;
   if (selectedCategories.value?.length > 0) count++;
+  if (selectedNewsType.value !== 'all') count++;
   return count;
 });
 
@@ -237,6 +248,7 @@ async function fetchNews(reset = false) {
           selectedCategories.value?.length > 0
             ? selectedCategories.value
             : undefined,
+        newsType: selectedNewsType.value,
       },
     });
 
@@ -267,6 +279,12 @@ function onCategoriesChange(value: string[] | null) {
   fetchNews(true);
 }
 
+function onNewsTypeChange(value: string) {
+  selectedNewsType.value = value;
+  userStore.setNewsPreferences({ newsType: value });
+  fetchNews(true);
+}
+
 function loadMore() {
   fetchNews();
 }
@@ -274,9 +292,11 @@ function loadMore() {
 async function clearFilters() {
   selectedLanguage.value = 'en';
   selectedCategories.value = [];
+  selectedNewsType.value = 'all';
   userStore.setNewsPreferences({
     language: 'en',
     categories: [],
+    newsType: 'all',
   });
   showFilters.value = false;
   await fetchNews(true);

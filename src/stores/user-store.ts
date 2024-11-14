@@ -40,8 +40,9 @@ export interface User {
 }
 
 interface NewsPreferences {
-  language: string;
-  categories: string[];
+  language?: string;
+  categories?: string[];
+  newsType?: 'all' | 'indian' | 'international';
 }
 
 const defaultUser: User = {
@@ -72,8 +73,9 @@ export const useUserStore = defineStore('userStore', {
     availableLanguages: ['en-US', 'hi-IN', 'gu-IN'],
     referredBy: '',
     newsPreferences: {
-      language: localStorage.getItem('newsLanguage') || 'en',
-      categories: JSON.parse(localStorage.getItem('newsCategories') || '[]'),
+      language: 'en',
+      categories: [],
+      newsType: 'all',
     } as NewsPreferences,
   }),
   actions: {

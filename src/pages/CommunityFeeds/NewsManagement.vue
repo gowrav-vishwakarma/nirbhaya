@@ -8,6 +8,20 @@
             <div class="text-h6">News Management</div>
             <q-space />
             <q-btn color="primary" label="Add News" @click="openNewsDialog()" />
+            <q-input
+              v-model="fetchDate"
+              type="date"
+              label="Fetch news for date"
+              class="q-mx-sm"
+              style="width: 200px"
+            />
+            <q-btn
+              color="secondary"
+              label="Fetch External News"
+              class="q-ml-sm"
+              :loading="fetchingExternal"
+              @click="fetchExternalNews"
+            />
           </q-card-section>
 
           <q-card-section>
@@ -56,6 +70,17 @@
                   />
                 </q-td>
               </template>
+              <template v-slot:body-cell-image="props">
+                <q-td :props="props">
+                  <q-img
+                    v-if="props.value"
+                    :src="props.value"
+                    style="height: 50px; max-width: 100px"
+                    fit="cover"
+                  />
+                  <span v-else>No image</span>
+                </q-td>
+              </template>
             </q-table>
           </q-card-section>
         </q-card>
@@ -94,20 +119,7 @@
               :rules="[
                 (val) => val.length > 0 || 'At least one category is required',
               ]"
-            >
-              <template v-slot:selected-item="scope">
-                <q-chip
-                  removable
-                  @remove="scope.removeAtIndex(scope.index)"
-                  :label="
-                    newsCategories.find((cat) => cat.value === scope.opt)?.label
-                  "
-                  color="primary"
-                  text-color="white"
-                  class="q-ma-xs"
-                />
-              </template>
-            </q-select>
+            />
 
             <q-input
               v-model="newsForm.title"
@@ -128,6 +140,21 @@
               type="url"
               hint="Enter the source URL of the news (optional)"
             />
+
+            <q-toggle
+              v-model="newsForm.isIndianNews"
+              label="Is Indian News"
+              color="primary"
+            />
+
+            <q-input
+              v-model="newsForm.imageSource"
+              label="Image Source URL"
+              type="url"
+              hint="Enter direct image URL (optional)"
+            />
+
+            <q-separator class="q-my-md" />
 
             <q-file
               v-model="newsForm.mediaFiles"
@@ -251,6 +278,8 @@ const editingNews = ref(false);
 const news = ref([]);
 const currentNewsTranslations = ref([]);
 const editingTranslation = ref(false);
+const fetchingExternal = ref(false);
+const fetchDate = ref(new Date().toISOString().split('T')[0]);
 
 const languageOptions = [
   { label: 'English', value: 'en' },
@@ -274,7 +303,6 @@ const newsCategories = [
   { label: 'Sports', value: 'sports' },
   { label: 'Entertainment', value: 'entertainment' },
   { label: 'Education', value: 'education' },
-  { label: 'World News', value: 'world_news' },
   { label: 'Local News', value: 'local_news' },
   { label: 'Crime', value: 'crime' },
   { label: 'Environment', value: 'environment' },
@@ -285,6 +313,13 @@ const newsCategories = [
 
 const columns = [
   { name: 'id', label: 'ID', field: 'id' },
+  {
+    name: 'image',
+    label: 'Image',
+    field: 'mediaUrls',
+    format: (val) => val?.[0] || '',
+    style: 'width: 150px',
+  },
   { name: 'title', label: 'Title', field: 'title' },
   {
     name: 'defaultLanguage',
@@ -307,6 +342,12 @@ const columns = [
     },
   },
   { name: 'status', label: 'Status', field: 'status' },
+  {
+    name: 'isIndianNews',
+    label: 'News Type',
+    field: 'isIndianNews',
+    format: (val) => (val ? 'Indian News' : 'International News'),
+  },
   { name: 'actions', label: 'Actions', field: 'actions' },
   {
     name: 'translations',
@@ -330,6 +371,8 @@ const newsForm = ref({
   mediaFiles: [],
   categories: [],
   source: '',
+  isIndianNews: true,
+  imageSource: '',
 });
 
 const translationForm = ref({
@@ -368,6 +411,8 @@ function openNewsDialog(newsItem = null) {
       categories: Array.isArray(newsItem.categories) ? newsItem.categories : [],
       mediaFiles: [],
       source: newsItem.source || '',
+      isIndianNews: newsItem.isIndianNews,
+      imageSource: newsItem.imageSource || '',
     };
   } else {
     editingNews.value = false;
@@ -379,6 +424,8 @@ function openNewsDialog(newsItem = null) {
       mediaFiles: [],
       categories: [],
       source: '',
+      isIndianNews: true,
+      imageSource: '',
     };
   }
   newsDialog.value = true;
@@ -415,6 +462,8 @@ async function saveNews() {
     formData.append('defaultLanguage', newsForm.value.defaultLanguage);
     formData.append('categories', JSON.stringify(categories));
     formData.append('source', newsForm.value.source || '');
+    formData.append('isIndianNews', newsForm.value.isIndianNews.toString());
+    formData.append('imageSource', newsForm.value.imageSource || '');
 
     if (newsForm.value.mediaFiles) {
       newsForm.value.mediaFiles.forEach((file) => {
@@ -571,6 +620,50 @@ const availableLanguageOptions = computed(() => {
       lang.value === translationForm.value.languageCode
   );
 });
+
+async function fetchExternalNews() {
+  try {
+    fetchingExternal.value = true;
+
+    const mediastackCategories = {
+      business: 'business',
+      entertainment: 'entertainment',
+      health: 'health',
+      science: 'science',
+      sports: 'sports',
+      technology: 'technology',
+      general: 'general',
+    };
+
+    const categories = newsCategories
+      .map((cat) => cat.value)
+      .filter((cat) => cat in mediastackCategories)
+      .map((cat) => mediastackCategories[cat]);
+
+    const response = await api.post('/news/fetch-external', {
+      categories: categories,
+      languages: ['en'],
+      date: fetchDate.value,
+    });
+
+    $q.notify({
+      color: 'positive',
+      message: `Successfully imported ${response.data.saved} news articles (${response.data.indianNews} Indian, ${response.data.globalNews} Global) out of ${response.data.total}`,
+    });
+
+    await loadNews();
+  } catch (error) {
+    console.error('Error fetching external news:', error);
+    $q.notify({
+      color: 'negative',
+      message:
+        'Failed to fetch external news: ' +
+        (error.response?.data?.message || error.message),
+    });
+  } finally {
+    fetchingExternal.value = false;
+  }
+}
 
 onMounted(() => {
   loadNews();

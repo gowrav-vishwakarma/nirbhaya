@@ -1,41 +1,83 @@
 <template>
   <q-page class="profile-page">
     <div class="profile-content">
-      <q-card class="profile-card q-mb-md">
+      <q-card flat class="profile-card">
         <q-card-section>
-          <div class="text-h6 text-weight-bold q-mb-md">
+          <!-- <div class="text-h6 text-weight-bold q-mb-md">
             {{ $t('common.profileSettings') }}
-          </div>
+          </div> -->
           <LanguageSelector class="q-mb-md" />
 
           <q-form @submit.prevent="handleSubmit">
             <!-- Basic profile information -->
             <div class="row q-col-gutter-md">
               <div class="col-12 col-sm-6">
-                <q-input v-model="values.name" :label="$t('common.name')" outlined dense :error="!!errors.name"
-                  :error-message="errors.name?.join('; ')" :rules="[(val) => !!val || $t('common.nameRequired')]" />
+                <q-input
+                  v-model="values.name"
+                  :label="$t('common.name')"
+                  outlined
+                  dense
+                  :error="!!errors.name"
+                  :error-message="errors.name?.join('; ')"
+                  :rules="[(val) => !!val || $t('common.nameRequired')]"
+                />
               </div>
               <div class="col-12 col-sm-6">
-                <q-input v-model="values.phoneNumber" :label="$t('common.mobileNumber')" outlined dense readonly
-                  disable />
+                <q-input
+                  v-model="values.phoneNumber"
+                  :label="$t('common.mobileNumber')"
+                  outlined
+                  dense
+                  readonly
+                  disable
+                />
               </div>
               <div class="col-12 col-sm-6">
-                <q-input v-model="values.city" :label="$t('common.city')" outlined dense :error="!!errors.city"
-                  :error-message="errors.city?.join('; ')" />
+                <q-input
+                  v-model="values.city"
+                  :label="$t('common.city')"
+                  outlined
+                  dense
+                  :error="!!errors.city"
+                  :error-message="errors.city?.join('; ')"
+                />
               </div>
               <div class="col-12 col-sm-6">
-                <q-select v-model="values.userType" :options="userTypeOptions" :label="$t('common.userType')" outlined
-                  dense :error="!!errors.userType" :error-message="errors.userType?.join('; ')" />
+                <q-select
+                  v-model="values.userType"
+                  :options="userTypeOptions"
+                  :label="$t('common.userType')"
+                  outlined
+                  dense
+                  :error="!!errors.userType"
+                  :error-message="errors.userType?.join('; ')"
+                />
               </div>
               <div class="col-12">
-                <q-select v-model="values.profession" :options="professionOptions" :label="$t('common.profession')"
-                  outlined dense :error="!!errors.profession" :error-message="errors.profession?.join('; ')" map-options
-                  emit-value option-value="value" option-label="label" />
+                <q-select
+                  v-model="values.profession"
+                  :options="professionOptions"
+                  :label="$t('common.profession')"
+                  outlined
+                  dense
+                  :error="!!errors.profession"
+                  :error-message="errors.profession?.join('; ')"
+                  map-options
+                  emit-value
+                  option-value="value"
+                  option-label="label"
+                />
               </div>
               <div class="col-12">
-                <q-input v-model="values.referredBy" :label="$t('common.referredBy')" outlined dense
-                  @blur="validateReferralId" :error="!!errors.referredBy"
-                  :error-message="errors.referredBy?.join('; ')" />
+                <q-input
+                  v-model="values.referredBy"
+                  :label="$t('common.referredBy')"
+                  outlined
+                  dense
+                  @blur="validateReferralId"
+                  :error="!!errors.referredBy"
+                  :error-message="errors.referredBy?.join('; ')"
+                />
               </div>
             </div>
 
@@ -43,10 +85,14 @@
             <div class="q-mt-lg">
               <div class="text-subtitle1 text-weight-bold q-mb-sm">
                 {{ $t('common.emergencyContacts') }}
-                <q-icon :name="$t('common.icons.help')" size="xs" class="q-ml-sm">
+                <q-icon
+                  :name="$t('common.icons.help')"
+                  size="xs"
+                  class="q-ml-sm"
+                >
                   <q-tooltip>{{
                     $t('common.emergencyContactsHelp')
-                    }}</q-tooltip>
+                  }}</q-tooltip>
                 </q-icon>
               </div>
 
@@ -54,30 +100,64 @@
               <div class="row q-col-gutter-sm q-mb-md">
                 <div class="col-12">
                   <q-btn-group class="full-width">
-                    <q-btn v-if="values.emergencyContacts.length < 3" @click="addEmergencyContact" color="primary"
-                      :icon="$t('common.icons.addCircle')" :label="$t('common.addEmergencyContact')" no-caps
-                      class="full-width" />
-                    <q-btn @click="openEmergencyContactRequests" color="secondary" :icon="$t('common.icons.contacts')"
-                      :label="$t('common.emergencyContactRequests')" no-caps class="full-width" />
+                    <q-btn
+                      v-if="values.emergencyContacts.length < 3"
+                      @click="addEmergencyContact"
+                      color="primary"
+                      :icon="$t('common.icons.addCircle')"
+                      :label="$t('common.addEmergencyContact')"
+                      no-caps
+                      class="full-width"
+                    />
+                    <q-btn
+                      @click="openEmergencyContactRequests"
+                      color="secondary"
+                      :icon="$t('common.icons.contacts')"
+                      :label="$t('common.emergencyContactRequests')"
+                      no-caps
+                      class="full-width"
+                    />
                   </q-btn-group>
                 </div>
               </div>
 
               <q-list bordered separator>
-                <q-item v-for="(contact, index) in values.emergencyContacts" :key="index">
+                <q-item
+                  v-for="(contact, index) in values.emergencyContacts"
+                  :key="index"
+                >
                   <q-item-section>
-                    <q-input v-model="contact.contactName" :label="$t('common.name')" dense outlined class="q-mb-sm"
+                    <q-input
+                      v-model="contact.contactName"
+                      :label="$t('common.name')"
+                      dense
+                      outlined
+                      class="q-mb-sm"
                       :rules="[
                         (val) => !!val || $t('common.contactNameRequired'),
-                      ]" />
-                    <q-input v-model="contact.contactPhone" :label="$t('common.mobileNumber')" dense outlined
-                      class="q-mb-sm" :rules="[
+                      ]"
+                    />
+                    <q-input
+                      v-model="contact.contactPhone"
+                      :label="$t('common.mobileNumber')"
+                      dense
+                      outlined
+                      class="q-mb-sm"
+                      :rules="[
                         (val) => !!val || $t('common.contactNumberRequired'),
-                      ]" @blur="validatePhoneNumber(contact.contactPhone, index)"
-                      :error="!!errors[`emergencyContact${index}`]" :error-message="errors[`emergencyContact${index}`]?.join('; ')
-                        " />
-                    <q-chip :color="contact.consentGiven ? 'positive' : 'warning'" text-color="white"
-                      :icon="contact.consentGiven ? 'check_circle' : 'warning'" size="sm">
+                      ]"
+                      @blur="validatePhoneNumber(contact.contactPhone, index)"
+                      :error="!!errors[`emergencyContact${index}`]"
+                      :error-message="
+                        errors[`emergencyContact${index}`]?.join('; ')
+                      "
+                    />
+                    <q-chip
+                      :color="contact.consentGiven ? 'positive' : 'warning'"
+                      text-color="white"
+                      :icon="contact.consentGiven ? 'check_circle' : 'warning'"
+                      size="sm"
+                    >
                       {{
                         contact.consentGiven
                           ? $t('common.approved')
@@ -86,8 +166,13 @@
                     </q-chip>
                   </q-item-section>
                   <q-item-section side>
-                    <q-btn flat round color="negative" :icon="$t('common.icons.delete')"
-                      @click="removeEmergencyContact(index)" />
+                    <q-btn
+                      flat
+                      round
+                      color="negative"
+                      :icon="$t('common.icons.delete')"
+                      @click="removeEmergencyContact(index)"
+                    />
                   </q-item-section>
                 </q-item>
               </q-list>
@@ -107,15 +192,21 @@
                     <q-item-label>{{ $t(permission.name) }}</q-item-label>
                   </q-item-section>
                   <q-item-section side>
-                    <q-btn :color="permission.granted ? 'positive' : 'primary'"
-                      @click=" requestPermission(permission.name)" :disable="permission.granted" dense no-caps>
+                    <q-btn
+                      :color="permission.granted ? 'positive' : 'primary'"
+                      @click="requestPermission(permission.name)"
+                      :disable="permission.granted"
+                      dense
+                      no-caps
+                    >
                       <span class="q-px-md">
-
-                        {{ $t(
-                          permission.granted
-                            ? 'common.granted'
-                            : 'common.requestPermission'
-                        ) }}
+                        {{
+                          $t(
+                            permission.granted
+                              ? 'common.granted'
+                              : 'common.requestPermission'
+                          )
+                        }}
                       </span>
                     </q-btn>
                   </q-item-section>
@@ -133,7 +224,7 @@
                   <q-item-section>
                     <q-item-label>{{
                       $t('common.startAudioVideoRecordOnSos')
-                      }}</q-item-label>
+                    }}</q-item-label>
                   </q-item-section>
                   <q-item-section side>
                     <q-toggle v-model="values.startAudioVideoRecordOnSos" />
@@ -143,7 +234,7 @@
                   <q-item-section>
                     <q-item-label>{{
                       $t('common.streamAudioVideoOnSos')
-                      }}</q-item-label>
+                    }}</q-item-label>
                   </q-item-section>
                   <q-item-section side>
                     <q-toggle v-model="values.streamAudioVideoOnSos" />
@@ -153,10 +244,14 @@
                   <q-item-section>
                     <q-item-label>{{
                       $t('common.broadcastAudioOnSos')
-                      }}</q-item-label>
+                    }}</q-item-label>
                   </q-item-section>
                   <q-item-section side>
-                    <q-toggle v-model="values.broadcastAudioOnSos" color="grey" :disable="true" />
+                    <q-toggle
+                      v-model="values.broadcastAudioOnSos"
+                      color="grey"
+                      :disable="true"
+                    />
                   </q-item-section>
                 </q-item>
               </q-list>
@@ -165,8 +260,14 @@
             <!-- Submit button -->
             <div class="row q-col-gutter-md q-mt-lg">
               <div class="col-12">
-                <q-btn type="submit" :loading="isLoading" color="primary" class="full-width" :disable="!isFormValid"
-                  no-caps>
+                <q-btn
+                  type="submit"
+                  :loading="isLoading"
+                  color="primary"
+                  class="full-width"
+                  :disable="!isFormValid"
+                  no-caps
+                >
                   <b>{{ $t('common.saveChanges') }}</b>
                 </q-btn>
               </div>
@@ -491,7 +592,7 @@ const validateReferralId = async () => {
 
   try {
     const response = await api.get(
-      `/auth/validate-referral/${values.value.referredBy}`
+      `/user/validate-referral/${values.value.referredBy}`
     );
     if (!response.data.exists) {
       errors.value.referredBy = [t('referralIdNotFound')];
@@ -513,17 +614,12 @@ const lastCheckedReferralId = ref('');
 
 <style lang="scss" scoped>
 .profile-page {
-  background: linear-gradient(135deg, $primary, darken($primary, 20%));
+  // background: linear-gradient(135deg, $primary, darken($primary, 20%));
   min-height: 100vh;
 }
 
 .profile-content {
   max-width: 600px;
   margin: 0 auto;
-}
-
-.profile-card {
-  border-radius: 12px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 </style>

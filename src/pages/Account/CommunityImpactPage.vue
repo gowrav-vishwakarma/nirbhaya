@@ -1,6 +1,6 @@
 <template>
   <div class="community-impact-page">
-    <h4 class="text-h4 text-white q-mb-md q-ma-none">{{ $t('common.communityImpact') }}</h4>
+    <!-- <h4 class="text-h4  q-mb-md q-ma-none">{{ $t('common.communityImpact') }}</h4> -->
 
     <q-card class="q-mb-md">
       <q-card-section>
@@ -383,7 +383,7 @@ watch(
 .community-impact-page {
   max-width: 800px;
   margin: 0 auto;
-  height: 70vh;
+  min-height: auto !important;
   background-color: #00000000;
 }
 

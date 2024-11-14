@@ -24,7 +24,7 @@ const routes: RouteRecordRaw[] = [
       },
       {
         path: 'account',
-        component: () => import('pages/Account/AccountDetailsPage.vue'),
+        component: () => import('pages/Account/ProfileTabs.vue'),
         meta: { requiresAuth: true },
       },
       {
