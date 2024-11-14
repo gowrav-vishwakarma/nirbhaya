@@ -7,7 +7,7 @@
         </div>
       </div>
     </vue-scroll-snap>
-    <AddIncidentFab @incident-added="fetchReels" />
+    <!-- <AddIncidentFab @incident-added="fetchReels" /> -->
   </q-page>
 </template>
 
@@ -44,7 +44,7 @@ const reels = ref<Reel[]>([]);
 const currentReelIndex = ref(0);
 const isLoading = ref(false);
 const page = ref(1);
-const pageSize = 2;
+const pageSize = 10;
 const reelsContainerRef = ref<HTMLElement | null>(null);
 
 const fetchReels = async () => {
