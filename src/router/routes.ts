@@ -6,7 +6,6 @@ import IncidentReelsPage from 'pages/IncidentReelsPage.vue';
 import CreateReelPage from 'pages/CreateReelPage.vue';
 import NewsPage from 'pages/CommunityFeeds/NewsPage.vue';
 import CommunityFeedback from 'pages/Sos/SosRating.vue';
-
 const routes: RouteRecordRaw[] = [
   {
     path: '/',
@@ -105,6 +104,13 @@ const routes: RouteRecordRaw[] = [
         meta: { requiresAuth: true },
       },
     ],
+  },
+  {
+    path: '/admin',
+    meta: {
+      requiresAuth: true,
+    },
+    component: () => import('layouts/AdminLayout.vue'),
   },
   {
     path: '/:catchAll(.*)*',

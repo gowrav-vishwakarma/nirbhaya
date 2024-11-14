@@ -10,6 +10,10 @@ const publicRoutes: RouteRecordRaw[] = [
     component: () => import('pages/LoginPage.vue'),
   },
   {
+    path: '/admin/login',
+    component: () => import('pages/Admin/AdminLoginPage.vue'),
+  },
+  {
     path: 'help',
     component: () => import('pages/HelpPage.vue'),
   },
