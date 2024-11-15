@@ -1,17 +1,17 @@
 <template>
   <q-page class="incident-reels-page">
     <div class="reels-container" ref="reelsContainerRef">
-      <div v-for="(reel, index) in reels" :key="reel.id" class="reel-item"
+      <div v-for="(reel, index) in reels" :key="reel.uniqueKey" class="reel-item"
         v-intersection="(entry) => onReelIntersect(entry, index)">
         <IncidentReelPlayer :reel="reel" :isActive="index === currentReelIndex" :isVisible="!!visibleReels[index]"
-          ref="reelRefs" />
+          :key="reel.uniqueKey" ref="reelRefs" />
       </div>
     </div>
   </q-page>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch, onBeforeUnmount } from 'vue';
+import { ref, onMounted, watch, onBeforeUnmount, nextTick } from 'vue';
 import { useQuasar } from 'quasar';
 import { api } from 'src/boot/axios';
 import IncidentReelPlayer from 'components/IncidentReelPlayer.vue';
@@ -21,6 +21,7 @@ const reelRefs = ref([]);
 
 interface Reel {
   id: number;
+  uniqueKey?: string;
   userId: number;
   title: string | null;
   description: string | null;
@@ -50,19 +51,40 @@ const visibleReels = ref<{ [key: number]: boolean }>({});
 const fetchReels = async () => {
   if (isLoading.value) return;
   isLoading.value = true;
+
   try {
     const response = await api.get<Reel[]>('/incidents/reels', {
       params: { page: page.value, pageSize },
     });
-    reels.value.push(...response.data);
+
+    const newReels = response.data.map((reel, idx) => ({
+      ...reel,
+      uniqueKey: `${reel.id}-${page.value}-${idx}`
+    }));
+
+    reels.value.push(...newReels);
+
+    // Initialize visibility state for first page
+    if (page.value === 1) {
+      await nextTick();
+      currentReelIndex.value = 0;
+
+      // Initialize visibility state for all reels
+      const initialVisibleState: { [key: number]: boolean } = {};
+      newReels.forEach((_, idx) => {
+        initialVisibleState[idx] = idx === 0;
+      });
+      visibleReels.value = initialVisibleState;
+
+      console.log('Initial reel state:', {
+        currentIndex: 0,
+        visibleStates: visibleReels.value
+      });
+    }
+
     page.value++;
   } catch (error) {
     console.error('Error fetching reels:', error);
-    $q.notify({
-      color: 'negative',
-      message: 'Failed to load reels. Please try again.',
-      icon: 'error',
-    });
   } finally {
     isLoading.value = false;
   }
@@ -99,19 +121,29 @@ const handleScroll = () => {
 
 // Update the intersection observer handler
 const onReelIntersect = (entry: IntersectionObserverEntry, index: number): boolean => {
-  visibleReels.value[index] = entry.isIntersecting;
+  const isIntersecting = entry.isIntersecting;
 
-  if (entry.isIntersecting) {
+  if (isIntersecting) {
+    // Set current index
     currentReelIndex.value = index;
 
-    // Force update visibility states
-    Object.keys(visibleReels.value).forEach((idx) => {
-      const i = parseInt(idx);
-      visibleReels.value[i] = i === index;
+    // Reset all visibility states first
+    const newVisibleState: { [key: number]: boolean } = {};
+    reels.value.forEach((_, idx) => {
+      newVisibleState[idx] = idx === index;
+    });
+
+    // Update visibility state all at once
+    visibleReels.value = newVisibleState;
+
+    console.log(`Reel ${index} intersecting:`, {
+      isActive: true,
+      isVisible: true,
+      reelId: reels.value[index]?.id
     });
   }
 
-  return entry.isIntersecting;
+  return isIntersecting;
 };
 
 // Add a watch for reels to initialize visibility
@@ -121,8 +153,10 @@ watch(reels, (newReels) => {
   });
 }, { immediate: true });
 
-// Watch for current index changes
-watch(currentReelIndex, (newIndex) => {
+// Update the watch for currentReelIndex
+watch(currentReelIndex, (newIndex, oldIndex) => {
+  console.log(`Current reel index changed from ${oldIndex} to ${newIndex}`);
+
   // Load more reels if needed
   if (reels.value.length - newIndex <= 2) {
     fetchReels();
