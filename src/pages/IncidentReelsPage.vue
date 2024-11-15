@@ -164,13 +164,12 @@ onBeforeUnmount(() => {
   scroll-snap-type: y mandatory;
   scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 
   &::-webkit-scrollbar {
     display: none;
   }
-
-  -ms-overflow-style: none;
-  scrollbar-width: none;
 }
 
 .reel-item {
