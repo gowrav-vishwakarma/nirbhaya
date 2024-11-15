@@ -103,7 +103,7 @@
                 d="M9.5 8.5C9.5 8.0318 9.9318 7.6 10.4 7.6C10.5858 7.6 10.7665 7.65231 10.92 7.75L16.42 11.25C16.8519 11.5259 17 12.0141 17 12C17 11.9859 16.8519 12.4741 16.42 12.75L10.92 16.25C10.7665 16.3477 10.5858 16.4 10.4 16.4C9.9318 16.4 9.5 15.9682 9.5 15.5V8.5Z"
                 fill="currentColor" />
             </svg>
-            <p class="q-ma-none q-pa-none font-size-11" style="margin-top: -9px;">Incidents</p>
+            <p class="q-ma-none q-pa-none font-size-11" style="margin-top: -9px;">Shorts</p>
           </div>
         </q-btn>
         <q-space />
@@ -291,12 +291,5 @@ svg {
 
 svg:hover {
   transform: scale(1.05);
-}
-
-.footerCss {
-  // position: absolute;
-  // bottom: 63px;
-  // z-index: 1111;
-
 }
 </style>
