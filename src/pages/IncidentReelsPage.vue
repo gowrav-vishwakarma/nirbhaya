@@ -1,13 +1,12 @@
 <template>
   <q-page class="incident-reels-page">
-    <vue-scroll-snap>
-      <div class="reels-container" ref="reelsContainerRef">
-        <div v-for="(reel, index) in reels" :key="reel.id" class="reel-item">
-          <IncidentReelPlayer :reel="reel" :isActive="index == currentReelIndex" />
-        </div>
+    <div class="reels-container" ref="reelsContainerRef">
+      <div v-for="(reel, index) in reels" :key="reel.id" class="reel-item"
+        v-intersection="(entry) => onReelIntersect(entry, index)">
+        <IncidentReelPlayer :reel="reel" :isActive="index === currentReelIndex" :isVisible="!!visibleReels[index]"
+          ref="reelRefs" />
       </div>
-    </vue-scroll-snap>
-    <!-- <AddIncidentFab @incident-added="fetchReels" /> -->
+    </div>
   </q-page>
 </template>
 
@@ -16,9 +15,9 @@ import { ref, onMounted, watch, onBeforeUnmount } from 'vue';
 import { useQuasar } from 'quasar';
 import { api } from 'src/boot/axios';
 import IncidentReelPlayer from 'components/IncidentReelPlayer.vue';
-import AddIncidentFab from 'components/AddIncidentFab.vue';
 
 const $q = useQuasar();
+const reelRefs = ref([]);
 
 interface Reel {
   id: number;
@@ -46,6 +45,7 @@ const isLoading = ref(false);
 const page = ref(1);
 const pageSize = 10;
 const reelsContainerRef = ref<HTMLElement | null>(null);
+const visibleReels = ref<{ [key: number]: boolean }>({});
 
 const fetchReels = async () => {
   if (isLoading.value) return;
@@ -76,25 +76,64 @@ const handleScroll = () => {
 
   const containerHeight = reelsContainerRef.value.clientHeight;
   const scrollPosition = reelsContainerRef.value.scrollTop;
-  const currentTime = performance.now();
-  const timeDelta = currentTime - lastScrollTime;
-  const scrollDelta = scrollPosition - lastScrollTop;
 
-  // Calculate the number of steps to move based on scroll speed
-  const speed = Math.abs(scrollDelta / timeDelta);
-  const stepMultiplier = Math.min(Math.floor(speed * 10), 1); // Adjust multiplier and max steps as needed
+  // Calculate current index based on scroll position
+  const index = Math.round(scrollPosition / containerHeight);
 
-  const newIndex = Math.round(scrollPosition / containerHeight) + stepMultiplier * Math.sign(scrollDelta);
+  if (index !== currentReelIndex.value) {
+    currentReelIndex.value = Math.max(0, Math.min(reels.value.length - 1, index));
 
-  if (newIndex !== currentReelIndex.value) {
-    currentReelIndex.value = Number(Math.max(0, Math.min(reels.value.length - 1, newIndex)));
-    console.log(currentReelIndex.value);
+    // Smooth scroll to the selected reel
+    reelsContainerRef.value.scrollTo({
+      top: currentReelIndex.value * containerHeight,
+      behavior: 'smooth'
+    });
 
+    // Update visibility states
+    Object.keys(visibleReels.value).forEach((idx) => {
+      const i = parseInt(idx);
+      visibleReels.value[i] = i === currentReelIndex.value;
+    });
+  }
+};
+
+// Update the intersection observer handler
+const onReelIntersect = (entry: IntersectionObserverEntry, index: number): boolean => {
+  visibleReels.value[index] = entry.isIntersecting;
+
+  if (entry.isIntersecting) {
+    currentReelIndex.value = index;
+
+    // Force update visibility states
+    Object.keys(visibleReels.value).forEach((idx) => {
+      const i = parseInt(idx);
+      visibleReels.value[i] = i === index;
+    });
   }
 
-  lastScrollTop = scrollPosition;
-  lastScrollTime = currentTime;
+  return entry.isIntersecting;
 };
+
+// Add a watch for reels to initialize visibility
+watch(reels, (newReels) => {
+  newReels.forEach((_, index) => {
+    visibleReels.value[index] = index === currentReelIndex.value;
+  });
+}, { immediate: true });
+
+// Watch for current index changes
+watch(currentReelIndex, (newIndex) => {
+  // Load more reels if needed
+  if (reels.value.length - newIndex <= 2) {
+    fetchReels();
+  }
+
+  // Update visibility states
+  Object.keys(visibleReels.value).forEach((idx) => {
+    const i = parseInt(idx);
+    visibleReels.value[i] = i === newIndex;
+  });
+}, { immediate: true });
 
 onMounted(() => {
   fetchReels();
@@ -107,12 +146,7 @@ onBeforeUnmount(() => {
   if (reelsContainerRef.value) {
     reelsContainerRef.value.removeEventListener('scroll', handleScroll);
   }
-});
-
-watch(currentReelIndex, (newIndex) => {
-  if (reels.value.length - newIndex <= 1) {
-    fetchReels();
-  }
+  visibleReels.value = {};
 });
 </script>
 
@@ -121,6 +155,7 @@ watch(currentReelIndex, (newIndex) => {
   background-color: $dark;
   height: 100vh;
   overflow: hidden;
+  position: relative;
 }
 
 .reels-container {
@@ -128,15 +163,33 @@ watch(currentReelIndex, (newIndex) => {
   overflow-y: auto;
   scroll-snap-type: y mandatory;
   scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
 
   &::-webkit-scrollbar {
     display: none;
   }
+
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
 .reel-item {
   height: 100vh;
+  width: 100%;
   scroll-snap-align: start;
-  scroll-snap-stop: always
+  scroll-snap-stop: always;
+  position: relative;
+  overflow: hidden;
+
+  &>* {
+    width: 100%;
+    height: 100%;
+  }
+}
+
+@media (hover: none) and (pointer: coarse) {
+  .reels-container {
+    touch-action: pan-y pinch-zoom;
+  }
 }
 </style>

@@ -1,25 +1,31 @@
 export interface YTPlayer {
   playVideo(): void;
   pauseVideo(): void;
-  getPlayerState(): number;
+  stopVideo(): void;
+  seekTo(seconds: number, allowSeekAhead?: boolean): void;
+  mute(): void;
+  unMute(): void;
   destroy(): void;
+  getPlayerState(): number;
 }
 
 interface YT {
   Player: {
     new (
-      elementId: string | HTMLIFrameElement,
+      elementId: string,
       config: {
         events?: {
           onReady?: (event: { target: YTPlayer }) => void;
-          onStateChange?: (event: { data: number }) => void;
+          onStateChange?: (event: { target: YTPlayer; data: number }) => void;
         };
         playerVars?: {
           autoplay?: 0 | 1;
           controls?: 0 | 1;
-          mute?: 0 | 1;
           rel?: 0 | 1;
           playsinline?: 0 | 1;
+          mute?: 0 | 1;
+          loop?: 0 | 1;
+          playlist?: string;
         };
       }
     ): YTPlayer;
