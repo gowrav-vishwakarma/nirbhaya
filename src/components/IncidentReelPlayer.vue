@@ -3,12 +3,11 @@
     <div class="reelText">
       Shorts <q-icon name="mdi-chevron-down"></q-icon>
     </div>
-    <video v-if="reel.videoSource == 'normal'" ref="videoRef" :src="reel.videoUrl" loop :muted="!isVisible || !isActive"
-      playsinline preload="auto" @loadedmetadata="onVideoLoaded"></video>
-    <iframe v-else :id="youtubeIframeId" width="100%" height="100%" :src="getYoutubeEmbedUrl(reel.videoUrl)"
-      title="YouTube video player" frameborder="0"
-      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-      allowfullscreen></iframe>
+    <video v-if="reel.videoSource === 'normal'" ref="videoRef" :src="reel.videoUrl" loop
+      :muted="!isVisible || !isActive" playsinline preload="auto" @loadedmetadata="onVideoLoaded"></video>
+    <div v-else class="youtube-container">
+      <div :id="youtubeIframeId"></div>
+    </div>
 
     <div class="reel-info">
       <h3>{{ reel.title }}</h3>
@@ -68,7 +67,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted, onUnmounted, nextTick } from 'vue';
+import { ref, watch, onMounted, onUnmounted, nextTick, computed } from 'vue';
 import { api } from 'src/boot/axios';
 import { useUserStore } from 'src/stores/user-store';
 import type { YTPlayer, YT } from '../youtube';
@@ -82,7 +81,7 @@ const props = defineProps<{
 
 const isYTReady = ref(false);
 const player = ref<YTPlayer | null>(null);
-const youtubeIframeId = ref(`youtube-player-${props.reel.id}`);
+const youtubeIframeId = computed(() => `youtube-player-${props.reel.id}-${Date.now()}`);
 const playerState = ref<number | null>(null);
 const canTogglePlayPause = ref(false);
 const isInitializing = ref(false);
@@ -149,11 +148,27 @@ const createYoutubePlayer = async () => {
 
   try {
     await loadYouTubeAPI();
+    await nextTick();
 
-    // Skip player creation if not active and visible
-    if (!props.isActive || !props.isVisible) {
-      console.log(`Skipping player creation for inactive reel ${props.reel.id}`);
-      isInitializing.value = false;
+    // Wait for container to be available
+    const maxAttempts = 5;
+    let attempts = 0;
+    const waitForContainer = async () => {
+      const container = document.getElementById(youtubeIframeId.value);
+      if (container) {
+        return container;
+      }
+      if (attempts >= maxAttempts) {
+        throw new Error('Container not found after maximum attempts');
+      }
+      attempts++;
+      await new Promise(resolve => setTimeout(resolve, 100));
+      return waitForContainer();
+    };
+
+    const container = await waitForContainer();
+    if (!container) {
+      console.error('YouTube container not found');
       return;
     }
 
@@ -170,6 +185,7 @@ const createYoutubePlayer = async () => {
     const videoId = extractVideoId(props.reel.videoUrl);
     console.log(`Creating player for reel ${props.reel.id}`, {
       videoId,
+      containerId: youtubeIframeId.value,
       isActive: props.isActive,
       isVisible: props.isVisible
     });
@@ -194,7 +210,6 @@ const createYoutubePlayer = async () => {
 
           if (props.isActive && props.isVisible) {
             event.target.playVideo();
-            // Delay unmuting to prevent audio glitches
             setTimeout(() => {
               if (props.isActive && props.isVisible) {
                 event.target.unMute();
@@ -205,7 +220,7 @@ const createYoutubePlayer = async () => {
         onStateChange: (event: { target: YTPlayer; data: number }) => {
           playerState.value = event.data;
 
-          if (event.data === YT.PlayerState.ENDED) {
+          if (event.data === window.YT.PlayerState.ENDED) {
             event.target.seekTo(0);
             if (props.isActive && props.isVisible) {
               event.target.playVideo();
@@ -218,12 +233,6 @@ const createYoutubePlayer = async () => {
         }
       }
     };
-
-    const container = document.getElementById(youtubeIframeId.value);
-    if (!container) {
-      console.error('YouTube container not found');
-      return;
-    }
 
     player.value = new window.YT.Player(youtubeIframeId.value, playerConfig);
   } catch (error) {
@@ -561,12 +570,12 @@ watch(
       isActive,
       isVisible,
       hasPlayer: !!player.value,
-      isPlayerReady: isPlayerReady.value,
-      playerState: playerState.value
+      isPlayerReady: isPlayerReady.value
     });
 
     if (props.reel.videoSource !== 'normal') {
       if (isActive && isVisible) {
+        await nextTick();
         if (!player.value || !isPlayerReady.value) {
           await createYoutubePlayer();
         } else {
@@ -773,6 +782,27 @@ watch(
     width: 100%;
     height: 100vh;
     object-fit: cover;
+  }
+
+  .youtube-container {
+    width: 100%;
+    height: 100vh;
+    position: relative;
+    overflow: hidden;
+
+    div {
+      width: 100%;
+      height: 100%;
+    }
+
+    iframe {
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      top: 0;
+      left: 0;
+      object-fit: cover;
+    }
   }
 }
 
