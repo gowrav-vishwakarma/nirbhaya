@@ -42,7 +42,7 @@
     <q-page-container class="">
       <router-view />
     </q-page-container>
-    <q-footer class="text-white background-color-transparent" style="padding: 4px; padding-bottom: 5px"
+    <q-footer class="text-white footerCss background-color-transparent" style="padding: 4px; padding-bottom: 5px"
       v-if="userStore.isLoggedIn && !isFooterHide">
       <q-toolbar class="footer-toolbar">
         <q-btn class="" flat aria-label="Nearby Volunteers" :disabled="!userStore.isLoggedIn"
@@ -291,5 +291,12 @@ svg {
 
 svg:hover {
   transform: scale(1.05);
+}
+
+.footerCss {
+  // position: absolute;
+  // bottom: 63px;
+  // z-index: 1111;
+
 }
 </style>
