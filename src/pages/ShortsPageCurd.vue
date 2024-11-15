@@ -53,8 +53,10 @@ interface Incident {
   description: string
   videoUrl: string
   videoSource: 'normal' | 'youtube'
-  latitude?: number
-  longitude?: number
+  location?: {
+    type: 'Point'
+    coordinates: [number, number]
+  }
 }
 
 const incidents = ref<Incident[]>([])
@@ -66,8 +68,10 @@ const form = ref<Incident>({
   description: '',
   videoUrl: '',
   videoSource: 'normal',
-  latitude: 0,
-  longitude: 0
+  location: {
+    type: 'Point',
+    coordinates: [0, 0]
+  }
 })
 
 const columns = [
@@ -75,6 +79,12 @@ const columns = [
   { name: 'description', label: 'Description', field: 'description' },
   { name: 'videoUrl', label: 'Video URL', field: 'videoUrl' },
   { name: 'videoSource', label: 'Video Source', field: 'videoSource', sortable: true },
+  {
+    name: 'location',
+    label: 'Location',
+    field: row => row.location?.coordinates.join(', ') || 'N/A',
+    sortable: true
+  },
   { name: 'actions', label: 'Actions', field: 'actions' }
 ]
 
@@ -93,19 +103,51 @@ const fetchIncidents = async () => {
   }
 }
 
+const getCurrentLocation = (): Promise<[number, number]> => {
+  return new Promise((resolve, reject) => {
+    if (!navigator.geolocation) {
+      reject(new Error('Geolocation is not supported by your browser'))
+      return
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        resolve([position.coords.longitude, position.coords.latitude])
+      },
+      (error) => {
+        reject(error)
+      }
+    )
+  })
+}
+
 const onSubmit = async () => {
   try {
+    try {
+      const coordinates = await getCurrentLocation()
+      form.value.location = {
+        type: 'Point',
+        coordinates: coordinates
+      }
+    } catch (locationError) {
+      $q.notify({
+        color: 'warning',
+        message: 'Could not get location. Using default coordinates.',
+        timeout: 2000
+      })
+    }
+
     if (isEditing.value) {
       await api.put(`/incidents/shorts/${form.value.id}`, form.value)
       $q.notify({
         color: 'positive',
-        message: 'Incident updated successfully'
+        message: 'Incident updated successfully with location'
       })
     } else {
       await api.post('/incidents/shorts', form.value)
       $q.notify({
         color: 'positive',
-        message: 'Incident created successfully'
+        message: 'Incident created successfully with location'
       })
     }
     resetForm()
@@ -145,8 +187,10 @@ const resetForm = () => {
     description: '',
     videoUrl: '',
     videoSource: 'normal',
-    latitude: 0,
-    longitude: 0
+    location: {
+      type: 'Point',
+      coordinates: [0, 0]
+    }
   }
   isEditing.value = false
 }
