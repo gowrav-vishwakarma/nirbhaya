@@ -39,7 +39,7 @@
                   />
                 </div>
                 <div class="text-h6 q-mt-sm">{{ getNewsTitle(newsItem) }}</div>
-                <div class="text-body2 q-mt-sm text-grey-8 ellipsis-3-lines">
+                <div class="text-body2 q-mt-sm text-grey-8 _ellipsis-3-lines">
                   {{ getNewsContent(newsItem) }}
                 </div>
               </q-card-section>
