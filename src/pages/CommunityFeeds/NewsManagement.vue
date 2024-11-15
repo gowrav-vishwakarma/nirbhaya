@@ -70,6 +70,17 @@
                   />
                 </q-td>
               </template>
+              <template v-slot:body-cell-image="props">
+                <q-td :props="props">
+                  <q-img
+                    v-if="props.value"
+                    :src="props.value"
+                    style="height: 50px; max-width: 100px"
+                    fit="cover"
+                  />
+                  <span v-else>No image</span>
+                </q-td>
+              </template>
             </q-table>
           </q-card-section>
         </q-card>
@@ -108,20 +119,7 @@
               :rules="[
                 (val) => val.length > 0 || 'At least one category is required',
               ]"
-            >
-              <template v-slot:selected-item="scope">
-                <q-chip
-                  removable
-                  @remove="scope.removeAtIndex(scope.index)"
-                  :label="
-                    newsCategories.find((cat) => cat.value === scope.opt)?.label
-                  "
-                  color="primary"
-                  text-color="white"
-                  class="q-ma-xs"
-                />
-              </template>
-            </q-select>
+            />
 
             <q-input
               v-model="newsForm.title"
@@ -142,6 +140,21 @@
               type="url"
               hint="Enter the source URL of the news (optional)"
             />
+
+            <q-toggle
+              v-model="newsForm.isIndianNews"
+              label="Is Indian News"
+              color="primary"
+            />
+
+            <q-input
+              v-model="newsForm.imageSource"
+              label="Image Source URL"
+              type="url"
+              hint="Enter direct image URL (optional)"
+            />
+
+            <q-separator class="q-my-md" />
 
             <q-file
               v-model="newsForm.mediaFiles"
@@ -290,7 +303,6 @@ const newsCategories = [
   { label: 'Sports', value: 'sports' },
   { label: 'Entertainment', value: 'entertainment' },
   { label: 'Education', value: 'education' },
-  { label: 'World News', value: 'world_news' },
   { label: 'Local News', value: 'local_news' },
   { label: 'Crime', value: 'crime' },
   { label: 'Environment', value: 'environment' },
@@ -301,6 +313,13 @@ const newsCategories = [
 
 const columns = [
   { name: 'id', label: 'ID', field: 'id' },
+  {
+    name: 'image',
+    label: 'Image',
+    field: 'mediaUrls',
+    format: (val) => val?.[0] || '',
+    style: 'width: 150px',
+  },
   { name: 'title', label: 'Title', field: 'title' },
   {
     name: 'defaultLanguage',
@@ -323,6 +342,12 @@ const columns = [
     },
   },
   { name: 'status', label: 'Status', field: 'status' },
+  {
+    name: 'isIndianNews',
+    label: 'News Type',
+    field: 'isIndianNews',
+    format: (val) => (val ? 'Indian News' : 'International News'),
+  },
   { name: 'actions', label: 'Actions', field: 'actions' },
   {
     name: 'translations',
@@ -346,6 +371,8 @@ const newsForm = ref({
   mediaFiles: [],
   categories: [],
   source: '',
+  isIndianNews: true,
+  imageSource: '',
 });
 
 const translationForm = ref({
@@ -384,6 +411,8 @@ function openNewsDialog(newsItem = null) {
       categories: Array.isArray(newsItem.categories) ? newsItem.categories : [],
       mediaFiles: [],
       source: newsItem.source || '',
+      isIndianNews: newsItem.isIndianNews,
+      imageSource: newsItem.imageSource || '',
     };
   } else {
     editingNews.value = false;
@@ -395,6 +424,8 @@ function openNewsDialog(newsItem = null) {
       mediaFiles: [],
       categories: [],
       source: '',
+      isIndianNews: true,
+      imageSource: '',
     };
   }
   newsDialog.value = true;
@@ -431,6 +462,8 @@ async function saveNews() {
     formData.append('defaultLanguage', newsForm.value.defaultLanguage);
     formData.append('categories', JSON.stringify(categories));
     formData.append('source', newsForm.value.source || '');
+    formData.append('isIndianNews', newsForm.value.isIndianNews.toString());
+    formData.append('imageSource', newsForm.value.imageSource || '');
 
     if (newsForm.value.mediaFiles) {
       newsForm.value.mediaFiles.forEach((file) => {

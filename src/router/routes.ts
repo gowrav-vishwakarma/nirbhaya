@@ -104,6 +104,12 @@ const routes: RouteRecordRaw[] = [
         component: () => import('pages/CommunityFeeds/NewsListPage.vue'),
         meta: { requiresAuth: true },
       },
+      {
+        path: 'shorts-crud',
+        name: 'shorts-crud',
+        component: () => import('pages/ShortsPageCurd.vue'),
+        meta: { requiresAuth: true },
+      },
     ],
   },
   {
