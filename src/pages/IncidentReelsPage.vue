@@ -98,18 +98,14 @@ const handleScroll = () => {
 
   const containerHeight = reelsContainerRef.value.clientHeight;
   const scrollPosition = reelsContainerRef.value.scrollTop;
+  const threshold = containerHeight * 0.5; // 50% threshold for changing reels
 
-  // Calculate current index based on scroll position
-  const index = Math.round(scrollPosition / containerHeight);
+  // Calculate current index based on scroll position with threshold
+  const rawIndex = scrollPosition / containerHeight;
+  const index = Math.floor(rawIndex + 0.5); // Round to nearest whole number
 
   if (index !== currentReelIndex.value) {
     currentReelIndex.value = Math.max(0, Math.min(reels.value.length - 1, index));
-
-    // Smooth scroll to the selected reel
-    reelsContainerRef.value.scrollTo({
-      top: currentReelIndex.value * containerHeight,
-      behavior: 'smooth'
-    });
 
     // Update visibility states
     Object.keys(visibleReels.value).forEach((idx) => {
@@ -119,28 +115,29 @@ const handleScroll = () => {
   }
 };
 
-// Update the intersection observer handler
+// Update the onReelIntersect function
 const onReelIntersect = (entry: IntersectionObserverEntry, index: number): boolean => {
   const isIntersecting = entry.isIntersecting;
+  const intersectionRatio = entry.intersectionRatio;
 
-  if (isIntersecting) {
-    // Set current index
+  // Only update if the reel is mostly visible (> 50%)
+  if (isIntersecting && intersectionRatio > 0.5) {
     currentReelIndex.value = index;
 
-    // Reset all visibility states first
+    // Update visibility states
     const newVisibleState: { [key: number]: boolean } = {};
     reels.value.forEach((_, idx) => {
       newVisibleState[idx] = idx === index;
     });
-
-    // Update visibility state all at once
     visibleReels.value = newVisibleState;
 
-    console.log(`Reel ${index} intersecting:`, {
-      isActive: true,
-      isVisible: true,
-      reelId: reels.value[index]?.id
-    });
+    // Smooth scroll to the current reel
+    if (reelsContainerRef.value) {
+      reelsContainerRef.value.scrollTo({
+        top: index * reelsContainerRef.value.clientHeight,
+        behavior: 'smooth'
+      });
+    }
   }
 
   return isIntersecting;
@@ -190,6 +187,7 @@ onBeforeUnmount(() => {
   height: 100vh;
   overflow: hidden;
   position: relative;
+  -webkit-overflow-scrolling: touch;
 }
 
 .reels-container {
@@ -200,6 +198,8 @@ onBeforeUnmount(() => {
   -webkit-overflow-scrolling: touch;
   -ms-overflow-style: none;
   scrollbar-width: none;
+  will-change: transform;
+  transform: translateZ(0);
 
   &::-webkit-scrollbar {
     display: none;
@@ -209,10 +209,11 @@ onBeforeUnmount(() => {
 .reel-item {
   height: 100vh;
   width: 100%;
-  scroll-snap-align: start;
+  scroll-snap-align: center;
   scroll-snap-stop: always;
   position: relative;
   overflow: hidden;
+  transform: translateZ(0);
 
   &>* {
     width: 100%;
@@ -223,6 +224,13 @@ onBeforeUnmount(() => {
 @media (hover: none) and (pointer: coarse) {
   .reels-container {
     touch-action: pan-y pinch-zoom;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-y: contain;
+  }
+
+  .reel-item {
+    user-select: none;
+    -webkit-user-select: none;
   }
 }
 </style>
