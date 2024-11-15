@@ -3,14 +3,12 @@
   <head>
     <title><%= productName %></title>
     <script>
-      // First, load the IFrame Player API code asynchronously.
-      var tag = document.createElement('script');
-      tag.src = 'https://www.youtube.com/iframe_api';
-      var firstScriptTag = document.getElementsByTagName('script')[0];
-      firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+      window.YT_CONFIG = {
+        host: 'https://www.youtube.com',
+        origin: window.location.origin,
+      };
     </script>
-    <!-- Add this line -->
-
+    <script src="https://www.youtube.com/iframe_api" async></script>
     <meta charset="utf-8" />
     <meta name="description" content="<%= productDescription %>" />
     <meta name="format-detection" content="telephone=no" />
@@ -169,6 +167,11 @@
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
     />
+    <!-- Add preconnect for YouTube -->
+    <link rel="preconnect" href="https://www.youtube.com" />
+    <link rel="preconnect" href="https://i.ytimg.com" />
+    <link rel="preconnect" href="https://i9.ytimg.com" />
+    <link rel="preconnect" href="https://s.ytimg.com" />
   </head>
   <body>
     <!-- quasar:entry-point -->

@@ -71,16 +71,34 @@
 import { ref, watch, onMounted, onUnmounted, nextTick } from 'vue';
 import { api } from 'src/boot/axios';
 import { useUserStore } from 'src/stores/user-store';
-import type { YTPlayer } from '../youtube';
+import type { YTPlayer, YT } from '../youtube';
 // import { useIntersectionObserver } from '@vueuse/core'
+
+const props = defineProps<{
+  reel: any;
+  isActive: boolean;
+  isVisible: boolean;
+}>();
 
 const isYTReady = ref(false);
 const player = ref<YTPlayer | null>(null);
-const youtubeIframeId = ref(`youtube-player-${Math.random().toString(36).substr(2, 9)}`);
+const youtubeIframeId = ref(`youtube-player-${props.reel.id}`);
 const playerState = ref<number | null>(null);
 const canTogglePlayPause = ref(false);
 const isInitializing = ref(false);
 const isPlayerReady = ref(false);
+
+// Add imports for Quasar
+import { useQuasar } from 'quasar';
+const $q = useQuasar();
+
+// Add window.YT type declaration
+declare global {
+  interface Window {
+    YT: typeof YT;
+    onYouTubeIframeAPIReady: () => void;
+  }
+}
 
 // Update the YouTube embed URL function
 const getYoutubeEmbedUrl = (videoId: string) => {
@@ -97,15 +115,22 @@ const getYoutubeEmbedUrl = (videoId: string) => {
 
 let ytPlayer: YTPlayer | null = null;
 
-// Ensure the YouTube API is loaded
+// Update the loadYouTubeAPI function
 const loadYouTubeAPI = () => {
   return new Promise<void>((resolve) => {
-    if (window.YT) {
+    if (window.YT && window.YT.Player) {
       isYTReady.value = true;
       resolve();
       return;
     }
 
+    // Define the callback before loading the script
+    window.onYouTubeIframeAPIReady = () => {
+      isYTReady.value = true;
+      resolve();
+    };
+
+    // Only load the script if it hasn't been loaded yet
     if (!document.querySelector('script[src*="youtube.com/iframe_api"]')) {
       const tag = document.createElement('script');
       tag.src = 'https://www.youtube.com/iframe_api';
@@ -114,11 +139,6 @@ const loadYouTubeAPI = () => {
         firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
       }
     }
-
-    window.onYouTubeIframeAPIReady = () => {
-      isYTReady.value = true;
-      resolve();
-    };
   });
 };
 
@@ -129,59 +149,83 @@ const createYoutubePlayer = async () => {
 
   try {
     await loadYouTubeAPI();
-    await nextTick();
 
-    if (!window.YT) {
-      console.warn('YouTube API not loaded');
+    // Skip player creation if not active and visible
+    if (!props.isActive || !props.isVisible) {
+      console.log(`Skipping player creation for inactive reel ${props.reel.id}`);
+      isInitializing.value = false;
       return;
     }
 
-    const YT = window.YT;
+    // Clean up existing player
     if (player.value) {
       try {
         player.value.destroy();
       } catch (error) {
-        console.error('Error destroying existing player:', error);
+        console.error('Error destroying player:', error);
       }
+      player.value = null;
     }
 
     const videoId = extractVideoId(props.reel.videoUrl);
+    console.log(`Creating player for reel ${props.reel.id}`, {
+      videoId,
+      isActive: props.isActive,
+      isVisible: props.isVisible
+    });
+
     const playerConfig = {
-      videoId: videoId,
+      videoId,
       playerVars: {
         autoplay: 1,
         controls: 0,
         rel: 0,
         playsinline: 1,
-        mute: 0,
+        mute: 1,
         loop: 1,
         playlist: videoId,
         enablejsapi: 1,
         origin: window.location.origin
       },
       events: {
-        onReady: (event) => {
-          console.log('YouTube player is ready');
+        onReady: (event: { target: YTPlayer }) => {
+          console.log(`Player ready for reel ${props.reel.id}`);
           isPlayerReady.value = true;
-          canTogglePlayPause.value = true;
+
           if (props.isActive && props.isVisible) {
-            event.target.unMute();
             event.target.playVideo();
-          } else {
-            event.target.mute();
+            // Delay unmuting to prevent audio glitches
+            setTimeout(() => {
+              if (props.isActive && props.isVisible) {
+                event.target.unMute();
+              }
+            }, 500);
           }
         },
-        onStateChange: (event) => {
+        onStateChange: (event: { target: YTPlayer; data: number }) => {
           playerState.value = event.data;
+
           if (event.data === YT.PlayerState.ENDED) {
             event.target.seekTo(0);
-            event.target.playVideo();
+            if (props.isActive && props.isVisible) {
+              event.target.playVideo();
+            }
           }
+        },
+        onError: (event: any) => {
+          console.error('YouTube player error:', event);
+          isPlayerReady.value = false;
         }
       }
     };
 
-    player.value = new YT.Player(youtubeIframeId.value, playerConfig);
+    const container = document.getElementById(youtubeIframeId.value);
+    if (!container) {
+      console.error('YouTube container not found');
+      return;
+    }
+
+    player.value = new window.YT.Player(youtubeIframeId.value, playerConfig);
   } catch (error) {
     console.error('Error creating YouTube player:', error);
     isPlayerReady.value = false;
@@ -230,16 +274,13 @@ onUnmounted(() => {
     } catch (error) {
       console.error('Error destroying YouTube player:', error);
     }
+    player.value = null;
   }
-  player.value = null;
-  ytPlayer = null;
-});
 
-const props = defineProps<{
-  reel: any;
-  isActive: boolean;
-  isVisible: boolean;
-}>();
+  if (intervalId.value) {
+    clearInterval(intervalId.value);
+  }
+});
 
 const userStore = useUserStore();
 const isLiked = ref(false);
@@ -251,12 +292,26 @@ const videoRef = ref<HTMLVideoElement | null>(null);
 const isVideoLoaded = ref(false);
 const commentsContainer = ref<HTMLElement | null>(null);
 
-const play = () => {
-  if (videoRef.value && isVideoLoaded.value) {
-    console.log('Playing video:', props.reel.title);
-    videoRef.value.play().catch((error) => {
-      console.error('Error playing video:', error);
-    });
+const play = async () => {
+  if (!videoRef.value || !isVideoLoaded.value) {
+    console.log('Video not ready to play');
+    return;
+  }
+
+  try {
+    console.log('Attempting to play video:', props.reel.title);
+    await videoRef.value.play();
+    console.log('Video playing successfully');
+  } catch (error) {
+    console.error('Error playing video:', error);
+    // Retry once with muted state if autoplay was blocked
+    try {
+      videoRef.value.muted = true;
+      await videoRef.value.play();
+      console.log('Video playing in muted state');
+    } catch (retryError) {
+      console.error('Retry failed:', retryError);
+    }
   }
 };
 
@@ -268,9 +323,11 @@ const pause = () => {
 };
 
 const onVideoLoaded = () => {
+  console.log(`Video loaded for reel ${props.reel.id}`);
   isVideoLoaded.value = true;
-  console.log('Video loaded:', props.reel.title);
-  if (props.isActive) {
+
+  if (props.isActive && props.isVisible) {
+    console.log('Playing video after load');
     play();
   }
 };
@@ -306,27 +363,52 @@ const handleLike = async (reel: any) => {
   }
 };
 
-const handleShare = (reel: { videoUrl: string; id: string; shares: number; }) => {
-  if (navigator.share) {
-    navigator.share({
-      url: reel.videoUrl
-    })
-      .then(async () => {
-        console.log('Share successful');
+const handleShare = async (reel: { videoUrl: string; id: string; shares: number; }) => {
+  try {
+    if (navigator.share && navigator.canShare) {
+      const shareData = {
+        title: props.reel.title || 'Check out this video',
+        text: props.reel.description || 'Watch this interesting video',
+        url: reel.videoUrl
+      };
+
+      if (navigator.canShare(shareData)) {
+        await navigator.share(shareData);
         const res = await api.post('/incidents/log-share', {
           incidentId: props.reel.id,
           userId: userStore.user.id,
         });
         if (res) {
-          reel.shares++
+          reel.shares++;
         }
-      })
-      .catch((error) => {
-        console.error('Error sharing:', error);
-      });
-  } else {
-    console.log('Share not supported on this browser, fallback to other sharing methods.');
+      } else {
+        fallbackShare(reel);
+      }
+    } else {
+      fallbackShare(reel);
+    }
+  } catch (error) {
+    console.error('Error sharing:', error);
+    fallbackShare(reel);
   }
+};
+
+const fallbackShare = (reel: { videoUrl: string }) => {
+  // Create a temporary input to copy the URL
+  const tempInput = document.createElement('input');
+  tempInput.value = reel.videoUrl;
+  document.body.appendChild(tempInput);
+  tempInput.select();
+  document.execCommand('copy');
+  document.body.removeChild(tempInput);
+
+  // Show notification
+  $q.notify({
+    message: 'Link copied to clipboard!',
+    color: 'positive',
+    position: 'top',
+    timeout: 2000
+  });
 };
 
 const scrollToBottom = () => {
@@ -410,8 +492,11 @@ const checkIfLiked = async () => {
 const intervalId = ref<ReturnType<typeof setInterval> | null>(null);
 
 onMounted(async () => {
-  if (props.reel.videoSource !== 'normal' && props.isActive && props.isVisible) {
-    await createYoutubePlayer();
+  if (props.reel.videoSource !== 'normal') {
+    if (props.isActive && props.isVisible) {
+      console.log(`Initializing YouTube player for reel ${props.reel.id} on mount`);
+      await createYoutubePlayer();
+    }
   }
   checkIfLiked();
 
@@ -472,36 +557,38 @@ const handleClick = async () => {
 watch(
   () => [props.isActive, props.isVisible],
   async ([isActive, isVisible]) => {
-    if (props.reel.videoSource !== 'normal') {
-      if (!player.value || !isPlayerReady.value) {
-        if (isActive && isVisible) {
-          await createYoutubePlayer();
-        }
-        return;
-      }
+    console.log(`Reel ${props.reel.id} visibility changed:`, {
+      isActive,
+      isVisible,
+      hasPlayer: !!player.value,
+      isPlayerReady: isPlayerReady.value,
+      playerState: playerState.value
+    });
 
-      try {
-        if (isActive && isVisible) {
-          console.log('Playing YouTube video');
-          player.value.unMute();
-          player.value.playVideo();
+    if (props.reel.videoSource !== 'normal') {
+      if (isActive && isVisible) {
+        if (!player.value || !isPlayerReady.value) {
+          await createYoutubePlayer();
         } else {
-          console.log('Pausing YouTube video');
+          try {
+            player.value.playVideo();
+            setTimeout(() => {
+              if (props.isActive && props.isVisible) {
+                player.value?.unMute();
+              }
+            }, 500);
+          } catch (error) {
+            console.error('Error playing video:', error);
+            await createYoutubePlayer();
+          }
+        }
+      } else if (player.value) {
+        try {
           player.value.mute();
           player.value.pauseVideo();
+        } catch (error) {
+          console.error('Error pausing video:', error);
         }
-      } catch (error) {
-        console.error('Error controlling YouTube player:', error);
-        if (isActive && isVisible) {
-          isPlayerReady.value = false;
-          await createYoutubePlayer();
-        }
-      }
-    } else {
-      if (isActive && isVisible && isVideoLoaded.value) {
-        play();
-      } else {
-        pause();
       }
     }
   },
@@ -582,6 +669,25 @@ const extractVideoId = (url: string) => {
   const match = url.match(regExp);
   return (match && match[2].length === 11) ? match[2] : url;
 };
+
+// Add this at the top of the script section
+const logVisibilityChange = () => {
+  console.log(`Reel ${props.reel.id} - Visibility changed:`, {
+    isActive: props.isActive,
+    isVisible: props.isVisible,
+    isVideoLoaded: isVideoLoaded.value,
+    playerState: playerState.value
+  });
+};
+
+// Add to watch section
+watch(
+  () => [props.isActive, props.isVisible],
+  () => {
+    logVisibilityChange();
+  },
+  { immediate: true }
+);
 </script>
 
 <style lang="scss">
