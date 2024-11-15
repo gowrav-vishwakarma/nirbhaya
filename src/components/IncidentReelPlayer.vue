@@ -9,10 +9,10 @@
       <div :id="youtubeIframeId"></div>
     </div>
 
-    <div class="reel-info">
+    <!-- <div class="reel-info">
       <h3>{{ reel.title }}</h3>
       <p>{{ reel.description }}</p>
-    </div>
+    </div> -->
     <div class="reel-actions" style="text-align: center;">
       <q-icon @click="handleLike(reel)" :class="{ 'heartbeat': wasLiked }"
         :style="{ marginBottom: '2px', color: isLiked ? 'red' : 'white' }" class="action-font-size"

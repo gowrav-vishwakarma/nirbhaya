@@ -82,7 +82,12 @@ const columns = [
   {
     name: 'location',
     label: 'Location',
-    field: row => row.location?.coordinates.join(', ') || 'N/A',
+    field: (row: Incident) => {
+      if (row.location?.coordinates && Array.isArray(row.location.coordinates)) {
+        return row.location.coordinates.join(', ');
+      }
+      return 'N/A';
+    },
     sortable: true
   },
   { name: 'actions', label: 'Actions', field: 'actions' }
