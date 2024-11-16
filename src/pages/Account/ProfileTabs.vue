@@ -32,49 +32,37 @@
       <div class="expansion-container">
         <q-list separator>
           <!-- Account Details -->
-          <q-expansion-item v-ripple icon="person" label="My Profile" header-class="glass-effect"
-            :default-opened="!userStore.user.name">
+          <q-expansion-item v-model="expandedItems.profile" group="profile-tabs" v-ripple icon="person"
+            label="My Profile" header-class="glass-effect" :default-opened="!userStore.user.name">
             <q-card>
               <ProfilePage />
             </q-card>
           </q-expansion-item>
 
           <!-- Volunteers Section -->
-          <q-expansion-item v-if="userStore.user.name" icon="volunteer_activism" label="Volunteers">
+          <q-expansion-item v-if="userStore.user.name" v-model="expandedItems.volunteers" group="profile-tabs"
+            icon="volunteer_activism" label="Volunteers">
             <q-card>
               <VolunteeringPage />
             </q-card>
           </q-expansion-item>
 
           <!-- Community Impact -->
-          <q-expansion-item v-if="userStore.user.name" icon="people" label="Community Impact">
-
+          <q-expansion-item v-if="userStore.user.name" v-model="expandedItems.community" group="profile-tabs"
+            icon="people" label="Community Impact">
             <CommunityImpactPage />
           </q-expansion-item>
 
-          <!-- Likes Section -->
-          <!-- <q-expansion-item icon="favorite" label="Likes">
-            <q-card>
-              <q-card-section>
-                <div class="text-h6">Posts You've Liked</div>
-                <q-list bordered separator>
-                  <q-item v-for="(post, index) in likedPosts" :key="index">
-                    <q-item-section avatar>
-                      <q-avatar>
-                        <img :src="post.image">
-                      </q-avatar>
-                    </q-item-section>
-                    <q-item-section>
-                      <q-item-label>{{ post.title }}</q-item-label>
-                      <q-item-label caption>{{ post.date }}</q-item-label>
-                    </q-item-section>
-                    <q-item-section side>
-                      <q-btn flat round color="red" icon="favorite" />
-                    </q-item-section>
-                  </q-item>
-                </q-list>
-              </q-card-section>
-            </q-card>
+          <!-- Feedback Impact -->
+          <q-expansion-item v-if="userStore.user.name" v-model="expandedItems.feedback" group="profile-tabs"
+            icon="fas fa-history" label="SOS History">
+            <SosHistoryPage />
+          </q-expansion-item>
+
+
+          <!-- <q-expansion-item v-if="userStore.user.name" v-model="expandedItems.rating" group="profile-tabs"
+            icon="fas fa-star" label="Your Rating">
+            <YourRatingPage />
           </q-expansion-item> -->
         </q-list>
       </div>
@@ -92,6 +80,9 @@ import { useRouter } from 'vue-router'
 import { useQuasar } from 'quasar'
 import ProfilePage from './ProfilePage.vue'
 import VolunteeringPage from './VolunteeringPage.vue';
+import SosRating from '../Sos/SosRating.vue';
+import YourRatingPage from '../Sos/YourRatingPage.vue';
+import SosHistoryPage from '../Sos/SosHistoryPage.vue';
 import CommunityImpactPage from './CommunityImpactPage.vue';
 import { useUserStore } from 'src/stores/user-store';
 import { api } from 'src/boot/axios';
@@ -181,6 +172,14 @@ const handleCoverUpload = () => {
 
 onMounted(async () => {
   // Fetch user profile data here
+})
+
+const expandedItems = ref({
+  profile: false,
+  volunteers: false,
+  community: false,
+  feedback: false,
+  rating: false
 })
 </script>
 <style lang="scss" scoped>
@@ -415,16 +414,73 @@ onMounted(async () => {
 
 :deep(.q-expansion-item) {
   margin-bottom: -2px;
+  border-radius: 12px;
   overflow: hidden;
-  transition: all 0.3s ease;
-  width: 100%;
-  margin-left: auto;
-  margin-right: auto;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+  &:not(.q-expansion-item--expanded):hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+
+    .q-expansion-item__header {
+      background: linear-gradient(145deg, #f8f9fa, #ffffff);
+    }
+
+    .q-icon {
+      transform: scale(1.1);
+    }
+  }
 }
 
-:deep(.q-expansion-item:hover) {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  transform: translateY(-2px);
+:deep(.q-expansion-item--expanded) {
+  margin: 16px 0;
+  background: white;
+  box-shadow: none !important;
+
+  .q-expansion-item__header {
+    background: linear-gradient(145deg, #f8f9fa, #ffffff);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+
+    .q-icon {
+      transform: rotate(180deg);
+      color: $primary;
+    }
+
+    &:hover {
+      transform: none;
+      box-shadow: none;
+    }
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+:deep(.q-expansion-item--expanded) .q-expansion-item__content {
+  animation: slideDown 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+:deep(.q-card) {
+  box-shadow: none;
+  background: transparent;
+  transition: all 0.3s ease;
+}
+
+:deep(.q-expansion-item__content) {
+  background-color: #ffffff;
+  padding: 0;
+  transition: all 0.3s ease-in-out;
+  height: auto !important;
+  box-shadow: none !important;
 }
 
 :deep(.q-expansion-item__container) {
@@ -450,7 +506,7 @@ onMounted(async () => {
 }
 
 :deep(.q-expansion-item__header:hover .q-icon) {
-  color: #666666 !important;
+  color: inherit;
 }
 
 :deep(.q-expansion-item__header .q-item__label) {
@@ -481,7 +537,7 @@ onMounted(async () => {
 }
 
 :deep(.q-item:hover) {
-  background-color: #f8faff;
+  background-color: transparent;
 }
 
 :deep(.q-badge) {
@@ -492,7 +548,7 @@ onMounted(async () => {
 }
 
 :deep(.q-avatar) {
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  // box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   border: 2px solid #fff;
 }
 
@@ -523,7 +579,7 @@ onMounted(async () => {
 }
 
 :deep(::-webkit-scrollbar-thumb:hover) {
-  background: #a8a8a8;
+  // background: #a8a8a8;
 }
 
 .gradient-border {
@@ -563,11 +619,11 @@ onMounted(async () => {
 
 :deep(.q-btn) {
   transition: all 0.2s ease;
-}
 
-:deep(.q-btn:hover) {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  &:not(.q-expansion-item--expanded):hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
 }
 
 .logout-btn {
@@ -616,16 +672,20 @@ onMounted(async () => {
 
 /* Adjust the header height and padding to accommodate larger text */
 :deep(.q-expansion-item__header) {
-  min-height: 100px !important;
-  padding: 15px 20px !important;
-}
+  min-height: 60px !important;
+  padding: 12px 20px !important;
 
-/* Adjust icon size to match text */
-:deep(.q-expansion-item__header) .q-icon {
-  width: 40px;
-  height: 40px;
-  padding: 10px;
-  margin-right: 15px;
+  .q-item__label {
+    font-size: 14px !important;
+    font-weight: 600;
+    color: #424242 !important;
+  }
+
+  .q-icon {
+    width: 24px;
+    height: 24px;
+    padding: 0;
+  }
 }
 
 /* Additional specificity for icon containers */
@@ -634,4 +694,24 @@ onMounted(async () => {
 }
 
 /* Remove any primary color classes from the template */
+
+@keyframes expandContent {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+:deep(.q-expansion-item--expanded .q-expansion-item__content) {
+  animation: expandContent 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+:deep(.q-ripple) {
+  display: none !important;
+}
 </style>
