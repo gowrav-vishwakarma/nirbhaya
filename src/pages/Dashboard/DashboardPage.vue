@@ -12,11 +12,11 @@
 </template>
 
 <script setup lang="ts">
-import { computed, defineAsyncComponent, onMounted, ref } from 'vue';
-import { useRouter } from 'vue-router';
+import { computed, defineAsyncComponent, onMounted, } from 'vue';
+// import { useRouter } from 'vue-router';
 import { useUserStore } from 'src/stores/user-store';
 import { useSOSMode } from 'src/composables/useSOSMode';
-import { usePermissions } from 'src/composables/usePermissions';
+// import { usePermissions } from 'src/composables/usePermissions';
 // import MissingPermissions from 'src/components/MissingPermissions.vue';
 
 const WelcomeCard = defineAsyncComponent(
@@ -28,25 +28,25 @@ const SOSButtons = defineAsyncComponent(
 const EmergencyContacts = defineAsyncComponent(
   () => import('./components/EmergencyContacts.vue')
 );
-const NearbyVolunteers = defineAsyncComponent(
-  () => import('./components/NearbyVolunteers.vue')
-);
+// const NearbyVolunteers = defineAsyncComponent(
+//   () => import('./components/NearbyVolunteers.vue')
+// );
 const TrustStatsCard = defineAsyncComponent(
   () => import('./components/TrustStatsCard.vue')
 );
 
-const router = useRouter();
+// const router = useRouter();
 const userStore = useUserStore();
 const { initiateSOSMode } = useSOSMode();
-const { permissions, checkPermissions } = usePermissions();
+// const { permissions, checkPermissions } = usePermissions();
 
 const userName = computed(() => userStore.user.name || 'User');
 
-const locationPermissionGranted = computed(
-  () =>
-    permissions.value.find((p) => p.name === 'common.location')?.granted ||
-    false
-);
+// const locationPermissionGranted = computed(
+//   () =>
+//     permissions.value.find((p) => p.name === 'common.location')?.granted ||
+//     false
+// );
 
 onMounted(async () => {
   // await checkPermissions();
