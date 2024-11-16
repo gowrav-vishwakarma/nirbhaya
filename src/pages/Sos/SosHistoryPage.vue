@@ -43,7 +43,7 @@
 
                 <div class="location-info">
                   <span class="material-icons">location_on</span>
-                  <p>{{ sos.location?.address || 'Location not available' }}</p>
+                  <p>{{ formatLocation(sos.location) }}</p>
                 </div>
 
                 <button :disabled="sos.status == 'cancelled'" v-if="!sos.isRated" class="rate-button"
@@ -78,11 +78,71 @@ interface Location {
   coordinates?: [number, number];
 }
 
-
+interface SOS {
+  id: string;
+  threat: string;
+  createdAt: string;
+  status: string;
+  location: {
+    address?: string;
+    coordinates?: [number, number];
+    type?: string;
+  };
+  isRated: boolean;
+  helper?: Helper;
+}
 
 const router = useRouter();
-const sosHistory = ref([]);
+const sosHistory = ref<SOS[]>([]);
 const loading = ref(true);
+
+const addressCache = new Map<string, string>();
+let lastRequestTime = 0;
+const RATE_LIMIT_MS = 1000; // 1 second delay between requests
+
+const getAddressFromCoordinates = async (coordinates: [number, number]) => {
+  const [longitude, latitude] = coordinates;
+  const cacheKey = `${latitude},${longitude}`;
+
+  // Check cache first
+  if (addressCache.has(cacheKey)) {
+    return addressCache.get(cacheKey);
+  }
+
+  // Rate limiting
+  const now = Date.now();
+  const timeToWait = Math.max(0, RATE_LIMIT_MS - (now - lastRequestTime));
+  if (timeToWait > 0) {
+    await new Promise(resolve => setTimeout(resolve, timeToWait));
+  }
+
+  try {
+    lastRequestTime = Date.now();
+    const response = await fetch(
+      `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`,
+      {
+        headers: {
+          'Accept-Language': 'en-US,en;q=0.9',
+          'User-Agent': 'Nirbhaya-App'
+        }
+      }
+    );
+    const data = await response.json();
+    let address = 'Location not available';
+
+    if (data.display_name) {
+      // Simplify the address format
+      address = data.display_name.split(',').slice(0, 3).join(',');
+    }
+
+    // Cache the result
+    addressCache.set(cacheKey, address);
+    return address;
+  } catch (error) {
+    console.error('Error getting address:', error);
+    return 'Location not available';
+  }
+};
 
 const fetchSosHistory = async () => {
   try {
@@ -92,7 +152,18 @@ const fetchSosHistory = async () => {
         userId: userId,
       },
     });
+
+    // First set the data immediately with coordinates
     sosHistory.value = response.data;
+
+    // Then update addresses in background
+    for (const sos of response.data) {
+      if (sos.location?.coordinates && !sos.location.address) {
+        const address = await getAddressFromCoordinates(sos.location.coordinates);
+        // Update the address in the UI when it's ready
+        sos.location.address = address;
+      }
+    }
   } catch (error) {
     console.error('Error fetching SOS history:', error);
   } finally {
@@ -118,6 +189,19 @@ const goToRating = (sosId: string) => {
 
 };
 
+const formatLocation = (location: SOS['location']) => {
+  if (location?.address) {
+    return location.address;
+  }
+
+  if (location?.coordinates) {
+    // Instead of showing coordinates, show a loading message
+    return 'Fetching location...';
+  }
+
+  return 'Location not available';
+};
+
 onMounted(() => {
   fetchSosHistory();
 });
@@ -125,7 +209,7 @@ onMounted(() => {
 
 <style scoped>
 .page {
-  height: 100vh;
+  height: auto;
   display: flex;
   flex-direction: column;
 }
