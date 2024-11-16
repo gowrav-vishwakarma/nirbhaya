@@ -10,12 +10,12 @@
           <div class="spinner"></div>
         </div>
 
-        <div v-else-if="sosHistory.length === 0" class="no-history">
+        <div v-else-if="allSosHistory.length === 0" class="no-history">
           <h4>No SOS history found</h4>
         </div>
 
         <div v-else class="history-list">
-          <div v-for="sos in sosHistory" :key="sos.id" class="history-item">
+          <div v-for="sos in displayedSosHistory" :key="sos.id" class="history-item">
             <div class="history-card">
               <div class="card-header">
                 <div class="card-title text-capitalize">{{ sos.threat ? sos.threat : 'Emergency Alert' }}</div>
@@ -54,6 +54,13 @@
               </div>
             </div>
           </div>
+        </div>
+
+        <div v-if="hasMore" class="load-more-container">
+          <button class="load-more-button" @click="loadMore" :disabled="buttonLoading">
+            <span v-if="buttonLoading" class="button-loader"></span>
+            <span v-else>Load More</span>
+          </button>
         </div>
       </div>
     </main>
@@ -95,6 +102,13 @@ const addressCache = new Map<string, string>();
 let lastRequestTime = 0;
 const RATE_LIMIT_MS = 1000; // 1 second delay between requests
 
+const page = ref(1);
+const pageSize = ref(5);
+const hasMore = ref(true);
+const allSosHistory = ref<SOS[]>([]); // Store all SOS history
+const displayedSosHistory = ref<SOS[]>([]); // Store paginated SOS history
+
+const buttonLoading = ref(false);
 
 const getAddressFromCoordinates = async (coordinates: [number, number]) => {
   const [longitude, latitude] = coordinates;
@@ -149,22 +163,26 @@ const fetchSosHistory = async () => {
       },
     });
 
-    // First set the data immediately with coordinates
-    sosHistory.value = response.data;
+    // Store all data
+    allSosHistory.value = response.data;
 
-    // Then update addresses in background
-    for (const sos of response.data) {
-      if (sos.location?.coordinates && !sos.location.address) {
-        const address = await getAddressFromCoordinates(sos.location.coordinates);
-        // Update the address in the UI when it's ready
-        sos.location.address = address;
-      }
-    }
+    // Initialize displayed data with first page
+    updateDisplayedHistory();
+
+    // Only fetch addresses for displayed items
+    await updateAddressesForDisplayed();
   } catch (error) {
     console.error('Error fetching SOS history:', error);
   } finally {
     loading.value = false;
   }
+};
+
+const updateDisplayedHistory = () => {
+  const startIndex = 0;
+  const endIndex = page.value * pageSize.value;
+  displayedSosHistory.value = allSosHistory.value.slice(startIndex, endIndex);
+  hasMore.value = endIndex < allSosHistory.value.length;
 };
 
 const formatDate = (dateString: string) => {
@@ -196,6 +214,48 @@ const formatLocation = (location: SOS['location']) => {
   }
 
   return 'Location not available';
+};
+
+const updateAddressesForDisplayed = async () => {
+  for (const sos of displayedSosHistory.value) {
+    if (sos.location?.coordinates && !sos.location.address) {
+      const address = await getAddressFromCoordinates(sos.location.coordinates);
+      // Update address in both displayed and all history
+      sos.location.address = address;
+      const fullItem = allSosHistory.value.find(item => item.id === sos.id);
+      if (fullItem) {
+        fullItem.location.address = address;
+      }
+    }
+  }
+};
+
+const loadMore = async () => {
+  if (!hasMore.value || buttonLoading.value) return;
+
+  buttonLoading.value = true;
+  page.value++;
+  updateDisplayedHistory();
+
+  // Get only the newly added items
+  const startIndex = (page.value - 1) * pageSize.value;
+  const endIndex = page.value * pageSize.value;
+  const newItems = displayedSosHistory.value.slice(startIndex);
+
+  // Fetch addresses only for new items
+  for (const sos of newItems) {
+    if (sos.location?.coordinates && !sos.location.address) {
+      const address = await getAddressFromCoordinates(sos.location.coordinates);
+      // Update address in both displayed and all history
+      sos.location.address = address;
+      const fullItem = allSosHistory.value.find(item => item.id === sos.id);
+      if (fullItem) {
+        fullItem.location.address = address;
+      }
+    }
+  }
+
+  buttonLoading.value = false;
 };
 
 onMounted(() => {
@@ -360,5 +420,55 @@ onMounted(() => {
   text-align: center;
   color: #666;
   margin: 12px 0;
+}
+
+.load-more-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+.load-more-button {
+  padding: 10px 20px;
+  background: #3498db;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background 0.3s;
+}
+
+.load-more-button:hover {
+  background: #2980b9;
+}
+
+.load-more-button:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+.button-loader {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: #fff;
+  animation: spin 1s ease-in-out infinite;
+}
+
+.load-more-button {
+  min-width: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 </style>
