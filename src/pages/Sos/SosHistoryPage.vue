@@ -72,7 +72,10 @@ import { ref, onMounted } from 'vue';
 import { api } from 'src/boot/axios';
 import { useRouter } from 'vue-router';
 import { useUserStore } from 'src/stores/user-store';
+import { useQuasar } from 'quasar';
+import SosRating from './SosRating.vue';
 const userStore = useUserStore();
+const $q = useQuasar();
 
 interface Helper {
   _id: string;
@@ -81,7 +84,7 @@ interface Helper {
 }
 
 interface SOS {
-  id: string;
+  id: string | number;
   threat: string;
   createdAt: string;
   status: string;
@@ -95,7 +98,7 @@ interface SOS {
 }
 
 const router = useRouter();
-const sosHistory = ref<SOS[]>([]);
+// const sosHistory = ref<SOS[]>([]);
 const loading = ref(true);
 
 const addressCache = new Map<string, string>();
@@ -195,12 +198,20 @@ const formatDate = (dateString: string) => {
   });
 };
 
-const goToRating = (sosId: string) => {
-  // router.push(`/sos/rating/${sosId}`);
-  console.log('sosId...........', sosId);
-
-  router.push({ path: '/feedback', query: { eventId: sosId } }); // Redirect to feedback with event ID
-
+const goToRating = (sosId: string | number) => {
+  $q.dialog({
+    component: SosRating,
+    componentProps: {
+      eventId: sosId.toString()
+    },
+    position: 'bottom',
+    seamless: true,
+    fullWidth: true,
+  }).onOk(() => {
+    fetchSosHistory();
+  }).onCancel(() => {
+    console.log('Dialog cancelled');
+  });
 };
 
 const formatLocation = (location: SOS['location']) => {
@@ -239,7 +250,7 @@ const loadMore = async () => {
 
   // Get only the newly added items
   const startIndex = (page.value - 1) * pageSize.value;
-  const endIndex = page.value * pageSize.value;
+  // const endIndex = page.value * pageSize.value;
   const newItems = displayedSosHistory.value.slice(startIndex);
 
   // Fetch addresses only for new items
