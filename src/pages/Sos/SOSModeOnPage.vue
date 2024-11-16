@@ -46,7 +46,7 @@
             <q-icon :name="$t('common.icons.videocam')" :color="getIconColor(recordingStatus)" size="sm">
               <q-tooltip>{{
                 getTooltip(recordingStatus, 'recording')
-                }}</q-tooltip>
+              }}</q-tooltip>
             </q-icon>
             <q-icon :name="$t('common.icons.mic')" :color="getIconColor(audioStatus)" size="sm" class="q-ml-sm">
               <q-tooltip>{{ getTooltip(audioStatus, 'audio') }}</q-tooltip>
@@ -55,7 +55,7 @@
               class="q-ml-sm">
               <q-tooltip>{{
                 getTooltip(locationStatus, 'location')
-                }}</q-tooltip>
+              }}</q-tooltip>
             </q-icon>
           </div>
           <AudioControls :sosEventId="createdSosId" @audioStatusChange="handleAudioStatusChange" />
@@ -157,7 +157,7 @@
           <q-item-section>
             <q-item-label>{{
               currentLocationName || $t('common.gettingLocation')
-              }}</q-item-label>
+            }}</q-item-label>
             <q-item-label caption v-if="currentLocation.latitude && currentLocation.longitude">
               {{ $t('common.coordinates') }}:
               {{ currentLocation.latitude.toFixed(6) }},
