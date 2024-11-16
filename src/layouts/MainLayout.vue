@@ -70,9 +70,9 @@
           </div>
         </q-btn>
 
-        <q-space />
-        <q-btn style=" padding-bottom: 0; width: 60px;margin-top: 2px;" class="q-pa-none q-ml-sm" flat
-          aria-label="Incidents" @click="goToReelsPage" :disabled="!userStore.isLoggedIn">
+        <q-space v-if="isShortsVisible" />
+        <q-btn v-if="isShortsVisible" style=" padding-bottom: 0; width: 60px;margin-top: 2px;" class="q-pa-none q-ml-sm"
+          flat aria-label="Incidents" @click="goToReelsPage" :disabled="!userStore.isLoggedIn">
           <div>
             <!-- <q-icon name="video_file" class="font-size-25"></q-icon> -->
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
@@ -149,6 +149,10 @@ const userStore = useUserStore();
 const { locale } = useI18n();
 const drawer = ref(false);
 const isScrolled = ref(false);
+const isShortsVisible = process.env.SHORTS_VISIBLE === 'true'
+
+console.log('isShortsVisible.........', isShortsVisible);
+
 const handleScroll = () => {
   isScrolled.value = window.scrollY > 0;
 };

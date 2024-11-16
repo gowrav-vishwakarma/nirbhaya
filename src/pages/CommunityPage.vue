@@ -8,9 +8,37 @@
         <h6 class="q-ma-none q-my-lg">{{ t('community.offerDescription') }}</h6>
       </q-banner>
 
+      <!-- New Suggestions Section -->
+      <q-card class="q-pa-lg q-mt-md" style="max-width: 600px; width: 100%">
+
+        <q-card class="q-mt-md q-pa-none" style="max-width: 600px; width: 100%">
+          <q-card-section>
+            <h2 style="margin-top: -40px;" class="text-h6 q-ma-none q-mb-sm">{{ t('community.suggestions') }}</h2>
+            <q-list>
+              <q-item v-for="suggestion in suggestions" :key="suggestion.id">
+                <q-item-section>
+                  <q-item-label>{{
+                    $t('community.suggestionTopics.' + suggestion.topic)
+                    }}</q-item-label>
+                  <q-item-label caption>{{ suggestion.content }}</q-item-label>
+                </q-item-section>
+                <q-item-section side>
+                  <q-btn flat round icon="edit" @click="editSuggestion(suggestion)" />
+                </q-item-section>
+              </q-item>
+            </q-list>
+            <q-btn style="width: 100%;" class="commulity-bg-color q-mt-md" @click="openSuggestionDialog"
+              :disable="suggestions.length >= 5">
+              <span class="text-bold">
+                {{ t('community.addSuggestion') }}
+              </span>
+            </q-btn>
+          </q-card-section>
+        </q-card>
+      </q-card>
       <q-card class="q-pa-lg q-mt-md" style="max-width: 600px; width: 100%">
         <q-card-section>
-          <h2 class="text-h5 q-mb-md">{{ t('community.stayConnected') }}</h2>
+          <h2 style="margin-top: -20px;" class="text-h5 q-mb-md">{{ t('community.stayConnected') }}</h2>
           <p class="text-body1 q-mb-md">
             {{ t('community.stayUpdated') }}
           </p>
@@ -90,30 +118,7 @@
         </q-card-section>
       </q-card>
 
-      <!-- New Suggestions Section -->
-      <q-card class="q-mt-md q-pa-none" style="max-width: 600px; width: 100%">
-        <q-card-section>
-          <h2 class="text-h6 q-ma-none q-mb-sm">{{ t('community.suggestions') }}</h2>
-          <q-list>
-            <q-item v-for="suggestion in suggestions" :key="suggestion.id">
-              <q-item-section>
-                <q-item-label>{{
-                  $t('community.suggestionTopics.' + suggestion.topic)
-                }}</q-item-label>
-                <q-item-label caption>{{ suggestion.content }}</q-item-label>
-              </q-item-section>
-              <q-item-section side>
-                <q-btn flat round icon="edit" @click="editSuggestion(suggestion)" />
-              </q-item-section>
-            </q-item>
-          </q-list>
-          <q-btn class="commulity-bg-color q-mt-md" @click="openSuggestionDialog" :disable="suggestions.length >= 5">
-            <span class="text-bold">
-              {{ t('community.addSuggestion') }}
-            </span>
-          </q-btn>
-        </q-card-section>
-      </q-card>
+
     </div>
 
     <q-dialog v-model="suggestionDialog">

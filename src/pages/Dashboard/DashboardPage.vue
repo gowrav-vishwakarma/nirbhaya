@@ -4,6 +4,7 @@
       <WelcomeCard :user-name="userName" />
       <SOSButtons @initiate-sos="initiateSOSMode" />
       <EmergencyContacts />
+      <TrustStatsCard />
       <!-- <NearbyVolunteers v-if="locationPermissionGranted" /> -->
       <!-- <MissingPermissions /> -->
     </div>
@@ -29,6 +30,9 @@ const EmergencyContacts = defineAsyncComponent(
 );
 const NearbyVolunteers = defineAsyncComponent(
   () => import('./components/NearbyVolunteers.vue')
+);
+const TrustStatsCard = defineAsyncComponent(
+  () => import('./components/TrustStatsCard.vue')
 );
 
 const router = useRouter();
