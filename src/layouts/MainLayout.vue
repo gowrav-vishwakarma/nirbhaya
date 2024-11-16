@@ -149,7 +149,10 @@ const userStore = useUserStore();
 const { locale } = useI18n();
 const drawer = ref(false);
 const isScrolled = ref(false);
-const isShortsVisible = process.env.SHORTS_VISIBLE
+const isShortsVisible = process.env.SHORTS_VISIBLE === 'true'
+
+console.log('isShortsVisible.........', isShortsVisible);
+
 const handleScroll = () => {
   isScrolled.value = window.scrollY > 0;
 };
