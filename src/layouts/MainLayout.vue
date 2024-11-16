@@ -165,9 +165,9 @@ onUnmounted(() => {
   window.removeEventListener('scroll', handleScroll);
 });
 
-const toggleDrawer = () => {
-  drawer.value = !drawer.value; // Method to toggle drawer visibility
-};
+// const toggleDrawer = () => {
+//   drawer.value = !drawer.value; // Method to toggle drawer visibility
+// };
 
 const goToAccountPage = () => {
   router.push('/account');
@@ -183,7 +183,7 @@ const goToLoginPage = () => {
 
 const refreshNotifications = async () => {
   await fetchUnreadNotificationCount();
-  goToNotificationsPage(true);
+  goToNotificationsPage();
 };
 
 const goToNotificationsPage = () => {

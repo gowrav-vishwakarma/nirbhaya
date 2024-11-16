@@ -73,11 +73,6 @@ interface Helper {
   profileImage?: string;
 }
 
-interface Location {
-  address: string;
-  coordinates?: [number, number];
-}
-
 interface SOS {
   id: string;
   threat: string;
@@ -99,6 +94,7 @@ const loading = ref(true);
 const addressCache = new Map<string, string>();
 let lastRequestTime = 0;
 const RATE_LIMIT_MS = 1000; // 1 second delay between requests
+
 
 const getAddressFromCoordinates = async (coordinates: [number, number]) => {
   const [longitude, latitude] = coordinates;

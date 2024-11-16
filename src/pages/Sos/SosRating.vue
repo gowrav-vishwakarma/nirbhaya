@@ -97,8 +97,8 @@ const sosAcceptedUsers = async () => {
   sosAcceptedData.value = res.data;
 
   // Parse the response data to populate the volunteers array
-  volunteers.value = sosAcceptedData.value.flatMap((event: any) => {
-    return event.notifications.map((notification: any) => {
+  volunteers.value = sosAcceptedData.value.flatMap((event) => {
+    return event.notifications.map((notification) => {
       const receivedFeedback = notification.recipient.receivedFeedbacks?.[0];
       return {
         id: notification.recipient.id,

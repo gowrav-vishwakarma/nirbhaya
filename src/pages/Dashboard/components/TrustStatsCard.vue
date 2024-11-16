@@ -52,7 +52,7 @@ function formatNumber(num: number): string {
   if (num >= 1000) {
     return (num / 1000).toFixed(1) + 'K';
   }
-  return (num);
+  return String(num);
 }
 
 async function fetchTrustStats() {
@@ -65,7 +65,7 @@ async function fetchTrustStats() {
     totalVolunteers.value = stats.totalVolunteers;
     totalHelped.value = stats.totalVolunteers - 1;
     successRate.value = 95;
-    avgResponseTime.value = 5;
+    avgResponseTime.value = '5';
   } catch (error) {
     console.error('Error fetching trust stats:', error);
     // You might want to show an error message to the user
