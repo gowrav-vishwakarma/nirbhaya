@@ -1,9 +1,9 @@
 <template>
   <q-dialog ref="dialogRef" position="bottom" @hide="handleDialogHide" @click="checkSwipeToClose"
-    @touchstart="handleTouchStart" @touchmove="handleTouchMove" @touchend="handleTouchEnd" persistent :maximized="false"
-    transition-show="slide-up" transition-hide="slide-down">
-    <q-card class="dialog-card" @touchstart="handleTouchStart" @touchmove="handleTouchMove" @touchend="handleTouchEnd"
-      @click="checkSwipeToClose">
+    @touchstart="handleTouchStart" @touchmove.prevent="handleTouchMove" @touchend="handleTouchEnd" persistent
+    :maximized="false" transition-show="slide-up" transition-hide="slide-down">
+    <q-card class="dialog-card" :style="{ '--swipe-progress': swipeProgress }" @touchstart="handleTouchStart"
+      @touchmove="handleTouchMove" @touchend="handleTouchEnd" @click="checkSwipeToClose">
       <q-card-section class="row items-center q-pb-md">
         <div class="text-h6">
           {{ volunteers && volunteers.length > 0 ?
@@ -217,21 +217,25 @@ defineExpose({
 const touchStartY = ref(0);
 const touchEndY = ref(0);
 const minSwipeDistance = 100;
+const swipeProgress = ref(0);
 
 const handleTouchStart = (event: TouchEvent) => {
   touchStartY.value = event.touches[0].clientY;
 };
 
 const handleTouchMove = (event: TouchEvent) => {
+  event.preventDefault();
   touchEndY.value = event.touches[0].clientY;
+  const progress = Math.min(Math.max((touchEndY.value - touchStartY.value) / minSwipeDistance, 0), 1);
+  swipeProgress.value = progress;
 };
 
 const handleTouchEnd = () => {
   const swipeDistance = touchEndY.value - touchStartY.value;
   if (swipeDistance > minSwipeDistance && dialogRef.value) {
-    // Use the v-close-popup directive's functionality
     dialogRef.value.hide();
   }
+  swipeProgress.value = 0;
 };
 
 const checkSwipeToClose = (event: MouseEvent) => {
@@ -247,6 +251,14 @@ const handleDialogHide = () => {
 </script>
 
 <style lang="scss" scoped>
+:deep(body) {
+  overscroll-behavior-y: contain;
+  overflow: hidden;
+  position: fixed;
+  width: 100%;
+  height: 100%;
+}
+
 .dialog-card {
   width: 100%;
   max-width: 600px;
@@ -256,7 +268,8 @@ const handleDialogHide = () => {
   flex-direction: column;
   overflow: hidden;
   position: relative;
-  touch-action: pan-y; // Enable vertical touch actions
+  touch-action: none;
+  overscroll-behavior-y: contain;
 
   &::before {
     content: '';
@@ -266,9 +279,10 @@ const handleDialogHide = () => {
     transform: translateX(-50%);
     width: 40px;
     height: 4px;
-    background: #e0e0e0;
+    background: #{rgba(#000, calc(0.1 + var(--swipe-progress, 0) * 0.3))};
     border-radius: 2px;
     z-index: 1;
+    transition: background-color 0.1s ease;
   }
 }
 
