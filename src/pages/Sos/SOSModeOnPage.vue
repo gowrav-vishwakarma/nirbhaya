@@ -222,6 +222,7 @@ import { api } from 'boot/axios';
 import { throttle } from 'quasar';
 import AudioControls from './SosAudioControls.vue';
 import { Filesystem, Directory } from '@capacitor/filesystem';
+import SosRating from './SosRating.vue';
 
 const router = useRouter();
 const route = useRoute();
@@ -438,7 +439,6 @@ const showResolveConfirmation = (): Promise<boolean> => {
               timeout: 3000
             });
             sosSent.value = false; // Reset sosSent
-            router.push({ path: '/feedback', query: { eventId: createdSosId.value } }); // Redirect to feedback with event ID
             resolve(true);
             break;
           case 'keep':
@@ -574,6 +574,16 @@ const updateSOSData = async (data: {
         2
       )
     );
+
+    if (data.status === 'resolved') {
+      $q.dialog({
+        component: SosRating,
+        componentProps: {
+          eventId: createdSosId.value,
+          source: 'sosmode'
+        }
+      });
+    }
 
     if (!isLocationReceived.value) {
       updateCurrentLocation();
