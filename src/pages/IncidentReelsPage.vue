@@ -44,7 +44,7 @@ const reels = ref<Reel[]>([]);
 const currentReelIndex = ref(0);
 const isLoading = ref(false);
 const page = ref(1);
-const pageSize = 10;
+const pageSize = 5;
 const reelsContainerRef = ref<HTMLElement | null>(null);
 const visibleReels = ref<{ [key: number]: boolean }>({});
 
@@ -56,6 +56,9 @@ const fetchReels = async () => {
     const response = await api.get<Reel[]>('/incidents/reels', {
       params: { page: page.value, pageSize },
     });
+
+    console.log('fetched..............', response);
+
 
     const newReels = response.data.map((reel, idx) => ({
       ...reel,
