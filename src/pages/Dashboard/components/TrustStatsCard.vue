@@ -1,5 +1,5 @@
 <template>
-  <q-card class="trust-stats-card q-mb-md">
+  <q-card class="trust-stats-card q-mb-md q-mt-lg" style="border-radius: 15px;">
     <q-card-section>
       <div class="text-h6 text-white q-mb-md" style="font-weight: 700;">Community Impact</div>
 
