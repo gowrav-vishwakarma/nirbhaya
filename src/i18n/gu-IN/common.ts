@@ -62,6 +62,8 @@ export default {
 
   // Dashboard Page
   welcome: 'શું થયું {name}?',
+  betaNotice:
+    'બીટા સંસ્કરણ (પરિક્ષણમાં ચલાવવામાં આવી છે, સમસ્યાઓ હોઈ શકે છે), અહીં સૂચનો આપવા માટે ક્લિક કરો',
   sosButton: 'SOS',
   missingPermissions: 'કેટલીક પરવાનગીઓ ખૂટે છે',
   request: '{permission} માટે વિનંતી કરો',

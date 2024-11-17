@@ -2,6 +2,9 @@
   <q-page class="dashboard-page q-pa-md">
     <div class="dashboard-content">
       <WelcomeCard :user-name="userName" />
+      <div class="beta-notice" @click="goToCommunityRoute">
+        {{ $t('common.betaNotice') }}
+      </div>
       <SOSButtons @initiate-sos="initiateSOSMode" />
       <EmergencyContacts />
       <TrustStatsCard />
@@ -12,12 +15,14 @@
 </template>
 
 <script setup lang="ts">
-import { computed, defineAsyncComponent, onMounted, } from 'vue';
-// import { useRouter } from 'vue-router';
+import { computed, defineAsyncComponent, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
 import { useUserStore } from 'src/stores/user-store';
 import { useSOSMode } from 'src/composables/useSOSMode';
 // import { usePermissions } from 'src/composables/usePermissions';
 // import MissingPermissions from 'src/components/MissingPermissions.vue';
+
+const router = useRouter();
 
 const WelcomeCard = defineAsyncComponent(
   () => import('./components/WelcomeCard.vue')
@@ -48,6 +53,10 @@ const userName = computed(() => userStore.user.name || 'User');
 //     false
 // );
 
+const goToCommunityRoute = () => {
+  router.push('/community');
+};
+
 onMounted(async () => {
   // await checkPermissions();
 });
@@ -57,6 +66,13 @@ onMounted(async () => {
 .dashboard-page {
   background: linear-gradient(135deg, $primary, darken($primary, 20%));
   min-height: 100vh;
+}
+
+.beta-notice {
+  font-size: 1rem;
+  color: $secondary;
+  text-align: center;
+  margin: 1rem 0;
 }
 
 .dashboard-content {
