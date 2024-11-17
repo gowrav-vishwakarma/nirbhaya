@@ -166,17 +166,17 @@
           </q-item-section>
         </q-item>
 
-        <div class="text-subtitle1 text-weight-bold q-mb-sm">
+        <!-- <div class="text-subtitle1 text-weight-bold q-mb-sm">
           {{ $t('common.nearbyPoliceStations') }}
-        </div>
-        <q-item class="bg-grey-2 rounded-borders q-mb-md">
+        </div> -->
+        <!-- <q-item class="bg-grey-2 rounded-borders q-mb-md">
           <q-item-section avatar>
             <q-icon :name="$t('common.icons.locationOn')" color="primary" />
           </q-item-section>
           <q-item-section>
             <q-item-label>South Bopal Ahmedabad</q-item-label>
           </q-item-section>
-        </q-item>
+        </q-item> -->
 
         <q-btn @click="updateSOSData({ status: 'active' })" color="" class=" notify-person-box full-width q-mb-md">
           <span class="text-bold">{{ $t('common.contactPoliceStation') }}</span>
@@ -222,6 +222,7 @@ import { api } from 'boot/axios';
 import { throttle } from 'quasar';
 import AudioControls from './SosAudioControls.vue';
 import { Filesystem, Directory } from '@capacitor/filesystem';
+import SosRating from './SosRating.vue';
 
 const router = useRouter();
 const route = useRoute();
@@ -438,7 +439,6 @@ const showResolveConfirmation = (): Promise<boolean> => {
               timeout: 3000
             });
             sosSent.value = false; // Reset sosSent
-            router.push({ path: '/feedback', query: { eventId: createdSosId.value } }); // Redirect to feedback with event ID
             resolve(true);
             break;
           case 'keep':
@@ -574,6 +574,16 @@ const updateSOSData = async (data: {
         2
       )
     );
+
+    if (data.status === 'resolved') {
+      $q.dialog({
+        component: SosRating,
+        componentProps: {
+          eventId: createdSosId.value,
+          source: 'sosmode'
+        }
+      });
+    }
 
     if (!isLocationReceived.value) {
       updateCurrentLocation();
