@@ -66,6 +66,8 @@ export default {
 
   // Dashboard Page
   welcome: 'What Happened {name}?',
+  betaNotice:
+    'Beta Version (Under testing, may have issues), click here to give suggestions',
   sosButton: 'SOS',
   sosButtonSubtitle: 'Send emergency alert to nearby volunteers',
   missingPermissions: 'Some permissions are missing',
