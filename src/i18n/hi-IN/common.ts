@@ -62,6 +62,8 @@ export default {
 
   // Dashboard Page
   welcome: 'क्या हुआ {name}?',
+  betaNotice:
+    'बीटा संस्करण (परीक्षण में चल रहा है, समस्याएं हो सकती हैं), सुझाव देने के लिए यहां क्लिक करें',
   sosButton: 'SOS',
   missingPermissions: 'कुछ अनुमतियाँ गायब हैं',
   request: '{permission} का अनुरोध करें',
@@ -74,28 +76,28 @@ export default {
   updateProfile: 'प्रोफ़ाइल अपडेट करें',
   viewNotifications: 'सूचनाएँ देखें',
   getHelp: 'मदद प्राप्त करें',
-  appHelp: 'ऐप मदद', // Added
-  permissionsHelp: 'अनुमतियों की मदद', // Added
-  gettingStarted: 'शुरू करना', // Added
-  gettingStartedContent: 'शुरू करने की सामग्री', // Added
-  watchVideo: 'वीडियो देखें', // Added
-  usingSOS: 'SOS का उपयोग करना', // Added
-  usingSOSContent: 'SOS का उपयोग करने की सामग्री', // Added
-  volunteeringHelp: 'स्वयंसेवा मदद', // Added
-  volunteeringHelpContent: 'स्वयंसेवा मदद सामग्री', // Added
-  helpVideo: 'मदद वीडियो', // Added
-  howToEnable: 'कैसे सक्षम करें', // Added
-  pwaLocationHelp: 'पीडब्ल्यूए स्थान मदद', // Added
-  platformSpecificHelp: 'प्लेटफ़ॉर्म विशिष्ट मदद', // Added
-  pwaCameraHelp: 'पीडब्ल्यूए कैमरा मदद', // Added
+  appHelp: 'ऐप मदद',
+  permissionsHelp: 'अनुमतियों की मदद',
+  gettingStarted: 'शुरू करना',
+  gettingStartedContent: 'शुरू करने की सामग्री',
+  watchVideo: 'वीडियो देखें',
+  usingSOS: 'SOS का उपयोग करना',
+  usingSOSContent: 'SOS का उपयोग करने की सामग्री',
+  volunteeringHelp: 'स्वयंसेवा मदद',
+  volunteeringHelpContent: 'स्वयंसेवा मदद सामग्री',
+  helpVideo: 'मदद वीडियो',
+  howToEnable: 'कैसे सक्षम करें',
+  pwaLocationHelp: 'पीडब्ल्यूए स्थान मदद',
+  platformSpecificHelp: 'प्लेटफ़ॉर्म विशिष्ट मदद',
+  pwaCameraHelp: 'पीडब्ल्यूए कैमरा मदद',
   notificationsPermissionHelp: 'notifications Permission Help',
-  errorGettingLocation: 'स्थान मैं गलत है। कृपया फिर से प्रयास करें।',
+  errorGettingLocation: 'स्थान में त्रुटि है। कृपया फिर से प्रयास करें।',
   locationPermissionDenied:
-    'स्थान परવાનગી स्वीकृत नहीं। कृपया अपने सेटिंग्स में स्थान परવાનગી सक्षम करें।',
+    'स्थान परवानगी स्वीकृत नहीं। कृपया अपने सेटिंग्स में स्थान परवानगी सक्षम करें।',
   errorFetchingVolunteers:
-    'नज़दीकी व्यक्तियों को मदद मोकलने में गलत। कृपया फिर से प्रयास करें।',
+    'नज़दीकी व्यक्तियों को मदद भेजने में त्रुटि। कृपया फिर से प्रयास करें।',
   locationPermissionRequired:
-    'स्थान परવાનગી जरूरी है जिससे नज़दीकी व्यक्तियों को मदद मोकलने में मदद मिले।',
+    'स्थान परवानगी जरूरी है जिससे नज़दीकी व्यक्तियों को मदद भेजने में मदद मिले।',
   retry: 'पुनः प्रयास करें',
 
   // Profile Page

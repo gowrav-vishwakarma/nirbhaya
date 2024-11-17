@@ -5,58 +5,83 @@
     <q-card class="dialog-card" :style="{ '--swipe-progress': swipeProgress }" @touchstart="handleTouchStart"
       @touchmove="handleTouchMove" @touchend="handleTouchEnd" @click="checkSwipeToClose">
       <q-card-section class="row items-center q-pb-md">
-        <div class="text-h6">
+        <div class="text-h6 q-mt-sm">
           {{ volunteers && volunteers.length > 0 ?
             'Rate Your Volunteer Heros!' : 'Volunteer Not Found For this Event.' }}</div>
         <q-space />
-        <q-btn icon="close" flat round dense v-close-popup />
+        <q-btn icon="close" flat round dense v-close-popup style="position: absolute; top: 5px; right: 5px;" />
       </q-card-section>
 
       <q-card-section class="custom-scroll">
         <div class="rating-container">
-          <div v-for="volunteer in volunteers" :key="volunteer.id" class="volunteer-section">
-            <div class="volunteer-card">
-              <img :src="volunteer.profileImage" alt="Profile" class="profile-image" />
-              <div class="volunteer-info">
-                <p>{{ volunteer.name }}</p>
+          <!-- Skeleton loader - changed to show only 1 card -->
+          <template v-if="loading">
+            <div class="volunteer-section">
+              <div class="volunteer-card">
+                <q-skeleton type="circle" size="40px" class="q-mr-md" />
+                <q-skeleton type="text" width="150px" />
+              </div>
+
+              <div class="threat-name q-pb-md">
+                <q-skeleton type="text" width="200px" class="q-mb-sm" />
+                <q-skeleton type="text" width="100px" height="15px" />
+              </div>
+
+              <div class="stars q-my-md">
+                <q-skeleton type="text" width="150px" />
+              </div>
+
+              <q-skeleton type="rect" height="50px" class="q-mb-md" />
+              <q-skeleton type="rect" height="36px" />
+            </div>
+          </template>
+
+          <!-- Actual content -->
+          <template v-else>
+            <div v-for="volunteer in volunteers" :key="volunteer.id" class="volunteer-section">
+              <div class="volunteer-card">
+                <img :src="volunteer.profileImage" alt="Profile" class="profile-image" />
+                <div class="volunteer-info">
+                  <p>{{ volunteer.name }}</p>
+                </div>
+              </div>
+
+              <div class="threat-name q-pb-md text-capitalize">
+                SOS Event: {{ volunteer.threatName ? volunteer.threatName : 'Emergency Alert' }}
+                <br />
+                <p style="font-size: 10px; margin-top: -3px; font-weight: 700;">
+                  {{ volunteer.createdAt }}
+                </p>
+              </div>
+
+              <div class="stars">
+                <span v-for="star in 5" :key="star" class="star"
+                  @click="!volunteer.feedbackAdded && setRating(volunteer.id, star)">
+                  <i :class="[
+                    star <= volunteer.rating ? 'fas fa-star' : 'far fa-star',
+                    { 'disabled-star': volunteer.feedbackAdded }
+                  ]"></i>
+                </span>
+              </div>
+
+              <template v-if="!volunteer.feedbackAdded">
+                <textarea v-model="volunteer.feedback" placeholder="Leave your feedback here..."></textarea>
+                <q-btn size="sm" class="rating-bg-color full-width" :loading="loading"
+                  :disabled="!isRatingSet(volunteer) || loading" @click="submitFeedback(volunteer)">
+                  <span style="font-weight: 900;">Submit Feedback</span>
+                </q-btn>
+              </template>
+
+              <div v-else class="feedback-submitted text-center">
+                <p class="submitted-text">
+                  <i class="fas fa-check-circle"></i> Feedback submitted
+                </p>
+                <p class="feedback-text" v-if="volunteer.feedback">
+                  "{{ volunteer.feedback }}"
+                </p>
               </div>
             </div>
-
-            <div class="threat-name q-pb-md text-capitalize">
-              SOS Event: {{ volunteer.threatName ? volunteer.threatName : 'Emergency Alert' }}
-              <br />
-              <p style="font-size: 10px; margin-top: -3px; font-weight: 700;">
-                {{ volunteer.createdAt }}
-              </p>
-            </div>
-
-            <div class="stars">
-              <span v-for="star in 5" :key="star" class="star"
-                @click="!volunteer.feedbackAdded && setRating(volunteer.id, star)">
-                <i :class="[
-                  star <= volunteer.rating ? 'fas fa-star' : 'far fa-star',
-                  { 'disabled-star': volunteer.feedbackAdded }
-                ]"></i>
-              </span>
-            </div>
-
-            <template v-if="!volunteer.feedbackAdded">
-              <textarea v-model="volunteer.feedback" placeholder="Leave your feedback here..."></textarea>
-              <q-btn size="sm" class="rating-bg-color full-width" :loading="loading"
-                :disabled="!isRatingSet(volunteer) || loading" @click="submitFeedback(volunteer)">
-                <span style="font-weight: 900;">Submit Feedback</span>
-              </q-btn>
-            </template>
-
-            <div v-else class="feedback-submitted text-center">
-              <p class="submitted-text">
-                <i class="fas fa-check-circle"></i> Feedback submitted
-              </p>
-              <p class="feedback-text" v-if="volunteer.feedback">
-                "{{ volunteer.feedback }}"
-              </p>
-            </div>
-          </div>
+          </template>
         </div>
       </q-card-section>
     </q-card>
@@ -73,7 +98,7 @@ import { useRouter } from 'vue-router';
 const { dialogRef, onDialogHide, onDialogOK } = useDialogPluginComponent();
 const $q = useQuasar();
 const userStore = useUserStore();
-const loading = ref(false);
+const loading = ref(true);
 const router = useRouter();
 
 interface SosEvent {
@@ -116,6 +141,7 @@ const sosAcceptedData = ref<SosEvent[]>([]);
 
 const sosAcceptedUsers = async () => {
   try {
+    loading.value = true;
     const userId = userStore.user.id;
     const res = await api.get('/sos/sos-accepted-users', {
       params: {
@@ -149,6 +175,8 @@ const sosAcceptedUsers = async () => {
       type: 'negative',
       message: 'Failed to load volunteer data'
     });
+  } finally {
+    loading.value = false;
   }
 };
 
@@ -412,5 +440,15 @@ textarea {
 
 .rating-container {
   padding-bottom: env(safe-area-inset-bottom);
+}
+
+.volunteer-section {
+  .q-skeleton {
+    border-radius: 4px;
+
+    &--circle {
+      border-radius: 50%;
+    }
+  }
 }
 </style>
