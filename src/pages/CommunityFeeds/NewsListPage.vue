@@ -4,18 +4,29 @@
       <!-- Compact Filter Button -->
       <div class="col-12">
         <div class="row items-center justify-between q-mb-md q-ma-none">
-          <div class="text-h6 q-pl-sm" style="color: white; font-weight: 900;">News Feed</div>
-          <q-btn flat color="text-white" class="q-px-md" @click="showFilters = true">
+          <div class="text-h6 q-pl-sm" style="color: white; font-weight: 900">
+            News Feed
+          </div>
+          <q-btn
+            flat
+            color="text-white"
+            class="q-px-md"
+            @click="showFilters = true"
+          >
           </q-btn>
         </div>
       </div>
 
       <!-- News List -->
-      <div class="col-12" style="margin-top: -15px;">
+      <div class="col-12" style="margin-top: -15px">
         <div class="row q-col-gutter-md">
           <!-- Skeleton loader -->
           <template v-if="loading && news.length === 0">
-            <div v-for="n in pageSize" :key="n" class="col-12 col-sm-6 col-md-4">
+            <div
+              v-for="n in pageSize"
+              :key="n"
+              class="col-12 col-sm-6 col-md-4"
+            >
               <q-card class="news-card">
                 <q-skeleton height="200px" square />
                 <q-card-section>
@@ -35,13 +46,37 @@
           </template>
 
           <!-- Existing news items -->
-          <div v-for="newsItem in news" :key="newsItem.id" class="col-12 col-sm-6 col-md-4">
+          <div
+            v-for="newsItem in news"
+            :key="newsItem.id"
+            class="col-12 col-sm-6 col-md-4"
+          >
             <q-card class="news-card">
-              <q-img v-if="newsItem.mediaUrls?.length" :src="getImageUrl(newsItem.mediaUrls[0])" :ratio="16 / 9" />
+              <q-img
+                v-if="newsItem.mediaUrls?.length"
+                :src="getImageUrl(newsItem.mediaUrls[0])"
+                :ratio="16 / 9"
+              />
               <q-card-section>
                 <div class="row items-center q-gutter-x-sm">
-                  <q-chip v-for="category in newsItem.categories" :key="category" size="sm"
-                    :label="getCategoryLabel(category)" />
+                  <q-chip
+                    v-for="category in newsItem.categories"
+                    :key="category"
+                    size="sm"
+                    :label="getCategoryLabel(category)"
+                  />
+                  <q-chip
+                    size="sm"
+                    :label="newsItem.isIndianNews ? 'Indian' : 'International'"
+                    :color="newsItem.isIndianNews ? 'primary' : 'secondary'"
+                    text-color="white"
+                  />
+                  <q-chip
+                    size="sm"
+                    :label="getCurrentLanguageLabel(newsItem)"
+                    color="accent"
+                    text-color="white"
+                  />
                 </div>
                 <div class="text-h6 q-mt-sm">{{ getNewsTitle(newsItem) }}</div>
                 <div class="text-body2 q-mt-sm text-grey-8 _ellipsis-3-lines">
@@ -49,8 +84,14 @@
                 </div>
               </q-card-section>
               <q-card-actions align="right">
-                <q-btn v-if="newsItem.source" flat color="secondary" icon="link" label="Source"
-                  @click="openSource(newsItem.source)" />
+                <q-btn
+                  v-if="newsItem.source"
+                  flat
+                  color="secondary"
+                  icon="link"
+                  label="Source (English)"
+                  @click="openSource(newsItem.source)"
+                />
               </q-card-actions>
             </q-card>
           </div>
@@ -64,7 +105,13 @@
               <q-spinner-dots />
             </template>
           </q-btn> -->
-          <q-btn v-if="hasMoreNews" color="primary" :loading="loading" label="Load More" @click="loadMore" />
+          <q-btn
+            v-if="hasMoreNews"
+            color="primary"
+            :loading="loading"
+            label="Load More"
+            @click="loadMore"
+          />
         </div>
       </div>
     </div>
@@ -72,7 +119,12 @@
     <q-page-sticky position="bottom-left" :offset="[18, 18]">
       <q-btn rounded color="primary" icon="tune" @click="showFilters = true">
         Filters
-        <q-badge v-if="activeFiltersCount" color="primary" floating class="q-ml-sm">
+        <q-badge
+          v-if="activeFiltersCount"
+          color="primary"
+          floating
+          class="q-ml-sm"
+        >
           {{ activeFiltersCount }}
         </q-badge>
       </q-btn>
@@ -89,21 +141,61 @@
 
         <q-card-section class="q-pt-none">
           <div class="column q-gutter-y-md">
-            <q-select v-model="selectedNewsType" :options="newsTypeOptions" label="News Type" emit-value map-options
-              @update:model-value="onNewsTypeChange" />
+            <q-select
+              v-model="selectedNewsType"
+              :options="newsTypeOptions"
+              label="News Type"
+              emit-value
+              map-options
+              @update:model-value="onNewsTypeChange"
+            />
 
-            <q-select v-model="selectedLanguage" :options="languageOptions" label="Language" emit-value map-options
-              @update:model-value="onLanguageChange" />
+            <q-select
+              v-model="selectedLanguage"
+              :options="languageOptions"
+              label="Language"
+              emit-value
+              map-options
+              @update:model-value="onLanguageChange"
+            />
 
-            <q-select v-model="selectedCategories" :options="newsCategories" label="Categories" multiple emit-value
-              map-options use-chips clearable @update:model-value="onCategoriesChange" />
+            <q-select
+              ref="categorySelect"
+              v-model="selectedCategories"
+              :options="newsCategories"
+              label="Categories"
+              multiple
+              emit-value
+              map-options
+              use-chips
+              clearable
+              @update:model-value="onCategoriesChange"
+            >
+              <template v-slot:after-options>
+                <q-separator />
+                <div class="row q-pa-sm justify-center">
+                  <q-btn color="primary" label="Done" v-close-popup />
+                </div>
+              </template>
+            </q-select>
           </div>
         </q-card-section>
 
         <q-card-actions align="right">
-          <q-btn flat label="Clear All" color="grey-7" @click="clearFilters" :disable="!activeFiltersCount"
-            :loading="loading" />
-          <q-btn flat label="Apply" color="primary" @click="showFilters = false" />
+          <q-btn
+            flat
+            label="Clear All"
+            color="grey-7"
+            @click="clearFilters"
+            :disable="!activeFiltersCount"
+            :loading="loading"
+          />
+          <q-btn
+            flat
+            label="Apply"
+            color="primary"
+            @click="showFilters = false"
+          />
         </q-card-actions>
       </q-card>
     </q-dialog>
@@ -124,9 +216,7 @@ const hasMoreNews = ref(true);
 
 const selectedLanguage = ref(userStore.newsPreferences.language || 'en');
 const selectedCategories = ref(userStore.newsPreferences.categories || []);
-const selectedNewsType = ref(
-  userStore.newsPreferences.newsType || 'all'
-);
+const selectedNewsType = ref(userStore.newsPreferences.newsType || 'all');
 
 const languageOptions = [
   { label: 'English', value: 'en' },
@@ -136,19 +226,19 @@ const languageOptions = [
   { label: 'Telugu', value: 'te' },
   { label: 'Gujarati', value: 'gu' },
   { label: 'Marathi', value: 'mr' },
-  { label: 'Urdu', value: 'ur' },
   { label: 'Malayalam', value: 'ml' },
-  { label: 'Kannada', value: 'kn' },
 ];
 
 const newsCategories = [
-  { label: 'General', value: 'general' },
-  { label: 'Business', value: 'business' },
-  { label: 'Entertainment', value: 'entertainment' },
-  { label: 'Health', value: 'health' },
-  { label: 'Science', value: 'science' },
   { label: 'Sports', value: 'sports' },
   { label: 'Technology', value: 'technology' },
+  { label: 'Business', value: 'business' },
+  { label: 'Entertainment', value: 'entertainment' },
+  { label: 'Science', value: 'science' },
+  { label: 'Health', value: 'health' },
+  { label: 'Lifestyle', value: 'lifestyle' },
+  { label: 'Education', value: 'education' },
+  { label: 'Politics', value: 'politics' },
 ];
 
 const newsTypeOptions = [
@@ -190,6 +280,22 @@ const getImageUrl = (url: string) => {
   if (!url) return '';
   if (url.startsWith('http')) return url;
   return `${IMAGE_CDN_URL}${url}`;
+};
+
+const getLanguageLabel = (value: string) => {
+  return languageOptions.find((lang) => lang.value === value)?.label || value;
+};
+
+const getCurrentLanguageLabel = (newsItem: any) => {
+  const hasTranslation = newsItem.translations?.some(
+    (t: any) => t.languageCode === selectedLanguage.value
+  );
+
+  if (hasTranslation) {
+    return getLanguageLabel(selectedLanguage.value);
+  }
+
+  return getLanguageLabel(newsItem.defaultLanguage);
 };
 
 async function fetchNews(reset = false) {
