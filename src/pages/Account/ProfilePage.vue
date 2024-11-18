@@ -36,8 +36,13 @@
                 </q-input>
               </div>
               <div class="col-12 col-sm-6">
-                <SearchCity v-model="values.city" :error="errors.city?.join('; ')" :initial-value="values.city"
-                  @update:modelValue="handleCitySelection" />
+                <q-select v-model="values.state" :options="stateOptions" :label="$t('common.state')" outlined dense
+                  clearable use-input input-debounce="0" @filter="filterStates" :error="!!errors.state"
+                  :error-message="errors.state?.join('; ')" @update:model-value="handleStateChange" />
+              </div>
+              <div class="col-12 col-sm-6">
+                <SearchCity v-model="values.city" :error="errors.city?.join('; ')" :selected-state="values.state || ''"
+                  @update:modelValue="handleCitySelection" :disabled="!values.state" :key="values.state" />
               </div>
               <div class="col-12 col-sm-6">
                 <q-select v-model="values.userType" :options="userTypeOptions" :label="$t('common.userType')" outlined
@@ -196,7 +201,7 @@
 </template>
 
 <script lang="ts" setup>
-import { onMounted, ref, computed } from 'vue';
+import { onMounted, ref, computed, nextTick } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useQuasar } from 'quasar';
 import { useUserStore } from 'src/stores/user-store';
@@ -208,6 +213,8 @@ import { Geolocation } from '@capacitor/geolocation';
 import { Camera } from '@capacitor/camera';
 import EmergencyContactRequestsDialog from 'components/EmergencyContactRequestsDialog.vue';
 import SearchCity from 'src/components/SearchCity.vue';
+import type { QSelectFilterFn } from 'quasar';
+import type { City } from 'src/types/city';
 
 const { t } = useI18n();
 const $q = useQuasar();
@@ -216,6 +223,48 @@ const userStore = useUserStore();
 const STREAM_SAVE = computed(() => process.env.STREAM_SAVE);
 
 const userTypeOptions = ['Girl', 'Child', 'Elder Woman', 'Elder Man', 'Youth'];
+
+const originalStateOptions = [
+  'Andhra Pradesh',
+  'Arunachal Pradesh',
+  'Telangana',
+  'Assam',
+  'Bihar',
+  'Uttar Pradesh',
+  'Gujarat',
+  'Goa',
+  'Haryana',
+  'Himachal Pradesh',
+  'Jammu and Kashmir',
+  'Madhya Pradesh',
+  'Karnataka',
+  'Kerala',
+  'Maharashtra',
+  'Chattisgarh',
+  'Delhi',
+  'Daman and Diu',
+  'Dadra and Nagar Hav.',
+  'Manipur',
+  'Megalaya',
+  'Mizoram',
+  'Nagaland',
+  'Odisha',
+  'Punjab',
+  'Rajasthan',
+  'Sikkim',
+  'Tamil Nadu',
+  'Tripura',
+  'Jharkhand',
+  'Uttarakhand',
+  'BIJAPUR(KAR)',
+  'Lakshadweep',
+  'Chandigarh',
+  'Pondicherry',
+  'Andaman and Nico.In.',
+  'West Bengal'
+];
+
+const stateOptions = ref([...originalStateOptions]);
 
 const isNavigatorMediaSupported = computed(() => {
   return !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
@@ -233,18 +282,43 @@ const professionOptions = [
   { label: t('common.other'), value: 'other' },
 ];
 
-const { values, errors, isLoading, validateAndSubmit, callbacks } = useForm(
+interface EmergencyContact {
+  contactName: string;
+  contactPhone: string;
+  relationship: string;
+  isAppUser: boolean;
+  priority: number;
+  consentGiven: boolean;
+}
+
+interface FormValues {
+  name: string;
+  phoneNumber: string;
+  city: City | null;
+  state: string;
+  dob: string;
+  userType: string;
+  profession: string;
+  pincode: string;
+  emergencyContacts: EmergencyContact[];
+  startAudioVideoRecordOnSos: boolean;
+  streamAudioVideoOnSos: boolean;
+  broadcastAudioOnSos: boolean;
+  referredBy: string;
+}
+
+const { values, errors, isLoading, validateAndSubmit, callbacks } = useForm<FormValues>(
   api,
   'user/user-profile-update',
   {
     name: '',
     phoneNumber: '',
-    city: '',
+    city: null,
     state: '',
     dob: '',
     userType: '',
     profession: '',
-    pincode: '', // Add profession here
+    pincode: '',
     emergencyContacts: [],
     startAudioVideoRecordOnSos: false,
     streamAudioVideoOnSos: false,
@@ -252,12 +326,13 @@ const { values, errors, isLoading, validateAndSubmit, callbacks } = useForm(
     referredBy: '',
   }
 );
-callbacks.beforeSubmit = (data) => {
+callbacks.beforeSubmit = (data: FormValues) => {
   console.log('data before processing...', data);
-  if (typeof data.city === 'object' && data.city !== null) {
-    data.state = data.city.statename;
-    data.pincode = data.city.pincode;
-    data.city = data.city.officename;
+  if (data.city && typeof data.city === 'object') {
+    const cityData = data.city as City;
+    data.state = cityData.statename;
+    data.pincode = cityData.pincode;
+    data.city = cityData.officename;
   }
   console.log('data after processing...', data);
   return data;
@@ -269,25 +344,19 @@ const permissions = ref([
   // { name: 'common.microphone', granted: false },
 ]);
 
-interface City {
-  officename: string;
-  statename: string;
-  pincode: string;
-}
-
 const loadUserData = async () => {
   const userData = userStore.user;
 
+  // Set state first
+  values.value.state = userData.state || '';
+
   // Create a formatted city object if city data exists in store
   if (userData.city && userData.state && userData.pincode) {
-    // Format city data in the expected structure
     const cityObject: City = {
       officename: userData.city,
       statename: userData.state,
       pincode: userData.pincode
     };
-
-    // Set the formatted city object
     values.value.city = cityObject;
   }
 
@@ -460,16 +529,18 @@ const isFormValid = computed(() => {
   return (
     !!values.value.name &&
     !!values.value.dob &&
+    !!values.value.state &&
+    !!values.value.city &&
     (hasEmergencyContacts.value ||
       values.value.emergencyContacts.length === 0) &&
     values.value.emergencyContacts.every(
-      (contact) => contact.contactName && contact.contactPhone
+      (contact: EmergencyContact) => contact.contactName && contact.contactPhone
     ) &&
     Object.keys(errors.value).length === 0
   );
 });
 
-const validatePhoneNumber = async (phoneNumber: string, index: number) => {
+const validatePhoneNumber = async (phoneNumber: string, index: number): Promise<void> => {
   try {
     const response = await api.post('auth/validate-phone', { phoneNumber });
     if (!response.data.isValid) {
@@ -515,7 +586,7 @@ callbacks.onSuccess = (data) => {
   });
 };
 
-callbacks.onError = (error) => {
+callbacks.onError = async (error: any): Promise<void> => {
   console.error('Error updating profile', error);
   $q.notify({
     color: 'negative',
@@ -568,12 +639,55 @@ const dateOptions = (date: string) => {
 };
 
 // Type-safe city selection handler
-const handleCitySelection = (selectedCity: City) => {
-  if (selectedCity && typeof selectedCity === 'object') {
+const handleCitySelection = (selectedCity: City | null) => {
+  if (!selectedCity) {
+    values.value.city = null;
+    values.value.pincode = '';
+    errors.value.city = [t('common.cityRequired')];
+  } else {
     values.value.state = selectedCity.statename;
     values.value.pincode = selectedCity.pincode;
-    // The city object will be handled by v-model binding
+    values.value.city = selectedCity;
+    delete errors.value.city;
   }
+};
+
+// Update handleStateChange function
+const handleStateChange = (newState: string | null) => {
+  if (!newState) {
+    // If state is cleared, also clear city and pincode
+    values.value.state = null;
+    values.value.city = null;
+    values.value.pincode = '';
+    errors.value.state = ['State Required'];
+    errors.value.city = ['City Required'];
+  } else {
+    // State is selected, clear city and pincode
+    values.value.city = null;
+    values.value.pincode = '';
+    delete errors.value.state;
+    errors.value.city = [t('common.cityRequired')];
+    // Force the SearchCity component to reset
+    nextTick(() => {
+      values.value.city = null;
+    });
+  }
+};
+
+const filterStates: QSelectFilterFn = (val: string, update: (fn: () => void) => void) => {
+  if (val === '') {
+    update(() => {
+      stateOptions.value = originalStateOptions;
+    });
+    return;
+  }
+
+  update(() => {
+    const needle = val.toLowerCase();
+    stateOptions.value = originalStateOptions.filter(
+      (state) => state.toLowerCase().indexOf(needle) > -1
+    );
+  });
 };
 </script>
 

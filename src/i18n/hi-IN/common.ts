@@ -155,7 +155,7 @@ export default {
   sosWarning: 'SOS मोड सक्रिय',
   cancelSOS: 'SOS रद्द करें',
   sosSent: 'SOS भेजा गया',
-  sosNotified: '{count} ���स-पास के व्यक्तियों को सूचित किया गया',
+  sosNotified: '{count} स-पास के व्यक्तियों को सूचित किया गया',
   sosAccepted: '{count} व्यक्तियों द्वारा स्वीकार किया गया',
   emergencyContactsInformed: 'सूचित',
   // emergencyContactsInformed: 'आपातकालीन संपर्कों को सूचित किया गया',
@@ -183,7 +183,7 @@ export default {
   // Help Page
   locationPermission: 'स्थान अनुमति',
   locationPermissionHelp:
-    'स्थान पहुंच की अनुमति देने से हमें आपातकाल की स्थिति में आपके सटीक स्थान पर मदद भेजने में मदद मिलती है। याद रखें, आप��ा स्थान कभी भी सहेजा नहीं जाता जब तक आप SOS भेजते हैं। यहां तक कि जब आप समुदाय की मदद करने के लिए तैयार हैं, आपका स्थान सहेजा नहीं जाता।',
+    'स्थान पहुंच की अनुमति देने से हमें आपातकाल की स्थिति में आपके सटीक स्थान पर मदद भेजने में मदद मिलती है। याद रखें, आपा स्थान कभी भी सहेजा नहीं जाता जब तक आप SOS भेजते हैं। यहां तक कि जब आप समुदाय की मदद करने के लिए तैयार हैं, आपका स्थान सहेजा नहीं जाता।',
   cameraPermission: 'कैमर अनुमति',
   cameraPermissionHelp:
     'कैमरा पहुंच आपको आपातकाल के दौरान दृश्य साक्ष्य कैप्चर करने और भेजने की अनुमति देती है।',
@@ -319,7 +319,7 @@ export default {
   volunteerStatus: 'स्वयंसेवक स्थिति',
   volunteerAvailable: 'सामुदायिक सहायता के लिए उपलब्ध',
   volunteerUnavailable: 'सामुदायिक सहायता के लिए अनुपलब्ध',
-  volunteerStatusUpdated: 'स्वयंसेवक स्थिति सफलतापूर्वक अपडेट की गई',
+  volunteerStatusUpdated: 'स्वयंसेवक स्थ���ति सफलतापूर्वक अपडेट की गई',
   volunteerStatusUpdateFailed: 'स्वयंसेवक स्थिति अपडेट करने में विफल',
 
   nearbyVolunteers: 'आस-पास के स्वयंसेवक',
@@ -356,4 +356,8 @@ export default {
   },
   selectDateRange: 'तारीख सेलेक्ट करें',
   tapToSelect: 'तारीख पसार करें',
+
+  state: 'राज्य',
+  selectState: 'कृपया पहले राज्य चुनें',
+  noCitiesFound: 'कोई शहर नहीं मिला',
 };

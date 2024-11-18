@@ -350,4 +350,8 @@ export default {
   },
   selectDateRange: 'Select Date Range',
   tapToSelect: 'Tap to select',
+
+  state: 'State',
+  selectState: 'Please select a state first',
+  noCitiesFound: 'No cities found',
 };
