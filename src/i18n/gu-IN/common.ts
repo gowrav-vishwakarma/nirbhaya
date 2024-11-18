@@ -80,6 +80,7 @@ export default {
   name: 'નામ',
   city: 'શહેર',
   userType: 'વપરાશકર્તા પ્રકાર',
+  dob: 'જન્મ તારીખ',
   emergencyContacts: 'કટોકટીના સંપર્કો',
   emergencyContactsHelp:
     'કટોકટીની સ્થિતિમાં સૂચિત કરવા માટે 3 કટોકટીના સંપર્કો ઉમેરો.',
@@ -101,6 +102,7 @@ export default {
   mechanic2Wheeler: '2 વેહિકલ મેકનિક',
   mechanic4Wheeler: '4 વેહિકલ મેકનિક',
   mechanicBoth: '2&4 વેહિકલ મેકનિક',
+  tech: 'તકનિકી',
   nurse: 'નિયુસ',
   other: 'અન્ય',
   sosSettings: 'SOS સેટિંગ્સ',

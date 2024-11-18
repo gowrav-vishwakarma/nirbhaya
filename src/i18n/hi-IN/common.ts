@@ -104,6 +104,7 @@ export default {
   name: 'नाम',
   city: 'शहर',
   userType: 'उपयोगकर्ता प्रकार',
+  dob: 'जन्म तिथि',
   emergencyContacts: 'आपातकालीन संपर्क',
   emergencyContactsHelp:
     'आपातकाल की स्थिति में सूचित किए जाने वाले 3 आपातकालीन संपर्क जोड़ें।',
@@ -124,7 +125,8 @@ export default {
   doctorEmergency: 'डॉक्टर एमरजेंस',
   mechanic2Wheeler: '2 व्हीलर मैकेनिक',
   mechanic4Wheeler: '4 व्हीलर मैकेनिक',
-  mechanicBoth: '2&4 व्हीलर मैकेनिक',
+  mechanicBoth: 'तकनीकी',
+  tech: 'તકનિકી',
   nurse: 'नियुस',
   other: 'अन्य',
   sosSettings: 'SOS सेटिंग्स',

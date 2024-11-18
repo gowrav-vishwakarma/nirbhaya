@@ -87,6 +87,7 @@ export default {
   name: 'Name',
   city: 'City',
   userType: 'User Type',
+  dob: 'Date Of Birth',
   emergencyContacts: 'Emergency Contacts',
   emergencyContactsHelp:
     'Add up to 3 emergency contacts who will be notified in case of an emergency.',
@@ -109,6 +110,7 @@ export default {
   mechanic2Wheeler: '2 Wheeler Mechanic',
   mechanic4Wheeler: '4 Wheeler Mechanic',
   mechanicBoth: '2&4 Wheeler Mechanic',
+  tech: 'Tech',
   nurse: 'Nurse',
   other: 'Other',
   sosSettings: 'SOS Settings',
