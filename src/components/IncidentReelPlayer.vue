@@ -193,8 +193,8 @@ const createYoutubePlayer = async () => {
     const playerConfig = {
       videoId,
       playerVars: {
-        autoplay: 1,
-        controls: 0,
+        autoplay: 1 as 0 | 1,
+        controls: 0 as 0 | 1 | undefined,
         rel: 0,
         playsinline: 1,
         mute: 1,

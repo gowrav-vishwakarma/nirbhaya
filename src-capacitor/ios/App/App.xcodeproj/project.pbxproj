@@ -356,7 +356,7 @@
 				CODE_SIGN_ENTITLEMENTS = App/App.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 6T6W79QU9K;
+				DEVELOPMENT_TEAM = 8Z5Z8NYS8P;
 				INFOPLIST_FILE = App/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Shoutout;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
@@ -380,7 +380,7 @@
 				CODE_SIGN_ENTITLEMENTS = App/App.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 6T6W79QU9K;
+				DEVELOPMENT_TEAM = 8Z5Z8NYS8P;
 				INFOPLIST_FILE = App/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Shoutout;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
