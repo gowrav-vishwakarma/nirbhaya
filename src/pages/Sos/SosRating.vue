@@ -7,10 +7,15 @@
       <q-card-section class="row items-center q-pb-md">
         <div class="text-h6 q-mt-sm">
           {{ volunteers && volunteers.length > 0 ?
-            'Rate Your Volunteer Heros!' : 'Volunteer Not Found For this Event.' }}</div>
+            'Rate Your Volunteer Heros!' : '' }}</div>
         <q-space />
         <q-btn icon="close" flat round dense v-close-popup style="position: absolute; top: 5px; right: 5px;" />
       </q-card-section>
+      <div v-if="volunteers.length == 0" style="text-align: center;">
+        <q-img style="width: 60%; margin: auto;"
+          src="https://cdn2.iconfinder.com/data/icons/business-1381/1000/accounts___account_user_profile_person_people_not_found_search_find_lost_blocked-512.png"></q-img>
+        <p style="font-size: 14px; font-weight: 900; margin-top: 20px;">Volunteer Not Found For this Event !</p>
+      </div>
 
       <q-card-section class="custom-scroll">
         <div class="rating-container">

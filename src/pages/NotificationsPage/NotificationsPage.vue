@@ -44,7 +44,7 @@
                         {{ $t('common.threat') }} :
                         <span class="text-weight-medium text-capitalize" style="font-weight: 800;">{{
                           $t(notification.sosEvent.threat)
-                        }}</span>
+                          }}</span>
                       </div>
                       <div v-if="
                         notification.userLocationName &&
