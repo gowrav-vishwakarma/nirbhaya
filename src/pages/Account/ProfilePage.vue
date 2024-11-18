@@ -12,72 +12,51 @@
             <!-- Basic profile information -->
             <div class="row q-col-gutter-md">
               <div class="col-12 col-sm-6">
-                <q-input
-                  v-model="values.name"
-                  :label="$t('common.name')"
-                  outlined
-                  dense
-                  :error="!!errors.name"
-                  :error-message="errors.name?.join('; ')"
-                  :rules="[(val) => !!val || $t('common.nameRequired')]"
-                />
+                <q-input v-model="values.name" :label="$t('common.name')" outlined dense :error="!!errors.name"
+                  :error-message="errors.name?.join('; ')" :rules="[(val) => !!val || $t('common.nameRequired')]" />
               </div>
               <div class="col-12 col-sm-6">
-                <q-input
-                  v-model="values.phoneNumber"
-                  :label="$t('common.mobileNumber')"
-                  outlined
-                  dense
-                  readonly
-                  disable
-                />
+                <q-input v-model="values.phoneNumber" :label="$t('common.mobileNumber')" outlined dense readonly
+                  disable />
               </div>
               <div class="col-12 col-sm-6">
-                <q-input
-                  v-model="values.city"
-                  :label="$t('common.city')"
-                  outlined
-                  dense
-                  :error="!!errors.city"
-                  :error-message="errors.city?.join('; ')"
-                />
+                <q-input v-model="values.dob" :label="$t('common.dob')" outlined dense mask="date" :rules="['date']"
+                  :error="!!errors.dob" :error-message="errors.dob?.join('; ')">
+                  <template v-slot:append>
+                    <q-icon name="event" class="cursor-pointer">
+                      <q-popup-proxy cover transition-show="scale" transition-hide="scale">
+                        <q-date v-model="values.dob" mask="YYYY-MM-DD" :options="dateOptions">
+                          <div class="row items-center justify-end">
+                            <q-btn v-close-popup label="Close" color="primary" flat />
+                          </div>
+                        </q-date>
+                      </q-popup-proxy>
+                    </q-icon>
+                  </template>
+                </q-input>
               </div>
               <div class="col-12 col-sm-6">
-                <q-select
-                  v-model="values.userType"
-                  :options="userTypeOptions"
-                  :label="$t('common.userType')"
-                  outlined
-                  dense
-                  :error="!!errors.userType"
-                  :error-message="errors.userType?.join('; ')"
-                />
+                <q-select v-model="values.state" :options="stateOptions" :label="$t('common.state')" outlined dense
+                  clearable use-input input-debounce="0" @filter="filterStates" :error="!!errors.state"
+                  :error-message="errors.state?.join('; ')" @update:model-value="handleStateChange" />
+              </div>
+              <div class="col-12 col-sm-6">
+                <SearchCity v-model="values.city" :error="errors.city?.join('; ')" :selected-state="values.state || ''"
+                  @update:modelValue="handleCitySelection" :disabled="!values.state" :key="values.state" />
+              </div>
+              <div class="col-12 col-sm-6">
+                <q-select v-model="values.userType" :options="userTypeOptions" :label="$t('common.userType')" outlined
+                  dense :error="!!errors.userType" :error-message="errors.userType?.join('; ')" />
               </div>
               <div class="col-12">
-                <q-select
-                  v-model="values.profession"
-                  :options="professionOptions"
-                  :label="$t('common.profession')"
-                  outlined
-                  dense
-                  :error="!!errors.profession"
-                  :error-message="errors.profession?.join('; ')"
-                  map-options
-                  emit-value
-                  option-value="value"
-                  option-label="label"
-                />
+                <q-select v-model="values.profession" :options="professionOptions" :label="$t('common.profession')"
+                  outlined dense :error="!!errors.profession" :error-message="errors.profession?.join('; ')" map-options
+                  emit-value option-value="value" option-label="label" />
               </div>
               <div class="col-12">
-                <q-input
-                  v-model="values.referredBy"
-                  :label="$t('common.referredBy')"
-                  outlined
-                  dense
-                  @blur="validateReferralId"
-                  :error="!!errors.referredBy"
-                  :error-message="errors.referredBy?.join('; ')"
-                />
+                <q-input v-model="values.referredBy" :label="$t('common.referredBy')" outlined dense
+                  @blur="validateReferralId" :error="!!errors.referredBy"
+                  :error-message="errors.referredBy?.join('; ')" />
               </div>
             </div>
 
@@ -85,11 +64,7 @@
             <div class="q-mt-lg">
               <div class="text-subtitle1 text-weight-bold q-mb-sm">
                 {{ $t('common.emergencyContacts') }}
-                <q-icon
-                  :name="$t('common.icons.help')"
-                  size="xs"
-                  class="q-ml-sm"
-                >
+                <q-icon :name="$t('common.icons.help')" size="xs" class="q-ml-sm">
                   <q-tooltip>{{
                     $t('common.emergencyContactsHelp')
                   }}</q-tooltip>
@@ -100,64 +75,30 @@
               <div class="row q-col-gutter-sm q-mb-md">
                 <div class="col-12">
                   <q-btn-group class="full-width">
-                    <q-btn
-                      v-if="values.emergencyContacts.length < 3"
-                      @click="addEmergencyContact"
-                      color="primary"
-                      :icon="$t('common.icons.addCircle')"
-                      :label="$t('common.addEmergencyContact')"
-                      no-caps
-                      class="full-width"
-                    />
-                    <q-btn
-                      @click="openEmergencyContactRequests"
-                      color="secondary"
-                      :icon="$t('common.icons.contacts')"
-                      :label="$t('common.emergencyContactRequests')"
-                      no-caps
-                      class="full-width"
-                    />
+                    <q-btn v-if="values.emergencyContacts.length < 3" @click="addEmergencyContact" color="primary"
+                      :icon="$t('common.icons.addCircle')" :label="$t('common.addEmergencyContact')" no-caps
+                      class="full-width" />
+                    <q-btn @click="openEmergencyContactRequests" color="secondary" :icon="$t('common.icons.contacts')"
+                      :label="$t('common.emergencyContactRequests')" no-caps class="full-width" />
                   </q-btn-group>
                 </div>
               </div>
 
               <q-list bordered separator>
-                <q-item
-                  v-for="(contact, index) in values.emergencyContacts"
-                  :key="index"
-                >
+                <q-item v-for="(contact, index) in values.emergencyContacts" :key="index">
                   <q-item-section>
-                    <q-input
-                      v-model="contact.contactName"
-                      :label="$t('common.name')"
-                      dense
-                      outlined
-                      class="q-mb-sm"
+                    <q-input v-model="contact.contactName" :label="$t('common.name')" dense outlined class="q-mb-sm"
                       :rules="[
                         (val) => !!val || $t('common.contactNameRequired'),
-                      ]"
-                    />
-                    <q-input
-                      v-model="contact.contactPhone"
-                      :label="$t('common.mobileNumber')"
-                      dense
-                      outlined
-                      class="q-mb-sm"
-                      :rules="[
+                      ]" />
+                    <q-input v-model="contact.contactPhone" :label="$t('common.mobileNumber')" dense outlined
+                      class="q-mb-sm" :rules="[
                         (val) => !!val || $t('common.contactNumberRequired'),
-                      ]"
-                      @blur="validatePhoneNumber(contact.contactPhone, index)"
-                      :error="!!errors[`emergencyContact${index}`]"
-                      :error-message="
-                        errors[`emergencyContact${index}`]?.join('; ')
-                      "
-                    />
-                    <q-chip
-                      :color="contact.consentGiven ? 'positive' : 'warning'"
-                      text-color="white"
-                      :icon="contact.consentGiven ? 'check_circle' : 'warning'"
-                      size="sm"
-                    >
+                      ]" @blur="validatePhoneNumber(contact.contactPhone, index)"
+                      :error="!!errors[`emergencyContact${index}`]" :error-message="errors[`emergencyContact${index}`]?.join('; ')
+                        " />
+                    <q-chip :color="contact.consentGiven ? 'positive' : 'warning'" text-color="white"
+                      :icon="contact.consentGiven ? 'check_circle' : 'warning'" size="sm">
                       {{
                         contact.consentGiven
                           ? $t('common.approved')
@@ -166,13 +107,8 @@
                     </q-chip>
                   </q-item-section>
                   <q-item-section side>
-                    <q-btn
-                      flat
-                      round
-                      color="negative"
-                      :icon="$t('common.icons.delete')"
-                      @click="removeEmergencyContact(index)"
-                    />
+                    <q-btn flat round color="negative" :icon="$t('common.icons.delete')"
+                      @click="removeEmergencyContact(index)" />
                   </q-item-section>
                 </q-item>
               </q-list>
@@ -192,13 +128,8 @@
                     <q-item-label>{{ $t(permission.name) }}</q-item-label>
                   </q-item-section>
                   <q-item-section side>
-                    <q-btn
-                      :color="permission.granted ? 'positive' : 'primary'"
-                      @click="requestPermission(permission.name)"
-                      :disable="permission.granted"
-                      dense
-                      no-caps
-                    >
+                    <q-btn :color="permission.granted ? 'positive' : 'primary'"
+                      @click="requestPermission(permission.name)" :disable="permission.granted" dense no-caps>
                       <span class="q-px-md">
                         {{
                           $t(
@@ -247,11 +178,7 @@
                     }}</q-item-label>
                   </q-item-section>
                   <q-item-section side>
-                    <q-toggle
-                      v-model="values.broadcastAudioOnSos"
-                      color="grey"
-                      :disable="true"
-                    />
+                    <q-toggle v-model="values.broadcastAudioOnSos" color="grey" :disable="true" />
                   </q-item-section>
                 </q-item>
               </q-list>
@@ -260,14 +187,8 @@
             <!-- Submit button -->
             <div class="row q-col-gutter-md q-mt-lg">
               <div class="col-12">
-                <q-btn
-                  type="submit"
-                  :loading="isLoading"
-                  color="primary"
-                  class="full-width"
-                  :disable="!isFormValid"
-                  no-caps
-                >
+                <q-btn type="submit" :loading="isLoading" color="primary" class="full-width" :disable="!isFormValid"
+                  no-caps>
                   <b>{{ $t('common.saveChanges') }}</b>
                 </q-btn>
               </div>
@@ -280,7 +201,7 @@
 </template>
 
 <script lang="ts" setup>
-import { onMounted, ref, computed } from 'vue';
+import { onMounted, ref, computed, nextTick } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useQuasar } from 'quasar';
 import { useUserStore } from 'src/stores/user-store';
@@ -291,6 +212,9 @@ import { Capacitor, Plugins } from '@capacitor/core';
 import { Geolocation } from '@capacitor/geolocation';
 import { Camera } from '@capacitor/camera';
 import EmergencyContactRequestsDialog from 'components/EmergencyContactRequestsDialog.vue';
+import SearchCity from 'src/components/SearchCity.vue';
+import type { QSelectFilterFn } from 'quasar';
+import type { City } from 'src/types/city';
 
 const { t } = useI18n();
 const $q = useQuasar();
@@ -299,6 +223,48 @@ const userStore = useUserStore();
 const STREAM_SAVE = computed(() => process.env.STREAM_SAVE);
 
 const userTypeOptions = ['Girl', 'Child', 'Elder Woman', 'Elder Man', 'Youth'];
+
+const originalStateOptions = [
+  'Andhra Pradesh',
+  'Arunachal Pradesh',
+  'Telangana',
+  'Assam',
+  'Bihar',
+  'Uttar Pradesh',
+  'Gujarat',
+  'Goa',
+  'Haryana',
+  'Himachal Pradesh',
+  'Jammu and Kashmir',
+  'Madhya Pradesh',
+  'Karnataka',
+  'Kerala',
+  'Maharashtra',
+  'Chattisgarh',
+  'Delhi',
+  'Daman and Diu',
+  'Dadra and Nagar Hav.',
+  'Manipur',
+  'Megalaya',
+  'Mizoram',
+  'Nagaland',
+  'Odisha',
+  'Punjab',
+  'Rajasthan',
+  'Sikkim',
+  'Tamil Nadu',
+  'Tripura',
+  'Jharkhand',
+  'Uttarakhand',
+  'BIJAPUR(KAR)',
+  'Lakshadweep',
+  'Chandigarh',
+  'Pondicherry',
+  'Andaman and Nico.In.',
+  'West Bengal'
+];
+
+const stateOptions = ref([...originalStateOptions]);
 
 const isNavigatorMediaSupported = computed(() => {
   return !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
@@ -312,18 +278,47 @@ const professionOptions = [
   { label: t('common.mechanic4Wheeler'), value: 'mechanic4Wheeler' },
   { label: t('common.mechanicBoth'), value: 'mechanicBoth' },
   { label: t('common.nurse'), value: 'nurse' },
+  { label: t('common.tech'), value: 'tech' },
   { label: t('common.other'), value: 'other' },
 ];
 
-const { values, errors, isLoading, validateAndSubmit, callbacks } = useForm(
+interface EmergencyContact {
+  contactName: string;
+  contactPhone: string;
+  relationship: string;
+  isAppUser: boolean;
+  priority: number;
+  consentGiven: boolean;
+}
+
+interface FormValues {
+  name: string;
+  phoneNumber: string;
+  city: City | null;
+  state: string;
+  dob: string;
+  userType: string;
+  profession: string;
+  pincode: string;
+  emergencyContacts: EmergencyContact[];
+  startAudioVideoRecordOnSos: boolean;
+  streamAudioVideoOnSos: boolean;
+  broadcastAudioOnSos: boolean;
+  referredBy: string;
+}
+
+const { values, errors, isLoading, validateAndSubmit, callbacks } = useForm<FormValues>(
   api,
   'user/user-profile-update',
   {
     name: '',
     phoneNumber: '',
-    city: '',
+    city: null,
+    state: '',
+    dob: '',
     userType: '',
-    profession: '', // Add profession here
+    profession: '',
+    pincode: '',
     emergencyContacts: [],
     startAudioVideoRecordOnSos: false,
     streamAudioVideoOnSos: false,
@@ -331,6 +326,17 @@ const { values, errors, isLoading, validateAndSubmit, callbacks } = useForm(
     referredBy: '',
   }
 );
+callbacks.beforeSubmit = (data: FormValues) => {
+  console.log('data before processing...', data);
+  if (data.city && typeof data.city === 'object') {
+    const cityData = data.city as City;
+    data.state = cityData.statename;
+    data.pincode = cityData.pincode;
+    data.city = cityData.officename;
+  }
+  console.log('data after processing...', data);
+  return data;
+};
 
 const permissions = ref([
   { name: 'common.location', granted: false },
@@ -340,10 +346,36 @@ const permissions = ref([
 
 const loadUserData = async () => {
   const userData = userStore.user;
-  Object.assign(values.value, userData);
-  if (values.value.referredBy === '' || values.value.referredBy === null) {
-    values.value.referredBy = userStore.referredBy;
+
+  // Set state first
+  values.value.state = userData.state || '';
+
+  // Create a formatted city object if city data exists in store
+  if (userData.city && userData.state && userData.pincode) {
+    const cityObject: City = {
+      officename: userData.city,
+      statename: userData.state,
+      pincode: userData.pincode
+    };
+    values.value.city = cityObject;
   }
+
+  // Copy remaining user data
+  Object.assign(values.value, {
+    ...userData,
+    // Keep our formatted city object
+    city: values.value.city,
+    name: userData.name,
+    phoneNumber: userData.phoneNumber,
+    dob: userData.dob,
+    userType: userData.userType,
+    profession: userData.profession,
+    emergencyContacts: userData.emergencyContacts || [],
+    startAudioVideoRecordOnSos: userData.startAudioVideoRecordOnSos || false,
+    streamAudioVideoOnSos: userData.streamAudioVideoOnSos || false,
+    broadcastAudioOnSos: userData.broadcastAudioOnSos || false,
+  });
+
   lastCheckedReferralId.value = values.value.referredBy;
   // Fetch emergency contacts status
   try {
@@ -496,16 +528,19 @@ const hasEmergencyContacts = computed(
 const isFormValid = computed(() => {
   return (
     !!values.value.name &&
+    !!values.value.dob &&
+    !!values.value.state &&
+    !!values.value.city &&
     (hasEmergencyContacts.value ||
-      values.value.emergencyContacts.length === 0) && // Allow submission if no emergency contacts
+      values.value.emergencyContacts.length === 0) &&
     values.value.emergencyContacts.every(
-      (contact) => contact.contactName && contact.contactPhone
+      (contact: EmergencyContact) => contact.contactName && contact.contactPhone
     ) &&
     Object.keys(errors.value).length === 0
   );
 });
 
-const validatePhoneNumber = async (phoneNumber: string, index: number) => {
+const validatePhoneNumber = async (phoneNumber: string, index: number): Promise<void> => {
   try {
     const response = await api.post('auth/validate-phone', { phoneNumber });
     if (!response.data.isValid) {
@@ -541,20 +576,6 @@ const handleSubmit = async () => {
   }
 };
 
-callbacks.beforeSubmit = (formValues) => {
-  if (!formValues.name) {
-    errors.value.name = [t('nameRequired')];
-  }
-
-  if (formValues.emergencyContacts.length > 0) {
-    if (Object.keys(errors.value).length > 0) {
-      throw new Error('Validation failed');
-    }
-  }
-
-  return formValues;
-};
-
 callbacks.onSuccess = (data) => {
   userStore.updateUser(data.user);
   loadUserData(); // Reload user data from the store
@@ -565,7 +586,7 @@ callbacks.onSuccess = (data) => {
   });
 };
 
-callbacks.onError = (error) => {
+callbacks.onError = async (error: any): Promise<void> => {
   console.error('Error updating profile', error);
   $q.notify({
     color: 'negative',
@@ -610,6 +631,64 @@ const validateReferralId = async () => {
 
 // Add a reactive reference to track the last checked referral ID
 const lastCheckedReferralId = ref('');
+
+const dateOptions = (date: string) => {
+  const today = new Date();
+  const selectedDate = new Date(date);
+  return selectedDate <= today;
+};
+
+// Type-safe city selection handler
+const handleCitySelection = (selectedCity: City | null) => {
+  if (!selectedCity) {
+    values.value.city = null;
+    values.value.pincode = '';
+    errors.value.city = [t('common.cityRequired')];
+  } else {
+    values.value.state = selectedCity.statename;
+    values.value.pincode = selectedCity.pincode;
+    values.value.city = selectedCity;
+    delete errors.value.city;
+  }
+};
+
+// Update handleStateChange function
+const handleStateChange = (newState: string | null) => {
+  if (!newState) {
+    // If state is cleared, also clear city and pincode
+    values.value.state = null;
+    values.value.city = null;
+    values.value.pincode = '';
+    errors.value.state = ['State Required'];
+    errors.value.city = ['City Required'];
+  } else {
+    // State is selected, clear city and pincode
+    values.value.city = null;
+    values.value.pincode = '';
+    delete errors.value.state;
+    errors.value.city = [t('common.cityRequired')];
+    // Force the SearchCity component to reset
+    nextTick(() => {
+      values.value.city = null;
+    });
+  }
+};
+
+const filterStates: QSelectFilterFn = (val: string, update: (fn: () => void) => void) => {
+  if (val === '') {
+    update(() => {
+      stateOptions.value = originalStateOptions;
+    });
+    return;
+  }
+
+  update(() => {
+    const needle = val.toLowerCase();
+    stateOptions.value = originalStateOptions.filter(
+      (state) => state.toLowerCase().indexOf(needle) > -1
+    );
+  });
+};
 </script>
 
 <style lang="scss" scoped>

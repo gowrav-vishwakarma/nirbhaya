@@ -1,5 +1,11 @@
 <template>
   <q-page class="sos-page q-pa-md">
+    <!-- Loader overlay -->
+    <div v-if="isLoading || leavingSos" class="loader-overlay">
+      <q-spinner-dots color="white" size="60" class="q-mb-md" />
+    </div>
+
+    <!-- Main content card - always visible -->
     <q-card class="sos-card q-pa-lg">
       <q-card-section>
         <div class="text-h5 text-weight-bold text-center q-mb-md">
@@ -229,6 +235,7 @@ const route = useRoute();
 const { t } = useI18n();
 const $q = useQuasar();
 const userStore = useUserStore();
+const leavingSos = ref(false);
 
 const STREAM_SAVE = process.env.STREAM_SAVE;
 
@@ -468,6 +475,7 @@ const showResolveConfirmation = (): Promise<boolean> => {
 
 onBeforeRouteLeave(async (to, from, next) => {
   console.log('Leaving SOSModeOnPage');
+  leavingSos.value = true
   if (countdownInterval) {
     clearInterval(countdownInterval);
   }
@@ -485,6 +493,7 @@ onBeforeRouteLeave(async (to, from, next) => {
   } else {
     next(); // Allow navigation if SOS not sent or already resolved/cancelled
   }
+  leavingSos.value = false
 });
 
 onUnmounted(async () => {
@@ -559,6 +568,15 @@ const updateSOSData = async (data: {
     values.value.sosEventId = createdSosId.value;
 
     await validateAndSubmit();
+    if (data.status === 'resolved') {
+      $q.dialog({
+        component: SosRating,
+        componentProps: {
+          eventId: createdSosId.value,
+          source: 'sosmode'
+        }
+      });
+    }
     console.log('SOS data updated:', values.value);
     logMessage(
       'SOS data updated: ' +
@@ -575,15 +593,7 @@ const updateSOSData = async (data: {
       )
     );
 
-    if (data.status === 'resolved') {
-      $q.dialog({
-        component: SosRating,
-        componentProps: {
-          eventId: createdSosId.value,
-          source: 'sosmode'
-        }
-      });
-    }
+
 
     if (!isLocationReceived.value) {
       updateCurrentLocation();
@@ -1165,5 +1175,68 @@ const handleAudioStatusChange = (status: string) => {
 .q-icon {
   font-size: 3vw;
   // Responsive size for icons
+}
+
+.fullscreen-loader {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(3px);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.q-dialog__backdrop {
+  background: rgba(0, 0, 0, 0.3) !important;
+  backdrop-filter: blur(3px);
+}
+
+.q-dialog .q-card {
+  background: rgba(255, 255, 255, 0.8) !important;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+}
+
+.q-spinner-dots {
+  animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.loader-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.loader-card {
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 8px;
+  padding: 20px;
+  min-width: 200px;
 }
 </style>

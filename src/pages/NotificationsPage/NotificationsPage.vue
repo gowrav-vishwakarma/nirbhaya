@@ -13,12 +13,9 @@
 
           <template v-if="!isLoading">
             <q-list v-if="responseData.length > 0" separator>
-              <q-item
-                v-for="notification in responseData"
-                :key="notification.id"
-                class="q-py-md"
-              >
-                <q-item-section>
+              <q-item v-for="notification in responseData" :key="notification.id" class="q-py-md q-ma-none"
+                style=" padding: 0;">
+                <q-item-section class="q-ma-none">
                   <q-card flat bordered class="notification-item">
                     <q-card-section>
                       <div class="row items-center no-wrap">
@@ -26,18 +23,14 @@
                           <div class="text-subtitle1 text-weight-medium">
                             {{ getNotificationTitle(notification) }}
                           </div>
-                          <div class="text-caption text-grey">
-                            {{ formatRelativeTime(notification.createdAt) }}
+                          <div class="text-caption text-grey white-space-pre-line">
+                            {{ formatRelativeTime(notification.sosEvent.createdAt) }}
                           </div>
                         </div>
-                        <div class="col-auto">
-                          <q-chip
-                            :color="
-                              getStatusColor(notification.sosEvent?.status)
-                            "
-                            text-color="white"
-                            size="sm"
-                          >
+                        <div class="col-auto" style="margin-top: -70px;margin-left: 0px">
+                          <q-chip :color="getStatusColor(notification.sosEvent?.status)"
+                            :class="{ 'blink': isBlinking(notification.sosEvent?.status) }" text-color="white"
+                            size="sm">
                             {{
                               $t(`sosStatus.${notification.sosEvent?.status}`)
                             }}
@@ -46,23 +39,17 @@
                       </div>
                     </q-card-section>
 
-                    <q-card-section>
-                      <div
-                        v-if="notification.sosEvent?.threat"
-                        class="text-body2 q-mb-sm"
-                      >
-                        {{ $t('common.threat') }}:
-                        <span class="text-weight-medium">{{
+                    <q-card-section class="q-pa-none q-px-md">
+                      <div style="font-weight: 700;" v-if="notification.sosEvent?.threat" class="text-body2 q-mb-sm">
+                        {{ $t('common.threat') }} :
+                        <span class="text-weight-medium text-capitalize" style="font-weight: 800;">{{
                           $t(notification.sosEvent.threat)
-                        }}</span>
+                          }}</span>
                       </div>
-                      <div
-                        v-if="
-                          notification.userLocationName &&
-                          notification.distanceToEvent
-                        "
-                        class="text-body2"
-                      >
+                      <div v-if="
+                        notification.userLocationName &&
+                        notification.distanceToEvent
+                      " class="text-body2">
                         {{ formatDistance(notification.distanceToEvent) }}
                         {{ $t('common.awayFrom') }}
                         {{ notification.userLocationName }}
@@ -70,34 +57,15 @@
                     </q-card-section>
 
                     <q-card-actions align="right" class="q-gutter-sm">
-                      <q-btn
-                        v-if="notification.status === 'sent'"
-                        color="primary"
-                        :label="$t('common.accept')"
-                        @click="acceptNotification(notification.id)"
-                        dense
-                        no-caps
-                      />
-                      <q-btn
-                        v-else-if="notification.status === 'accepted'"
-                        color="secondary"
-                        :label="$t('common.follow')"
-                        @click="followLocation(notification.sosEvent.location)"
-                        dense
-                        no-caps
-                      />
-                      <AudioControl
-                        v-if="notification.status === 'accepted'"
-                        :sos-event-id="notification.sosEvent.id"
-                      />
-                      <q-btn
-                        color="negative"
-                        :label="$t('common.discard')"
-                        @click="discardNotification(notification.id)"
-                        flat
-                        dense
-                        no-caps
-                      />
+                      <q-btn v-if="notification.status === 'sent'" color="primary" :label="$t('common.accept')"
+                        @click="acceptNotification(notification.id)" dense no-caps />
+                      <q-btn v-else-if="notification.status === 'accepted'" color="secondary"
+                        :label="$t('common.follow')" @click="followLocation(notification.sosEvent.location)" dense
+                        no-caps />
+                      <AudioControl v-if="notification.status === 'accepted'"
+                        :sos-event-id="notification.sosEvent.id" />
+                      <q-btn color="negative" :label="$t('common.discard')"
+                        @click="discardNotification(notification.id)" flat dense no-caps />
                     </q-card-actions>
                   </q-card>
                 </q-item-section>
@@ -134,6 +102,8 @@ interface SosEvent {
   };
   status: string;
   threat: string | null;
+  createdAt: string;
+  contactsOnly: boolean;
 }
 
 interface Notification {
@@ -184,6 +154,10 @@ watch(
   }
 );
 
+const isBlinking = (status: string) => {
+  return status === 'active';
+};
+
 const getNotificationTitle = (notification: Notification) => {
   const eventType = notification.sosEvent?.threat || 'SOS';
   if (notification.recipientType === 'volunteer') {
@@ -206,12 +180,14 @@ const getNotificationTitle = (notification: Notification) => {
 
 const getStatusColor = (status: string) => {
   switch (status) {
+    case 'active':
+      return 'red';
     case 'sent':
-      return 'blue';
+      return 'red';
     case 'received':
-      return 'orange';
+      return 'red';
     case 'accepted':
-      return 'green';
+      return 'red';
     case 'ignored':
       return 'red';
     default:
@@ -269,40 +245,48 @@ const formatRelativeTime = (dateString: string) => {
   const date = new Date(dateString);
   const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
 
+  // Format the actual date and time
+  const formattedDateTime = new Intl.DateTimeFormat(undefined, {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  }).format(date);
+
+  // Get relative time string
+  let relativeTime: string;
   if (diffInSeconds < 60) {
-    return t('common.justNow');
+    relativeTime = t('common.justNow');
+  } else {
+    const diffInMinutes = Math.floor(diffInSeconds / 60);
+    if (diffInMinutes < 60) {
+      relativeTime = `${diffInMinutes} ${t('minutes Ago')}`;
+    } else {
+      const diffInHours = Math.floor(diffInMinutes / 60);
+      if (diffInHours < 24) {
+        const remainingMinutes = diffInMinutes % 60;
+        relativeTime = `${diffInHours} ${t('hours And')} ${remainingMinutes} ${t('minutes Ago')}`;
+      } else {
+        const diffInDays = Math.floor(diffInHours / 24);
+        if (diffInDays < 30) {
+          const remainingHours = diffInHours % 24;
+          relativeTime = `${diffInDays} ${t('days And')} ${remainingHours} ${t('hours Ago')}`;
+        } else {
+          const diffInMonths = Math.floor(diffInDays / 30);
+          if (diffInMonths < 12) {
+            relativeTime = `${diffInMonths} ${diffInMonths === 1 ? t('common.monthAgo') : t('common.monthsAgo')}`;
+          } else {
+            const diffInYears = Math.floor(diffInDays / 365);
+            relativeTime = `${diffInYears} ${diffInYears === 1 ? t('common.yearAgo') : t('common.yearsAgo')}`;
+          }
+        }
+      }
+    }
   }
 
-  const diffInMinutes = Math.floor(diffInSeconds / 60);
-  if (diffInMinutes < 60) {
-    return `${diffInMinutes} ${t('minutesAgo')}`;
-  }
-
-  const diffInHours = Math.floor(diffInMinutes / 60);
-  if (diffInHours < 24) {
-    const remainingMinutes = diffInMinutes % 60;
-    return `${diffInHours} ${t('hoursAnd')} ${remainingMinutes} ${t(
-      'minutesAgo'
-    )}`;
-  }
-
-  const diffInDays = Math.floor(diffInHours / 24);
-  if (diffInDays < 30) {
-    const remainingHours = diffInHours % 24;
-    return `${diffInDays} ${t('daysAnd')} ${remainingHours} ${t('hoursAgo')}`;
-  }
-
-  const diffInMonths = Math.floor(diffInDays / 30);
-  if (diffInMonths < 12) {
-    return `${diffInMonths} ${
-      diffInMonths === 1 ? t('common.monthAgo') : t('common.monthsAgo')
-    }`;
-  }
-
-  const diffInYears = Math.floor(diffInDays / 365);
-  return `${diffInYears} ${
-    diffInYears === 1 ? t('common.yearAgo') : t('common.yearsAgo')
-  }`;
+  // Return both relative time and formatted date/time
+  return `${relativeTime}\n${formattedDateTime}`;
 };
 
 const refreshNotifications = async () => {
@@ -359,5 +343,27 @@ const discardNotification = async (notificationId: number) => {
 
 .q-card-actions {
   background-color: rgba(0, 0, 0, 0.03);
+}
+
+.white-space-pre-line {
+  white-space: pre-line;
+}
+
+@keyframes blink {
+  0% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.5;
+  }
+
+  100% {
+    opacity: 1;
+  }
+}
+
+.blink {
+  animation: blink 1.5s infinite;
 }
 </style>

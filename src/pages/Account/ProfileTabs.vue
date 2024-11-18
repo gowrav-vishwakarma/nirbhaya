@@ -80,8 +80,8 @@ import { useRouter } from 'vue-router'
 import { useQuasar } from 'quasar'
 import ProfilePage from './ProfilePage.vue'
 import VolunteeringPage from './VolunteeringPage.vue';
-import SosRating from '../Sos/SosRating.vue';
-import YourRatingPage from '../Sos/YourRatingPage.vue';
+// import SosRating from '../Sos/SosRating.vue';
+// import YourRatingPage from '../Sos/YourRatingPage.vue';
 import SosHistoryPage from '../Sos/SosHistoryPage.vue';
 import CommunityImpactPage from './CommunityImpactPage.vue';
 import { useUserStore } from 'src/stores/user-store';

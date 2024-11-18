@@ -128,7 +128,6 @@ import { useUserStore } from 'src/stores/user-store';
 import { ref, onMounted, onUnmounted, computed, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { version } from 'src/../package.json';
-import { useMediaCleanup } from 'src/composables/useMediaCleanup';
 import { useMediaPermissions } from 'src/composables/useMediaPermissions';
 
 const router = useRouter();
@@ -139,6 +138,7 @@ const drawer = ref(false);
 const isScrolled = ref(false);
 const isShortsVisible = process.env.SHORTS_VISIBLE === 'true';
 const ReloadKey = ref(8877)
+
 const { stopAllMediaStreams } = useMediaPermissions();
 
 // Register all lifecycle hooks first

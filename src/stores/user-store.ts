@@ -37,6 +37,9 @@ export interface User {
   broadcastAudioOnSos: boolean;
   referralId: string;
   referredBy: string;
+  state: string;
+  dob: Date;
+  pincode: string;
 }
 
 interface NewsPreferences {
