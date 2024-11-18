@@ -1,7 +1,7 @@
 <template>
   <q-page class="sos-page q-pa-md">
     <!-- Loader overlay -->
-    <div v-if="isLoading || leavingSos" class="loader-overlay">
+    <div v-if="leavingSos" class="loader-overlay">
       <q-spinner-dots color="white" size="60" class="q-mb-md" />
     </div>
 
@@ -493,7 +493,7 @@ onBeforeRouteLeave(async (to, from, next) => {
   } else {
     next(); // Allow navigation if SOS not sent or already resolved/cancelled
   }
-  leavingSos.value = false
+  leavingSos.value = false;
 });
 
 onUnmounted(async () => {
@@ -567,6 +567,9 @@ const updateSOSData = async (data: {
     values.value.contactsOnly = contactsOnly.value;
     values.value.sosEventId = createdSosId.value;
 
+    if (data.status === 'resolved' || data.status === 'cancelled') {
+      leavingSos.value = true
+    }
     await validateAndSubmit();
     if (data.status === 'resolved') {
       $q.dialog({
@@ -599,6 +602,7 @@ const updateSOSData = async (data: {
       updateCurrentLocation();
     }
   } catch (error) {
+    leavingSos.value = false
     logMessage('Failed to update SOS data: ' + error);
     console.error('Failed to update SOS data:', error);
   }
