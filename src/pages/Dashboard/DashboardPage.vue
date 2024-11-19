@@ -70,13 +70,13 @@ onMounted(async () => {
   // console.log('allowedIds.........', allowedIds);
 
   // Only show prompt if user's ID is in the allowed list
-  if (allowedIds.includes(userStore.user.id)) {
-    setTimeout(() => {
-      if (promotingAppInstall.value?.dialogRef) {
-        promotingAppInstall.value.dialogRef.show();
-      }
-    }, 1000);
-  }
+  // if (allowedIds.includes(userStore.user.id)) {
+  setTimeout(() => {
+    if (promotingAppInstall.value?.dialogRef) {
+      promotingAppInstall.value.dialogRef.show();
+    }
+  }, 1000);
+  // }
 });
 </script>
 
