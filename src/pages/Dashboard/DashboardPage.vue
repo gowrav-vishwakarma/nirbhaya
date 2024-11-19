@@ -25,7 +25,7 @@ import PromotingAppInstall from 'src/components/PromotingAppInstall.vue';
 // import MissingPermissions from 'src/components/MissingPermissions.vue';
 
 const router = useRouter();
-
+const allowedIdsStr = process.env.SHOW_INSTALL_PROMPT
 const WelcomeCard = defineAsyncComponent(
   () => import('./components/WelcomeCard.vue')
 );
@@ -62,12 +62,18 @@ const goToCommunityRoute = () => {
 const promotingAppInstall = ref();
 
 onMounted(async () => {
-  // Show the install prompt after a short delay for better UX
-  setTimeout(() => {
-    if (promotingAppInstall.value?.dialogRef) {
-      promotingAppInstall.value.dialogRef.show();
-    }
-  }, 1000);
+  // Get the allowed IDs from env and convert to array of numbers
+  const allowedIds = allowedIdsStr?.split(',').map(Number) || [];
+  console.log('allowedIds.........', allowedIds);
+
+  // Only show prompt if user's ID is in the allowed list
+  if (allowedIds.includes(userStore.user.id)) {
+    setTimeout(() => {
+      if (promotingAppInstall.value?.dialogRef) {
+        promotingAppInstall.value.dialogRef.show();
+      }
+    }, 1000);
+  }
 });
 </script>
 
