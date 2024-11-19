@@ -356,4 +356,9 @@ export default {
   noCitiesFound: 'No cities found',
   addToHomeScreen:
     'For a better experience, please install this app by adding it to your home screen.',
+
+  installApp: 'Install App',
+  addToHomeScreen: 'Add this app to your home screen for a better experience',
+  install: 'Install',
+  notNow: 'Not Now'
 };

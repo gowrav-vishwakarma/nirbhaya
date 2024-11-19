@@ -2,7 +2,7 @@
   <q-page class="dashboard-page q-pa-md">
     <div class="dashboard-content">
       <WelcomeCard :user-name="userName" />
-      <promoting-app-install></promoting-app-install>
+      <promoting-app-install ref="promotingAppInstall"></promoting-app-install>
       <div class="beta-notice" @click="goToCommunityRoute">
         {{ $t('common.betaNotice') }}
       </div>
@@ -16,7 +16,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, defineAsyncComponent, onMounted } from 'vue';
+import { computed, defineAsyncComponent, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useUserStore } from 'src/stores/user-store';
 import { useSOSMode } from 'src/composables/useSOSMode';
@@ -59,8 +59,15 @@ const goToCommunityRoute = () => {
   router.push('/community');
 };
 
+const promotingAppInstall = ref();
+
 onMounted(async () => {
-  // await checkPermissions();
+  // Show the install prompt after a short delay for better UX
+  setTimeout(() => {
+    if (promotingAppInstall.value?.dialogRef) {
+      promotingAppInstall.value.dialogRef.show();
+    }
+  }, 1000);
 });
 </script>
 
