@@ -1,40 +1,80 @@
 <template>
-  <q-dialog ref="dialogRef" position="bottom" @hide="handleDialogHide" @click="checkSwipeToClose"
-    @touchstart="handleTouchStart" @touchmove.prevent="handleTouchMove" @touchend="handleTouchEnd" persistent
-    :maximized="false" transition-show="slide-up" transition-hide="slide-down">
+  <q-dialog
+    ref="dialogRef"
+    position="bottom"
+    @hide="handleDialogHide"
+    @click="checkSwipeToClose"
+    @touchstart="handleTouchStart"
+    @touchmove.prevent="handleTouchMove"
+    @touchend="handleTouchEnd"
+    persistent
+    :maximized="false"
+    transition-show="slide-up"
+    transition-hide="slide-down"
+  >
     <q-card class="dialog-card" :style="{ '--swipe-progress': swipeProgress }">
-      <q-card-section class="row items-center q-pb-md">
-        <div class="text-h6 q-mt-sm">{{ $t('common.installApp') }}</div>
-        <q-space />
-        <!-- <q-btn icon="close" flat round dense v-close-popup style="position: absolute; top: 5px; right: 5px;"
-          @click="dismiss" /> -->
+      <q-card-section>
+        <div class="text-h5 q-mt-sm q-mb-xs">{{ $t('common.installApp') }}</div>
+        <div class="row items-center">
+          <div class="col-3" style="height: 80px">
+            <q-img
+              src="/sosLogo_512_512.png"
+              style="height: 80px; width: 80px"
+            ></q-img>
+          </div>
+          <div class="col-9 q-pl-md text-body1">
+            <p class="q-ma-none" style="font-weight: 600">
+              {{ $t('common.addToHomeScreen') }}
+            </p>
+          </div>
+        </div>
+        <div
+          v-if="$q.platform.is.safari || $q.platform.is.mac"
+          class="text-subtitle2"
+        >
+          <ol>
+            <li>Open your app in Safari.</li>
+            <li>
+              Tap the Share button at the bottom of the screen (a box with an
+              arrow pointing up).
+            </li>
+            <li>Scroll down and select "Add to Home Screen".</li>
+            <li>Confirm by tapping "Add" in the top-right corner.</li>
+          </ol>
+        </div>
+        <div
+          v-else-if="$q.platform.is.chrome || $q.platform.is.android"
+          class="text-subtitle2"
+        >
+          <ul>
+            <li>Open your app in Chrome.</li>
+            <li>Tap the three-dot menu in the top-right corner.</li>
+            <li>Select "Add to Home screen". Confirm by tapping "Add".</li>
+          </ul>
+        </div>
+        <div v-else>
+          <ol>
+            <li>
+              - On Android: Tap <strong>Menu</strong> and select
+              <strong>Add to Home screen</strong>.
+            </li>
+            <li>
+              - On iOS: Tap <strong>Share</strong> and select
+              <strong>Add to Home Screen</strong>.
+            </li>
+          </ol>
+        </div>
       </q-card-section>
-      <div class="q-ml-md q-mr-md row items-center">
-        <div class="col-3" style="height: 80px;">
-          <q-img src="/sosLogo_512_512.png" style="height: 80px; width: 80px"></q-img>
-        </div>
-        <div class="col-9 q-pl-md text-body1">
-          <p class="q-ma-none" style="font-weight: 600;">
-            {{ $t('common.addToHomeScreen') }}
-          </p>
-        </div>
-      </div>
-
-      <q-card-section class="custom-scroll">
-
-        <div class="q-mt-lg row q-gutter-x-sm">
-          <q-btn color="primary" class="col" @click="install">
-            <span style="font-weight: 700;">
-              {{ $t('common.install') }}
-            </span>
-          </q-btn>
-          <q-btn v-close-popup color="grey" flat class="col" @click="dismiss">
-            <span style="font-weight: 700;">
-              Skip
-            </span>
-          </q-btn>
-        </div>
-      </q-card-section>
+      <q-card-actions class="custom-scroll">
+        <q-btn color="primary" class="col" @click="install">
+          <span style="font-weight: 700">
+            {{ $t('common.install') }}
+          </span>
+        </q-btn>
+        <q-btn v-close-popup color="grey" flat class="col" @click="dismiss">
+          <span style="font-weight: 700"> Skip </span>
+        </q-btn>
+      </q-card-actions>
     </q-card>
   </q-dialog>
 </template>
@@ -64,7 +104,10 @@ const handleTouchStart = (event: TouchEvent) => {
 const handleTouchMove = (event: TouchEvent) => {
   event.preventDefault();
   touchEndY.value = event.touches[0].clientY;
-  const progress = Math.min(Math.max((touchEndY.value - touchStartY.value) / minSwipeDistance, 0), 1);
+  const progress = Math.min(
+    Math.max((touchEndY.value - touchStartY.value) / minSwipeDistance, 0),
+    1
+  );
   swipeProgress.value = progress;
 };
 
@@ -86,7 +129,8 @@ const handleDialogHide = () => {
 
 const checkIfInstalled = () => {
   // Check if the platform is iOS
-  const isIOS = /iPad|iPhone|iPod/.test(window.navigator.userAgent) &&
+  const isIOS =
+    /iPad|iPhone|iPod/.test(window.navigator.userAgent) &&
     !('standalone' in window.navigator);
 
   // Check if the platform is desktop
@@ -146,7 +190,7 @@ const checkAndShowPrompt = () => {
 
 defineExpose({
   checkAndShowPrompt,
-  dialogRef
+  dialogRef,
 });
 </script>
 
