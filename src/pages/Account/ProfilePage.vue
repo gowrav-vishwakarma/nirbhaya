@@ -642,7 +642,7 @@ const handleCitySelection = (selectedCity: City | null) => {
   if (!selectedCity) {
     values.value.city = null;
     values.value.pincode = '';
-    errors.value.city = [t('common.cityRequired')];
+    errors.value.city = ['City Required'];
   } else {
     values.value.state = selectedCity.statename;
     values.value.pincode = selectedCity.pincode;
@@ -665,7 +665,7 @@ const handleStateChange = (newState: string | null) => {
     values.value.city = null;
     values.value.pincode = '';
     delete errors.value.state;
-    errors.value.city = [t('common.cityRequired')];
+    errors.value.city = ['City Required'];
     // Force the SearchCity component to reset
     nextTick(() => {
       values.value.city = null;
