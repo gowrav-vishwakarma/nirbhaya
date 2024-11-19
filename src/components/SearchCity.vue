@@ -1,7 +1,7 @@
 <template>
   <q-select v-model="selectedCity" :label="t('common.city')" outlined dense :error="!!error" :error-message="error"
     clearable use-input input-debounce="0" :options="cityOptions" @filter="filterCities" behavior="menu"
-    @update:model-value="updateCity" :option-label="formatCityLabel" :disable="disabled">
+    @update:model-value="updateCity" :option-label="formatCityLabel" :disable="disabled" menu-style="max-height: 60vh">
     <template v-slot:no-option>
       <q-item>
         <q-item-section class="text-grey">
