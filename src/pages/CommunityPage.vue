@@ -1,7 +1,7 @@
 <template>
   <q-page class="flex flex-center">
     <div class="column items-center q-pa-md">
-      <q-card class="q-pa-none q-ma-none" style="max-width: 600px; width: 100%">
+      <q-card class="q-pa-none q-ma-none q-mb-sm" style="max-width: 600px; width: 100%">
         <LanguageSelector />
       </q-card>
       <q-banner class="bg-primary text-white">
@@ -22,25 +22,16 @@
                 <q-item-section>
                   <q-item-label>{{
                     $t('community.suggestionTopics.' + suggestion.topic)
-                  }}</q-item-label>
+                    }}</q-item-label>
                   <q-item-label caption>{{ suggestion.content }}</q-item-label>
                 </q-item-section>
                 <q-item-section side>
-                  <q-btn
-                    flat
-                    round
-                    icon="edit"
-                    @click="editSuggestion(suggestion)"
-                  />
+                  <q-btn flat round icon="edit" @click="editSuggestion(suggestion)" />
                 </q-item-section>
               </q-item>
             </q-list>
-            <q-btn
-              style="width: 100%"
-              class="commulity-bg-color q-mt-md"
-              @click="openSuggestionDialog"
-              :disable="suggestions.length >= 5"
-            >
+            <q-btn style="width: 100%" class="commulity-bg-color q-mt-md" @click="openSuggestionDialog"
+              :disable="suggestions.length >= 5">
               <span class="text-bold">
                 {{ t('community.addSuggestion') }}
               </span>
@@ -65,12 +56,7 @@
                 <q-item-section>
                   <q-item-label>{{ t('community.whatsapp') }}</q-item-label>
                   <q-item-label caption>
-                    <a
-                      :href="t('community.whatsappLink')"
-                      target="_blank"
-                      class="text-primary"
-                      >Click To Join</a
-                    >
+                    <a :href="t('community.whatsappLink')" target="_blank" class="text-primary">Click To Join</a>
                   </q-item-label>
                 </q-item-section>
               </q-item>
@@ -78,23 +64,14 @@
             <div class="col-12 col-sm-6">
               <q-item>
                 <q-item-section avatar>
-                  <q-icon
-                    name="mdi-instagram"
-                    class="color-primary"
-                    size="sm"
-                  />
+                  <q-icon name="mdi-instagram" class="color-primary" size="sm" />
                 </q-item-section>
                 <q-item-section>
                   <q-item-label>{{ t('community.instagram') }}</q-item-label>
                   <q-item-label caption>
-                    <a
-                      :href="`https://instagram.com/${t(
-                        'community.instagramHandle'
-                      )}`"
-                      class="text-primary"
-                      target="_blank"
-                      >{{ t('community.instagramHandle') }}</a
-                    >
+                    <a :href="`https://instagram.com/${t(
+                      'community.instagramHandle'
+                    )}`" class="text-primary" target="_blank">{{ t('community.instagramHandle') }}</a>
                   </q-item-label>
                 </q-item-section>
               </q-item>
@@ -107,14 +84,9 @@
                 <q-item-section>
                   <q-item-label>{{ t('community.twitter') }}</q-item-label>
                   <q-item-label caption>
-                    <a
-                      :href="`https://twitter.com/${t(
-                        'community.twitterHandle'
-                      )}`"
-                      class="text-primary"
-                      target="_blank"
-                      >{{ t('community.twitterHandle') }}</a
-                    >
+                    <a :href="`https://twitter.com/${t(
+                      'community.twitterHandle'
+                    )}`" class="text-primary" target="_blank">{{ t('community.twitterHandle') }}</a>
                   </q-item-label>
                 </q-item-section>
               </q-item>
@@ -127,14 +99,9 @@
                 <q-item-section>
                   <q-item-label>{{ t('community.youtube') }}</q-item-label>
                   <q-item-label caption>
-                    <a
-                      :href="`https://youtube.com/@${t(
-                        'community.youtubeHandle'
-                      )}`"
-                      class="text-primary"
-                      target="_blank"
-                      >@{{ t('community.youtubeHandle') }}</a
-                    >
+                    <a :href="`https://youtube.com/@${t(
+                      'community.youtubeHandle'
+                    )}`" class="text-primary" target="_blank">@{{ t('community.youtubeHandle') }}</a>
                   </q-item-label>
                 </q-item-section>
               </q-item>
@@ -142,21 +109,12 @@
             <div class="col-12 col-sm-6">
               <q-item>
                 <q-item-section avatar>
-                  <q-icon
-                    name="mdi-account-group"
-                    class="color-primary"
-                    size="sm"
-                  />
+                  <q-icon name="mdi-account-group" class="color-primary" size="sm" />
                 </q-item-section>
                 <q-item-section>
                   <q-item-label>{{ t('community.telegram') }}</q-item-label>
                   <q-item-label caption>
-                    <a
-                      :href="t('community.telegramLink')"
-                      class="text-primary"
-                      target="_blank"
-                      >sosbharatcommunity</a
-                    >
+                    <a :href="t('community.telegramLink')" class="text-primary" target="_blank">sosbharatcommunity</a>
                   </q-item-label>
                 </q-item-section>
               </q-item>
@@ -179,34 +137,14 @@
         </q-card-section>
 
         <q-card-section class="q-pt-none">
-          <q-select
-            v-model="newSuggestion.topic"
-            :options="topicOptions"
-            :label="t('community.suggestionTopic')"
-            emit-value
-            map-options
-          />
-          <q-input
-            v-model="newSuggestion.content"
-            :label="t('community.suggestionContent')"
-            type="textarea"
-          />
+          <q-select v-model="newSuggestion.topic" :options="topicOptions" :label="t('community.suggestionTopic')"
+            emit-value map-options />
+          <q-input v-model="newSuggestion.content" :label="t('community.suggestionContent')" type="textarea" />
         </q-card-section>
 
         <q-card-actions align="right">
-          <q-btn
-            flat
-            :label="t('common.cancel')"
-            color="primary"
-            v-close-popup
-          />
-          <q-btn
-            flat
-            :label="t('common.save')"
-            color="primary"
-            @click="saveSuggestion"
-            v-close-popup
-          />
+          <q-btn flat :label="t('common.cancel')" color="primary" v-close-popup />
+          <q-btn flat :label="t('common.save')" color="primary" @click="saveSuggestion" v-close-popup />
         </q-card-actions>
       </q-card>
     </q-dialog>
