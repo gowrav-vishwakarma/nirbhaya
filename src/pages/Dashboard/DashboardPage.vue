@@ -2,6 +2,7 @@
   <q-page class="dashboard-page q-pa-md">
     <div class="dashboard-content">
       <WelcomeCard :user-name="userName" />
+      <promoting-app-install></promoting-app-install>
       <div class="beta-notice" @click="goToCommunityRoute">
         {{ $t('common.betaNotice') }}
       </div>
@@ -19,6 +20,7 @@ import { computed, defineAsyncComponent, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useUserStore } from 'src/stores/user-store';
 import { useSOSMode } from 'src/composables/useSOSMode';
+import PromotingAppInstall from 'src/components/PromotingAppInstall.vue';
 // import { usePermissions } from 'src/composables/usePermissions';
 // import MissingPermissions from 'src/components/MissingPermissions.vue';
 

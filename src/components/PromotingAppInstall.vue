@@ -29,9 +29,9 @@ const isInstalled = ref<boolean>(false);
 const { t, locale } = useI18n();
 
 const checkIfInstalled = () => {
-  console.log(window.navigator);
-  console.log(window);
-  console.log(window.matchMedia('(display-mode: standalone)').matches);
+  // console.log(window.navigator);
+  // console.log(window);
+  // console.log(window.matchMedia('(display-mode: standalone)').matches);
 
   // Check if the platform is iOS
   const isIOS =

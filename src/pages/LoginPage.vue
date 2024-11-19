@@ -71,7 +71,6 @@
         </q-btn>
       </q-card-section>
     </q-card>
-    <promoting-app-install></promoting-app-install>
   </q-page>
 </template>
 
@@ -84,7 +83,6 @@ import { useForm } from 'src/qnatk/composibles/use-form';
 import { api } from 'src/boot/axios';
 import { Notify } from 'quasar';
 import LanguageSelector from 'src/components/LanguageSelector.vue';
-import PromotingAppInstall from 'src/components/PromotingAppInstall.vue';
 import { Device } from '@capacitor/device';
 
 const $q = useQuasar();
