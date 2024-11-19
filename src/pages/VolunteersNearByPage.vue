@@ -1,5 +1,6 @@
 <template>
   <q-page class="volunteers-nearby-page q-pa-md">
+    <location-handler />
     <div class="volunteers-nearby-content">
       <q-card class="volunteers-nearby-card q-mb-md">
         <q-card-section>
@@ -122,6 +123,7 @@ import { api } from 'src/boot/axios';
 import { Geolocation } from '@capacitor/geolocation';
 import { useUserStore } from 'src/stores/user-store';
 import { useRouter } from 'vue-router';
+import LocationHandler from 'src/components/LocationHandler.vue';
 
 const $q = useQuasar();
 const { t } = useI18n();
