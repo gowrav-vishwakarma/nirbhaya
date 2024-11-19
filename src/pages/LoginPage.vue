@@ -12,7 +12,7 @@
 
     <q-card class="login-card">
       <div class="flex justify-center">
-        <q-img src="/public/sosLogo_512_512.png" style="height: 100px; width: 100px; margin-top: 30px;"></q-img>
+        <q-img src="/sosLogo_512_512.png" style="height: 100px; width: 100px; margin-top: 30px;"></q-img>
 
       </div>
       <div class="text-subtitle1 text-weight-medium text-grey-7 q-mb-lg q-mt-md text-center">
