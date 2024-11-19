@@ -327,14 +327,23 @@ const { values, errors, isLoading, validateAndSubmit, callbacks } = useForm<Form
 );
 callbacks.beforeSubmit = (data: FormValues) => {
   console.log('data before processing...', data);
+  const processedData = {
+    ...data,
+    // Ensure these fields are included in the submission
+    dob: data.dob || '',
+    state: data.state || '',
+    pincode: data.pincode || ''
+  };
+
   if (data.city && typeof data.city === 'object') {
     const cityData = data.city as City;
-    data.state = cityData.statename;
-    data.pincode = cityData.pincode;
-    data.city = cityData.officename;
+    processedData.state = cityData.statename;
+    processedData.pincode = cityData.pincode;
+    processedData.city = cityData.officename;
   }
-  console.log('data after processing...', data);
-  return data;
+
+  console.log('data after processing...', processedData);
+  return processedData;
 };
 
 const permissions = ref([
@@ -576,8 +585,17 @@ const handleSubmit = async () => {
 };
 
 callbacks.onSuccess = (data) => {
-  userStore.updateUser(data.user);
+  // Make sure all fields are properly updated in the store
+  const updatedUserData = {
+    ...data.user,
+    dob: values.value.dob,
+    state: values.value.state,
+    pincode: values.value.pincode
+  };
+
+  userStore.updateUser(updatedUserData);
   loadUserData(); // Reload user data from the store
+
   $q.notify({
     color: 'positive',
     message: t('common.profileUpdateSuccess'),
@@ -651,17 +669,16 @@ const handleCitySelection = (selectedCity: City | null) => {
   }
 };
 
-// Update handleStateChange function
+// Update handleStateChange function to properly handle state changes
 const handleStateChange = (newState: string | null) => {
   if (!newState) {
-    // If state is cleared, also clear city and pincode
-    values.value.state = null;
+    values.value.state = '';
     values.value.city = null;
     values.value.pincode = '';
     errors.value.state = ['State Required'];
     errors.value.city = ['City Required'];
   } else {
-    // State is selected, clear city and pincode
+    values.value.state = newState;
     values.value.city = null;
     values.value.pincode = '';
     delete errors.value.state;
