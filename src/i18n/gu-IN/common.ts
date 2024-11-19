@@ -14,10 +14,10 @@ export default {
   warning: 'ચેતવણી',
   info: 'માહિતી',
 
-  language: 'ભાષા',
+  language: 'ભાષા પસંદ કરો',
   languages: {
-    'en-US': 'અંગ્રેજી',
-    'hi-IN': 'હિન્દી',
+    'en-US': 'English',
+    'hi-IN': 'हिंदी',
     'gu-IN': 'ગુજરાતી',
   },
 

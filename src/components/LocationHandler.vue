@@ -81,8 +81,11 @@ export default defineComponent({
             locationStatus.value = result.state
           }
 
+          // Check if permission is granted or denied
           if (locationStatus.value === 'prompt') {
             showLocationPrompt.value = true
+          } else if (locationStatus.value === 'denied' && isIOS.value && isStandalone.value) {
+            showIOSInstructions.value = true
           }
         } catch (error) {
           console.error('Error checking location permission:', error)
