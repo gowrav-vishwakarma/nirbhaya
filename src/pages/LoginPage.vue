@@ -22,23 +22,41 @@
 
       <q-card-section v-else>
         <q-form @submit="handleSubmit" class="q-gutter-md">
-          <q-input filled v-model="values.mobileNumber" :label="$t('common.mobileNumber')"
-            :error="!!errors.mobileNumber" :error-message="errors.mobileNumber?.join('; ')" mask="##########"
-            :disable="otpSent">
+          <q-input
+            filled
+            v-model="values.mobileNumber"
+            :label="$t('common.mobileNumber')"
+            :error="!!errors.mobileNumber"
+            :error-message="errors.mobileNumber?.join('; ')"
+            mask="##########"
+            :disable="otpSent"
+          >
             <template v-slot:prepend>
               <q-icon :name="$t('common.icons.phone')" color="primary" />
             </template>
           </q-input>
 
-          <q-input v-if="otpSent" filled v-model="values.otp" :label="$t('common.enterOTP')" :error="!!errors.otp"
-            :error-message="errors.otp?.join('; ')" mask="####">
+          <q-input
+            v-if="otpSent"
+            filled
+            v-model="values.otp"
+            :label="$t('common.enterOTP')"
+            :error="!!errors.otp"
+            :error-message="errors.otp?.join('; ')"
+            mask="####"
+          >
             <template v-slot:prepend>
               <q-icon :name="$t('common.icons.lock')" color="primary" />
             </template>
           </q-input>
 
-          <q-btn :label="otpSent ? $t('common.login') : $t('common.sendOTP')" type="submit" color="primary"
-            class="full-width q-py-sm" :loading="isLoading" />
+          <q-btn
+            :label="otpSent ? $t('common.login') : $t('common.sendOTP')"
+            type="submit"
+            color="primary"
+            class="full-width q-py-sm"
+            :loading="isLoading"
+          />
         </q-form>
       </q-card-section>
 

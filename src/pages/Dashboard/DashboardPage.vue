@@ -2,6 +2,7 @@
   <q-page class="dashboard-page q-pa-md">
     <div class="dashboard-content">
       <WelcomeCard :user-name="userName" />
+      <promoting-app-install ref="promotingAppInstall"></promoting-app-install>
       <div class="beta-notice" @click="goToCommunityRoute">
         {{ $t('common.betaNotice') }}
       </div>
@@ -15,15 +16,16 @@
 </template>
 
 <script setup lang="ts">
-import { computed, defineAsyncComponent, onMounted } from 'vue';
+import { computed, defineAsyncComponent, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useUserStore } from 'src/stores/user-store';
 import { useSOSMode } from 'src/composables/useSOSMode';
+import PromotingAppInstall from 'src/components/PromotingAppInstall.vue';
 // import { usePermissions } from 'src/composables/usePermissions';
 // import MissingPermissions from 'src/components/MissingPermissions.vue';
 
 const router = useRouter();
-
+const allowedIdsStr = process.env.SHOW_INSTALL_PROMPT
 const WelcomeCard = defineAsyncComponent(
   () => import('./components/WelcomeCard.vue')
 );
@@ -57,8 +59,21 @@ const goToCommunityRoute = () => {
   router.push('/community');
 };
 
+const promotingAppInstall = ref();
+
 onMounted(async () => {
-  // await checkPermissions();
+  // Get the allowed IDs from env and convert to array of numbers
+  const allowedIds = allowedIdsStr?.split(',').map(Number) || [];
+  // console.log('allowedIds.........', allowedIds);
+
+  // Only show prompt if user's ID is in the allowed list
+  if (allowedIds.includes(userStore.user.id)) {
+    setTimeout(() => {
+      if (promotingAppInstall.value?.dialogRef) {
+        promotingAppInstall.value.dialogRef.show();
+      }
+    }, 1000);
+  }
 });
 </script>
 

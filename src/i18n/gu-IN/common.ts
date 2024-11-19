@@ -353,4 +353,6 @@ export default {
   },
   selectDateRange: 'તારીખ select કરો',
   tapToSelect: 'તારીખ પસાર કરો',
+  addToHomeScreen:
+    'વધુ સારી અનુભૂતિ માટે, કૃપા કરીને આ એપ્લિકેશનને તમારા હોમ સ્ક્રીન પર ઉમેરીને ઇન્સ્ટોલ કરો.',
 };
