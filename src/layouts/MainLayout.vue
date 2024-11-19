@@ -17,7 +17,8 @@
           class="text-h6"
           @click="userStore.isLoggedIn ? goToDashboardPage() : goToLoginPage()"
         >
-          <q-icon name="img:/public/sosLogo_512_512.png" size="2em" />
+          <!-- <q-icon name="img:/public/sosLogo_512_512.png" size="2em" /> -->
+          <q-icon name="campaign" size="2em" />
           <span class="text-weight-bold">&nbsp;{{ t('common.appname') }}</span>
         </q-toolbar-title>
 
