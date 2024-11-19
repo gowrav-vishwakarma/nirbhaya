@@ -212,11 +212,11 @@ const submitFeedback = async (volunteerFeedBack: Volunteer) => {
     if (res) {
       await sosAcceptedUsers();
 
-      $q.notify({
-        type: 'positive',
-        message: 'Feedback submitted successfully',
-        position: 'top'
-      });
+      // $q.notify({
+      //   type: 'positive',
+      //   message: 'Feedback submitted successfully',
+      //   position: 'top'
+      // });
 
       // onDialogOK();
     }
