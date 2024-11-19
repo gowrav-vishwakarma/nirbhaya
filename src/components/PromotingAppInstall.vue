@@ -1,5 +1,5 @@
 <template>
-  <q-dialog ref="dialogRef" position="bottom" @hide="handleDialogHide" @click="checkSwipeToClose"
+  <q-dialog ref="dialogRef" v-if="!isInstalled" position="bottom" @hide="handleDialogHide" @click="checkSwipeToClose"
     @touchstart="handleTouchStart" @touchmove.prevent="handleTouchMove" @touchend="handleTouchEnd" persistent
     :maximized="false" transition-show="slide-up" transition-hide="slide-down">
     <q-card class="dialog-card" :style="{ '--swipe-progress': swipeProgress }">
