@@ -64,7 +64,7 @@ const promotingAppInstall = ref();
 onMounted(async () => {
   // Get the allowed IDs from env and convert to array of numbers
   const allowedIds = allowedIdsStr?.split(',').map(Number) || [];
-  console.log('allowedIds.........', allowedIds);
+  // console.log('allowedIds.........', allowedIds);
 
   // Only show prompt if user's ID is in the allowed list
   if (allowedIds.includes(userStore.user.id)) {
