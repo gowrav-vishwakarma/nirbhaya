@@ -33,7 +33,7 @@
         <q-list separator>
           <!-- Account Details -->
           <q-expansion-item v-model="expandedItems.profile" group="profile-tabs" v-ripple icon="person"
-            label="My Profile" header-class="glass-effect" :default-opened="!userStore.user.name">
+            label="My Profile" header-class="glass-effect">
             <q-card>
               <ProfilePage />
             </q-card>
@@ -75,7 +75,7 @@
   </div>
 </template>
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useQuasar } from 'quasar'
 import ProfilePage from './ProfilePage.vue'
@@ -93,50 +93,6 @@ const userStore = useUserStore();
 
 const router = useRouter()
 const $q = useQuasar()
-
-const activeTab = ref('account')
-const userProfile = ref({
-  name: 'John Doe',
-  email: 'john@example.com',
-  phone: '+1234567890',
-  location: 'New York',
-  image: 'https://i.pravatar.cc/300?img=12',
-  title: 'Senior Community Volunteer',
-  posts: 128,
-  followers: 1420,
-  following: 890
-})
-
-const volunteerActivities = ref([
-  {
-    name: 'Food Distribution Drive',
-    date: '2024-03-15',
-    status: 'Completed'
-  },
-  {
-    name: 'Community Teaching',
-    date: '2024-03-20',
-    status: 'Upcoming'
-  },
-  {
-    name: 'Beach Cleanup',
-    date: '2024-03-10',
-    status: 'Completed'
-  }
-])
-
-const likedPosts = ref([
-  {
-    title: 'Community Awareness Program',
-    date: '2024-03-15',
-    image: 'https://source.unsplash.com/100x100/?community'
-  },
-  {
-    title: 'Women Safety Workshop',
-    date: '2024-03-12',
-    image: 'https://source.unsplash.com/100x100/?safety'
-  }
-])
 
 const logout = async () => {
   try {
@@ -158,24 +114,8 @@ const logout = async () => {
   }
 };
 
-const handleImageUpload = () => {
-  // Add image upload logic here
-}
-
-const handleCoverUpload = () => {
-  // Add cover image upload logic here
-  $q.notify({
-    message: 'Cover photo upload coming soon',
-    color: 'info'
-  })
-}
-
-onMounted(async () => {
-  // Fetch user profile data here
-})
-
 const expandedItems = ref({
-  profile: false,
+  profile: !userStore.user?.name,
   volunteers: false,
   community: false,
   feedback: false,
