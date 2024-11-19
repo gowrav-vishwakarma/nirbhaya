@@ -10,22 +10,21 @@
 
           <q-form @submit.prevent="handleSubmit">
             <!-- Basic profile information -->
-            <div class="row q-col-gutter-md">
-              <div class="col-12 col-sm-6">
-                <q-input v-model="values.name" :label="$t('common.name')" outlined dense :error="!!errors.name"
+            <div class="row q-col-gutter-sm">
+              <div class="col-12 col-sm-6 q-py-sm">
+                <q-input class="" v-model="values.name" :label="$t('common.name')" outlined dense :error="!!errors.name"
                   :error-message="errors.name?.join('; ')" :rules="[(val) => !!val || $t('common.nameRequired')]" />
               </div>
-              <div class="col-12 col-sm-6">
+              <div class="col-12 col-sm-6 q-py-sm">
                 <q-input v-model="values.phoneNumber" :label="$t('common.mobileNumber')" outlined dense readonly
                   disable />
               </div>
-              <div class="col-12 col-sm-6">
-                <q-input v-model="values.dob" :label="$t('common.dob')" outlined dense mask="date" :rules="['date']"
-                  :error="!!errors.dob" :error-message="errors.dob?.join('; ')">
+              <div class="col-12 col-sm-6 q-py-sm">
+                <q-input outlined dense v-model="values.dob" mask="date" :rules="['date']">
                   <template v-slot:append>
                     <q-icon name="event" class="cursor-pointer">
                       <q-popup-proxy cover transition-show="scale" transition-hide="scale">
-                        <q-date v-model="values.dob" mask="YYYY-MM-DD" :options="dateOptions">
+                        <q-date v-model="values.dob">
                           <div class="row items-center justify-end">
                             <q-btn v-close-popup label="Close" color="primary" flat />
                           </div>
@@ -35,25 +34,25 @@
                   </template>
                 </q-input>
               </div>
-              <div class="col-12 col-sm-6">
+              <div class="col-12 col-sm-6 q-py-sm">
                 <q-select v-model="values.state" :options="stateOptions" :label="$t('common.state')" outlined dense
                   clearable use-input input-debounce="0" @filter="filterStates" :error="!!errors.state"
                   :error-message="errors.state?.join('; ')" @update:model-value="handleStateChange" />
               </div>
-              <div class="col-12 col-sm-6">
+              <div class="col-12 col-sm-6 q-py-sm">
                 <SearchCity v-model="values.city" :error="errors.city?.join('; ')" :selected-state="values.state || ''"
                   @update:modelValue="handleCitySelection" :disabled="!values.state" :key="values.state" />
               </div>
-              <div class="col-12 col-sm-6">
+              <div class="col-12 col-sm-6 q-py-sm">
                 <q-select v-model="values.userType" :options="userTypeOptions" :label="$t('common.userType')" outlined
                   dense :error="!!errors.userType" :error-message="errors.userType?.join('; ')" />
               </div>
-              <div class="col-12">
+              <div class="col-12 q-py-sm">
                 <q-select v-model="values.profession" :options="professionOptions" :label="$t('common.profession')"
                   outlined dense :error="!!errors.profession" :error-message="errors.profession?.join('; ')" map-options
                   emit-value option-value="value" option-label="label" />
               </div>
-              <div class="col-12">
+              <div class="col-12 q-py-sm">
                 <q-input v-model="values.referredBy" :label="$t('common.referredBy')" outlined dense
                   @blur="validateReferralId" :error="!!errors.referredBy"
                   :error-message="errors.referredBy?.join('; ')" />
