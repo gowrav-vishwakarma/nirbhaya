@@ -17,11 +17,11 @@ export default {
   warning: 'Warning',
   info: 'Information',
 
-  language: 'Language',
+  language: 'Select Language',
   languages: {
     'en-US': 'English',
-    'hi-IN': 'Hindi',
-    'gu-IN': 'Gujarati',
+    'hi-IN': 'हिंदी',
+    'gu-IN': 'ગુજરાતી',
   },
 
   icons: {
@@ -360,5 +360,5 @@ export default {
   installApp: 'Install App',
   addToHomeScreen: 'Add this app to your home screen for a better experience',
   install: 'Install',
-  notNow: 'Not Now'
+  notNow: 'Not Now',
 };

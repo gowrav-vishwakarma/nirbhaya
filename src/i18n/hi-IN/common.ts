@@ -14,11 +14,11 @@ export default {
   warning: 'चेतावनी',
   info: 'जानकारी',
 
-  language: 'भाषा',
+  language: 'भाषा चुनें',
   languages: {
-    'en-US': 'अंग्रेजी',
+    'en-US': 'English',
     'hi-IN': 'हिंदी',
-    'gu-IN': 'गुजराती',
+    'gu-IN': 'ગુજરાતી',
   },
 
   icons: {

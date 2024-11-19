@@ -1,7 +1,8 @@
 <template>
   <div>
-    <h6 class="q-ma-none q-ml-xs">{{ $t('common.language') }}</h6>
+    <!-- <h6 class="q-ma-none">{{ $t('common.language') }}</h6> -->
     <q-select
+      :label="$t('common.language')"
       v-model="userStore.language"
       :options="languageOptions"
       outlined

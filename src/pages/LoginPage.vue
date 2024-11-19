@@ -1,17 +1,28 @@
 <template>
   <q-page class="flex flex-center">
-    <q-card class="login-card q-pa-lg">
-      <q-card-section class="text-center">
-        <div class="text-h3 text-weight-bold text-primary q-mb-md">
-          Shoutout
-        </div>
-        <div class="text-subtitle1 text-weight-medium text-grey-7 q-mb-lg">
+    <q-card class="q-ma-none" flat>
+      <q-img
+        src="/public/sosLogo_512_512.png"
+        style="height: 100px; width: 100px"
+      ></q-img>
+      <!-- <q-card-section class="text-center">
+        <div class="text-h3 text-weight-bold text-primary">Shoutout</div>
+        <div class="text-subtitle1 text-weight-medium text-grey-7">
           Community SOS
         </div>
-        <div class="text-h5 text-weight-bold text-primary q-mb-md">
+      </q-card-section> -->
+    </q-card>
+
+    <q-card class="login-card">
+      <q-card-section class="text-center">
+        <div class="text-h5 text-weight-bold text-primary">
           {{ $t('common.login') }}
         </div>
-        <LanguageSelector class="q-mb-md" />
+        <!-- <div class="text-h3 text-weight-bold text-primary">Shoutout</div>
+        <div class="text-subtitle1 text-weight-medium text-grey-7">
+          Community SOS
+        </div> -->
+        <LanguageSelector class="q-mt-md" />
       </q-card-section>
 
       <q-card-section v-if="isIosNotSafari">
@@ -19,9 +30,8 @@
           {{ $t('common.iosNotSafariWarning') }}
         </q-banner>
       </q-card-section>
-
-      <q-card-section v-else>
-        <q-form @submit="handleSubmit" class="q-gutter-md">
+      <q-card-section v-else class="text-center">
+        <q-form @submit="handleSubmit" class="">
           <q-input
             filled
             v-model="values.mobileNumber"
@@ -60,16 +70,16 @@
         </q-form>
       </q-card-section>
 
-      <q-card-section v-if="otpSent" class="text-center">
+      <div v-if="otpSent" class="text-center">
         <q-btn flat color="primary" @click="resendOTP" :disable="isLoading">
           {{ $t('common.resendOTP') }}
         </q-btn>
-      </q-card-section>
-      <q-card-section class="text-center">
+      </div>
+      <div class="text-center">
         <q-btn flat @click="goToAboutUs" class="q-mb-md">
           {{ $t('common.aboutUs') }}
         </q-btn>
-      </q-card-section>
+      </div>
     </q-card>
   </q-page>
 </template>
