@@ -354,4 +354,6 @@ export default {
   state: 'State',
   selectState: 'Please select a state first',
   noCitiesFound: 'No cities found',
+  addToHomeScreen:
+    'For a better experience, please install this app by adding it to your home screen.',
 };
