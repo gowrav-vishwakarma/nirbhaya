@@ -7,8 +7,9 @@
     ]">
       <q-toolbar>
         <q-toolbar-title class="text-h6" @click="userStore.isLoggedIn ? goToDashboardPage() : goToLoginPage()">
+          <!-- <q-icon name="img:/public/sosLogo_512_512.png" size="2em" /> -->
           <q-icon name="campaign" size="2em" />
-          <span class="text-weight-bold">{{ t('common.appname') }} - {{ version }}</span>
+          <span class="text-weight-bold">&nbsp;{{ t('common.appname') }}</span>
         </q-toolbar-title>
 
         <div>
@@ -41,6 +42,10 @@
 
     <q-page-container>
       <router-view />
+
+      <div class="text-center text-subtitle1 versiontextcolor text-weight-thin" style="font-weight: 600;">
+        <span style="font-size: 13px;">App version : </span> <span style="font-size: 13px;">{{ version }}</span>
+      </div>
     </q-page-container>
 
     <q-footer class="text-white footerCss background-color-transparent" style="padding: 4px; padding-bottom: 5px"
@@ -48,36 +53,40 @@
       <q-toolbar class="footer-toolbar">
         <q-btn class="" flat aria-label="Home" :disabled="!userStore.isLoggedIn"
           @click="userStore.isLoggedIn ? goToDashboardPage() : goToLoginPage()"
-          style="padding-bottom: 0; width: 60px; margin-top: 2px;">
+          style="padding-bottom: 0; width: 60px; margin-top: 2px">
           <div>
-            <svg style="margin-top: 0px;" xmlns="http://www.w3.org/2000/svg" width="26" height="26" fill="currentColor"
+            <svg style="margin-top: 0px" xmlns="http://www.w3.org/2000/svg" width="26" height="26" fill="currentColor"
               viewBox="0 0 256 256">
               <path
                 d="M224,115.55V208a16,16,0,0,1-16,16H168a16,16,0,0,1-16-16V168a8,8,0,0,0-8-8H112a8,8,0,0,0-8,8v40a16,16,0,0,1-16,16H48a16,16,0,0,1-16-16V115.55a16,16,0,0,1,5.17-11.78l80-75.48.11-.11a16,16,0,0,1,21.53,0,1.14,1.14,0,0,0,.11.11l80,75.48A16,16,0,0,1,224,115.55Z">
               </path>
             </svg>
-            <p class="q-ma-none q-pa-none font-size-11" style="margin-top: -11px;">Home</p>
+            <p class="q-ma-none q-pa-none font-size-11" style="margin-top: -11px">
+              Home
+            </p>
           </div>
         </q-btn>
         <q-space />
 
-        <q-btn style="padding-bottom: 0; width: 60px; margin-top: 2px;" class="q-pa-none" flat
+        <q-btn style="padding-bottom: 0; width: 60px; margin-top: 2px" class="q-pa-none" flat
           aria-label="Nearby Volunteers" :disabled="!userStore.isLoggedIn" @click="goToVolunteersPage">
           <div>
-            <q-icon name="emoji_people" class="font-size-25" style="font-weight:600; font-size: 22px;"></q-icon>
-            <p class="q-ma-none q-pa-none font-size-11" style="margin-top: -1px;">Nearby</p>
+            <q-icon name="emoji_people" class="font-size-25" style="font-weight: 600; font-size: 22px"></q-icon>
+            <p class="q-ma-none q-pa-none font-size-11" style="margin-top: -1px">
+              Nearby
+            </p>
           </div>
         </q-btn>
 
         <q-space v-if="isShortsVisible" />
-        <q-btn v-if="isShortsVisible" style="padding-bottom: 0; width: 60px;margin-top: 2px;" class="q-pa-none q-ml-sm"
+        <q-btn v-if="isShortsVisible" style="padding-bottom: 0; width: 60px; margin-top: 2px" class="q-pa-none q-ml-sm"
           flat aria-label="Shorts" @click="goToReelsPage" :disabled="!userStore.isLoggedIn">
           <div>
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
               <defs>
                 <linearGradient id="reelGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" style="stop-color:currentColor;stop-opacity:0.9" />
-                  <stop offset="100%" style="stop-color:currentColor;stop-opacity:0.7" />
+                  <stop offset="0%" style="stop-color: currentColor; stop-opacity: 0.9" />
+                  <stop offset="100%" style="stop-color: currentColor; stop-opacity: 0.7" />
                 </linearGradient>
               </defs>
               <rect x="2" y="2" width="20" height="20" rx="5" fill="none" stroke="url(#reelGradient)"
@@ -92,28 +101,34 @@
                 d="M9.5 8.5C9.5 8.0318 9.9318 7.6 10.4 7.6C10.5858 7.6 10.7665 7.65231 10.92 7.75L16.42 11.25C16.8519 11.5259 17 12.0141 17 12C17 11.9859 16.8519 12.4741 16.42 12.75L10.92 16.25C10.7665 16.3477 10.5858 16.4 10.4 16.4C9.9318 16.4 9.5 15.9682 9.5 15.5V8.5Z"
                 fill="currentColor" />
             </svg>
-            <p class="q-ma-none q-pa-none font-size-11" style="margin-top: -9px;">Shorts</p>
+            <p class="q-ma-none q-pa-none font-size-11" style="margin-top: -9px">
+              Shorts
+            </p>
           </div>
         </q-btn>
 
         <q-space />
-        <q-btn style="padding-bottom: 0; width: 60px;" class="q-pa-none q-ml-sm" flat aria-label="News"
+        <q-btn style="padding-bottom: 0; width: 60px" class="q-pa-none q-ml-sm" flat aria-label="News"
           @click="goToNewsPage" :disabled="!userStore.isLoggedIn">
           <div>
             <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" fill="currentColor" viewBox="0 0 24 24">
               <path
                 d="M3 4h18a1 1 0 0 1 1 1v14a3 3 0 0 1-3 3H5a3 3 0 0 1-3-3V5a1 1 0 0 1 1-1zm2 2v12a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1V6H5zm6 3h6a1 1 0 1 1 0 2h-6a1 1 0 1 1 0-2zm0 4h6a1 1 0 1 1 0 2h-6a1 1 0 1 1 0-2zm-4-4h2a1 1 0 1 1 0 2H7a1 1 0 1 1 0-2zm0 4h2a1 1 0 1 1 0 2H7a1 1 0 1 1 0-2z" />
             </svg>
-            <p class="q-ma-none q-pa-none font-size-11" style="margin-top: -9px;">News</p>
+            <p class="q-ma-none q-pa-none font-size-11" style="margin-top: -9px">
+              News
+            </p>
           </div>
         </q-btn>
 
         <q-space />
-        <q-btn style="padding-bottom: 0; width: 60px;" flat aria-label="Community" @click="goToCommunityPage"
+        <q-btn style="padding-bottom: 0; width: 60px" flat aria-label="Community" @click="goToCommunityPage"
           :disabled="!userStore.isLoggedIn">
           <div>
-            <q-icon name="diversity_3" class="font-size-25" style="font-size: 29px; margin-top: -4px;"></q-icon>
-            <p class="q-ma-none q-pa-none font-size-11" style="margin-top: -5px;">Community</p>
+            <q-icon name="diversity_3" class="font-size-25" style="font-size: 29px; margin-top: -4px"></q-icon>
+            <p class="q-ma-none q-pa-none font-size-11" style="margin-top: -5px">
+              Community
+            </p>
           </div>
         </q-btn>
       </q-toolbar>
@@ -132,12 +147,13 @@ import { useMediaPermissions } from 'src/composables/useMediaPermissions';
 
 const router = useRouter();
 const { t, locale } = useI18n();
-const { unreadNotificationCount, fetchUnreadNotificationCount } = useBackgroundNotifications();
+const { unreadNotificationCount, fetchUnreadNotificationCount } =
+  useBackgroundNotifications();
 const userStore = useUserStore();
 const drawer = ref(false);
 const isScrolled = ref(false);
 const isShortsVisible = process.env.SHORTS_VISIBLE === 'true';
-const ReloadKey = ref(8877)
+const ReloadKey = ref(8877);
 
 const { stopAllMediaStreams } = useMediaPermissions();
 
@@ -225,20 +241,23 @@ const goToHelpPage = () => router.push('/help');
 const refreshNotifications = async () => {
   await fetchUnreadNotificationCount();
   const timestamp = Date.now();
-  router.push({
-    path: '/notifications',
-    query: { key: timestamp }
-  }).catch(() => {
-    console.log('forced notification');
-  });
+  router
+    .push({
+      path: '/notifications',
+      query: { key: timestamp },
+    })
+    .catch(() => {
+      console.log('forced notification');
+    });
 };
 
 // Computed properties
 const isHeaderHide = computed(() => {
   const path = router.currentRoute.value.path;
   return (
-    ['/create-reel', '/incident-reels', '/account', '/sos-mode'].includes(path) ||
-    /^\/news\/\d+$/.test(path)
+    ['/create-reel', '/incident-reels', '/account', '/sos-mode'].includes(
+      path
+    ) || /^\/news\/\d+$/.test(path)
   );
 });
 
@@ -271,7 +290,6 @@ const isFooterHide = computed(() => {
 }
 
 .footer-toolbar {
-
   padding-top: 1px;
   padding-bottom: 0px;
   border-radius: 10px;
@@ -300,5 +318,9 @@ svg {
 
 svg:hover {
   transform: scale(1.05);
+}
+
+.versiontextcolor {
+  color: rgb(206, 204, 204);
 }
 </style>

@@ -17,11 +17,11 @@ export default {
   warning: 'Warning',
   info: 'Information',
 
-  language: 'Language',
+  language: 'Select Language',
   languages: {
     'en-US': 'English',
-    'hi-IN': 'Hindi',
-    'gu-IN': 'Gujarati',
+    'hi-IN': 'हिंदी',
+    'gu-IN': 'ગુજરાતી',
   },
 
   icons: {
@@ -185,13 +185,13 @@ export default {
     'Notifications keep you informed about important alerts and updates.',
   appHelp: 'app Help',
   permissionsHelp: 'permissions Help',
-  gettingStarted: 'getting Started',
-  gettingStartedContent: 'getting Started Content',
+  gettingStarted: 'Getting started',
+  gettingStartedContent: 'getting started content',
   watchVideo: 'watch Video',
-  usingSOS: 'using SOS',
+  usingSOS: 'Using SOS',
   usingSOSContent: 'using SOS Content',
-  volunteeringHelp: 'volunteering Help',
-  volunteeringHelpContent: 'volunteering Help Content',
+  volunteeringHelp: 'Volunteering help',
+  volunteeringHelpContent: 'volunteering help content',
   helpVideo: 'Help Video',
   howToEnable: 'how to enable',
   pwaLocationHelp: 'PWA Location Help',
@@ -360,5 +360,5 @@ export default {
   installApp: 'Install App',
   addToHomeScreen: 'Add this app to your home screen for a better experience',
   install: 'Install',
-  notNow: 'Not Now'
+  notNow: 'Not Now',
 };

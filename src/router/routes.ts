@@ -6,6 +6,7 @@ import IncidentReelsPage from 'pages/IncidentReelsPage.vue';
 import CreateReelPage from 'pages/CreateReelPage.vue';
 import NewsPage from 'pages/CommunityFeeds/NewsPage.vue';
 import CommunityFeedback from 'pages/Sos/SosRating.vue';
+import ShareCartificatePage from 'pages/Cartificate/ShareCartificatePage.vue';
 
 const routes: RouteRecordRaw[] = [
   {
@@ -108,6 +109,12 @@ const routes: RouteRecordRaw[] = [
         path: 'shorts-crud',
         name: 'shorts-crud',
         component: () => import('pages/ShortsPageCurd.vue'),
+        meta: { requiresAuth: true },
+      },
+      {
+        path: 'cartificate',
+        name: 'cartificate',
+        component: () => ShareCartificatePage,
         meta: { requiresAuth: true },
       },
     ],

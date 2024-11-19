@@ -1,16 +1,8 @@
 <template>
   <div>
-    <h6 class="q-ma-none q-ml-xs">{{ $t('common.language') }}</h6>
-    <q-select
-      v-model="userStore.language"
-      :options="languageOptions"
-      outlined
-      emit-value
-      map-options
-      @update:model-value="changeLanguage"
-      class="q-mt-sm"
-      style="border-radius: 20px"
-    />
+    <!-- <h6 class="q-ma-none">{{ $t('common.language') }}</h6> -->
+    <q-select :label="$t('common.language')" v-model="userStore.language" :options="languageOptions" outlined emit-value
+      map-options @update:model-value="changeLanguage" style=" border-radius: 20px; background: transparent;" />
   </div>
 </template>
 

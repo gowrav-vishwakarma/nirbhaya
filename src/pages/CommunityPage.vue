@@ -1,19 +1,22 @@
 <template>
   <q-page class="flex flex-center">
-    <LanguageSelector />
     <div class="column items-center q-pa-md">
+      <q-card class="q-pa-none q-ma-none q-mb-sm" style="max-width: 600px; width: 100%">
+        <LanguageSelector />
+      </q-card>
       <q-banner class="bg-primary text-white">
         <h4>{{ t('community.offerTitle') }}</h4>
-        <h6 class="q-ma-none ">{{ t('community.offerSubtitle') }}</h6>
+        <h6 class="q-ma-none">{{ t('community.offerSubtitle') }}</h6>
         <h6 class="q-ma-none q-my-lg">{{ t('community.offerDescription') }}</h6>
       </q-banner>
 
       <!-- New Suggestions Section -->
       <q-card class="q-pa-lg q-mt-md" style="max-width: 600px; width: 100%">
-
         <q-card class="q-mt-md q-pa-none" style="max-width: 600px; width: 100%">
           <q-card-section>
-            <h2 style="margin-top: -40px;" class="text-h6 q-ma-none q-mb-sm">{{ t('community.suggestions') }}</h2>
+            <h2 style="margin-top: -40px" class="text-h6 q-ma-none q-mb-sm">
+              {{ t('community.suggestions') }}
+            </h2>
             <q-list>
               <q-item v-for="suggestion in suggestions" :key="suggestion.id">
                 <q-item-section>
@@ -27,7 +30,7 @@
                 </q-item-section>
               </q-item>
             </q-list>
-            <q-btn style="width: 100%;" class="commulity-bg-color q-mt-md" @click="openSuggestionDialog"
+            <q-btn style="width: 100%" class="commulity-bg-color q-mt-md" @click="openSuggestionDialog"
               :disable="suggestions.length >= 5">
               <span class="text-bold">
                 {{ t('community.addSuggestion') }}
@@ -38,7 +41,9 @@
       </q-card>
       <q-card class="q-pa-lg q-mt-md" style="max-width: 600px; width: 100%">
         <q-card-section>
-          <h2 style="margin-top: -20px;" class="text-h5 q-mb-md">{{ t('community.stayConnected') }}</h2>
+          <h2 style="margin-top: -20px" class="text-h5 q-mb-md">
+            {{ t('community.stayConnected') }}
+          </h2>
           <p class="text-body1 q-mb-md">
             {{ t('community.stayUpdated') }}
           </p>
@@ -117,8 +122,6 @@
           </div>
         </q-card-section>
       </q-card>
-
-
     </div>
 
     <q-dialog v-model="suggestionDialog">

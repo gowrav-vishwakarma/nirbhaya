@@ -1,33 +1,25 @@
 <template>
   <q-page class="flex flex-center">
-    <!-- <q-card class="q-ma-none" flat> -->
-    <!-- <q-img src="/public/sosLogo_512_512.png" style="height: 100px; width: 100px"></q-img> -->
-    <!-- <q-card-section class="text-center">
+    <q-card class="q-ma-none" flat>
+      <q-img src="/public/sosLogo_512_512.png" style="height: 100px; width: 100px"></q-img>
+      <!-- <q-card-section class="text-center">
         <div class="text-h3 text-weight-bold text-primary">Shoutout</div>
         <div class="text-subtitle1 text-weight-medium text-grey-7">
           Community SOS
         </div>
       </q-card-section> -->
-    <!-- </q-card> -->
+    </q-card>
 
     <q-card class="login-card">
-      <div class="flex justify-center">
-        <q-img src="/public/sosLogo_512_512.png" style="height: 100px; width: 100px; margin-top: 30px;"></q-img>
-
-      </div>
-      <div class="text-subtitle1 text-weight-medium text-grey-7 q-mb-lg q-mt-md text-center">
-        Community SOS
-      </div>
-
-      <q-card-section class="text-center" style="margin: 0px; padding: 0px;">
-        <div class="text-h5 text-weight-bold text-primary" style="margin: 0px; padding: 0px; margin-top: -10px;">
+      <q-card-section class="text-center">
+        <div class="text-h5 text-weight-bold text-primary">
           {{ $t('common.login') }}
         </div>
         <!-- <div class="text-h3 text-weight-bold text-primary">Shoutout</div>
         <div class="text-subtitle1 text-weight-medium text-grey-7">
           Community SOS
         </div> -->
-        <LanguageSelector class="q-mt-md q-px-md" />
+        <LanguageSelector class="q-mt-md" />
       </q-card-section>
 
       <q-card-section v-if="isIosNotSafari">

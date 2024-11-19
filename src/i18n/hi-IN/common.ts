@@ -14,11 +14,11 @@ export default {
   warning: 'चेतावनी',
   info: 'जानकारी',
 
-  language: 'भाषा',
+  language: 'भाषा चुनें',
   languages: {
-    'en-US': 'अंग्रेजी',
+    'en-US': 'English',
     'hi-IN': 'हिंदी',
-    'gu-IN': 'गुजराती',
+    'gu-IN': 'ગુજરાતી',
   },
 
   icons: {
@@ -175,7 +175,7 @@ export default {
   followedBySomeone: 'किसी का पीछा किया जा रहा है',
   verbalHarassment: 'मौखिक उत्पीड़न',
   physicalThreat: 'शारीरिक खतरा',
-  attemptedKidnapping: 'अपहरण  प्रयास',
+  attemptedKidnapping: 'अपहरण प्रयास',
   sexualAssault: 'यौन उत्पीड़न',
   domesticViolence: 'घरेलू हिंसा',
   unknown: 'अज्ञात',
@@ -189,7 +189,7 @@ export default {
     'कैमरा पहुंच आपको आपातकाल के दौरान दृश्य साक्ष्य कैप्चर करने और भेजने की अनुमति देती है।',
   microphonePermission: 'माइक्रोफोन अनुमति',
   microphonePermissionHelp:
-    'माइ्ोफोन पहुंच बेहतर सहायता के लिए आपाताल के दौरान ऑडियो रिकॉर्डिंग को सक्षम करती है।',
+    'माइक्रोफोन पहुंच बेहतर सहायता के लिए आपाताल के दौरान ऑडियो रिकॉर्डिंग को सक्षम करती है।',
   notificationPermission: 'सूचना अनुमति',
   notificationPermissionHelp:
     'सूचनाएं आपको महत्वपूर्ण चेतावनियों और अपडेट के बारे में सूचित रखती हैं।',
@@ -319,7 +319,7 @@ export default {
   volunteerStatus: 'स्वयंसेवक स्थिति',
   volunteerAvailable: 'सामुदायिक सहायता के लिए उपलब्ध',
   volunteerUnavailable: 'सामुदायिक सहायता के लिए अनुपलब्ध',
-  volunteerStatusUpdated: 'स्वयंसेवक स्थ���ति सफलतापूर्वक अपडेट की गई',
+  volunteerStatusUpdated: 'स्वयंसेवक स्थिति सफलतापूर्वक अपडेट की गई',
   volunteerStatusUpdateFailed: 'स्वयंसेवक स्थिति अपडेट करने में विफल',
 
   nearbyVolunteers: 'आस-पास के स्वयंसेवक',

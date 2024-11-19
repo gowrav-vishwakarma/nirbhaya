@@ -1,6 +1,6 @@
 {
   "name": "SOS: Shoutout",
-  "version": "0.0.98",
+  "version": "0.0.99",
   "description": "A power tool for every girl and child",
   "productName": "Community SOS",
   "author": "Gowrav Vishwakarma <gowravvishwkarma@gmail.com>",
@@ -30,6 +30,7 @@
     "class-validator": "^0.14.1",
     "dotenv": "^16.4.5",
     "firebase": "^10.13.1",
+    "konva": "^9.3.16",
     "leaflet": "^1.9.4",
     "leaflet.markercluster": "^1.5.3",
     "mp4-muxer": "^5.1.3",
