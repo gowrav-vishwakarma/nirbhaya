@@ -30,6 +30,7 @@
     "class-validator": "^0.14.1",
     "dotenv": "^16.4.5",
     "firebase": "^10.13.1",
+    "konva": "^9.3.16",
     "leaflet": "^1.9.4",
     "leaflet.markercluster": "^1.5.3",
     "mp4-muxer": "^5.1.3",
