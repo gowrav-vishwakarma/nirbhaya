@@ -47,11 +47,13 @@
         </div>
       </q-card-section>
       <q-card-actions class="custom-scroll">
-        <q-btn color="primary" class="col" @click="install">
-          <span style="font-weight: 700">
-            {{ $t('common.install') }}
-          </span>
-        </q-btn>
+        <template v-if="isAllowedUser">
+          <q-btn color="primary" class="col" @click="install">
+            <span style="font-weight: 700">
+              {{ $t('common.install') }}
+            </span>
+          </q-btn>
+        </template>
         <q-btn v-close-popup color="grey" flat class="col" @click="dismiss">
           <span style="font-weight: 700"> Skip </span>
         </q-btn>
@@ -61,9 +63,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { useQuasar, useDialogPluginComponent } from 'quasar';
 import { useI18n } from 'vue-i18n';
+import { useUserStore } from '../stores/user-store';
 
 const { dialogRef, onDialogHide } = useDialogPluginComponent();
 const $q = useQuasar();
@@ -71,12 +74,19 @@ const showInstallPrompt = ref(false);
 const deferredPrompt = ref<any>(null);
 const isInstalled = ref<boolean>(false);
 const { t } = useI18n();
+const userStore = useUserStore();
 
 // Add these new refs for touch handling
 const touchStartY = ref(0);
 const touchEndY = ref(0);
 const minSwipeDistance = 100;
 const swipeProgress = ref(0);
+
+// Add this computed property to check allowed users
+const isAllowedUser = computed(() => {
+  const allowedUsers = (process.env.VITE_SHOW_INSTALL_PROMPT || '').split(',');
+  return allowedUsers.includes(userStore.user?.uid || '');
+});
 
 const handleTouchStart = (event: TouchEvent) => {
   touchStartY.value = event.touches[0].clientY;
@@ -163,8 +173,9 @@ onMounted(() => {
   });
 });
 
+// Modify the checkAndShowPrompt function
 const checkAndShowPrompt = () => {
-  if (deferredPrompt.value && !isInstalled.value) {
+  if (deferredPrompt.value && !isInstalled.value && isAllowedUser.value) {
     showInstallPrompt.value = true;
   }
 };
