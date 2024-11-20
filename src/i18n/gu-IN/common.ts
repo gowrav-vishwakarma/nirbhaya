@@ -103,6 +103,7 @@ export default {
   mechanic4Wheeler: '4 વેહિકલ મેકનિક',
   mechanicBoth: '2&4 વેહિકલ મેકનિક',
   tech: 'તકનિકી',
+  student: 'વિદ્યાર્થી',
   nurse: 'નિયુસ',
   other: 'અન્ય',
   sosSettings: 'SOS સેટિંગ્સ',

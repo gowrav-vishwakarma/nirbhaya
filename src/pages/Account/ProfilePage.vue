@@ -66,7 +66,7 @@
                 <q-icon :name="$t('common.icons.help')" size="xs" class="q-ml-sm">
                   <q-tooltip>{{
                     $t('common.emergencyContactsHelp')
-                    }}</q-tooltip>
+                  }}</q-tooltip>
                 </q-icon>
               </div>
 
@@ -154,7 +154,7 @@
                   <q-item-section>
                     <q-item-label>{{
                       $t('common.startAudioVideoRecordOnSos')
-                      }}</q-item-label>
+                    }}</q-item-label>
                   </q-item-section>
                   <q-item-section side>
                     <q-toggle v-model="values.startAudioVideoRecordOnSos" />
@@ -164,7 +164,7 @@
                   <q-item-section>
                     <q-item-label>{{
                       $t('common.streamAudioVideoOnSos')
-                      }}</q-item-label>
+                    }}</q-item-label>
                   </q-item-section>
                   <q-item-section side>
                     <q-toggle v-model="values.streamAudioVideoOnSos" />
@@ -174,7 +174,7 @@
                   <q-item-section>
                     <q-item-label>{{
                       $t('common.broadcastAudioOnSos')
-                      }}</q-item-label>
+                    }}</q-item-label>
                   </q-item-section>
                   <q-item-section side>
                     <q-toggle v-model="values.broadcastAudioOnSos" color="grey" :disable="true" />
@@ -278,6 +278,7 @@ const professionOptions = [
   { label: t('common.mechanicBoth'), value: 'mechanicBoth' },
   { label: t('common.nurse'), value: 'nurse' },
   { label: t('common.tech'), value: 'tech' },
+  { label: t('common.student'), value: 'student' },
   { label: t('common.other'), value: 'other' },
 ];
 

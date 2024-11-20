@@ -127,6 +127,7 @@ export default {
   mechanic4Wheeler: '4 व्हीलर मैकेनिक',
   mechanicBoth: 'तकनीकी',
   tech: 'તકનિકી',
+  student: 'विद्यार्थी',
   nurse: 'नियुस',
   other: 'अन्य',
   sosSettings: 'SOS सेटिंग्स',
