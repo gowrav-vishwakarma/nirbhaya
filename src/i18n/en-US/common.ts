@@ -112,6 +112,7 @@ export default {
   mechanicBoth: '2&4 Wheeler Mechanic',
   tech: 'Tech',
   nurse: 'Nurse',
+  student: 'Student',
   other: 'Other',
   sosSettings: 'SOS Settings',
   startAudioVideoRecordOnSos: 'Start Audio/Video Record on SOS (local)',
