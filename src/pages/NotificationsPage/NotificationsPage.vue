@@ -324,6 +324,7 @@ const discardNotification = async (notificationId: number) => {
 
 .notifications-content {
   max-width: 600px;
+
   margin: 0 auto;
 }
 
@@ -333,6 +334,7 @@ const discardNotification = async (notificationId: number) => {
 }
 
 .notification-item {
+  width: 100%;
   transition: all 0.3s ease;
 
   &:hover {
