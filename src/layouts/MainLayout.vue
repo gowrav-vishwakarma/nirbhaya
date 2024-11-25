@@ -144,6 +144,7 @@ import { ref, onMounted, onUnmounted, computed, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { version } from 'src/../package.json';
 import { useMediaPermissions } from 'src/composables/useMediaPermissions';
+import { api } from 'src/boot/axios';
 
 const router = useRouter();
 const { t, locale } = useI18n();
@@ -232,7 +233,17 @@ const goToReelsPage = () => {
   router.push('/incident-reels');
   drawer.value = false;
 };
-const goToNewsPage = () => {
+const goToNewsPage = async () => {
+  // Only call API if not already on news page
+  if (router.currentRoute.value.path !== '/news') {
+    try {
+      await api.post('global/event-count-update', {
+        type: 'news'
+      });
+    } catch (error) {
+      console.error('Failed to update event count:', error);
+    }
+  }
   router.push('/news');
   drawer.value = false;
 };
