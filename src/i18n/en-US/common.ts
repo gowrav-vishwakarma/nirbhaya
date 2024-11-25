@@ -85,7 +85,7 @@ export default {
 
   // Profile Page
   name: 'Name',
-  city: 'City',
+  city: 'City / Pincode',
   userType: 'User Type',
   dob: 'Date Of Birth',
   emergencyContacts: 'Emergency Contacts',
@@ -206,6 +206,10 @@ export default {
   phoneNumberNotInSystem: 'This phone number is not registered in our system',
   phoneValidationError: 'Error validating phone number',
   pleaseFixErrors: 'Please fix the errors before submitting',
+  onlyNumbersAllowed: 'Only numbers are allowed',
+  invalidPhoneNumberLength: 'Phone number must be 10 digits',
+  unexpectedError: 'An unexpected error occurred',
+  cantAddOwnNumber: 'Cant Add Own Number',
 
   // Volunteering
   notificationLocations: 'Notification Locations',

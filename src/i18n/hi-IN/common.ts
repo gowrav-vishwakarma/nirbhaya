@@ -202,6 +202,9 @@ export default {
   phoneNumberNotInSystem: 'यह फोन नंबर हमारे सिस्टम में पंजीकृत नहीं है',
   phoneValidationError: 'फोन नंबर सत्यापित करने में त्रुटि',
   pleaseFixErrors: 'कृपया जमा करने से पहले त्रुटियों को ठीक करें',
+  onlyNumbersAllowed: 'केवल नंबर की अनुमति है',
+  invalidPhoneNumberLength: 'फ़ोन नंबर 10 अंकों का होना चाहिए',
+  unexpectedError: 'एक अनपेक्षित त्रुटि हुई',
 
   // Volunteering
   notificationLocations: 'सूचना स्थान',
