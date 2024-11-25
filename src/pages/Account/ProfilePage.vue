@@ -459,7 +459,8 @@ callbacks.onSuccess = (data) => {
     ...data.user,
     dob: values.value.dob,
     state: values.value.state,
-    pincode: values.value.pincode
+    pincode: values.value.pincode,
+    profession: values.value.profession
   };
 
   userStore.updateUser(updatedUserData);
