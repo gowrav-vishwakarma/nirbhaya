@@ -39,6 +39,13 @@
             </q-card>
           </q-expansion-item>
 
+          <!-- EmergencyContactPage -->
+          <q-expansion-item v-if="userStore.user.name" v-model="expandedItems.emergencyContact" group="profile-tabs"
+            icon="mdi-human-greeting-proximity" label="Emergency Contact">
+            <EmergencyContactPage />
+
+          </q-expansion-item>
+
           <!-- Volunteers Section -->
           <q-expansion-item v-if="userStore.user.name" v-model="expandedItems.volunteers" group="profile-tabs"
             icon="volunteer_activism" label="Volunteers">
@@ -58,6 +65,15 @@
             icon="fas fa-history" label="SOS History">
             <SosHistoryPage />
           </q-expansion-item>
+
+          <!-- Feedback Impact -->
+          <q-expansion-item v-if="userStore.user.name" v-model="expandedItems.settings" group="profile-tabs"
+            icon="mdi-cog" label="SOS Settings">
+            <ProfileAppPermission />
+          </q-expansion-item>
+
+          <!-- Feedback Impact -->
+
 
 
           <!-- <q-expansion-item v-if="userStore.user.name" v-model="expandedItems.rating" group="profile-tabs"
@@ -84,6 +100,8 @@ import VolunteeringPage from './VolunteeringPage.vue';
 // import YourRatingPage from '../Sos/YourRatingPage.vue';
 import SosHistoryPage from '../Sos/SosHistoryPage.vue';
 import CommunityImpactPage from './CommunityImpactPage.vue';
+import ProfileAppPermission from './ProfileAppPermission.vue';
+import EmergencyContactPage from './EmergencyContactPage.vue';
 import { useUserStore } from 'src/stores/user-store';
 import { api } from 'src/boot/axios';
 import { useI18n } from 'vue-i18n';
@@ -119,7 +137,9 @@ const expandedItems = ref({
   volunteers: false,
   community: false,
   feedback: false,
-  rating: false
+  rating: false,
+  settings: false,
+  emergencyContact: false
 })
 </script>
 <style lang="scss" scoped>

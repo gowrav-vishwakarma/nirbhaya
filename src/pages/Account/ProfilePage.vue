@@ -20,7 +20,7 @@
                   disable />
               </div>
               <div class="col-12 col-sm-6 q-py-sm">
-                <q-input outlined dense v-model="values.dob" mask="date" :rules="['date']">
+                <q-input outlined dense v-model="values.dob" :label="$t('common.dob')" mask="date" :rules="['date']">
                   <template v-slot:append>
                     <q-icon name="event" class="cursor-pointer">
                       <q-popup-proxy cover transition-show="scale" transition-hide="scale">
@@ -60,18 +60,18 @@
             </div>
 
             <!-- Emergency contacts -->
-            <div class="q-mt-lg">
-              <div class="text-subtitle1 text-weight-bold q-mb-sm">
+            <!-- <div class="q-mt-lg"> -->
+            <!-- <div class="text-subtitle1 text-weight-bold q-mb-sm">
                 {{ $t('common.emergencyContacts') }}
                 <q-icon :name="$t('common.icons.help')" size="xs" class="q-ml-sm">
                   <q-tooltip>{{
                     $t('common.emergencyContactsHelp')
-                  }}</q-tooltip>
+                    }}</q-tooltip>
                 </q-icon>
-              </div>
+              </div> -->
 
-              <!-- Button group for Add Emergency Contact and Emergency Contact Requests -->
-              <div class="row q-col-gutter-sm q-mb-md">
+            <!-- Button group for Add Emergency Contact and Emergency Contact Requests -->
+            <!-- <div class="row q-col-gutter-sm q-mb-md">
                 <div class="col-12">
                   <q-btn-group class="full-width">
                     <q-btn v-if="values.emergencyContacts.length < 3" @click="addEmergencyContact" color="primary"
@@ -81,10 +81,10 @@
                       :label="$t('common.emergencyContactRequests')" no-caps class="full-width" />
                   </q-btn-group>
                 </div>
-              </div>
+              </div> -->
 
-              <q-list bordered separator>
-                <q-item v-for="(contact, index) in values.emergencyContacts" :key="index">
+            <!-- <q-list bordered separator> -->
+            <!-- <q-item v-for="(contact, index) in values.emergencyContacts" :key="index">
                   <q-item-section>
                     <q-input v-model="contact.contactName" :label="$t('common.name')" dense outlined class="q-mb-sm"
                       :rules="[
@@ -109,43 +109,15 @@
                     <q-btn flat round color="negative" :icon="$t('common.icons.delete')"
                       @click="removeEmergencyContact(index)" />
                   </q-item-section>
-                </q-item>
-              </q-list>
-              <p v-if="!hasEmergencyContacts" class="text-negative q-mt-sm">
+                </q-item> -->
+            <!-- </q-list> -->
+            <!-- <p v-if="!hasEmergencyContacts" class="text-negative q-mt-sm">
                 {{ $t('common.atLeastOneEmergencyContactRequired') }}
-              </p>
-            </div>
-
-            <!-- Permissions section -->
-            <div class="q-mt-lg">
-              <div class="text-subtitle1 text-weight-bold q-mb-sm">
-                {{ $t('common.appPermissions') }}
-              </div>
-              <q-list bordered>
-                <q-item v-for="(permission, index) in permissions" :key="index">
-                  <q-item-section>
-                    <q-item-label>{{ $t(permission.name) }}</q-item-label>
-                  </q-item-section>
-                  <q-item-section side>
-                    <q-btn :color="permission.granted ? 'positive' : 'primary'"
-                      @click="requestPermission(permission.name)" :disable="permission.granted" dense no-caps>
-                      <span class="q-px-md">
-                        {{
-                          $t(
-                            permission.granted
-                              ? 'common.granted'
-                              : 'common.requestPermission'
-                          )
-                        }}
-                      </span>
-                    </q-btn>
-                  </q-item-section>
-                </q-item>
-              </q-list>
-            </div>
+              </p> -->
+            <!-- </div> -->
 
             <!-- SOS Settings -->
-            <div v-if="isNavigatorMediaSupported" class="q-mt-lg">
+            <!-- <div v-if="isNavigatorMediaSupported" class="q-mt-lg">
               <div class="text-subtitle1 text-weight-bold q-mb-sm">
                 {{ $t('common.sosSettings') }}
               </div>
@@ -181,10 +153,10 @@
                   </q-item-section>
                 </q-item>
               </q-list>
-            </div>
+            </div> -->
 
             <!-- Submit button -->
-            <div class="row q-col-gutter-md q-mt-lg">
+            <div class="row q-col-gutter-md q-mt-none">
               <div class="col-12">
                 <q-btn type="submit" :loading="isLoading" color="primary" class="full-width" :disable="!isFormValid"
                   no-caps>
@@ -219,7 +191,7 @@ const { t } = useI18n();
 const $q = useQuasar();
 const userStore = useUserStore();
 
-const STREAM_SAVE = computed(() => process.env.STREAM_SAVE);
+// const STREAM_SAVE = computed(() => process.env.STREAM_SAVE);
 
 const userTypeOptions = ['Girl', 'Child', 'Elder Woman', 'Elder Man', 'Youth'];
 
@@ -347,12 +319,6 @@ callbacks.beforeSubmit = (data: FormValues) => {
   return processedData;
 };
 
-const permissions = ref([
-  { name: 'common.location', granted: false },
-  { name: 'common.camera', granted: false },
-  // { name: 'common.microphone', granted: false },
-]);
-
 const loadUserData = async () => {
   const userData = userStore.user;
 
@@ -408,7 +374,7 @@ const loadUserData = async () => {
 
 onMounted(() => {
   loadUserData();
-  checkPermissions();
+  // checkPermissions();
 });
 
 const addEmergencyContact = () => {
@@ -428,107 +394,7 @@ const removeEmergencyContact = (index: number) => {
   values.value.emergencyContacts.splice(index, 1);
 };
 
-const requestPermission = async (permissionName: string) => {
-  try {
-    let result;
-    if (Capacitor.isNativePlatform()) {
-      switch (permissionName) {
-        case 'location':
-          result = await Geolocation.requestPermissions();
-          break;
-        case 'camera':
-          result = await Camera.requestPermissions();
-          break;
-        case 'microphone':
-          result = await Plugins.Permissions.requestPermissions({
-            permissions: ['microphone'],
-          });
-          break;
-      }
-    } else {
-      // Web API fallback
-      switch (permissionName) {
-        case 'location':
-          result = await navigator.permissions.query({ name: 'geolocation' });
-          console.log('Location permission result:', result);
-          break;
-        case 'camera':
-        case 'microphone':
-          result = await navigator.mediaDevices.getUserMedia({
-            video: permissionName === 'camera',
-            audio: permissionName === 'microphone',
-          });
-          console.log(
-            'Media (camera and microphone) permission result:',
-            result
-          );
-          break;
-      }
-    }
 
-    const permissionIndex = permissions.value.findIndex(
-      (p) => p.name === permissionName
-    );
-    if (permissionIndex !== -1) {
-      permissions.value[permissionIndex].granted = true;
-    }
-
-    $q.notify({
-      color: 'positive',
-      message: t('common.permissionGranted', { permission: t(permissionName) }),
-      icon: 'check',
-    });
-  } catch (error) {
-    console.error(`Error requesting ${permissionName} permission:`, error);
-    $q.notify({
-      color: 'negative',
-      message: t('common.permissionDenied', { permission: t(permissionName) }),
-      icon: 'error',
-    });
-  }
-};
-
-const checkPermissions = async () => {
-  for (const permission of permissions.value) {
-    try {
-      let result;
-      if (Capacitor.isNativePlatform()) {
-        switch (permission.name) {
-          case 'location':
-            result = await Geolocation.checkPermissions();
-            permission.granted = result.location === 'granted';
-            break;
-          case 'camera':
-            result = await Camera.checkPermissions();
-            permission.granted = result.camera === 'granted';
-            break;
-          case 'microphone':
-            result = await Plugins.Permissions.query({ name: 'microphone' });
-            permission.granted = result.state === 'granted';
-            break;
-        }
-      } else {
-        // Web API fallback
-        if (permission.name === 'location') {
-          result = await navigator.permissions.query({ name: 'geolocation' });
-          permission.granted = result.state === 'granted';
-        } else {
-          try {
-            await navigator.mediaDevices.getUserMedia({
-              video: permission.name === 'camera',
-              audio: permission.name === 'microphone',
-            });
-            permission.granted = true;
-          } catch {
-            permission.granted = false;
-          }
-        }
-      }
-    } catch (error) {
-      console.error(`Error checking ${permission.name} permission:`, error);
-    }
-  }
-};
 
 const hasEmergencyContacts = computed(
   () => values.value.emergencyContacts.length > 0
@@ -565,14 +431,14 @@ const validatePhoneNumber = async (phoneNumber: string, index: number): Promise<
 
 const handleSubmit = async () => {
   // Validate phone numbers only if emergency contacts are present
-  if (values.value.emergencyContacts.length > 0) {
-    for (let i = 0; i < values.value.emergencyContacts.length; i++) {
-      await validatePhoneNumber(
-        values.value.emergencyContacts[i].contactPhone,
-        i
-      );
-    }
-  }
+  // if (values.value.emergencyContacts.length > 0) {
+  //   for (let i = 0; i < values.value.emergencyContacts.length; i++) {
+  //     await validatePhoneNumber(
+  //       values.value.emergencyContacts[i].contactPhone,
+  //       i
+  //     );
+  //   }
+  // }
 
   if (isFormValid.value || values.value.emergencyContacts.length === 0) {
     validateAndSubmit(false);

@@ -135,6 +135,14 @@ export const useUserStore = defineStore('userStore', {
         );
       }
     },
+    updateUserSettings(settings: Partial<User>) {
+      if (this.user) {
+        this.user = {
+          ...this.user,
+          ...settings,
+        };
+      }
+    },
   },
   getters: {
     isLoggedIn: (state) => !!state.user.token,
