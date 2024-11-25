@@ -41,13 +41,14 @@
                   :error-message="errors[`emergencyContact${index}`]?.join('; ')" />
                 <q-chip class="q-ma-none" :color="contact.consentGiven ? 'positive' : 'secondary'" text-color="white"
                   :icon="contact.consentGiven ? 'check_circle' : 'warning'" size="sm"
-                  style="display: flex; justify-content: center; align-items: center; text-align: center;">
+                  style="display: flex; justify-content: center; align-items: center; text-align: center; width: 120px;">
                   <span style="text-align: center">{{
                     contact.consentGiven
                       ? t('common.approved')
                       : t('common.pendingApproval')
                   }}</span>
                 </q-chip>
+
               </q-item-section>
               <q-item-section side>
                 <q-btn flat round color="negative" :icon="t('common.icons.delete')"

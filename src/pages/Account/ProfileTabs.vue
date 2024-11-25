@@ -160,7 +160,7 @@ const expandedItems = ref({
 }
 
 .cover-image {
-  height: 180px;
+  height: 210px;
   position: relative;
   overflow: hidden;
   width: 100%;
