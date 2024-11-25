@@ -40,6 +40,7 @@ export interface User {
   state: string;
   dob: Date;
   pincode: string;
+  profession: string;
 }
 
 interface NewsPreferences {
@@ -67,6 +68,10 @@ const defaultUser: User = {
   broadcastAudioOnSos: false,
   referralId: '',
   referredBy: '',
+  state: '',
+  dob: new Date(),
+  pincode: '',
+  profession: '',
 };
 
 export const useUserStore = defineStore('userStore', {
