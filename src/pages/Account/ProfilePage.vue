@@ -340,15 +340,17 @@ const loadUserData = async () => {
     ...userData,
     // Keep our formatted city object
     city: values.value.city,
-    name: userData.name,
-    phoneNumber: userData.phoneNumber,
-    dob: userData.dob,
-    userType: userData.userType,
-    profession: userData.profession,
+    name: userData.name || '',
+    phoneNumber: userData.phoneNumber || '',
+    dob: userData.dob || '',
+    userType: userData.userType || '',
+    // Add null coalescing for profession
+    profession: userData.profession || '',
     emergencyContacts: userData.emergencyContacts || [],
     startAudioVideoRecordOnSos: userData.startAudioVideoRecordOnSos || false,
     streamAudioVideoOnSos: userData.streamAudioVideoOnSos || false,
     broadcastAudioOnSos: userData.broadcastAudioOnSos || false,
+    referredBy: userData.referredBy || ''
   });
 
   lastCheckedReferralId.value = values.value.referredBy;
