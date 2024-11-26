@@ -13,15 +13,17 @@
 
           <template v-if="!isLoading">
             <q-list v-if="responseData.length > 0" separator>
-              <q-item v-for="notification in responseData" :key="notification.id" class="q-py-md q-ma-none notification-item">
+              <q-item v-for="notification in responseData" :key="notification.id"
+                class="q-py-md q-ma-none notification-item">
                 <q-item-section>
                   <q-card flat bordered class="notification-card">
                     <q-card-section>
                       <div class="notification-header">
                         <q-icon :name="getNotificationIcon(notification)" size="24px" class="notification-icon" />
-                        <div class="notification-title">
+                        <span class="notification-title">
                           {{ getNotificationTitle(notification) }}
-                        </div>
+                        </span>
+                        <q-space></q-space>
                         <q-chip :color="getStatusColor(notification.sosEvent?.status)" text-color="white" size="sm">
                           {{ $t(`common.sosStatus.${notification.sosEvent?.status}`) }}
                         </q-chip>
@@ -35,16 +37,23 @@
                       <div v-if="notification.sosEvent?.threat" class="notification-threat">
                         {{ $t('common.threat') }}: <strong>{{ $t(notification.sosEvent.threat) }}</strong>
                       </div>
-                      <div v-if="notification.userLocationName && notification.distanceToEvent" class="notification-location">
-                        {{ formatDistance(notification.distanceToEvent) }} {{ $t('common.awayFrom') }} {{ notification.userLocationName }}
+                      <div v-if="notification.userLocationName && notification.distanceToEvent"
+                        class="notification-location">
+                        {{ formatDistance(notification.distanceToEvent) }} {{ $t('common.awayFrom') }} {{
+                          notification.userLocationName }}
                       </div>
                     </q-card-section>
 
                     <q-card-actions align="right" class="q-gutter-sm">
-                      <q-btn v-if="notification.status === 'sent'" color="primary" :label="$t('common.accept')" @click="acceptNotification(notification.id)" dense no-caps />
-                      <q-btn v-else-if="notification.status === 'accepted'" color="secondary" :label="$t('common.follow')" @click="followLocation(notification.sosEvent.location)" dense no-caps />
-                      <AudioControl v-if="notification.status === 'accepted'" :sos-event-id="notification.sosEvent.id" />
-                      <q-btn color="negative" :label="$t('common.discard')" @click="discardNotification(notification.id)" flat dense no-caps />
+                      <q-btn v-if="notification.status === 'sent'" color="primary" :label="$t('common.accept')"
+                        @click="acceptNotification(notification.id)" dense no-caps />
+                      <q-btn v-else-if="notification.status === 'accepted'" color="secondary"
+                        :label="$t('common.follow')" @click="followLocation(notification.sosEvent.location)" dense
+                        no-caps />
+                      <AudioControl v-if="notification.status === 'accepted'"
+                        :sos-event-id="notification.sosEvent.id" />
+                      <q-btn color="negative" :label="$t('common.discard')"
+                        @click="discardNotification(notification.id)" flat dense no-caps />
                     </q-card-actions>
                   </q-card>
                 </q-item-section>
@@ -297,7 +306,7 @@ const discardNotification = async (notificationId: number) => {
 };
 
 
-  // Call the function to start refreshing notifications
+// Call the function to start refreshing notifications
 
 interface Notification {
   eventId: number;
@@ -311,82 +320,82 @@ interface EventResponse {
 }
 
 const startNotificationCountRefresh = async (intervalMs = 20000) => {
-    const $q = useQuasar();
-    const { t } = useI18n();
-    console.log('call current notification count');
-    if (!userStore.isLoggedIn) {
+  const $q = useQuasar();
+  const { t } = useI18n();
+  console.log('call current notification count');
+  if (!userStore.isLoggedIn) {
+    return;
+  }
+  const updateNotifications = async () => {
+    try {
+      const eventIds = (responseData.value as Notification[])
+        .map(notification => notification.eventId)
+        .filter(Boolean); // Remove any undefined/null values
+
+      if (!eventIds.length) {
         return;
+      }
+      const response = await api.post<EventResponse[]>('/sos/current-event-list', {
+        data: {
+          eventId: eventIds
+        }
+      });
+      // Update unread count
+      unreadNotificationCount.value = response.data.length;
+      // Process resolved/cancelled events
+      const resolvedEvents = response.data.filter(
+        event => event.status === 'resolved' || event.status === 'cancelled'
+      );
+      if (resolvedEvents.length > 0) {
+        // Update notifications state
+        resolvedEvents.forEach(resolvedEvent => {
+          // Remove resolved/cancelled notifications
+          responseData.value = responseData.value.filter(
+            notification => notification.eventId !== resolvedEvent.id
+          );
+          // Show notification message
+          const messageKey = resolvedEvent.status === 'cancelled'
+            ? 'common.notificationCancelled'
+            : 'common.notificationResolved';
+          $q.notify({
+            color: 'positive',
+            message: t(messageKey, { eventId: resolvedEvent.id }),
+            icon: 'check',
+            position: 'top',
+            timeout: 10000,
+            actions: [
+              { label: 'Dismiss', color: 'white' }
+            ]
+          });
+        });
+        // Emit event for parent components if needed
+        emit('notifications-updated', responseData.value);
+      }
+    } catch (error) {
+      console.error('Error fetching unread notification count:', error);
+      // Show error notification to user
+      $q.notify({
+        color: 'negative',
+        message: t('common.errorFetchingNotifications'),
+        icon: 'warning',
+        position: 'top',
+        timeout: 5000
+      });
     }
-    const updateNotifications = async () => {
-        try {
-            const eventIds = (responseData.value as Notification[])
-                .map(notification => notification.eventId)
-                .filter(Boolean); // Remove any undefined/null values
+  };
 
-            if (!eventIds.length) {
-                return;
-            }
-            const response = await api.post<EventResponse[]>('/sos/current-event-list', {
-                data: {
-                    eventId: eventIds
-                }
-            });
-            // Update unread count
-            unreadNotificationCount.value = response.data.length;
-            // Process resolved/cancelled events
-            const resolvedEvents = response.data.filter(
-                event => event.status === 'resolved' || event.status === 'cancelled'
-            );
-            if (resolvedEvents.length > 0) {
-                // Update notifications state
-                resolvedEvents.forEach(resolvedEvent => {
-                    // Remove resolved/cancelled notifications
-                    responseData.value = responseData.value.filter(
-                        notification => notification.eventId !== resolvedEvent.id
-                    );
-                    // Show notification message
-                    const messageKey = resolvedEvent.status === 'cancelled'
-                        ? 'common.notificationCancelled'
-                        : 'common.notificationResolved';
-                    $q.notify({
-                        color: 'positive',
-                        message: t(messageKey, { eventId: resolvedEvent.id }),
-                        icon: 'check',
-                        position: 'top',
-                        timeout: 10000,
-                        actions: [
-                            { label: 'Dismiss', color: 'white' }
-                        ]
-                    });
-                });
-                // Emit event for parent components if needed
-                emit('notifications-updated', responseData.value);
-            }
-        } catch (error) {
-            console.error('Error fetching unread notification count:', error);
-            // Show error notification to user
-            $q.notify({
-                color: 'negative',
-                message: t('common.errorFetchingNotifications'),
-                icon: 'warning',
-                position: 'top',
-                timeout: 5000
-            });
-        }
-    };
+  // Initial update
+  await updateNotifications();
 
-    // Initial update
-    await updateNotifications();
+  // Set up interval for subsequent updates
+  const intervalId = setInterval(updateNotifications, intervalMs);
 
-    // Set up interval for subsequent updates
-  const intervalId =  setInterval(updateNotifications, intervalMs);
-
-   // Cleanup on component unmount
-    onBeforeUnmount(() => {
-        if (intervalId) {
-            clearInterval(intervalId);
-        }
-    });
+  // Cleanup on component unmount
+  onBeforeUnmount(() => {
+    if (intervalId) {
+      clearInterval(intervalId);
+    }
+  });
 };
 
 // Start the notification refresh
@@ -420,32 +429,34 @@ const emit = defineEmits(['notifications-updated']);
 .notification-item {
   transition: transform 0.3s, box-shadow 0.3s;
   cursor: pointer;
-  padding: 5px;
+  padding: 1px;
 
-  &:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-  }
+  // &:hover {
+  //   transform: translateY(-4px);
+  //   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  // }
 }
 
 .notification-card {
   border-radius: 10px;
   background-color: #ffffff;
   border: 1px solid #e0e0e0;
-  padding: 10px;
+  padding: 5px;
 }
 
 .notification-header {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  // justify-content: space-between;
+  align-items: start;
   margin-bottom: 5px;
+  // padding-left: 20px;
 }
 
 .notification-title {
   font-weight: bold;
   font-size: 1em;
   color: #333;
+  padding-left: 10px;
 }
 
 .notification-time {
@@ -456,7 +467,8 @@ const emit = defineEmits(['notifications-updated']);
 .notification-threat {
   font-weight: 700;
   color: #d9534f;
-  margin-top: 4px;
+  margin-top: 0px;
+  margin-left: 15px;
 }
 
 .notification-location {
@@ -477,6 +489,6 @@ const emit = defineEmits(['notifications-updated']);
 }
 
 .notification-icon {
-  margin-right: 8px;
+  // padding-left: 20px;
 }
 </style>
