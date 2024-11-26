@@ -253,7 +253,6 @@ import AudioControls from './SosAudioControls.vue';
 import { Filesystem, Directory } from '@capacitor/filesystem';
 import SosRating from './SosRating.vue';
 import SosButtonNearby from 'pages/Dashboard/components/SosButtonNearby.vue'
-import { useSOSMode } from 'src/composables/useSOSMode';
 
 const router = useRouter();
 const route = useRoute();
@@ -264,7 +263,6 @@ const leavingSos = ref(false);
 const sentSosUpdateNearByAlso = ref(false)
 
 const STREAM_SAVE = process.env.STREAM_SAVE;
-const { initiateSOSMode } = useSOSMode();
 
 const countdownDuration = 10; // seconds
 const timeLeft = ref(countdownDuration);
@@ -831,7 +829,11 @@ const { values, validateAndSubmit, errors, callbacks, isLoading, updateUrl } =
   });
 
 callbacks.beforeSubmit = (data) => {
-  data.updateNearbyAlso = sentSosUpdateNearByAlso.value
+  data.updateNearbyAlso = sentSosUpdateNearByAlso.value;
+  if (sentSosUpdateNearByAlso.value) {
+    data.status = 'active'
+
+  }
   return data
 }
 
