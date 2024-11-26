@@ -832,7 +832,7 @@ callbacks.beforeSubmit = (data) => {
   data.updateNearbyAlso = sentSosUpdateNearByAlso.value;
   if (sentSosUpdateNearByAlso.value) {
     data.status = 'active'
-
+    data.contactsOnly = false
   }
   return data
 }
