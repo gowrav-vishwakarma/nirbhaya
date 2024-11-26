@@ -13,14 +13,12 @@ export default {
   success: 'सफलता',
   warning: 'चेतावनी',
   info: 'जानकारी',
-
   language: 'भाषा चुनें',
   languages: {
     'en-US': 'English',
     'hi-IN': 'हिंदी',
     'gu-IN': 'ગુજરાતી',
   },
-
   icons: {
     phone: 'phone',
     lock: 'lock',
@@ -35,23 +33,22 @@ export default {
     build: 'build',
     contacts: 'contacts',
     speaker: 'speaker',
+    videocam: 'videocam',
   },
-
   sosEventsMap: 'SOS घटनाओं का मानचित्र',
   eventType: 'घटना प्रकार',
   eventStatus: {
+    all: 'सभी',
     created: 'बनाया गया',
     active: 'सक्रिय',
     cancelled: 'रद्द करवाया गया',
     resolved: 'सुलझाया गया',
   },
   createdAt: 'बनाया गया',
-
   // Navigation
   dashboard: 'डैशबोर्ड',
   account: 'खाता',
   help: 'मदद',
-
   // Login Page
   mobileNumber: 'मोबाइल नंबर',
   enterOTP: 'ओटीपी दर्ज करें',
@@ -59,7 +56,6 @@ export default {
   loginFailed: 'लॉगिन विफल। कृपया अपना ओटीपी जांचें और पुनः प्रयास करें।',
   otpSendFailed: 'ओटीपी भेजने में विफल। कृपया पुनः प्रयास करें।',
   aboutUs: 'हमारे बारे में',
-
   // Dashboard Page
   welcome: 'क्या हुआ {name}?',
   betaNotice:
@@ -99,7 +95,6 @@ export default {
   locationPermissionRequired:
     'स्थान परवानगी जरूरी है जिससे नज़दीकी व्यक्तियों को मदद भेजने में मदद मिले।',
   retry: 'पुनः प्रयास करें',
-
   // Profile Page
   name: 'नाम',
   city: 'शहर',
@@ -140,7 +135,6 @@ export default {
   approve: 'स्वीकार करें',
   reject: 'अवगाहन',
   remove: 'हटाएं',
-
   // Permissions
   appPermissions: 'ऐप अनुमतियां',
   location: 'स्थान',
@@ -151,7 +145,6 @@ export default {
   requestPermission: 'अनुमति का अनुरोध करें',
   permissionGranted: '{permission} अनुमति प्रदान की गई',
   permissionDenied: '{permission} अनुमति अस्वीकृत',
-
   // SOS Mode
   sosWarning: 'SOS मोड सक्रिय',
   cancelSOS: 'SOS रद्द करें',
@@ -171,7 +164,6 @@ export default {
   clickToOpenAudio: 'ऑियो खोलने के लिए क्लिक करें',
   speakerOn: 'स्पीकर ऑन',
   speakerOff: 'स्पीकर ऑफ',
-
   // Threat Types
   followedBySomeone: 'किसी का पीछा किया जा रहा है',
   verbalHarassment: 'मौखिक उत्पीड़न',
@@ -180,7 +172,6 @@ export default {
   sexualAssault: 'यौन उत्पीड़न',
   domesticViolence: 'घरेलू हिंसा',
   unknown: 'अज्ञात',
-
   // Help Page
   locationPermission: 'स्थान अनुमति',
   locationPermissionHelp:
@@ -194,7 +185,6 @@ export default {
   notificationPermission: 'सूचना अनुमति',
   notificationPermissionHelp:
     'सूचनाएं आपको महत्वपूर्ण चेतावनियों और अपडेट के बारे में सूचित रखती हैं।',
-
   // Errors and Validations
   nameRequired: 'नाम आवश्यक है',
   invalidMobileNumber: 'कृपया एक मान्य 10-अंकीय मोबाइल नंबर दर्ज करें',
@@ -205,7 +195,7 @@ export default {
   onlyNumbersAllowed: 'केवल नंबर की अनुमति है',
   invalidPhoneNumberLength: 'फ़ोन नंबर 10 अंकों का होना चाहिए',
   unexpectedError: 'एक अनपेक्षित त्रुटि हुई',
-
+  cantAddOwnNumber: 'अपना नंबर नहीं जोड़ सकते',
   // Volunteering
   notificationLocations: 'सूचना स्थान',
   notificationLocationsHelp:
@@ -223,19 +213,16 @@ export default {
     'भुगतान किए जाने वाले पेशेवर सेवा के लिए उपलब्ध',
   availableForPaidProfessionalServiceDescription:
     'SOS के दौरान आपातकाल के मामले में भुगतान किए जाने वाले पेशेवर सेवा प्रदान करने के लिए अपनी उपलब्धता दर्शाने के लिए इसे टॉगल करें',
-
   // Misc
   noLocationSet: 'कोई स्थान सेट नहीं',
   locationUpdated: 'स्थान अपडेट किया गया',
   locationError: 'स्थान प्राप्त करने में त्रुटि',
   locationWatchError: 'स्थान की निगरानी में त्रुटि',
-
   // Account Page
   profile: 'प्रोफ़ाइल',
   volunteering: 'स्वयंसेवा',
   logoutSuccess: 'सफलतापूर्वक लॉग आउट करें',
   logoutError: 'लॉग आउट में त्रुटि',
-
   // Notifications Page
   noNotificationsFound: 'कोई सूचनाएँ नहीं मिलीं।',
   status: 'स्थिति',
@@ -247,26 +234,22 @@ export default {
   notificationAcceptedError: 'सूचना स्वीकार करने में विफल',
   mute: 'मूट करें',
   unmute: 'मूट हटाएं',
-
   notificationTitles: {
     volunteerNearby: 'आस-पास {eventType} अलर्ट',
     emergencyContact: 'आपातकालीन संपर्क {eventType} अलर्ट',
     contactsOnly: 'आपातकालीन संपर्क "{victimName}" के लिए मदद जरूरी',
   },
-
   sosStatus: {
     active: 'सक्रिय',
     resolved: 'हल किया गया',
     cancelled: 'रद्द किया गया',
   },
-
   notificationStatus: {
     sent: 'भेजा गया',
     received: 'प्राप्त हुआ',
     accepted: 'स्वीकार किया गया',
     ignored: 'अनदेखा किया गया',
   },
-
   audioConnectedSuccess: 'ऑडियो सफलतापूर्वक जोड़ा गया',
   audioConnectedError: 'ऑडियो जोड़ने में त्रुटि',
   justNow: 'बस अब',
@@ -274,19 +257,15 @@ export default {
   hoursAgo: 'घंटों में',
   daysAnd: 'दिनों और',
   hoursAnd: 'घंटों और',
-
   iosNotSafariWarning:
     'iOS पर सर्वोत्तम अनुभव के लिए, कृपया Safari ब्राउज़र का उपयोग करें।',
   openInSafari: 'Safari में खोलें',
-
   useSafariTitle: 'सर्वोत्तम अनुभव के लिए Safari का उपयोग करें',
   useSafariMessage:
     'सबसे अच्छे और सुरक्षित अनुभव के लिए, हम आपके iOS डिवाइस पर Safari का उपयोग करने की सलाह देते हैं। क्या आप अभी Safari खोलना चाहते हैं?',
   openSafari: 'Safari खोलें',
-
   failedToOpenSafari:
     'Safari खोलने में विफल। कृपया Safari को मैन्युअल रूप से खोलें और इस वेबसाइट पर जाएं।',
-
   sosMode: 'SOS मोड',
   sosCountdownMessage: 'SOS काउंटडाउन',
   notifiedPersons: 'सूचित किए गए',
@@ -304,7 +283,6 @@ export default {
   close: 'बंद करें',
   errorFetchingContacts: 'सर्वर त्रुटि',
   resendOTP: 'ओटीपी पुनः भेजें',
-
   // Dashboard Page additions in Hindi
   safetyTip: 'सुरक्षा सुझाव',
   safetyTip1: 'हमेशा अपने आस-पास के माहौल के प्रति सचेत रहें।',
@@ -313,40 +291,33 @@ export default {
   safetyTip4:
     'अपनी अंतर्ज्ञान पर भरोसा करें। यदि कुछ गड़बड़ लगता है, तो वहां से चले जाएं।',
   safetyTip5: 'बाहर जाते समय सुनिश्चित करें कि आपका फोन हमेशा चार्ज रहे।',
-
   emergencyServices: 'आपातकालीन सेवाएं',
   police: 'पुलिस',
   ambulance: 'एम्बुलेंस',
   fireDepartment: 'अग्निशमन विभाग',
   womenHelpline: 'महिला हेल्पलाइन',
-
   volunteerStatus: 'स्वयंसेवक स्थिति',
   volunteerAvailable: 'सामुदायिक सहायता के लिए उपलब्ध',
   volunteerUnavailable: 'सामुदायिक सहायता के लिए अनुपलब्ध',
   volunteerStatusUpdated: 'स्वयंसेवक स्थिति सफलतापूर्वक अपडेट की गई',
   volunteerStatusUpdateFailed: 'स्वयंसेवक स्थिति अपडेट करने में विफल',
-
   nearbyVolunteers: 'आस-पास के स्वयंसेवक',
   viewAll: 'सभी देखें',
   volunteersNearby: 'आस-पास के स्वयंसेवक',
-
   // CommunityImpactPage
   communityImpact: 'सामुदायिक प्रभाव',
   yourReferralId: 'आपकी रेफरल आईडी',
   peopleYouHaveEncouraged: 'आपके द्वारा प्रोत्साहित लोग',
   locationsSecured: 'सुरक्षित स्थान',
-
   // Added keys
   referredBy: 'रेफर किया गया',
   referralIdNotFound: 'रेफरल आईडी नहीं मिली',
   referralIdValidationFailed: 'रेफरल आईडी सत्यापित करने में विफल',
-
   // Added translations for form validation
   fieldRequired: 'यह फ़ील्ड जरूरी है',
   fillAllFields: 'कृपया सभी फ़ील्ड भरें',
   errorJoiningCommunity:
     'एक त्रुटि हुई जब समुदाय में जोड़ा जा रहा था। कृपया फिर से प्रयास करें।',
-
   // SOSEVentsMap page
   timeRangeLabel: 'समय पाला',
   timeRange: {
@@ -360,10 +331,12 @@ export default {
   },
   selectDateRange: 'तारीख सेलेक्ट करें',
   tapToSelect: 'तारीख पसार करें',
-
   state: 'राज्य',
   selectState: 'कृपया पहले राज्य चुनें',
   noCitiesFound: 'कोई शहर नहीं मिला',
   addToHomeScreen:
     'बेहतर अनुभव के लिए, कृपया इस ऐप को अपने होम स्क्रीन पर जोड़कर इंस्टॉल करें।',
+  installApp: 'Install App',
+  install: 'Install',
+  notNow: 'Not Now',
 };
