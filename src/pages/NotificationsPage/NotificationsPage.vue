@@ -59,11 +59,13 @@
                 </q-item-section>
               </q-item>
             </q-list>
-            <div v-else class="no-notifications">
-              <p class="text-h6 text-grey-6">
+            <div v-else class="no-notifications" style="text-align: center;">
+              <div class="text-h6 text-grey-6">
                 <q-icon name="notifications_off" size="48px" color="grey-6" />
-                {{ $t('common.noNotificationsFound') }}
-              </p>
+                <div>
+                  {{ $t('common.noNotificationsFound') }}
+                </div>
+              </div>
             </div>
           </template>
         </q-card-section>
