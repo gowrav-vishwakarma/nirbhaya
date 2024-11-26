@@ -111,11 +111,17 @@ const { values, errors, validateAndSubmit, updateUrl, callbacks } = useForm(
   }
 );
 
-const handleSubmit = async () => {
-  const { identifier } = await Device.getId(); // Retrieve deviceId
-  values.value.deviceId = identifier;
+const isLoading = ref(false);
 
-  validateAndSubmit(false); // Pass false to prevent form reset
+const handleSubmit = async () => {
+  isLoading.value = true;
+  try {
+    const { identifier } = await Device.getId();
+    values.value.deviceId = identifier;
+    await validateAndSubmit(false);
+  } catch (error) {
+    console.error('Submit error:', error);
+  }
 };
 
 callbacks.beforeSubmit = (formValues) => {
@@ -153,17 +159,19 @@ callbacks.onSuccess = async (userData) => {
     updateUrl('/auth/login');
   } else {
     userStore.setUser(userData);
-    await userStore.sendTokenIfAvailable(); // Send FCM token after user is set
+    await userStore.sendTokenIfAvailable();
     if (userData.name) {
       router.push('/sos');
     } else {
       router.push('/account');
     }
   }
+  isLoading.value = false;
 };
 
 callbacks.onError = (error) => {
   console.log('Error in login page', error);
+  isLoading.value = false;
   Notify.create({
     type: 'negative',
     message: otpSent.value
@@ -171,8 +179,6 @@ callbacks.onError = (error) => {
       : 'Failed to send OTP. Please try again.',
   });
 };
-
-const isLoading = ref(false);
 
 const resendOTP = async () => {
   isLoading.value = true;
