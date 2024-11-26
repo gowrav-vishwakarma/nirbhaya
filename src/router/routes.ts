@@ -117,6 +117,11 @@ const routes: RouteRecordRaw[] = [
         component: () => ShareCartificatePage,
         meta: { requiresAuth: true },
       },
+      {
+        path: '/tnc',
+        name: 'TncPage',
+        component: () => import('pages/Sos/TncPage.vue'),
+      },
     ],
   },
   {
