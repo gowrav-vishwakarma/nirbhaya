@@ -13,65 +13,44 @@
 
           <template v-if="!isLoading">
             <q-list v-if="responseData.length > 0" separator>
-              <q-item v-for="notification in responseData" :key="notification.id" class="q-py-md q-ma-none"
-                style=" padding: 0; margin-top:10px;">
-                <q-item-section class="q-ma-none">
-                  <q-card flat bordered class="notification-item">
+              <q-item v-for="notification in responseData" :key="notification.id" class="q-py-md q-ma-none notification-item">
+                <q-item-section>
+                  <q-card flat bordered class="notification-card">
                     <q-card-section>
-                      <div class="row items-center no-wrap">
-                        <div class="col">
-                          <div class="text-subtitle1 text-weight-medium">
-                            {{ getNotificationTitle(notification) }}
-                          </div>
-                          <div class="text-caption text-grey white-space-pre-line">
-                            {{ formatRelativeTime(notification.sosEvent.createdAt) }}
-                          </div>
+                      <div class="notification-header">
+                        <q-icon :name="getNotificationIcon(notification)" size="24px" class="notification-icon" />
+                        <div class="notification-title">
+                          {{ getNotificationTitle(notification) }}
                         </div>
-                        <div class="col-auto" style="margin-top: -70px;margin-left: 0px">
-                          <q-chip :color="getStatusColor(notification.sosEvent?.status)"
-                            :class="{ 'blink': isBlinking(notification.sosEvent?.status) }" text-color="white"
-                            size="sm">
-                            {{
-                              $t(`sosStatus.${notification.sosEvent?.status}`)
-                            }}
-                          </q-chip>
-                        </div>
+                        <q-chip :color="getStatusColor(notification.sosEvent?.status)" text-color="white" size="sm">
+                          {{ $t(`sosStatus.${notification.sosEvent?.status}`) }}
+                        </q-chip>
+                      </div>
+                      <div class="notification-time">
+                        {{ formatRelativeTime(notification.sosEvent.createdAt) }}
                       </div>
                     </q-card-section>
 
-                    <q-card-section class="q-pa-none q-px-md">
-                      <div style="font-weight: 700;" v-if="notification.sosEvent?.threat" class="text-body2 q-mb-sm">
-                        {{ $t('common.threat') }} :
-                        <span class="text-weight-medium text-capitalize" style="font-weight: 800;">{{
-                          $t(notification.sosEvent.threat)
-                        }}</span>
+                    <q-card-section class="q-pa-none">
+                      <div v-if="notification.sosEvent?.threat" class="notification-threat">
+                        {{ $t('common.threat') }}: <strong>{{ $t(notification.sosEvent.threat) }}</strong>
                       </div>
-                      <div v-if="
-                        notification.userLocationName &&
-                        notification.distanceToEvent
-                      " class="text-body2">
-                        {{ formatDistance(notification.distanceToEvent) }}
-                        {{ $t('common.awayFrom') }}
-                        {{ notification.userLocationName }}
+                      <div v-if="notification.userLocationName && notification.distanceToEvent" class="notification-location">
+                        {{ formatDistance(notification.distanceToEvent) }} {{ $t('common.awayFrom') }} {{ notification.userLocationName }}
                       </div>
                     </q-card-section>
 
                     <q-card-actions align="right" class="q-gutter-sm">
-                      <q-btn v-if="notification.status === 'sent'" color="primary" :label="$t('common.accept')"
-                        @click="acceptNotification(notification.id)" dense no-caps />
-                      <q-btn v-else-if="notification.status === 'accepted'" color="secondary"
-                        :label="$t('common.follow')" @click="followLocation(notification.sosEvent.location)" dense
-                        no-caps />
-                      <AudioControl v-if="notification.status === 'accepted'"
-                        :sos-event-id="notification.sosEvent.id" />
-                      <q-btn color="negative" :label="$t('common.discard')"
-                        @click="discardNotification(notification.id)" flat dense no-caps />
+                      <q-btn v-if="notification.status === 'sent'" color="primary" :label="$t('common.accept')" @click="acceptNotification(notification.id)" dense no-caps />
+                      <q-btn v-else-if="notification.status === 'accepted'" color="secondary" :label="$t('common.follow')" @click="followLocation(notification.sosEvent.location)" dense no-caps />
+                      <AudioControl v-if="notification.status === 'accepted'" :sos-event-id="notification.sosEvent.id" />
+                      <q-btn color="negative" :label="$t('common.discard')" @click="discardNotification(notification.id)" flat dense no-caps />
                     </q-card-actions>
                   </q-card>
                 </q-item-section>
               </q-item>
             </q-list>
-            <div v-else class="text-center q-pa-md">
+            <div v-else class="no-notifications">
               <q-icon name="notifications_off" size="48px" color="grey-6" />
               <p class="text-h6 text-grey-6">
                 {{ $t('common.noNotificationsFound') }}
@@ -413,58 +392,90 @@ const startNotificationCountRefresh = async (intervalMs = 20000) => {
 
 // Start the notification refresh
 startNotificationCountRefresh();
+
+const getNotificationIcon = (notification: Notification) => {
+  // Return an icon name based on the notification type
+  return notification.status === 'accepted' ? 'check_circle' : 'warning';
+};
 </script>
 
 <style lang="scss" scoped>
 .notifications-page {
   background: linear-gradient(135deg, $primary, darken($primary, 20%));
   min-height: 100vh;
+  padding: 0;
 }
 
 .notifications-content {
   max-width: 600px;
-
   margin: 0 auto;
 }
 
 .notifications-card {
   border-radius: 12px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 
 .notification-item {
-  width: 100%;
-  transition: all 0.3s ease;
+  transition: transform 0.3s, box-shadow 0.3s;
+  cursor: pointer;
+  padding: 5px;
 
   &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transform: translateY(-4px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
   }
+}
+
+.notification-card {
+  border-radius: 10px;
+  background-color: #ffffff;
+  border: 1px solid #e0e0e0;
+  padding: 10px;
+}
+
+.notification-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 5px;
+}
+
+.notification-title {
+  font-weight: bold;
+  font-size: 1em;
+  color: #333;
+}
+
+.notification-time {
+  font-size: 0.8em;
+  color: #888;
+}
+
+.notification-threat {
+  font-weight: 700;
+  color: #d9534f;
+  margin-top: 4px;
+}
+
+.notification-location {
+  font-size: 0.9em;
+  color: #5bc0de;
+  margin-top: 4px;
 }
 
 .q-card-actions {
   background-color: rgba(0, 0, 0, 0.03);
+  border-top: 1px solid #e0e0e0;
+  padding-top: 5px;
 }
 
-.white-space-pre-line {
-  white-space: pre-line;
+.no-notifications {
+  text-align: left;
+  padding: 10px;
 }
 
-@keyframes blink {
-  0% {
-    opacity: 1;
-  }
-
-  50% {
-    opacity: 0.5;
-  }
-
-  100% {
-    opacity: 1;
-  }
-}
-
-.blink {
-  animation: blink 1.5s infinite;
+.notification-icon {
+  margin-right: 8px;
 }
 </style>

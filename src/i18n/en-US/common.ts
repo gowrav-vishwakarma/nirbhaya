@@ -1,6 +1,3 @@
-// This is just an example,
-// so you can safely delete all default props below
-
 export default {
   // App-wide
   appname: 'Shoutout',
@@ -16,14 +13,12 @@ export default {
   success: 'Success',
   warning: 'Warning',
   info: 'Information',
-
   language: 'Select Language',
   languages: {
     'en-US': 'English',
     'hi-IN': 'हिंदी',
     'gu-IN': 'ગુજરાતી',
   },
-
   icons: {
     phone: 'phone',
     lock: 'lock',
@@ -50,12 +45,10 @@ export default {
     resolved: 'Resolved',
   },
   createdAt: 'Created At',
-
   // Navigation
   dashboard: 'Dashboard',
   account: 'Account',
   help: 'Help',
-
   // Login Page
   mobileNumber: 'Mobile Number',
   enterOTP: 'Enter OTP',
@@ -63,7 +56,6 @@ export default {
   loginFailed: 'Login failed. Please check your OTP and try again.',
   otpSendFailed: 'Failed to send OTP. Please try again.',
   aboutUs: 'About Us',
-
   // Dashboard Page
   welcome: 'What Happened {name}?',
   betaNotice:
@@ -82,7 +74,6 @@ export default {
   getHelp: 'Get Help',
   notificationsPermissionHelp: 'notifications Permission Help',
   errorGettingLocation: 'Error getting location. Please try again.',
-
   // Profile Page
   name: 'Name',
   city: 'City / Pincode',
@@ -123,7 +114,6 @@ export default {
   approve: 'Approve',
   reject: 'Reject',
   remove: 'Remove',
-
   // Permissions
   appPermissions: 'App Permissions',
   location: 'Location',
@@ -134,7 +124,6 @@ export default {
   requestPermission: 'Request Permission',
   permissionGranted: '{permission} permission granted',
   permissionDenied: '{permission} permission denied',
-
   // SOS Mode
   sosWarning: 'SOS Mode Activated',
   cancelSOS: 'Cancel SOS',
@@ -161,7 +150,6 @@ export default {
   audioConnected: 'audio Connected',
   speakerOn: 'Speaker On',
   speakerOff: 'Speaker Off',
-
   // Threat Types
   followedBySomeone: 'Followed by Someone',
   verbalHarassment: 'Verbal Harassment',
@@ -170,7 +158,6 @@ export default {
   sexualAssault: 'Sexual Assault',
   domesticViolence: 'Domestic Violence',
   unknown: 'Unknown',
-
   // Help Page
   locationPermission: 'Location Permission',
   locationPermissionHelp:
@@ -198,7 +185,6 @@ export default {
   pwaLocationHelp: 'PWA Location Help',
   platformSpecificHelp: 'platform Specific Help',
   pwaCameraHelp: 'PWA Camera Help',
-
   // Errors and Validations
   nameRequired: 'Name is required',
   invalidMobileNumber: 'Please enter a valid 10-digit mobile number',
@@ -210,7 +196,6 @@ export default {
   invalidPhoneNumberLength: 'Phone number must be 10 digits',
   unexpectedError: 'An unexpected error occurred',
   cantAddOwnNumber: 'Cant Add Own Number',
-
   // Volunteering
   notificationLocations: 'Notification Locations',
   notificationLocationsHelp:
@@ -233,13 +218,11 @@ export default {
   distance: 'distance',
   volunteeringSettings: 'Volunteering Preferences',
   availabilitySettings: 'Availability Preferences',
-
   // Misc
   noLocationSet: 'No location set',
   locationUpdated: 'Location updated',
   locationError: 'Error getting location',
   locationWatchError: 'Error watching location',
-
   // Account Page
   profile: 'Profile',
   volunteering: 'Volunteering',
@@ -250,7 +233,6 @@ export default {
   approved: 'Approved',
   close: 'Close',
   errorFetchingContacts: 'Server Error',
-
   // Notifications Page
   noNotificationsFound: 'No notifications found.',
   status: 'Status',
@@ -262,26 +244,22 @@ export default {
   notificationAcceptedError: 'Failed to accept notification',
   muteAudio: 'Mute Audio',
   unmuteAudio: 'Unmute Audio',
-
   notificationTitles: {
     volunteerNearby: 'Nearby {eventType} alert',
     emergencyContact: 'Emergency contact "{victimName}" alert: {eventType}',
     contactsOnly: 'Help needed by "{victimName}"',
   },
-
   sosStatus: {
     active: 'Active',
     resolved: 'Resolved',
     cancelled: 'Cancelled',
   },
-
   notificationStatus: {
     sent: 'Sent',
     received: 'Received',
     accepted: 'Accepted',
     ignored: 'Ignored',
   },
-
   audioConnectedSuccess: 'Audio connected successfully',
   audioConnectedError: 'Error connecting audio',
   justNow: 'Just now',
@@ -299,7 +277,6 @@ export default {
   failedToOpenSafari:
     'Failed to open Safari. Please open Safari manually and navigate to this website.',
   resendOTP: 'Resend OTP',
-
   // Dashboard Page
   safetyTip: 'Safety Tip',
   safetyTip1: 'Always be aware of your surroundings.',
@@ -307,42 +284,34 @@ export default {
   safetyTip3: 'Keep emergency numbers easily accessible.',
   safetyTip4: 'Trust your instincts. If something feels off, leave the area.',
   safetyTip5: 'Ensure your phone is always charged when going out.',
-
   emergencyServices: 'Emergency Services',
   police: 'Police',
   ambulance: 'Ambulance',
   fireDepartment: 'Fire Dept.',
   womenHelpline: 'Women Helpline',
-
   volunteerStatus: 'Volunteer Status',
   volunteerAvailable: 'Available for Community Assistance',
   volunteerUnavailable: 'Unavailable for Community Assistance',
   volunteerStatusUpdated: 'Volunteer status updated successfully',
   volunteerStatusUpdateFailed: 'Failed to update volunteer status',
-
   nearbyVolunteers: 'Nearby Volunteers',
   viewAll: 'View All',
   volunteersNearby: 'volunteers nearby',
-
   // CommunityImpactPage
   communityImpact: 'Community Impact',
   yourReferralId: 'Your Referral ID',
   peopleYouHaveEncouraged: 'People You Have Encouraged',
   locationsSecured: 'Locations Secured',
-
   // Add these keys
   referredBy: 'Referred By',
   referralIdNotFound: 'Referral ID not found',
   referralIdValidationFailed: 'Failed to validate referral ID',
-
   // Added translations for form validation
   fieldRequired: 'This field is required',
   fillAllFields: 'Please fill in all fields',
   errorJoiningCommunity:
     'An error occurred while joining the community. Please try again.',
-
   // Added translations for DashboardPage
-
   timeRangeLabel: 'Time Range',
   timeRange: {
     live: 'Live',
@@ -355,15 +324,12 @@ export default {
   },
   selectDateRange: 'Select Date Range',
   tapToSelect: 'Tap to select',
-
   state: 'State',
   selectState: 'Please select a state first',
   noCitiesFound: 'No cities found',
   addToHomeScreen:
     'For a better experience, please install this app by adding it to your home screen.',
-
   installApp: 'Install App',
-  addToHomeScreen: 'Add this app to your home screen for a better experience',
   install: 'Install',
   notNow: 'Not Now',
 };
