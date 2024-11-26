@@ -831,7 +831,7 @@ const { values, validateAndSubmit, errors, callbacks, isLoading, updateUrl } =
 callbacks.beforeSubmit = (data) => {
   data.updateNearbyAlso = sentSosUpdateNearByAlso.value;
   if (sentSosUpdateNearByAlso.value) {
-    data.status = 'active'
+    data.status = !data.status ? 'active' : data.status
     data.contactsOnly = false
   }
   return data
