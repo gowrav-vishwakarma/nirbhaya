@@ -203,7 +203,7 @@ export default {
   locationName: 'स्थान नाम',
   useCurrentLocation: 'वर्तमान स्थान का उपयोग करें',
   addNotificationLocation: 'सूचना स्थान जोड़ें',
-  availableForCommunity: 'समुदाय सहायता के लिए उपलब्ध',
+  availableForCommunity: 'समुदाय सहायता के ल��ए उपलब्ध',
   availableForCommunityDescription:
     'आपातकाल में दूसरों की मदद करने के लिए अपनी उपलब्धत दर्शाने के लिए इसे टॉगल करें',
   volunteeringUpdateSuccess: 'स्वयंसेवा जानकारी सफलतापूर्वक अपडेट की गई',
@@ -339,4 +339,5 @@ export default {
   installApp: 'Install App',
   install: 'Install',
   notNow: 'Not Now',
+  Tnc: 'नियम और शर्तें',
 };

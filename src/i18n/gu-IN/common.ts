@@ -136,7 +136,7 @@ export default {
   contactPoliceStation: 'પોલીસ સ્ટેશનનો સંપર્ક કરો',
   resolveSOSIssue: 'SOS સમસ્યાનું નિરાકરણ કરો',
   audioOpen: 'ઓડિયો ખુલ્લો છે',
-  clickToOpenAudio: 'ઓડિયો ખોલવા માટે ક્લિક કરો',
+  clickToOpenAudio: 'ઓડિયો ખો���વા માટે ક્લિક કરો',
   speakerOn: 'સ્પીકર ઓન',
   speakerOff: 'સ્પીકર ઑફ',
   // Threat Types
@@ -241,7 +241,7 @@ export default {
   failedToOpenSafari:
     'Safari ખોલવામાં નિષ્ફળ. કૃપા કરીને Safari ને મેન્યુઅલી ખોલો અને આ વેબસાઇટ પર નેવિગેટ કરો.',
   sosButtonSubtitle: 'નજીકના સ્વયંસેવકોને આપાતકાલીન એલર્ટ મોકલો',
-  dashboardSubtitle: 'સુરક્ષિત રહો અને તમારા સમુદાય સાથે જોડાયેલા રહો',
+  dashboardSubtitle: 'સુરક���ષિત રહો અને તમારા સમુદાય સાથે જોડાયેલા રહો',
   helpContacts: 'સંપર્કો પાસેથી મદદ',
   helpContactsSubtitle: 'ફક્ત તમારા આપાતકાલીન સંપર્કોને જાણ કરો',
   quickActions: 'ઝડપી ક્રિયાઓ',
@@ -256,7 +256,7 @@ export default {
   acceptedPersons: 'સ્વીકૃત',
   yes: 'હા',
   audioConnected: 'ઓડિયો જોડાયેલ છે',
-  searchRadius: 'શોધ ત્રિજ્યા',
+  searchRadius: 'શોધ ત્રિ્યા',
   volunteersFound: 'આ અંતરમાં સ્વયંસેવકો મળ્યા',
   distance: 'અંતર',
   volunteeringSettings: 'સ્વયંસેવા સેટિંગ્સ',
@@ -339,4 +339,5 @@ export default {
   installApp: 'એપ્લિકેશન ઇન્સ્ટોલ કરો',
   install: 'ઇન્સ્ટોલ કરો',
   notNow: 'હવે નહીં',
+  Tnc: 'નિયમો અને શરતો',
 };

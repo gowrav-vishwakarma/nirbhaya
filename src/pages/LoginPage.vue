@@ -67,6 +67,13 @@
           {{ $t('common.aboutUs') }}
         </q-btn>
       </div>
+      <div class="text-center">
+        <q-btn flat @click="goToTnc" class="q-mb-md" style="margin-top: -25px;">
+          <span style="font-size: 10px;" class="text-capitalize">
+            {{ $t('common.Tnc') }}
+          </span>
+        </q-btn>
+      </div>
     </q-card>
   </q-page>
 </template>
@@ -201,6 +208,9 @@ const resendOTP = async () => {
 
 const goToAboutUs = () => {
   router.push('/about-us'); // Navigate to About Us page
+};
+const goToTnc = () => {
+  router.push('/tnc'); // Navigate to About Us page
 };
 </script>
 

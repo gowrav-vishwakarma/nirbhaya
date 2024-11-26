@@ -332,4 +332,5 @@ export default {
   installApp: 'Install App',
   install: 'Install',
   notNow: 'Not Now',
+  Tnc: 'Terms & Conditions',
 };
