@@ -67,13 +67,13 @@
           {{ $t('common.aboutUs') }}
         </q-btn>
       </div>
-      <div class="text-center">
+      <!-- <div class="text-center">
         <q-btn flat @click="goToTnc" class="q-mb-md" style="margin-top: -25px;">
           <span style="font-size: 10px;" class="text-capitalize">
             {{ $t('common.Tnc') }}
           </span>
         </q-btn>
-      </div>
+      </div> -->
     </q-card>
   </q-page>
 </template>
