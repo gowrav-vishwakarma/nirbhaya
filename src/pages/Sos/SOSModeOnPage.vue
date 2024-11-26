@@ -30,15 +30,15 @@
 
         <template v-else>
           <!-- <template v-else> -->
+          <!-- <SosButtonNearby @initiate-sos="initiateSOSMode" /> -->
+
           <div class="text-center q-mb-lg">
-            <q-icon name="warning" color="red" size="4rem" />
+            <q-icon name="warning" color="red" size="4rem" style="margin-top: -10px;" />
             <div class="text-h6 text-red text-weight-bold q-mt-sm">
               {{ $t('common.sosSent') }}
             </div>
-          </div>
-
-          <!-- Move status icons here -->
-          <div class="status-icons q-mb-md" style="
+            <!-- Move status icons here -->
+            <div class="status-icons q-mb-md" style="
               display: flex;
               justify-content: center;
               align-items: center;
@@ -48,26 +48,48 @@
               margin: auto;
               padding: 3px;
               margin-bottom: 20px;
+              margin-top: 10px;
             ">
-            <q-icon :name="$t('common.icons.videocam')" :color="getIconColor(recordingStatus)" size="sm">
-              <q-tooltip>{{
-                getTooltip(recordingStatus, 'recording')
-              }}</q-tooltip>
-            </q-icon>
-            <q-icon :name="$t('common.icons.mic')" :color="getIconColor(audioStatus)" size="sm" class="q-ml-sm">
-              <q-tooltip>{{ getTooltip(audioStatus, 'audio') }}</q-tooltip>
-            </q-icon>
-            <q-icon :name="$t('common.icons.locationOn')" :color="getIconColor(locationStatus)" size="sm"
-              class="q-ml-sm">
-              <q-tooltip>{{
-                getTooltip(locationStatus, 'location')
-              }}</q-tooltip>
-            </q-icon>
+              <q-icon :name="$t('common.icons.videocam')" :color="getIconColor(recordingStatus)" size="sm">
+                <q-tooltip>{{
+                  getTooltip(recordingStatus, 'recording')
+                }}</q-tooltip>
+              </q-icon>
+              <q-icon :name="$t('common.icons.mic')" :color="getIconColor(audioStatus)" size="sm" class="q-ml-sm">
+                <q-tooltip>{{ getTooltip(audioStatus, 'audio') }}</q-tooltip>
+              </q-icon>
+              <q-icon :name="$t('common.icons.locationOn')" :color="getIconColor(locationStatus)" size="sm"
+                class="q-ml-sm">
+                <q-tooltip>{{
+                  getTooltip(locationStatus, 'location')
+                }}</q-tooltip>
+              </q-icon>
+            </div>
+            <AudioControls :sosEventId="createdSosId" @audioStatusChange="handleAudioStatusChange" />
+
           </div>
-          <AudioControls :sosEventId="createdSosId" @audioStatusChange="handleAudioStatusChange" />
-          <q-list bordered class="rounded-borders notify-person-box q-mb-md flex justify-evenly"
-            style="border: 1px solid red;">
-            <q-item v-if="!contactsOnly">
+
+          <!-- <div> -->
+          <div class="q-ma-none" style="margin-top: -10px; text-align: center;" v-if="!sentSosUpdateNearByAlso">
+            <div class="q-mb-sm">
+              <q-btn @click="updateNearByAlso" round
+                style="height: 60px;width: 60px;color: white;background-color:orange; border-radius: 50%; ">
+                <span style="font-weight: bolder;padding-top: 15px; font-weight: 900; font-size: 18px;"> Sos <p
+                    style="font-size: 9px;margin-top: -8px;font-weight: 800;" class="text-capitalize">
+                    Nearby
+                  </p>
+                </span>
+              </q-btn>
+            </div>
+            <span class="q-ma-none" style="font-weight: 700">Send SOS to nearby volunteers?</span>
+          </div>
+          <!-- </div> -->
+
+
+          <q-list bordered class="rounded-borders notify-person-box q-mb-md q-mt-none flex justify-evenly"
+            style="border: 1px solid pink;margin-top: 10px;">
+            <!-- <q-item v-if="!contactsOnly"> -->
+            <q-item>
               <q-item-section style="text-align: center;">
                 <q-item-label>
                   <span class=""
@@ -81,7 +103,8 @@
                 </q-item-label>
               </q-item-section>
             </q-item>
-            <q-item v-if="!contactsOnly">
+            <!-- <q-item v-if="!contactsOnly"> -->
+            <q-item>
               <q-item-section style="text-align: center;">
                 <q-item-label>
                   <span class=""
@@ -163,7 +186,7 @@
           <q-item-section>
             <q-item-label>{{
               currentLocationName || $t('common.gettingLocation')
-            }}</q-item-label>
+              }}</q-item-label>
             <q-item-label caption v-if="currentLocation.latitude && currentLocation.longitude">
               {{ $t('common.coordinates') }}:
               {{ currentLocation.latitude.toFixed(6) }},
@@ -229,6 +252,8 @@ import { throttle } from 'quasar';
 import AudioControls from './SosAudioControls.vue';
 import { Filesystem, Directory } from '@capacitor/filesystem';
 import SosRating from './SosRating.vue';
+import SosButtonNearby from 'pages/Dashboard/components/SosButtonNearby.vue'
+import { useSOSMode } from 'src/composables/useSOSMode';
 
 const router = useRouter();
 const route = useRoute();
@@ -236,8 +261,10 @@ const { t } = useI18n();
 const $q = useQuasar();
 const userStore = useUserStore();
 const leavingSos = ref(false);
+const sentSosUpdateNearByAlso = ref(false)
 
 const STREAM_SAVE = process.env.STREAM_SAVE;
+const { initiateSOSMode } = useSOSMode();
 
 const countdownDuration = 10; // seconds
 const timeLeft = ref(countdownDuration);
@@ -429,7 +456,7 @@ const showResolveConfirmation = (): Promise<boolean> => {
               message: 'Your SOS event has been closed.',
               color: 'info',
               position: 'top',
-              multiLine: true,
+              // multiLine: true,
               timeout: 3000
             });
             sosSent.value = false; // Reset sosSent
@@ -442,7 +469,7 @@ const showResolveConfirmation = (): Promise<boolean> => {
               message: 'Your SOS event has been resolved.',
               color: 'positive',
               position: 'top',
-              multiLine: true,
+              // multiLine: true,
               timeout: 3000
             });
             sosSent.value = false; // Reset sosSent
@@ -453,7 +480,7 @@ const showResolveConfirmation = (): Promise<boolean> => {
               message: 'Your SOS event remains active.',
               color: 'warning',
               position: 'top',
-              multiLine: true,
+              // multiLine: true,
               timeout: 3000
             });
             resolve(false);
@@ -546,6 +573,7 @@ const updateSOSData = async (data: {
   status?: string;
   threat?: string;
   confirm?: boolean;
+
 }) => {
   try {
     if (data.confirm || !sosSent.value) {
@@ -799,7 +827,13 @@ const { values, validateAndSubmit, errors, callbacks, isLoading, updateUrl } =
     threat: '',
     contactsOnly: contactsOnly.value,
     sosEventId: createdSosId.value,
+    updateNearbyAlso: false
   });
+
+callbacks.beforeSubmit = (data) => {
+  data.updateNearbyAlso = sentSosUpdateNearByAlso.value
+  return data
+}
 
 const informed = ref(0);
 const accepted = ref(0);
@@ -1010,7 +1044,7 @@ const saveLocalRecording = async () => {
           color: 'positive',
           icon: 'save',
           position: 'top',
-          multiLine: true,
+          // multiLine: true,
           timeout: 3000
         });
       } catch (error) {
@@ -1023,7 +1057,7 @@ const saveLocalRecording = async () => {
           color: 'negative',
           icon: 'error',
           position: 'top',
-          multiLine: true,
+          // multiLine: true,
           timeout: 3000
         });
       }
@@ -1057,6 +1091,19 @@ const blobToBase64 = (blob: Blob): Promise<string> => {
 const handleAudioStatusChange = (status: string) => {
   audioStatus.value = status;
 };
+
+const updateNearByAlso = () => {
+  sentSosUpdateNearByAlso.value = true;
+  values.value.updateNearbyAlso = sentSosUpdateNearByAlso.value
+  validateAndSubmit();
+  $q.notify({
+    message: 'SOS Sent Nearby Volunteers.',
+    color: 'positive',
+    position: 'top',
+    // multiLine: true,
+    timeout: 2000
+  });
+}
 </script>
 
 <style lang="scss" scoped>
