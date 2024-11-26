@@ -99,8 +99,9 @@
         <p>For questions about this privacy policy or to exercise your rights, please contact:</p>
         <p>Xavoc Technocrats Pvt. Ltd.</p>
         <ul>
-          <li>Website: www.xavoc.com</li>
-          <li>Brand Website: www.sosbharat.com</li>
+          <li>Website: <a href="https://www.xavoc.com" target="_blank" rel="noopener noreferrer">www.xavoc.com</a></li>
+          <li>Brand Website: <a href="https://sosbharat.com/#/" target="_blank"
+              rel="noopener noreferrer">www.sosbharat.com</a></li>
         </ul>
       </section>
 
@@ -124,7 +125,8 @@
 .tnc-title {
   text-align: center;
   color: #333;
-  margin-bottom: 20px;
+  margin-bottom: 40px;
+  line-height: 25px;
   font-size: clamp(24px, 3vw, 36px);
 }
 
@@ -279,6 +281,35 @@ li {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
+}
+
+/* Add styles for links */
+a {
+  color: #2196F3;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+a:hover {
+  color: #1976D2;
+  text-decoration: underline;
+}
+
+a:visited {
+  color: #7E57C2;
+}
+
+a:active {
+  color: #1565C0;
+}
+
+/* Adjust link styles for mobile */
+@media screen and (max-width: 480px) {
+  a {
+    padding: 5px 0;
+    display: inline-block;
+    /* Makes the touch target larger */
+  }
 }
 </style>
 
