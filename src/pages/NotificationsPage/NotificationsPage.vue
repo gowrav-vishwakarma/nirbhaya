@@ -1,7 +1,7 @@
 <template>
   <q-page class="notifications-page q-pa-md">
     <div class="notifications-content">
-      <q-card class="notifications-card q-mb-md">
+      <q-card class="notifications-card q-mb-md" style="margin:10px 20px;">
         <q-card-section>
           <div class="text-h5 text-weight-bold q-mb-md">
             {{ $t('common.notifications') }}
@@ -23,7 +23,7 @@
                           {{ getNotificationTitle(notification) }}
                         </div>
                         <q-chip :color="getStatusColor(notification.sosEvent?.status)" text-color="white" size="sm">
-                          {{ $t(`sosStatus.${notification.sosEvent?.status}`) }}
+                          {{ $t(`common.sosStatus.${notification.sosEvent?.status}`) }}
                         </q-chip>
                       </div>
                       <div class="notification-time">
@@ -51,8 +51,8 @@
               </q-item>
             </q-list>
             <div v-else class="no-notifications">
-              <q-icon name="notifications_off" size="48px" color="grey-6" />
               <p class="text-h6 text-grey-6">
+                <q-icon name="notifications_off" size="48px" color="grey-6" />
                 {{ $t('common.noNotificationsFound') }}
               </p>
             </div>
@@ -359,7 +359,6 @@ const startNotificationCountRefresh = async (intervalMs = 20000) => {
                         ]
                     });
                 });
-                const emit = defineEmits(); // {{ edit_1 }}
                 // Emit event for parent components if needed
                 emit('notifications-updated', responseData.value);
             }
@@ -397,6 +396,8 @@ const getNotificationIcon = (notification: Notification) => {
   // Return an icon name based on the notification type
   return notification.status === 'accepted' ? 'check_circle' : 'warning';
 };
+
+const emit = defineEmits(['notifications-updated']);
 </script>
 
 <style lang="scss" scoped>
