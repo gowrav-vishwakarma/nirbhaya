@@ -14,7 +14,7 @@
           <template v-if="!isLoading">
             <q-list v-if="responseData.length > 0" separator>
               <q-item v-for="notification in responseData" :key="notification.id" class="q-py-md q-ma-none"
-                style=" padding: 0;">
+                style=" padding: 0; margin-top:10px;">
                 <q-item-section class="q-ma-none">
                   <q-card flat bordered class="notification-item">
                     <q-card-section>
@@ -85,7 +85,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue';
+import { ref, onMounted, watch, onBeforeUnmount, defineEmits } from 'vue';
 import { useForm } from 'src/qnatk/composibles/use-form';
 import { api } from 'boot/axios';
 import { useQuasar } from 'quasar';
@@ -93,6 +93,8 @@ import { useBackgroundNotifications } from 'src/composables/useBackgroundNotific
 import { useI18n } from 'vue-i18n';
 import { useRoute } from 'vue-router';
 import AudioControl from './NotificationAudioControl.vue';
+import { useUserStore } from 'src/stores/user-store';
+const userStore = useUserStore();
 
 interface SosEvent {
   id: number;
@@ -314,6 +316,103 @@ const discardNotification = async (notificationId: number) => {
     });
   }
 };
+
+
+  // Call the function to start refreshing notifications
+
+interface Notification {
+  eventId: number;
+  // Add other notification properties
+}
+
+interface EventResponse {
+  id: number;
+  status: 'resolved' | 'cancelled' | 'pending';
+  // Add other event properties
+}
+
+const startNotificationCountRefresh = async (intervalMs = 20000) => {
+    const $q = useQuasar();
+    const { t } = useI18n();
+    console.log('call current notification count');
+    if (!userStore.isLoggedIn) {
+        return;
+    }
+    const updateNotifications = async () => {
+        try {
+            const eventIds = (responseData.value as Notification[])
+                .map(notification => notification.eventId)
+                .filter(Boolean); // Remove any undefined/null values
+
+            if (!eventIds.length) {
+                return;
+            }
+            const response = await api.post<EventResponse[]>('/sos/current-event-list', {
+                data: {
+                    eventId: eventIds
+                }
+            });
+            // Update unread count
+            unreadNotificationCount.value = response.data.length;
+            // Process resolved/cancelled events
+            const resolvedEvents = response.data.filter(
+                event => event.status === 'resolved' || event.status === 'cancelled'
+            );
+            if (resolvedEvents.length > 0) {
+                // Update notifications state
+                resolvedEvents.forEach(resolvedEvent => {
+                    // Remove resolved/cancelled notifications
+                    responseData.value = responseData.value.filter(
+                        notification => notification.eventId !== resolvedEvent.id
+                    );
+                    // Show notification message
+                    const messageKey = resolvedEvent.status === 'cancelled'
+                        ? 'common.notificationCancelled'
+                        : 'common.notificationResolved';
+                    $q.notify({
+                        color: 'positive',
+                        message: t(messageKey, { eventId: resolvedEvent.id }),
+                        icon: 'check',
+                        position: 'top',
+                        timeout: 5000,
+                        actions: [
+                            { label: 'Dismiss', color: 'white' }
+                        ]
+                    });
+                });
+                const emit = defineEmits(); // {{ edit_1 }}
+                // Emit event for parent components if needed
+                emit('notifications-updated', responseData.value);
+            }
+        } catch (error) {
+            console.error('Error fetching unread notification count:', error);
+            // Show error notification to user
+            $q.notify({
+                color: 'negative',
+                message: t('common.errorFetchingNotifications'),
+                icon: 'warning',
+                position: 'top',
+                timeout: 3000
+            });
+        }
+    };
+
+    // Initial update
+    await updateNotifications();
+
+    // Set up interval for subsequent updates
+  const intervalId =  setInterval(updateNotifications, intervalMs);
+
+   // Cleanup on component unmount
+    onBeforeUnmount(() => {
+        if (intervalId) {
+            clearInterval(intervalId);
+        }
+    });
+};
+
+// Start the notification refresh
+startNotificationCountRefresh();
 </script>
 
 <style lang="scss" scoped>
