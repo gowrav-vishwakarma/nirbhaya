@@ -353,7 +353,7 @@ const startNotificationCountRefresh = async (intervalMs = 20000) => {
                         message: t(messageKey, { eventId: resolvedEvent.id }),
                         icon: 'check',
                         position: 'top',
-                        timeout: 5000,
+                        timeout: 10000,
                         actions: [
                             { label: 'Dismiss', color: 'white' }
                         ]
@@ -370,7 +370,7 @@ const startNotificationCountRefresh = async (intervalMs = 20000) => {
                 message: t('common.errorFetchingNotifications'),
                 icon: 'warning',
                 position: 'top',
-                timeout: 3000
+                timeout: 5000
             });
         }
     };
