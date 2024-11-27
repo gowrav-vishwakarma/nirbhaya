@@ -43,8 +43,9 @@
     <q-page-container>
       <router-view />
 
-      <div class="text-center text-subtitle1 versiontextcolor text-weight-thin" style="font-weight: 600;">
-        <span style="font-size: 13px;">App version : </span> <span style="font-size: 13px;">{{ version }}</span>
+      <div class="text-center text-subtitle1 versiontextcolor text-weight-thin" style="font-weight: 600">
+        <span style="font-size: 13px">App version : </span>
+        <span style="font-size: 13px">{{ version }}</span>
       </div>
     </q-page-container>
 
@@ -138,6 +139,7 @@
 
 <script setup lang="ts">
 import { useRouter } from 'vue-router';
+import { useQuasar } from 'quasar';
 import { useBackgroundNotifications } from 'src/composables/useBackgroundNotifications';
 import { useUserStore } from 'src/stores/user-store';
 import { ref, onMounted, onUnmounted, computed, watch } from 'vue';
@@ -145,8 +147,9 @@ import { useI18n } from 'vue-i18n';
 import { version } from 'src/../package.json';
 import { useMediaPermissions } from 'src/composables/useMediaPermissions';
 import { api } from 'src/boot/axios';
-import { useQuasar } from 'quasar';
+import { StatusBar } from '@capacitor/status-bar';
 
+const $q = useQuasar();
 const router = useRouter();
 const { t, locale } = useI18n();
 const { unreadNotificationCount, fetchUnreadNotificationCount } =
@@ -196,6 +199,10 @@ onMounted(() => {
   window.addEventListener('scroll', handleScroll);
   locale.value = userStore.language;
   checkFirstTimeOpen();
+
+  if ($q.platform.is.capacitor || $q.platform.is.nativeMobile) {
+    StatusBar.setBackgroundColor({ color: '#db1b5d' }); // Change color code according to your theme
+  }
 
   // Initial route check
   const currentPath = router.currentRoute.value.path;
@@ -271,10 +278,16 @@ const goToNewsPage = async () => {
   // Only call API if not already on news page
   if (router.currentRoute.value.path !== '/news') {
     try {
+<<<<<<< HEAD
       await updateEventCount('news')
       // await api.post('global/event-count-update', {
       //   type: 'news'
       // });
+=======
+      await api.post('global/event-count-update', {
+        type: 'news',
+      });
+>>>>>>> 7953b6d7711773db4d11c1144558f8b6df27efb1
     } catch (error) {
       console.error('Failed to update event count:', error);
     }
