@@ -13,18 +13,29 @@
 
           <template v-if="!isLoading">
             <q-list v-if="responseData.length > 0" class="q-mb-md">
-              <q-item v-for="notification in responseData" :key="notification.id"
-                class="q-py-md q-ma-none notification-item">
+              <q-item
+                v-for="notification in responseData"
+                :key="notification.id"
+                class="q-py-md q-ma-none notification-item"
+              >
                 <q-item-section>
                   <q-card flat bordered class="notification-card">
                     <q-card-section>
                       <div class="notification-header">
-                        <q-icon :name="getNotificationIcon(notification)" size="24px" class="notification-icon" />
+                        <q-icon
+                          :name="getNotificationIcon(notification)"
+                          size="24px"
+                          class="notification-icon"
+                        />
                         <span class="notification-title">
                           {{ getNotificationTitle(notification) }}
                         </span>
                         <q-space></q-space>
-                        <q-chip :color="getStatusColor(notification.status)" text-color="white" size="sm">
+                        <q-chip
+                          :color="getStatusColor(notification.status)"
+                          text-color="white"
+                          size="sm"
+                        >
                           {{ $t(`common.sosStatus.${notification.status}`) }}
                         </q-chip>
                       </div>
@@ -38,15 +49,20 @@
                         {{ $t('common.threat') }}:
                         <strong>{{
                           $t(notification.threat || 'Emergency Alert')
-                          }}</strong>
+                        }}</strong>
                       </div>
                     </q-card-section>
                   </q-card>
                 </q-item-section>
               </q-item>
               <div class="text-center q-mt-md">
-                <q-btn v-if="hasMoreItems" color="primary" :loading="isLoadingMore" @click="loadMore"
-                  label="Load more" />
+                <q-btn
+                  v-if="hasMoreItems"
+                  color="primary"
+                  :loading="isLoadingMore"
+                  @click="loadMore"
+                  label="Load more"
+                />
               </div>
             </q-list>
             <div v-else class="no-notifications" style="text-align: center">
@@ -108,7 +124,7 @@ const fetchNotifications = async (isLoadMore = false) => {
     const response = await api.post('/global/contact-sos-events', {
       userId: userStore.user.id,
       limit: limit.value,
-      offset: offset.value
+      offset: offset.value,
     });
 
     const newData = response.data || [];
@@ -125,7 +141,7 @@ const fetchNotifications = async (isLoadMore = false) => {
     $q.notify({
       type: 'negative',
       message: t('common.errorLoadingMore'),
-      position: 'top'
+      position: 'top',
     });
   } finally {
     isLoading.value = false;
@@ -211,12 +227,14 @@ const formatRelativeTime = (dateString: string) => {
         } else {
           const diffInMonths = Math.floor(diffInDays / 30);
           if (diffInMonths < 12) {
-            relativeTime = `${diffInMonths} ${diffInMonths === 1 ? t('common.monthAgo') : t('common.monthsAgo')
-              }`;
+            relativeTime = `${diffInMonths} ${
+              diffInMonths === 1 ? t('common.monthAgo') : t('common.monthsAgo')
+            }`;
           } else {
             const diffInYears = Math.floor(diffInDays / 365);
-            relativeTime = `${diffInYears} ${diffInYears === 1 ? t('common.yearAgo') : t('common.yearsAgo')
-              }`;
+            relativeTime = `${diffInYears} ${
+              diffInYears === 1 ? t('common.yearAgo') : t('common.yearsAgo')
+            }`;
           }
         }
       }

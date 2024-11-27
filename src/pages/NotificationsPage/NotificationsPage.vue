@@ -1,8 +1,15 @@
 <template>
   <q-page class="notifications-page q-pa-md">
     <div class="notifications-content">
-      <div>
-        <q-toggle v-model="showContactSOS" label="Show old Notifications" />
+      <div class="text-right">
+        <q-toggle
+          v-model="showContactSOS"
+          label="Show Old Notifications"
+          style="margin: 0px 20px"
+          color="black"
+          class="text-weight-bold text-white"
+          left-label
+        />
       </div>
       <div v-if="showContactSOS">
         <NotificationsHistoryPage />
