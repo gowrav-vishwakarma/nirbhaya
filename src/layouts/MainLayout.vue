@@ -145,6 +145,7 @@ import { useI18n } from 'vue-i18n';
 import { version } from 'src/../package.json';
 import { useMediaPermissions } from 'src/composables/useMediaPermissions';
 import { api } from 'src/boot/axios';
+import { useQuasar } from 'quasar';
 
 const router = useRouter();
 const { t, locale } = useI18n();
@@ -157,11 +158,44 @@ const isShortsVisible = process.env.SHORTS_VISIBLE === 'true';
 const ReloadKey = ref(8877);
 
 const { stopAllMediaStreams } = useMediaPermissions();
+const $q = useQuasar();
+
+const isAppOpenedToday = () => {
+  const lastOpenedDate = localStorage.getItem('lastAppOpenedDate');
+  const today = new Date().toDateString();
+
+  if (lastOpenedDate !== today) {
+    localStorage.setItem('lastAppOpenedDate', today);
+    return false; // App wasn't opened today
+  }
+  return true; // App was already opened today
+};
+
+const checkFirstTimeOpen = async () => {
+  const isSOSAppOpened = localStorage.getItem('isSOSAppOpened');
+  if (!isSOSAppOpened) {
+    localStorage.setItem('isSOSAppOpened', 'true');
+    console.log('App opened for the first time');
+  }
+  console.log('App opened again');
+
+
+  // Check if app was opened today
+  if (!isAppOpenedToday()) {
+    try {
+      await updateEventCount('appOpen')
+      console.log('App open count incremented');
+    } catch (error) {
+      console.error('Failed to increment app open count:', error);
+    }
+  }
+};
 
 // Register all lifecycle hooks first
 onMounted(() => {
   window.addEventListener('scroll', handleScroll);
   locale.value = userStore.language;
+  checkFirstTimeOpen();
 
   // Initial route check
   const currentPath = router.currentRoute.value.path;
@@ -237,9 +271,10 @@ const goToNewsPage = async () => {
   // Only call API if not already on news page
   if (router.currentRoute.value.path !== '/news') {
     try {
-      await api.post('global/event-count-update', {
-        type: 'news'
-      });
+      await updateEventCount('news')
+      // await api.post('global/event-count-update', {
+      //   type: 'news'
+      // });
     } catch (error) {
       console.error('Failed to update event count:', error);
     }
@@ -247,6 +282,17 @@ const goToNewsPage = async () => {
   router.push('/news');
   drawer.value = false;
 };
+
+const updateEventCount = async (type: string) => {
+  try {
+    await api.post('global/event-count-update', {
+      type: type,
+      userId: userStore.user.id
+    });
+  } catch (error) {
+    console.error('Failed to update event count:', error);
+  }
+}
 const goToHelpPage = () => router.push('/help');
 
 const refreshNotifications = async () => {

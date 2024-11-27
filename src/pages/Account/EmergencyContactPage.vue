@@ -16,9 +16,8 @@
           <div class="row q-col-gutter-sm q-mb-md">
             <div class="col-12">
               <q-btn-group class="full-width">
-                <q-btn :disable="values.emergencyContacts.length == 3" @click="addEmergencyContact" color="primary"
-                  :icon="t('common.icons.addCircle')" :label="t('common.addEmergencyContact')" no-caps
-                  class="full-width" />
+                <q-btn @click="addEmergencyContact" color="primary" :icon="t('common.icons.addCircle')"
+                  :label="t('common.addEmergencyContact')" no-caps class="full-width" />
                 <q-btn @click="openEmergencyContactRequests" color="secondary" :icon="t('common.icons.contacts')"
                   :label="t('common.emergencyContactRequests')" no-caps class="full-width" />
               </q-btn-group>
@@ -143,16 +142,17 @@ onMounted(() => {
 });
 
 const addEmergencyContact = () => {
-  if (values.value.emergencyContacts.length < 3) {
-    values.value.emergencyContacts.push({
-      contactName: '',
-      contactPhone: '',
-      relationship: '',
-      isAppUser: false,
-      priority: 0,
-      consentGiven: false,
-    });
-  }
+  // if (values.value.emergencyContacts.length < 3) {
+  values.value.emergencyContacts.push({
+    contactName: '',
+    contactPhone: '',
+    relationship: '',
+    isAppUser: false,
+    priority: 0,
+    consentGiven: false,
+  });
+  // }
+
 };
 
 const removeEmergencyContact = (index: number) => {
