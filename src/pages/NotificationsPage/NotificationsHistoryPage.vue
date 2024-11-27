@@ -13,29 +13,18 @@
 
           <template v-if="!isLoading">
             <q-list v-if="responseData.length > 0" class="q-mb-md">
-              <q-item
-                v-for="notification in responseData"
-                :key="notification.id"
-                class="q-py-md q-ma-none notification-item"
-              >
+              <q-item v-for="notification in responseData" :key="notification.id"
+                class="q-py-md q-ma-none notification-item">
                 <q-item-section>
                   <q-card flat bordered class="notification-card">
                     <q-card-section>
                       <div class="notification-header">
-                        <q-icon
-                          :name="getNotificationIcon(notification)"
-                          size="24px"
-                          class="notification-icon"
-                        />
+                        <q-icon :name="getNotificationIcon(notification)" size="24px" class="notification-icon" />
                         <span class="notification-title">
                           {{ getNotificationTitle(notification) }}
                         </span>
                         <q-space></q-space>
-                        <q-chip
-                          :color="getStatusColor(notification.status)"
-                          text-color="white"
-                          size="sm"
-                        >
+                        <q-chip :color="getStatusColor(notification.status)" text-color="white" size="sm">
                           {{ $t(`common.sosStatus.${notification.status}`) }}
                         </q-chip>
                       </div>
@@ -49,20 +38,15 @@
                         {{ $t('common.threat') }}:
                         <strong>{{
                           $t(notification.threat || 'Emergency Alert')
-                        }}</strong>
+                          }}</strong>
                       </div>
                     </q-card-section>
                   </q-card>
                 </q-item-section>
               </q-item>
               <div class="text-center q-mt-md">
-                <q-btn
-                  v-if="hasMoreItems"
-                  color="primary"
-                  :loading="isLoadingMore"
-                  @click="loadMore"
-                  label="Load More"
-                />
+                <q-btn v-if="hasMoreItems" color="primary" :loading="isLoadingMore" @click="loadMore"
+                  label="Load more" />
               </div>
             </q-list>
             <div v-else class="no-notifications" style="text-align: center">
@@ -82,7 +66,6 @@
 
 <script setup lang="ts">
 import { ref, onMounted, watch, onBeforeUnmount, defineEmits } from 'vue';
-import { useForm } from 'src/qnatk/composibles/use-form';
 import { api } from 'boot/axios';
 import { useQuasar } from 'quasar';
 import { useBackgroundNotifications } from 'src/composables/useBackgroundNotifications';
@@ -109,40 +92,65 @@ interface SosEvent {
 const $q = useQuasar();
 const { unreadNotificationCount } = useBackgroundNotifications();
 
-const page = ref(1);
-const perPage = ref(1);
+const responseData = ref<SosEvent[]>([]);
+const isLoading = ref(false);
+const limit = ref(10); // Increased to 10 items per page
+const offset = ref(0);
 const isLoadingMore = ref(false);
 const hasMoreItems = ref(true);
 
-const { responseData, validateAndSubmit, callbacks, isLoading } =
-  useForm<SosEvent>(
-    api,
-    '/global/contact-sos-events',
-    { userId: 11, page: page.value, perPage: perPage.value },
-    'post'
-  );
+const fetchNotifications = async (isLoadMore = false) => {
+  if (!isLoadMore) {
+    isLoading.value = true;
+  }
 
-callbacks.onSuccess = (response) => {
-  hasMoreItems.value = response.data.length === perPage.value;
+  try {
+    const response = await api.post('/global/contact-sos-events', {
+      userId: userStore.user.id,
+      limit: limit.value,
+      offset: offset.value
+    });
+
+    const newData = response.data || [];
+
+    if (!isLoadMore) {
+      responseData.value = newData;
+    } else {
+      responseData.value = [...responseData.value, ...newData];
+    }
+
+    hasMoreItems.value = newData.length === limit.value;
+  } catch (error) {
+    console.error('Error fetching notifications:', error);
+    $q.notify({
+      type: 'negative',
+      message: t('common.errorLoadingMore'),
+      position: 'top'
+    });
+  } finally {
+    isLoading.value = false;
+  }
 };
 
 const { t } = useI18n();
 const route = useRoute();
 
 onMounted(async () => {
-  await validateAndSubmit(false);
+  await fetchNotifications();
 });
 
 // Refresh notifications when unreadNotificationCount changes
 watch(unreadNotificationCount, async () => {
-  await validateAndSubmit(false);
+  offset.value = 0;
+  await fetchNotifications();
 });
 
 // Watch for changes in the query parameters to refresh notifications
 watch(
   () => route.query.key,
   async () => {
-    await validateAndSubmit(false);
+    offset.value = 0;
+    await fetchNotifications();
   }
 );
 
@@ -203,14 +211,12 @@ const formatRelativeTime = (dateString: string) => {
         } else {
           const diffInMonths = Math.floor(diffInDays / 30);
           if (diffInMonths < 12) {
-            relativeTime = `${diffInMonths} ${
-              diffInMonths === 1 ? t('common.monthAgo') : t('common.monthsAgo')
-            }`;
+            relativeTime = `${diffInMonths} ${diffInMonths === 1 ? t('common.monthAgo') : t('common.monthsAgo')
+              }`;
           } else {
             const diffInYears = Math.floor(diffInDays / 365);
-            relativeTime = `${diffInYears} ${
-              diffInYears === 1 ? t('common.yearAgo') : t('common.yearsAgo')
-            }`;
+            relativeTime = `${diffInYears} ${diffInYears === 1 ? t('common.yearAgo') : t('common.yearsAgo')
+              }`;
           }
         }
       }
@@ -229,27 +235,13 @@ const getNotificationIcon = (notification: SosEvent) => {
 const emit = defineEmits(['notifications-updated']);
 
 const loadMore = async () => {
+  if (isLoadingMore.value) return;
+
   isLoadingMore.value = true;
-  page.value += 1;
+  offset.value += limit.value;
 
   try {
-    const response = await api.post('/global/contact-sos-events', {
-      userId: 11,
-      page: page.value,
-      perPage: perPage.value,
-    });
-
-    // Append new items to existing data instead of replacing
-    responseData.value = [...responseData.value, ...response.data.data];
-
-    // Check if we've reached the end
-    hasMoreItems.value = response.data.data.length === perPage.value;
-  } catch (error) {
-    console.error('Error loading more items:', error);
-    // $q.notify({
-    //   type: 'negative',
-    //   message: 'Failed to load more items',
-    // });
+    await fetchNotifications(true);
   } finally {
     isLoadingMore.value = false;
   }

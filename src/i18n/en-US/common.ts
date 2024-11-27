@@ -334,4 +334,6 @@ export default {
   notNow: 'Not Now',
   Tnc: 'Terms & Conditions',
   welcomeMessage: "Welcome to SOS App! We're here to help keep you safe.",
+  loadMore: 'Load More',
+  errorLoadingMore: 'Failed to load more items',
 };

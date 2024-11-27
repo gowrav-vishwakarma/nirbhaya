@@ -161,7 +161,6 @@ const isShortsVisible = process.env.SHORTS_VISIBLE === 'true';
 const ReloadKey = ref(8877);
 
 const { stopAllMediaStreams } = useMediaPermissions();
-const $q = useQuasar();
 
 const isAppOpenedToday = () => {
   const lastOpenedDate = localStorage.getItem('lastAppOpenedDate');
@@ -278,16 +277,10 @@ const goToNewsPage = async () => {
   // Only call API if not already on news page
   if (router.currentRoute.value.path !== '/news') {
     try {
-<<<<<<< HEAD
       await updateEventCount('news')
       // await api.post('global/event-count-update', {
       //   type: 'news'
       // });
-=======
-      await api.post('global/event-count-update', {
-        type: 'news',
-      });
->>>>>>> 7953b6d7711773db4d11c1144558f8b6df27efb1
     } catch (error) {
       console.error('Failed to update event count:', error);
     }
