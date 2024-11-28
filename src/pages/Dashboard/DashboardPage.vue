@@ -2,7 +2,7 @@
   <q-page class="dashboard-page q-pa-md">
     <div class="dashboard-content">
       <WelcomeCard :user-name="userName" />
-      <!-- <PromotingAppInstall ref="promotingAppInstall"></PromotingAppInstall> -->
+      <PromotingAppInstall v-if="isDialogOpen" ref="promotingAppInstall"></PromotingAppInstall>
       <div class="beta-notice" @click="goToCommunityRoute">
         {{ $t('common.betaNotice') }}
       </div>
@@ -23,6 +23,8 @@ import { useSOSMode } from 'src/composables/useSOSMode';
 // import PromotingAppInstall from 'src/components/PromotingAppInstall.vue';
 // import { usePermissions } from 'src/composables/usePermissions';
 // import MissingPermissions from 'src/components/MissingPermissions.vue';
+const isDialogOpen = process.env.SHOW_INSTALL_PROMPT == 'true'
+console.log('isDialogOpen...........', isDialogOpen);
 
 const router = useRouter();
 const allowedIdsStr = process.env.SHOW_INSTALL_PROMPT
@@ -41,9 +43,9 @@ const EmergencyContacts = defineAsyncComponent(
 const TrustStatsCard = defineAsyncComponent(
   () => import('./components/TrustStatsCard.vue')
 );
-// const PromotingAppInstall = defineAsyncComponent(
-//   () => import('src/components/PromotingAppInstall.vue')
-// );
+const PromotingAppInstall = defineAsyncComponent(
+  () => import('src/components/PromotingAppInstall.vue')
+);
 
 // const router = useRouter();
 const userStore = useUserStore();
@@ -66,7 +68,7 @@ const promotingAppInstall = ref();
 
 onMounted(async () => {
   // Get the allowed IDs from env and convert to array of numbers
-  const allowedIds = allowedIdsStr?.split(',').map(Number) || [];
+  // const allowedIds = allowedIdsStr?.split(',').map(Number) || [];
   // console.log('allowedIds.........', allowedIds);
 
   // Only show prompt if user's ID is in the allowed list
