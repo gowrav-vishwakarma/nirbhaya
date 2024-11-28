@@ -100,7 +100,7 @@ export default {
   city: 'शहर',
   userType: 'उपयोगकर्ता प्रकार',
   dob: 'जन्म तिथि',
-  emergencyContacts: 'आपातकालीन संपर्क',
+  emergencyContacts: 'आपातकालीन सेवाओं को कॉल करें',
   emergencyContactsHelp:
     'आपातकाल की स्थिति में सूचित किए जाने वाले 3 आपातकालीन संपर्क जोड़ें।',
   addEmergencyContact: 'संपर्क जोड़ें',

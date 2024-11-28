@@ -284,7 +284,7 @@ export default {
   safetyTip3: 'Keep emergency numbers easily accessible.',
   safetyTip4: 'Trust your instincts. If something feels off, leave the area.',
   safetyTip5: 'Ensure your phone is always charged when going out.',
-  emergencyServices: 'Emergency Services',
+  emergencyServices: 'Call to Emergency Services',
   police: 'Police',
   ambulance: 'Ambulance',
   fireDepartment: 'Fire Dept.',
