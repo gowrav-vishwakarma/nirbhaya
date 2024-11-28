@@ -241,11 +241,18 @@ const checkPermissions = async () => {
 
 const handleSettingChange = async (setting: keyof SOSSettings) => {
   try {
-    // Update the store directly
+    // First update the store
     userStore.updateUserSettings({
       [setting]: values.value[setting]
     });
 
+    // Call the API endpoint
+    await api.post('user/media-broadcast-permission', {
+      [setting]: values.value[setting],
+      userId: userStore.user.id
+    });
+
+    // Optional: Show success notification
     // $q.notify({
     //   color: 'positive',
     //   message: t('common.settingsSaved'),
@@ -253,8 +260,13 @@ const handleSettingChange = async (setting: keyof SOSSettings) => {
     // });
   } catch (error) {
     console.error('Error updating settings:', error);
-    // Revert the toggle if store update fails
+    // Revert the toggle if API call fails
     values.value[setting] = !values.value[setting];
+
+    // Also revert the store update
+    userStore.updateUserSettings({
+      [setting]: !values.value[setting]
+    });
 
     $q.notify({
       color: 'negative',
