@@ -152,8 +152,34 @@ const addEmergencyContact = () => {
   });
 };
 
-const removeEmergencyContact = (index: number) => {
-  values.value.emergencyContacts.splice(index, 1);
+const removeEmergencyContact = async (index: number) => {
+  try {
+    const contactToDelete = values.value.emergencyContacts[index];
+    const userId = userStore.user.id;
+
+    // Call API to delete the contact with both phone and userId
+    await api.post('/user/emergency-contact', {
+      userId: userId,
+      contactPhone: contactToDelete.contactPhone
+    });
+
+    // Remove from local state
+    values.value.emergencyContacts.splice(index, 1);
+
+    // Update store
+    userStore.updateUser({
+      ...userStore.user,
+      emergencyContacts: values.value.emergencyContacts
+    });
+
+  } catch (error) {
+    console.error('Error deleting emergency contact:', error);
+    $q.notify({
+      color: 'negative',
+      message: t('common.emergencyContactDeleteError'),
+      icon: 'error',
+    });
+  }
 };
 
 const hasEmergencyContacts = computed(
