@@ -142,8 +142,7 @@ onMounted(() => {
 });
 
 const addEmergencyContact = () => {
-  // if (values.value.emergencyContacts.length < 3) {
-  values.value.emergencyContacts.push({
+  values.value.emergencyContacts.unshift({
     contactName: '',
     contactPhone: '',
     relationship: '',
@@ -151,8 +150,6 @@ const addEmergencyContact = () => {
     priority: 0,
     consentGiven: false,
   });
-  // }
-
 };
 
 const removeEmergencyContact = (index: number) => {
