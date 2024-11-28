@@ -2,11 +2,14 @@
   <q-page class="dashboard-page q-pa-md">
     <div class="dashboard-content">
       <WelcomeCard :user-name="userName" />
-      <PromotingAppInstall v-if="isDialogOpen" ref="promotingAppInstall"></PromotingAppInstall>
+      <PromotingAppInstall
+        v-if="isDialogOpen"
+        ref="promotingAppInstall"
+      ></PromotingAppInstall>
+      <SOSButtons @initiate-sos="initiateSOSMode" />
       <div class="beta-notice" @click="goToCommunityRoute">
         {{ $t('common.betaNotice') }}
       </div>
-      <SOSButtons @initiate-sos="initiateSOSMode" />
       <EmergencyContacts />
       <TrustStatsCard />
       <!-- <NearbyVolunteers v-if="locationPermissionGranted" /> -->
@@ -23,11 +26,11 @@ import { useSOSMode } from 'src/composables/useSOSMode';
 // import PromotingAppInstall from 'src/components/PromotingAppInstall.vue';
 // import { usePermissions } from 'src/composables/usePermissions';
 // import MissingPermissions from 'src/components/MissingPermissions.vue';
-const isDialogOpen = process.env.SHOW_INSTALL_PROMPT == 'true'
+const isDialogOpen = process.env.SHOW_INSTALL_PROMPT == 'true';
 console.log('isDialogOpen...........', isDialogOpen);
 
 const router = useRouter();
-const allowedIdsStr = process.env.SHOW_INSTALL_PROMPT
+const allowedIdsStr = process.env.SHOW_INSTALL_PROMPT;
 const WelcomeCard = defineAsyncComponent(
   () => import('./components/WelcomeCard.vue')
 );
