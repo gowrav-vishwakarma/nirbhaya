@@ -50,14 +50,14 @@
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<true/>
   <key>NSCameraUsageDescription</key>
-	<string>We need access to your camera to record video.</string>
+  <string>Allow access to your camera to record videos during SOS events. Videos will be saved locally on your device and optionally uploaded to the server if enabled by you. You have the option to turn this feature on or off in the app settings.</string>
   <key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-	<string>We need your location to provide location-based services even when the app is in the background.</string>
+	<string>Allow location access to send your current location to your emergency contacts, locate nearby volunteers, find nearby SOS events, and enable location-based features like volunteer assistance during emergencies while using the app.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>We need your location to provide location-based services.</string>
+  <string>Allow location access to send your current location to your emergency contacts, locate nearby volunteers, find nearby SOS events, and enable location-based features like volunteer assistance during emergencies while using the app.</string>
 	<key>NSMicrophoneUsageDescription</key>
-	<string>We need access to your microphone to record audio for videos.</string>
+  <string>Allow access to your microphone to broadcast audio during your SOS event, either to your emergency contacts or nearby volunteers (depending on your choice), to verify the authenticity of the event and provide assistance.</string>
   <key>NSPhotoLibraryUsageDescription</key>
-  <string>We need access to your photo library to save sos background recordings.</string>
+  <string>Allow access to your photo library to save recorded audio and video from your SOS events, and to set or update your profile picture.</string>
 </dict>
 </plist>
