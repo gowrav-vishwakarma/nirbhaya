@@ -20,19 +20,9 @@
               </q-item-label>
             </q-item-section>
             <q-item-section side>
-              <q-btn
-                v-if="!contact.consentGiven"
-                flat
-                color="positive"
-                @click="approveContact(contact.id)"
-                :label="$t('common.approve')"
-              />
-              <q-btn
-                flat
-                color="negative"
-                @click="removeContact(contact.id)"
-                :label="$t('common.remove')"
-              />
+              <q-btn v-if="!contact.consentGiven" flat color="positive" @click="approveContact(contact.id)"
+                :label="$t('common.approve')" />
+              <q-btn flat color="negative" @click="removeContact(contact.id)" :label="$t('common.remove')" />
             </q-item-section>
           </q-item>
         </q-list>
@@ -101,7 +91,7 @@ const approveContact = async (contactId: number) => {
 
 const removeContact = async (contactId: number) => {
   try {
-    await api.post(`/auth/remove-emergency-contact/${contactId}`);
+    await api.post(`/user/remove-emergency-contact/${contactId}`);
     emergencyContacts.value = emergencyContacts.value.filter(
       (contact) => contact.id !== contactId
     );
