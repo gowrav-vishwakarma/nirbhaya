@@ -54,7 +54,7 @@
 
           <div v-if="!otpSent" class="q-ma-none q-py-sm" style="text-align: start; margin-top: -20px;">
             <q-checkbox v-model="acceptedTerms" color="primary">
-              <span style="font-size: 11px; font-weight: 600;">
+              <span style="font-size: 9px; font-weight: 700; color: dimgrey; ">
                 {{ $t('common.acceptTerms') }}
               </span>
             </q-checkbox>

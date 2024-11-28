@@ -1,5 +1,6 @@
 <template>
   <div class="tnc-container">
+
     <h1 class="tnc-title">Terms, Conditions & Privacy Policy</h1>
 
     <div class="tnc-content">
@@ -25,10 +26,23 @@
         </ul>
 
         <h3>2.2 Location Data Collection</h3>
-        <p>We collect location data only in two specific scenarios:</p>
+        <p>We collect location data only in the following scenarios:</p>
         <ul>
           <li>When you press the SOS button</li>
           <li>When you choose to register as a volunteer at a specific location</li>
+          <li>For discovering nearby volunteers and events</li>
+          <li>For providing location-based services and recommendations</li>
+          <li>For improving our service coverage and response times</li>
+        </ul>
+
+        <h3>2.3 Usage Information</h3>
+        <ul>
+          <li>News reading preferences</li>
+          <li>Content interaction patterns</li>
+          <li>SOS event data (retained for 90 days)</li>
+          <li>Volunteer ratings and feedback</li>
+          <li>Event participation and interaction data</li>
+          <li>Service usage patterns and preferences</li>
         </ul>
       </section>
 
@@ -40,6 +54,10 @@
           <li>Emergency response coordination</li>
           <li>Volunteer notification system</li>
           <li>News content personalization</li>
+          <li>Local event discovery and recommendations</li>
+          <li>Service improvement and optimization</li>
+          <li>Research and development of new features</li>
+          <li>Analytics and performance monitoring</li>
         </ul>
 
         <h3>3.2 Emergency Contact System</h3>
@@ -111,6 +129,76 @@
           notifications,
           email notifications, and app store updates.</p>
       </section>
+
+      <section>
+        <h2>10. End User License Agreement (EULA)</h2>
+
+        <h3>10.1 Acceptance of Terms</h3>
+        <p>By downloading, installing, or using the SOS Bharat application ("App"), you agree to be bound by this End
+          User License Agreement ("EULA"). If you do not agree to these terms, do not use the App.</p>
+
+        <h3>10.2 Nature of Service</h3>
+        <h3>10.2.1 Supplementary Service</h3>
+        <p>The App is designed and provided as a supplementary support system during distress situations. It is NOT
+          intended to replace:</p>
+        <ul>
+          <li>Emergency services (Police, Ambulance, Fire)</li>
+          <li>Professional medical care</li>
+          <li>Official emergency response systems</li>
+          <li>Standard emergency procedures</li>
+        </ul>
+
+        <h3>10.2.2 User Acknowledgment</h3>
+        <p>By using this App, you acknowledge and agree that:</p>
+        <ul>
+          <li>This is a secondary support system</li>
+          <li>You will follow all standard emergency procedures first</li>
+          <li>You will not rely solely on this App during emergencies</li>
+          <li>Response times and availability of volunteers cannot be guaranteed</li>
+        </ul>
+
+        <h3>10.3 Data Usage and Permissions</h3>
+        <h3>10.3.1 Broad Data Usage Rights</h3>
+        <p>By accepting this EULA, you grant us permission to:</p>
+        <ul>
+          <li>Collect, store, and process your personal information</li>
+          <li>Use your data for service improvement and optimization</li>
+          <li>Analyze usage patterns for feature development</li>
+          <li>Share anonymized data with partners and third parties</li>
+          <li>Utilize your content for marketing and promotional purposes</li>
+          <li>Process your data for research and development</li>
+          <li>Create derivative works from aggregated user data</li>
+        </ul>
+
+        <h3>10.4 Disclaimer of Warranties</h3>
+        <p>The App is provided "as is" without any warranties of:</p>
+        <ul>
+          <li>Service availability</li>
+          <li>Response time</li>
+          <li>Accuracy of information</li>
+          <li>Volunteer availability or quality</li>
+          <li>Emergency response effectiveness</li>
+        </ul>
+
+        <h3>10.5 Limitation of Liability</h3>
+        <p>By using this App, you agree that we shall not be liable for:</p>
+        <ul>
+          <li>Any delays in emergency response</li>
+          <li>Actions or inactions of volunteers</li>
+          <li>Accuracy of location data</li>
+          <li>Service interruptions</li>
+          <li>Data loss or breach</li>
+          <li>Any consequential damages</li>
+        </ul>
+      </section>
+      <div class="">
+        <q-btn flat color="primary" @click="$router.back()" class="back-button">
+          <q-icon name="mdi-keyboard-backspace" style="font-size: 18px; margin-top: -1px;" />
+          <span class="q-pl-xs" style="font-size: 10px; font-weight: 800;">
+            Back
+          </span>
+        </q-btn>
+      </div>
     </div>
   </div>
 </template>
@@ -309,6 +397,33 @@ a:active {
     padding: 5px 0;
     display: inline-block;
     /* Makes the touch target larger */
+  }
+}
+
+.back-button-container {
+  position: fixed;
+  top: 16px;
+  left: 16px;
+  z-index: 100;
+}
+
+.back-button {
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  background-color: pink;
+  border-radius: 20px;
+  align-items: end;
+  justify-items: end;
+  justify-content: flex-end;
+  display: flex;
+  margin: auto;
+
+}
+
+@media screen and (max-width: 480px) {
+  .back-button-container {
+    top: 8px;
+    left: 8px;
   }
 }
 </style>
