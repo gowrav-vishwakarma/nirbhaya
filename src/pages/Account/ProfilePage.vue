@@ -55,7 +55,7 @@
               </div>
               <div class="col-12 q-py-none">
                 <q-input v-model="values.referredBy" :label="$t('common.referredBy')" outlined dense
-                  @blur="validateReferralId" :error="!!errors.referredBy"
+                  :disable="isReferralIdStored" :readonly="isReferralIdStored" :error="!!errors.referredBy"
                   :error-message="errors.referredBy?.join('; ')" />
               </div>
             </div>
@@ -173,7 +173,7 @@
 </template>
 
 <script lang="ts" setup>
-import { onMounted, ref, computed, nextTick } from 'vue';
+import { onMounted, ref, computed, nextTick, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useQuasar } from 'quasar';
 import { useUserStore } from 'src/stores/user-store';
@@ -303,10 +303,10 @@ callbacks.beforeSubmit = (data: FormValues) => {
   console.log('data before processing...', data);
   const processedData = {
     ...data,
-    // Ensure these fields are included in the submission
     dob: data.dob || '',
     state: data.state || '',
-    pincode: data.pincode || ''
+    pincode: data.pincode || '',
+    referredBy: errors.value.referredBy ? '' : data.referredBy
   };
 
   if (data.city && typeof data.city === 'object') {
@@ -404,6 +404,11 @@ const hasEmergencyContacts = computed(
 );
 
 const isFormValid = computed(() => {
+  // If referral ID exists and has an error, form is invalid
+  if (values.value.referredBy && errors.value.referredBy) {
+    return false;
+  }
+
   return (
     !!values.value.name &&
     !!values.value.dob &&
@@ -414,7 +419,13 @@ const isFormValid = computed(() => {
     values.value.emergencyContacts.every(
       (contact: EmergencyContact) => contact.contactName && contact.contactPhone
     ) &&
-    Object.keys(errors.value).length === 0
+    !errors.value.name &&
+    !errors.value.dob &&
+    !errors.value.state &&
+    !errors.value.city &&
+    !Object.keys(errors.value).some(key =>
+      key.startsWith('emergencyContact')
+    )
   );
 });
 
@@ -489,34 +500,6 @@ const openEmergencyContactRequests = () => {
   });
 };
 
-// Add a new method to validate the referral ID
-const validateReferralId = async () => {
-  console.log('values.referredBy', values.value.referredBy);
-  if (
-    !values.value.referredBy ||
-    values.value.referredBy === lastCheckedReferralId.value
-  ) {
-    return;
-  }
-
-  try {
-    const response = await api.get(
-      `/user/validate-referral/${values.value.referredBy}`
-    );
-    if (!response.data.exists) {
-      errors.value.referredBy = [t('referralIdNotFound')];
-      values.value.referredBy = lastCheckedReferralId.value;
-    } else {
-      delete errors.value.referredBy;
-      lastCheckedReferralId.value = values.value.referredBy; // Track the last checked ID to avoid redundant API calls
-    }
-  } catch (error) {
-    console.error('Error validating referral ID:', error);
-    errors.value.referredBy = [t('referralIdValidationFailed')];
-    values.value.referredBy = lastCheckedReferralId.value;
-  }
-};
-
 // Add a reactive reference to track the last checked referral ID
 const lastCheckedReferralId = ref('');
 
@@ -576,6 +559,44 @@ const filterStates: QSelectFilterFn = (val: string, update: (fn: () => void) => 
     );
   });
 };
+
+// Update the watch function
+watch(
+  () => values.value.referredBy,
+  async (newValue) => {
+    // Clear error if input is empty
+    if (!newValue) {
+      delete errors.value.referredBy;
+      return;
+    }
+
+    // Skip validation if the value hasn't changed since last check
+    if (newValue === lastCheckedReferralId.value) {
+      return;
+    }
+
+    try {
+      const response = await api.get(
+        `/user/validate-referral/${newValue}`
+      );
+      if (!response.data.exists) {
+        errors.value.referredBy = [t('referralIdNotFound')];
+      } else {
+        delete errors.value.referredBy;
+        lastCheckedReferralId.value = newValue;
+      }
+    } catch (error) {
+      console.error('Error validating referral ID:', error);
+      errors.value.referredBy = [t('referralIdValidationFailed')];
+    }
+  },
+  { immediate: true }
+);
+
+// Add a computed property to check if referral ID is stored
+const isReferralIdStored = computed(() => {
+  return !!userStore.user.referredBy;
+});
 </script>
 
 <style lang="scss" scoped>
