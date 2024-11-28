@@ -2,7 +2,7 @@
   <q-page class="dashboard-page q-pa-md">
     <div class="dashboard-content">
       <WelcomeCard :user-name="userName" />
-      <PromotingAppInstall ref="promotingAppInstall"></PromotingAppInstall>
+      <!-- <PromotingAppInstall ref="promotingAppInstall"></PromotingAppInstall> -->
       <div class="beta-notice" @click="goToCommunityRoute">
         {{ $t('common.betaNotice') }}
       </div>
@@ -41,9 +41,9 @@ const EmergencyContacts = defineAsyncComponent(
 const TrustStatsCard = defineAsyncComponent(
   () => import('./components/TrustStatsCard.vue')
 );
-const PromotingAppInstall = defineAsyncComponent(
-  () => import('src/components/PromotingAppInstall.vue')
-);
+// const PromotingAppInstall = defineAsyncComponent(
+//   () => import('src/components/PromotingAppInstall.vue')
+// );
 
 // const router = useRouter();
 const userStore = useUserStore();
