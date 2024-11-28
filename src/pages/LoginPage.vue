@@ -53,10 +53,13 @@
           </q-input>
 
           <div v-if="!otpSent" class="q-ma-none q-py-sm" style="text-align: start; margin-top: -20px;">
-            <q-checkbox v-model="acceptedTerms" :label="$t('common.acceptTerms')" color="primary" />
+            <q-checkbox v-model="acceptedTerms" color="primary">
+              <span style="font-size: 10px; font-weight: 600;">
+                {{ $t('common.acceptTerms') }}
+              </span></q-checkbox>
             <span style="font-size: 10px; margin: 3px; cursor: pointer; " @click="goToTnc"
               class="text-capitalize text-primary">
-              Click
+              Read
             </span>
           </div>
 

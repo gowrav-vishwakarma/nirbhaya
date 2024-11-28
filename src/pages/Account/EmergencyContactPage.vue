@@ -7,76 +7,38 @@
           <div class="row q-col-gutter-sm q-mb-md">
             <div class="col-12">
               <q-btn-group class="full-width">
-                <q-btn
-                  @click="addEmergencyContact"
-                  color="primary"
-                  :icon="t('common.icons.addCircle')"
-                  :label="t('common.addEmergencyContact')"
-                  no-caps
-                  class="full-width"
-                />
-                <q-btn
-                  @click="openEmergencyContactRequests"
-                  color="secondary"
-                  :icon="t('common.icons.contacts')"
-                  :label="t('common.emergencyContactRequests')"
-                  no-caps
-                  class="full-width"
-                />
+                <q-btn @click="addEmergencyContact" color="primary" :icon="t('common.icons.addCircle')"
+                  :label="t('common.addEmergencyContact')" no-caps class="full-width" />
+                <q-btn @click="openEmergencyContactRequests" color="secondary" :icon="t('common.icons.contacts')"
+                  :label="t('common.emergencyContactRequests')" no-caps class="full-width" />
               </q-btn-group>
             </div>
           </div>
 
           <q-list bordered separator>
-            <q-item
-              v-for="(contact, index) in values.emergencyContacts"
-              :key="index"
-            >
+            <q-item v-for="(contact, index) in values.emergencyContacts" :key="index">
               <q-item-section>
-                <q-input
-                  v-model="contact.contactName"
-                  :label="t('common.name')"
-                  dense
-                  outlined
-                  class="q-mb-sm"
-                  :rules="[(val) => !!val || t('common.contactNameRequired')]"
-                />
-                <q-input
-                  v-model="contact.contactPhone"
-                  :label="t('common.mobileNumber')"
-                  dense
-                  outlined
-                  class="q-mb-sm"
-                  type="tel"
-                  mask="##########"
-                  fill-mask
-                  :rules="[
+                <q-input v-model="contact.contactName" :label="t('common.name')" dense outlined class="q-mb-none"
+                  :rules="[(val) => !!val || t('common.contactNameRequired')]" />
+                <q-input v-model="contact.contactPhone" :label="t('common.mobileNumber')" dense outlined class="q-mb-sm"
+                  type="tel" mask="##########" fill-mask :rules="[
                     (val) => !!val || t('common.contactNumberRequired'),
                     (val) =>
                       val.length === 10 || t('common.invalidPhoneNumberLength'),
                     (val) =>
                       /^[0-9]+$/.test(val) || t('common.onlyNumbersAllowed'),
-                  ]"
-                  @blur="validatePhoneNumber(contact.contactPhone, index)"
-                  :error="!!errors[`emergencyContact${index}`]"
-                  :error-message="
-                    errors[`emergencyContact${index}`]?.join('; ')
-                  "
-                />
-                <q-chip
-                  class="q-ma-none"
-                  :color="contact.consentGiven ? 'positive' : 'secondary'"
-                  text-color="white"
-                  :icon="contact.consentGiven ? 'check_circle' : 'warning'"
-                  size="sm"
-                  style="
+                  ]" @blur="validatePhoneNumber(contact.contactPhone, index)"
+                  :error="!!errors[`emergencyContact${index}`]" :error-message="errors[`emergencyContact${index}`]?.join('; ')
+                    " />
+                <q-chip class="q-ma-none" :color="contact.consentGiven ? 'positive' : 'secondary'" text-color="white"
+                  :icon="contact.consentGiven ? 'check_circle' : 'warning'" size="sm" style="
                     display: flex;
                     justify-content: center;
                     align-items: center;
                     text-align: center;
                     width: 120px;
-                  "
-                >
+                    margin-top: -10px;
+                  ">
                   <span style="text-align: center">{{
                     contact.consentGiven
                       ? t('common.approved')
@@ -86,27 +48,15 @@
               </q-item-section>
 
               <q-item-section side>
-                <div class="column q-gutter-y-sm">
-                  <q-btn
-                    flat
-                    round
-                    color="primary"
-                    :icon="'save'"
-                    @click="saveContact(index)"
-                    :loading="contact.isSaving"
-                    :disable="!isContactValid(contact)"
-                  >
+                <div class="column q-gutter-y-sm" style=" margin-top: -40px;">
+                  <q-btn flat round color="primary" :icon="'save'" @click="saveContact(index)"
+                    :loading="contact.isSaving" :disable="!isContactValid(contact)">
                     <q-tooltip>
                       {{ t('common.saveContact') }}
                     </q-tooltip>
                   </q-btn>
-                  <q-btn
-                    flat
-                    round
-                    color="negative"
-                    :icon="t('common.icons.delete')"
-                    @click="removeEmergencyContact(index)"
-                  >
+                  <q-btn flat round color="negative" :icon="t('common.icons.delete')"
+                    @click="removeEmergencyContact(index)">
                     <q-tooltip>
                       {{ t('common.delete') }}
                     </q-tooltip>
@@ -199,7 +149,7 @@ const isContactValid = (contact: EmergencyContact): boolean => {
     contact.contactPhone?.trim() &&
     contact.contactPhone.length === 10 &&
     !errors.value[
-      `emergencyContact${values.value.emergencyContacts.indexOf(contact)}`
+    `emergencyContact${values.value.emergencyContacts.indexOf(contact)}`
     ]
   );
 };
