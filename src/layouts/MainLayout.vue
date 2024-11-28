@@ -117,7 +117,7 @@
                 d="M3 4h18a1 1 0 0 1 1 1v14a3 3 0 0 1-3 3H5a3 3 0 0 1-3-3V5a1 1 0 0 1 1-1zm2 2v12a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1V6H5zm6 3h6a1 1 0 1 1 0 2h-6a1 1 0 1 1 0-2zm0 4h6a1 1 0 1 1 0 2h-6a1 1 0 1 1 0-2zm-4-4h2a1 1 0 1 1 0 2H7a1 1 0 1 1 0-2zm0 4h2a1 1 0 1 1 0 2H7a1 1 0 1 1 0-2z" />
             </svg>
             <p class="q-ma-none q-pa-none font-size-11" style="margin-top: -9px">
-              News
+              Bulletin
             </p>
           </div>
         </q-btn>
