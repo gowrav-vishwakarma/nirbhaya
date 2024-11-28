@@ -340,4 +340,5 @@ export default {
   install: 'Install',
   notNow: 'Not Now',
   Tnc: 'नियम और शर्तें',
+  acceptTerms: 'मैं नियम और शर्तों को स्वीकार करता/करती हूँ',
 };
