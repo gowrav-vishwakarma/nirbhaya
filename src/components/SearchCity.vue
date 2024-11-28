@@ -4,52 +4,44 @@
     @update:model-value="updateCity" :option-label="formatCityLabel" :disable="disabled" menu-style="max-height: 60vh">
     <template v-slot:no-option>
       <q-item>
-        <q-item-section class="text-grey">
-          No city found...
-        </q-item-section>
+        <q-item-section class="text-grey"> No city found... </q-item-section>
       </q-item>
     </template>
   </q-select>
 </template>
 
-<script lang="ts" setup>
-import { ref, defineProps, defineEmits, onMounted, PropType, watch } from 'vue';
+<script setup>
+import { ref, defineProps, defineEmits, onMounted, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { api } from 'src/boot/axios';
-import type { City } from 'src/types/city';
 
 const { t } = useI18n();
 
 const props = defineProps({
   modelValue: {
-    type: Object as PropType<City | null>,
-    default: null
+    default: null,
   },
   error: {
     type: String,
-    default: undefined
+    default: undefined,
   },
   initialValue: {
-    type: Object as PropType<City | null>,
-    default: null
+    default: null,
   },
   selectedState: {
     type: String,
-    required: true
+    required: true,
   },
   disabled: {
     type: Boolean,
-    default: false
-  }
+    default: false,
+  },
 });
 
-const emit = defineEmits<{
-  (e: 'update:modelValue', value: City | null): void;
-  (e: 'cityData', value: City): void;
-}>();
+const emit = defineEmits(['update:modelValue', 'cityData']);
 
-const selectedCity = ref<City | null>(null);
-const cityOptions = ref<City[]>([]);
+const selectedCity = ref(null);
+const cityOptions = ref([]);
 
 onMounted(() => {
   if (props.initialValue) {
@@ -61,16 +53,24 @@ onMounted(() => {
   }
 });
 
-watch(() => props.modelValue, (newValue) => {
-  if (newValue && typeof newValue === 'object') {
-    selectedCity.value = newValue;
-    if (!cityOptions.value.some(city => city.officename === newValue.officename)) {
-      cityOptions.value = [newValue];
+watch(
+  () => props.modelValue,
+  (newValue) => {
+    if (newValue && typeof newValue === 'object') {
+      selectedCity.value = newValue;
+      if (
+        !cityOptions.value.some(
+          (city) => city.officename === newValue.officename
+        )
+      ) {
+        cityOptions.value = [newValue];
+      }
     }
-  }
-}, { immediate: true });
+  },
+  { immediate: true }
+);
 
-const updateCity = (value: City | null) => {
+const updateCity = (value) => {
   selectedCity.value = value;
   emit('update:modelValue', value);
   if (value) {
@@ -78,7 +78,7 @@ const updateCity = (value: City | null) => {
   }
 };
 
-const filterCities = async (val: string, update: (callback: () => void) => void) => {
+const filterCities = async (val, update) => {
   if (val === '') {
     update(() => {
       cityOptions.value = [];
@@ -87,14 +87,26 @@ const filterCities = async (val: string, update: (callback: () => void) => void)
   }
 
   try {
-    const response = await api.get(`search/cities?q=${val}&state=${props.selectedState}`);
+    const response = await api.get(
+      `search/cities?q=${val}&state=${props.selectedState}`
+    );
     update(() => {
-      cityOptions.value = response.data.map((city: any): City => ({
-        officename: city.officename,
-        pincode: city.pincode,
-        statename: city.statename
-      })).filter((city: City) =>
-        city.statename.toLowerCase() === props.selectedState.toLowerCase()
+      // Create a Map to store unique districts
+      const uniqueDistricts = new Map();
+
+      response.data.forEach((city) => {
+        // Use district as key to ensure uniqueness
+        uniqueDistricts.set(city.district, {
+          officename: city.district,
+          pincode: city.pincode,
+          statename: city.statename,
+        });
+      });
+
+      // Convert Map values back to array and then apply state filter
+      cityOptions.value = Array.from(uniqueDistricts.values()).filter(
+        (city) =>
+          city.statename.toLowerCase() === props.selectedState.toLowerCase()
       );
     });
   } catch (error) {
@@ -105,7 +117,7 @@ const filterCities = async (val: string, update: (callback: () => void) => void)
   }
 };
 
-const formatCityLabel = (city: City | null) => {
+const formatCityLabel = (city) => {
   if (!city) return '';
   return `${city.officename}, ${city.statename} - ${city.pincode}`;
 };
