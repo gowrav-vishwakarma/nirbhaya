@@ -52,24 +52,36 @@
             </template>
           </q-input>
 
+          <div v-if="!otpSent" class="q-ma-none q-py-sm" style="text-align: start; margin-top: -20px;">
+            <q-checkbox v-model="acceptedTerms" :label="$t('common.acceptTerms')" color="primary" />
+            <span style="font-size: 10px; margin: 3px; cursor: pointer; " @click="goToTnc"
+              class="text-capitalize text-primary">
+              Click
+            </span>
+          </div>
+
           <q-btn :label="otpSent ? $t('common.login') : $t('common.sendOTP')" type="submit" color="primary"
-            class="full-width q-py-sm" :loading="isLoading" />
+            class="full-width q-py-sm" :loading="isLoading" :disable="!isFormValid" />
         </q-form>
       </q-card-section>
 
-      <div v-if="otpSent" class="text-center">
-        <q-btn flat color="primary" @click="resendOTP" :disable="isLoading">
-          {{ $t('common.resendOTP') }}
+      <div v-if="otpSent" class="text-center" style="margin-top: -10px;">
+        <q-btn flat color="primary" @click="resendOTP" :disable="isLoading || countdown > 0">
+          <span style="font-size: 13px;">
+            {{ countdown > 0 ? `${$t('common.resendOTP')} (${countdown}s)` : $t('common.resendOTP') }}
+          </span>
         </q-btn>
       </div>
-      <div class="text-center">
+      <div class="text-center" style="margin-top: -10px;">
         <q-btn flat @click="goToAboutUs" class="q-mb-md">
-          {{ $t('common.aboutUs') }}
+          <span style="font-size: 12px;">
+            {{ $t('common.aboutUs') }}
+          </span>
         </q-btn>
       </div>
       <!-- <div class="text-center">
-        <q-btn flat @click="goToTnc" class="q-mb-md" style="margin-top: -25px;">
-          <span style="font-size: 10px;" class="text-capitalize">
+        <q-btn flat @click="goToTnc" class="q-mb-md" style="margin-top: -35px;">
+          <span style="font-size: 10px;" class="text-capitalize text-primary">
             {{ $t('common.Tnc') }}
           </span>
         </q-btn>
@@ -79,7 +91,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useQuasar } from 'quasar';
 import { useUserStore } from 'stores/user-store';
 import { useRouter } from 'vue-router';
@@ -93,6 +105,9 @@ const $q = useQuasar();
 const userStore = useUserStore();
 const router = useRouter();
 const otpSent = ref(false);
+const acceptedTerms = ref(false);
+const countdown = ref(0);
+const countdownTimer = ref<number | null>(null);
 
 const isIosNotSafari = computed(() => {
   return (
@@ -104,11 +119,22 @@ onMounted(() => {
   const referrer = router.currentRoute.value.params.referrer;
   console.log('referrer', referrer);
   if (referrer) {
-    userStore.setReferrer(referrer);
+    userStore.setReferrer(referrer.toString());
   }
 });
 
-const { values, errors, validateAndSubmit, updateUrl, callbacks } = useForm(
+interface FormValues {
+  mobileNumber: string;
+  otp: string;
+  deviceId: string;
+}
+
+interface FormErrors {
+  mobileNumber?: string[];
+  otp?: string[];
+}
+
+const { values, errors, validateAndSubmit, updateUrl, callbacks } = useForm<FormValues>(
   api,
   'auth/sendOtp',
   {
@@ -131,8 +157,8 @@ const handleSubmit = async () => {
   }
 };
 
-callbacks.beforeSubmit = (formValues) => {
-  const newErrors = {};
+callbacks.beforeSubmit = (formValues: FormValues) => {
+  const newErrors: FormErrors = {};
 
   if (!otpSent.value) {
     if (
@@ -164,6 +190,7 @@ callbacks.onSuccess = async (userData) => {
   if (!otpSent.value) {
     otpSent.value = true;
     updateUrl('/auth/login');
+    startCountdown();
   } else {
     userStore.setUser(userData);
     await userStore.sendTokenIfAvailable();
@@ -176,7 +203,7 @@ callbacks.onSuccess = async (userData) => {
   isLoading.value = false;
 };
 
-callbacks.onError = (error) => {
+callbacks.onError = async (error: any) => {
   console.log('Error in login page', error);
   isLoading.value = false;
   Notify.create({
@@ -187,6 +214,20 @@ callbacks.onError = (error) => {
   });
 };
 
+const startCountdown = () => {
+  countdown.value = 30;
+  countdownTimer.value = window.setInterval(() => {
+    if (countdown.value > 0) {
+      countdown.value--;
+    } else {
+      if (countdownTimer.value) {
+        clearInterval(countdownTimer.value);
+        countdownTimer.value = null;
+      }
+    }
+  }, 1000);
+};
+
 const resendOTP = async () => {
   isLoading.value = true;
   try {
@@ -195,6 +236,7 @@ const resendOTP = async () => {
       type: 'positive',
       message: 'OTP resent successfully',
     });
+    startCountdown();
   } catch (error) {
     console.error('Error resending OTP:', error);
     Notify.create({
@@ -212,6 +254,25 @@ const goToAboutUs = () => {
 const goToTnc = () => {
   router.push('/tnc'); // Navigate to About Us page
 };
+
+const isFormValid = computed(() => {
+  if (!otpSent.value) {
+    // For initial OTP send: require both valid mobile number and accepted terms
+    return (
+      acceptedTerms.value &&
+      values.value.mobileNumber?.length === 10 &&
+      /^\d+$/.test(values.value.mobileNumber)
+    );
+  }
+  // For OTP verification: only check OTP validity
+  return values.value.otp?.length === 4 && /^\d+$/.test(values.value.otp);
+});
+
+onUnmounted(() => {
+  if (countdownTimer.value) {
+    clearInterval(countdownTimer.value);
+  }
+});
 </script>
 
 <style scoped lang="scss">

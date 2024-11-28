@@ -336,4 +336,5 @@ export default {
   welcomeMessage: "Welcome to SOS App! We're here to help keep you safe.",
   loadMore: 'Load More',
   errorLoadingMore: 'Failed to load more items',
+  acceptTerms: 'I accept the Terms & Conditions',
 };
