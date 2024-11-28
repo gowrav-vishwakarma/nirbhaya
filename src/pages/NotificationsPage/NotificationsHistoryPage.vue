@@ -13,29 +13,18 @@
 
           <template v-if="!isLoading">
             <q-list v-if="responseData.length > 0" class="q-mb-md">
-              <q-item
-                v-for="notification in responseData"
-                :key="notification.id"
-                class="q-py-md q-ma-none notification-item"
-              >
+              <q-item v-for="notification in responseData" :key="notification.id"
+                class="q-py-md q-ma-none notification-item">
                 <q-item-section>
                   <q-card flat bordered class="notification-card">
                     <q-card-section>
                       <div class="notification-header">
-                        <q-icon
-                          :name="getNotificationIcon(notification)"
-                          size="24px"
-                          class="notification-icon"
-                        />
+                        <q-icon :name="getNotificationIcon(notification)" size="24px" class="notification-icon" />
                         <span class="notification-title">
                           {{ getNotificationTitle(notification) }}
                         </span>
                         <q-space></q-space>
-                        <q-chip
-                          :color="getStatusColor(notification.status)"
-                          text-color="white"
-                          size="sm"
-                        >
+                        <q-chip :color="getStatusColor(notification.status)" text-color="white" size="sm">
                           {{ $t(`common.sosStatus.${notification.status}`) }}
                         </q-chip>
                       </div>
@@ -49,20 +38,15 @@
                         {{ $t('common.threat') }}:
                         <strong>{{
                           $t(notification.threat || 'Emergency Alert')
-                        }}</strong>
+                          }}</strong>
                       </div>
                     </q-card-section>
                   </q-card>
                 </q-item-section>
               </q-item>
               <div class="text-center q-mt-md">
-                <q-btn
-                  v-if="hasMoreItems"
-                  color="primary"
-                  :loading="isLoadingMore"
-                  @click="loadMore"
-                  label="Load more"
-                />
+                <q-btn v-if="hasMoreItems" color="primary" :loading="isLoadingMore" @click="loadMore"
+                  label="Load more" />
               </div>
             </q-list>
             <div v-else class="no-notifications" style="text-align: center">
@@ -205,36 +189,30 @@ const formatRelativeTime = (dateString: string) => {
   // Get relative time string
   let relativeTime: string;
   if (diffInSeconds < 60) {
-    relativeTime = t('common.justNow');
+    relativeTime = 'justNow';
   } else {
     const diffInMinutes = Math.floor(diffInSeconds / 60);
     if (diffInMinutes < 60) {
-      relativeTime = `${diffInMinutes} ${t('minutes Ago')}`;
+      relativeTime = `${diffInMinutes} minutes Ago`;
     } else {
       const diffInHours = Math.floor(diffInMinutes / 60);
       if (diffInHours < 24) {
         const remainingMinutes = diffInMinutes % 60;
-        relativeTime = `${diffInHours} ${t(
-          'hours And'
-        )} ${remainingMinutes} ${t('minutes Ago')}`;
+        relativeTime = `${diffInHours} hours And ${remainingMinutes} minutes Ago`;
       } else {
         const diffInDays = Math.floor(diffInHours / 24);
         if (diffInDays < 30) {
           const remainingHours = diffInHours % 24;
-          relativeTime = `${diffInDays} ${t('days And')} ${remainingHours} ${t(
-            'hours Ago'
-          )}`;
+          relativeTime = `${diffInDays} 'days And' ${remainingHours} hours Ago`;
         } else {
           const diffInMonths = Math.floor(diffInDays / 30);
           if (diffInMonths < 12) {
-            relativeTime = `${diffInMonths} ${
-              diffInMonths === 1 ? t('common.monthAgo') : t('common.monthsAgo')
-            }`;
+            relativeTime = `${diffInMonths} ${diffInMonths === 1 ? 'month Ago' : 'months Ago'
+              }`;
           } else {
             const diffInYears = Math.floor(diffInDays / 365);
-            relativeTime = `${diffInYears} ${
-              diffInYears === 1 ? t('common.yearAgo') : t('common.yearsAgo')
-            }`;
+            relativeTime = `${diffInYears} ${diffInYears === 1 ? 'year Ago' : 'years Ago'
+              }`;
           }
         }
       }

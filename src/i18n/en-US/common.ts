@@ -337,4 +337,5 @@ export default {
   loadMore: 'Load More',
   errorLoadingMore: 'Failed to load more items',
   acceptTerms: 'I accept the T&C, Privacy Policy & EULA',
+  sosAudioStarted: 'SOS Audio Started',
 };

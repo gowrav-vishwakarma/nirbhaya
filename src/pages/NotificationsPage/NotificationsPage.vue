@@ -2,14 +2,8 @@
   <q-page class="notifications-page q-pa-md">
     <div class="notifications-content">
       <div class="text-right">
-        <q-toggle
-          v-model="showContactSOS"
-          label="Show Old Notifications"
-          style="margin: 0px 20px"
-          color="black"
-          class="text-weight-bold text-white"
-          left-label
-        />
+        <q-toggle v-model="showContactSOS" label="Show Old Notifications" style="margin: 0px 20px" color="black"
+          class="text-weight-bold text-white" left-label />
       </div>
       <div v-if="showContactSOS">
         <NotificationsHistoryPage />
@@ -27,31 +21,19 @@
 
             <template v-if="!isLoading">
               <q-list v-if="responseData.length > 0" separator>
-                <q-item
-                  v-for="notification in responseData"
-                  :key="notification.id"
-                  class="q-py-md q-ma-none notification-item"
-                >
+                <q-item v-for="notification in responseData" :key="notification.id"
+                  class="q-py-md q-ma-none notification-item">
                   <q-item-section>
                     <q-card flat bordered class="notification-card">
                       <q-card-section>
                         <div class="notification-header">
-                          <q-icon
-                            :name="getNotificationIcon(notification)"
-                            size="24px"
-                            class="notification-icon"
-                          />
+                          <q-icon :name="getNotificationIcon(notification)" size="24px" class="notification-icon" />
                           <span class="notification-title">
                             {{ getNotificationTitle(notification) }}
                           </span>
                           <q-space></q-space>
-                          <q-chip
-                            :color="
-                              getStatusColor(notification.sosEvent?.status)
-                            "
-                            text-color="white"
-                            size="sm"
-                          >
+                          <q-chip :color="getStatusColor(notification.sosEvent?.status)
+                            " text-color="white" size="sm">
                             {{
                               $t(
                                 `common.sosStatus.${notification.sosEvent?.status}`
@@ -67,22 +49,16 @@
                       </q-card-section>
 
                       <q-card-section class="q-pa-none">
-                        <div
-                          v-if="notification.sosEvent?.threat"
-                          class="notification-threat"
-                        >
+                        <div v-if="notification.sosEvent?.threat" class="notification-threat">
                           {{ $t('common.threat') }}:
                           <strong>{{
                             $t(notification.sosEvent.threat)
-                          }}</strong>
+                            }}</strong>
                         </div>
-                        <div
-                          v-if="
-                            notification.userLocationName &&
-                            notification.distanceToEvent
-                          "
-                          class="notification-location"
-                        >
+                        <div v-if="
+                          notification.userLocationName &&
+                          notification.distanceToEvent
+                        " class="notification-location">
                           {{ formatDistance(notification.distanceToEvent) }}
                           {{ $t('common.awayFrom') }}
                           {{ notification.userLocationName }}
@@ -90,36 +66,16 @@
                       </q-card-section>
 
                       <q-card-actions align="right" class="q-gutter-sm">
-                        <q-btn
-                          v-if="notification.status === 'sent'"
-                          color="primary"
-                          :label="$t('common.accept')"
-                          @click="acceptNotification(notification.id)"
-                          dense
-                          no-caps
-                        />
-                        <q-btn
-                          v-else-if="notification.status === 'accepted'"
-                          color="secondary"
-                          :label="$t('common.follow')"
-                          @click="
+                        <q-btn v-if="notification.status === 'sent'" color="primary" :label="$t('common.accept')"
+                          @click="acceptNotification(notification.id)" dense no-caps />
+                        <q-btn v-else-if="notification.status === 'accepted'" color="secondary"
+                          :label="$t('common.follow')" @click="
                             followLocation(notification.sosEvent.location)
-                          "
-                          dense
-                          no-caps
-                        />
-                        <AudioControl
-                          v-if="notification.status === 'accepted'"
-                          :sos-event-id="notification.sosEvent.id"
-                        />
-                        <q-btn
-                          color="negative"
-                          :label="$t('common.discard')"
-                          @click="discardNotification(notification.id)"
-                          flat
-                          dense
-                          no-caps
-                        />
+                            " dense no-caps />
+                        <AudioControl v-if="notification.status === 'accepted'"
+                          :sos-event-id="notification.sosEvent.id" />
+                        <q-btn color="negative" :label="$t('common.discard')"
+                          @click="discardNotification(notification.id)" flat dense no-caps />
                       </q-card-actions>
                     </q-card>
                   </q-item-section>
@@ -341,14 +297,12 @@ const formatRelativeTime = (dateString: string) => {
         } else {
           const diffInMonths = Math.floor(diffInDays / 30);
           if (diffInMonths < 12) {
-            relativeTime = `${diffInMonths} ${
-              diffInMonths === 1 ? t('common.monthAgo') : t('common.monthsAgo')
-            }`;
+            relativeTime = `${diffInMonths} ${diffInMonths === 1 ? t('common.monthAgo') : t('common.monthsAgo')
+              }`;
           } else {
             const diffInYears = Math.floor(diffInDays / 365);
-            relativeTime = `${diffInYears} ${
-              diffInYears === 1 ? t('common.yearAgo') : t('common.yearsAgo')
-            }`;
+            relativeTime = `${diffInYears} ${diffInYears === 1 ? t('common.yearAgo') : t('common.yearsAgo')
+              }`;
           }
         }
       }
@@ -455,13 +409,13 @@ const startNotificationCountRefresh = async (intervalMs = 20000) => {
     } catch (error) {
       console.error('Error fetching unread notification count:', error);
       // Show error notification to user
-      $q.notify({
-        color: 'negative',
-        message: t('common.errorFetchingNotifications'),
-        icon: 'warning',
-        position: 'top',
-        timeout: 5000,
-      });
+      // $q.notify({
+      //   color: 'negative',
+      //   message: t('common.errorFetchingNotifications'),
+      //   icon: 'warning',
+      //   position: 'top',
+      //   timeout: 5000,
+      // });
     }
   };
 

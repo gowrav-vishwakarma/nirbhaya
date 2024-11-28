@@ -117,11 +117,11 @@ const logout = async () => {
     await api.post('/auth/logout');
     userStore.logout(); // This will clear both in-memory and persisted state
     router.push('/login');
-    $q.notify({
-      color: 'positive',
-      message: t('common.logoutSuccess'),
-      icon: 'check',
-    });
+    // $q.notify({
+    //   color: 'positive',
+    //   message: t('common.logoutSuccess'),
+    //   icon: 'check',
+    // });
   } catch (error) {
     console.error('Error logging out', error);
     $q.notify({

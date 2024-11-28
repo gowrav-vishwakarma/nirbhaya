@@ -341,4 +341,5 @@ export default {
   notNow: 'હવે નહીં',
   Tnc: 'નિયમો અને શરતો',
   acceptTerms: 'હું નિયમો અને શરતો સ્વીકારું છું',
+  sosAudioStarted: 'એસઓએસ ઑડિયો શરૂ થયું',
 };
