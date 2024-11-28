@@ -62,11 +62,11 @@ const fetchEmergencyContacts = async () => {
     emergencyContacts.value = response.data;
   } catch (error) {
     console.error('Error fetching emergency contacts:', error);
-    $q.notify({
-      color: 'negative',
-      message: t('common.errorFetchingContacts'),
-      icon: 'error',
-    });
+    // $q.notify({
+    //   color: 'negative',
+    //   message: t('common.errorFetchingContacts'),
+    //   icon: 'error',
+    // });
   }
 };
 
@@ -74,18 +74,18 @@ const approveContact = async (contactId: number) => {
   try {
     await api.post(`/user/approve-emergency-contact/${contactId}`);
     await fetchEmergencyContacts();
-    $q.notify({
-      color: 'positive',
-      message: t('common.contactApproved'),
-      icon: 'check',
-    });
+    // $q.notify({
+    //   color: 'positive',
+    //   message: t('common.contactApproved'),
+    //   icon: 'check',
+    // });
   } catch (error) {
     console.error('Error approving contact:', error);
-    $q.notify({
-      color: 'negative',
-      message: t('common.errorApprovingContact'),
-      icon: 'error',
-    });
+    // $q.notify({
+    //   color: 'negative',
+    //   message: t('common.errorApprovingContact'),
+    //   icon: 'error',
+    // });
   }
 };
 
@@ -95,18 +95,18 @@ const removeContact = async (contactId: number) => {
     emergencyContacts.value = emergencyContacts.value.filter(
       (contact) => contact.id !== contactId
     );
-    $q.notify({
-      color: 'positive',
-      message: t('common.contactRemoved'),
-      icon: 'check',
-    });
+    // $q.notify({
+    //   color: 'positive',
+    //   message: t('common.contactRemoved'),
+    //   icon: 'check',
+    // });
   } catch (error) {
     console.error('Error removing contact:', error);
-    $q.notify({
-      color: 'negative',
-      message: t('common.errorRemovingContact'),
-      icon: 'error',
-    });
+    // $q.notify({
+    //   color: 'negative',
+    //   message: t('common.errorRemovingContact'),
+    //   icon: 'error',
+    // });
   }
 };
 </script>

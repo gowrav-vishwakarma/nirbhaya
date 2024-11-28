@@ -342,4 +342,5 @@ export default {
   Tnc: 'નિયમો અને શરતો',
   acceptTerms: 'હું નિયમો અને શરતો સ્વીકારું છું',
   sosAudioStarted: 'એસઓએસ ઑડિયો શરૂ થયું',
+  contactRemoved: 'સંપર્ક દૂર કરવામાં આવ્યો',
 };

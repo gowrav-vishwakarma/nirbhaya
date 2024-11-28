@@ -207,17 +207,17 @@
           </q-item-section>
         </q-item> -->
 
-        <q-btn @click="updateSOSData({ status: 'active' })" color="" class=" notify-person-box full-width q-mb-md">
+        <!-- <q-btn @click="updateSOSData({ status: 'active' })" color="" class=" notify-person-box full-width q-mb-md">
           <span class="text-bold">{{ $t('common.contactPoliceStation') }}</span>
-        </q-btn>
+        </q-btn> -->
         <!--v-if="sosSent" -->
-        <q-btn @click="showResolveConfirmation" color="" class="green-bg-color full-width">
+        <q-btn @click="showResolveConfirmation" color="" class="green-bg-color full-width q-mt-md">
           <span class="text-bold">{{ $t('common.resolveSOSIssue') }}</span>
         </q-btn>
       </q-card-section>
 
       <q-card-section>
-        <q-expansion-item label="Logs" icon="mdi-clipboard-text" class="text-subtitle1 text-weight-bold">
+        <!-- <q-expansion-item label="Logs" icon="mdi-clipboard-text" class="text-subtitle1 text-weight-bold">
           <q-card>
             <q-card-section>
               <div v-for="(log, index) in logs" :key="index" class="text-body2 q-mb-xs">
@@ -226,7 +226,7 @@
               </div>
             </q-card-section>
           </q-card>
-        </q-expansion-item>
+        </q-expansion-item> -->
       </q-card-section>
     </q-card>
   </q-page>
