@@ -1,5 +1,5 @@
 <template>
-  <div class="sos-buttons q-mb-lg" style="border: 1px solid white; border-radius: 10px; margin-top: 10px">
+  <div class="sos-buttons q-mb-lg" style="border: 1px solid white; border-radius: 10px; margin-top: 20px">
     <q-btn round style="background-color: #e74c3c" class="sos-button q-my-lg glowing-border"
       @click="$emit('initiate-sos', true)">
       <div class="row items-center full-width">
