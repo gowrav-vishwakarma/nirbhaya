@@ -95,13 +95,14 @@ const filterCities = async (val, update) => {
       const uniqueDistricts = new Map();
 
       response.data.forEach((city) => {
-        // Use district as key to ensure uniqueness
-        uniqueDistricts.set(city.district, {
+        // Use tolowarcode as the key to ensure uniqueness
+        uniqueDistricts.set(city.tolowarcode, {
           officename: city.district,
           pincode: city.pincode,
           statename: city.statename,
         });
       });
+
 
       // Convert Map values back to array and then apply state filter
       cityOptions.value = Array.from(uniqueDistricts.values()).filter(
