@@ -1,7 +1,14 @@
 <template>
-  <div class="sos-buttons q-mb-lg" style="border: 1px solid white; border-radius: 10px; margin-top: 10px">
-    <q-btn round style="background-color: #e74c3c" class="sos-button q-my-lg glowing-border"
-      @click="$emit('initiate-sos', true)">
+  <div
+    class="sos-buttons q-mb-lg"
+    style="border: 1px solid white; border-radius: 10px; margin-top: 10px"
+  >
+    <q-btn
+      round
+      style="background-color: #e74c3c"
+      class="sos-button q-my-lg glowing-border"
+      @click="$emit('initiate-sos', true)"
+    >
       <div class="row items-center full-width">
         <span style="margin: auto; font-size: 40px; color: white">sos</span>
       </div>
@@ -20,9 +27,10 @@
     </div> -->
     <div>
       <q-banner dense class="transparent-banner">
-
-        <q-icon style="font-size: 15px; margin-right: 7px;" name="info" @click="showPopup = true" />
-        <small>Press SOS to notify your emergency contacts.</small>
+        <template v-slot:avatar>
+          <q-icon name="info" @click="showPopup = true" />
+        </template>
+        <small>{{ $t('common.sosButtonNote_label') }}</small>
         <template v-slot:action> </template>
       </q-banner>
 
@@ -30,23 +38,21 @@
       <q-dialog v-model="showPopup" persistent>
         <q-card style="max-width: 350px">
           <q-card-section>
-            <div style="font-size: 20px; font-weight: 700; margin-bottom: 10px;">SOS Button Description:</div>
-            <strong>SOS Button :</strong> Pressing the SOS button will send a
-            notification to your added emergency contacts, alerting them of your
-            SOS Event and location (if shared).<br />
-            <strong>Important Note: </strong>This is a secondary SOS service.
-            Please contact primary emergency services first, such as the police
-            or official helpline numbers, for immediate assistance.<br />
-            <strong>Disclaimer:</strong> We do not contact or alter any primary
-            emergency services on your behalf. Our role is limited to notifying
-            the emergency contacts you have added and based on your permission
-            notifying nearby volunteers.
+            <div class="text-h6">
+              {{ $t('common.sosButtonNote_descTitle') }}
+            </div>
+            <strong>{{ $t('common.sosButtonNote_H1') }} </strong>
+            {{ $t('common.sosButtonNote_H1Desc') }} <br /><br />
+            <strong>{{ $t('common.sosButtonNote_H2') }} </strong
+            >{{ $t('common.sosButtonNote_H2Desc') }}<br /><br />
+            <strong>{{ $t('common.sosButtonNote_H3') }} </strong>
+            {{ $t('common.sosButtonNote_H3Desc') }}
+            <q-card-actions>
+              <q-btn flat color="primary" @click="showPopup = false">
+                {{ $t('common.close') }}
+              </q-btn>
+            </q-card-actions>
           </q-card-section>
-          <q-card-actions align="right">
-            <q-btn flat color="primary" @click="showPopup = false">
-              Close
-            </q-btn>
-          </q-card-actions>
         </q-card>
       </q-dialog>
       <!-- </q-popup-proxy> -->
