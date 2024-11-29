@@ -63,6 +63,5 @@ const { emergencyServices, callEmergencyService } = useEmergencyServices();
   ) !important;
   border: 1px solid rgba(221, 218, 218, 0.418) !important;
   width: 220px;
-  align-items: self-start;
 }
 </style>

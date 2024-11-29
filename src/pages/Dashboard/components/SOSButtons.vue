@@ -36,14 +36,7 @@
 
       <!-- <q-popup-proxy v-model="showPopup"> -->
       <q-dialog v-model="showPopup" persistent>
-        <q-card
-          style="
-            max-width: 350px;
-            font-size: 20px;
-            font-weight: 700;
-            margin-bottom: 10px;
-          "
-        >
+        <q-card style="max-width: 350px">
           <q-card-section>
             <div class="text-h6">
               {{ $t('common.sosButtonNote_descTitle') }}
