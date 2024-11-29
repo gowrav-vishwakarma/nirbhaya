@@ -7,7 +7,7 @@ android {
         applicationId "com.xavoc.shoutout"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 0.0.121
+        versionCode 1
         versionName "0.0.121"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
