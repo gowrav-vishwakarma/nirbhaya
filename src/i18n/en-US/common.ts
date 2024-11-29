@@ -342,7 +342,7 @@ export default {
   contactRemoved: 'Contact Removed',
   contactApproved: 'Contact Approved',
 
-  sosButtonNote_label: 'Press SOS Button to notify your emergency contacts.',
+  sosButtonNote_label: 'Press SOS Button to inform your emergency contacts.',
   sosButtonNote_descTitle: 'SOS Button Description:',
   sosButtonNote_H1: 'SOS Button: ',
   sosButtonNote_H1Desc:
