@@ -263,7 +263,7 @@ const downloadCertificate = () => {
 
     // Create download link
     const link = document.createElement('a')
-    link.download = `nirbhaya-certificate-${userName.value}.jpg`
+    link.download = `Sos-Bharat-certificate-${userName.value}.jpg`
     link.href = dataURL
     document.body.appendChild(link)
     link.click()
