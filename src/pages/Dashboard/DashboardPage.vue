@@ -2,12 +2,16 @@
   <q-page class="dashboard-page q-pa-md">
     <div class="dashboard-content">
       <WelcomeCard :user-name="userName" />
-      <PromotingAppInstall v-if="isDialogOpen" ref="promotingAppInstall"></PromotingAppInstall>
+      <PromotingAppInstall
+        v-if="isDialogOpen"
+        ref="promotingAppInstall"
+      ></PromotingAppInstall>
+      <SOSButtons @initiate-sos="initiateSOSMode" />
       <div class="beta-notice" @click="goToCommunityRoute">
         {{ $t('common.betaNotice') }}
       </div>
-      <SOSButtons @initiate-sos="initiateSOSMode" />
       <EmergencyContacts />
+
       <TrustStatsCard />
       <!-- <NearbyVolunteers v-if="locationPermissionGranted" /> -->
       <!-- <MissingPermissions /> -->
