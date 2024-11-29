@@ -48,7 +48,7 @@
 
           <!-- Volunteers Section -->
           <q-expansion-item v-if="userStore.user.name" v-model="expandedItems.volunteers" group="profile-tabs"
-            icon="volunteer_activism" label="Volunteers">
+            icon="volunteer_activism" label="Be Volunteers">
             <q-card>
               <VolunteeringPage />
             </q-card>
