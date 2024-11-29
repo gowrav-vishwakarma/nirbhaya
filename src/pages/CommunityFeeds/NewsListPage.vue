@@ -87,7 +87,7 @@
     <q-dialog v-model="showFilters" position="right">
       <q-card style="min-width: 350px; max-width: 95vw">
         <q-card-section class="row items-center">
-          <div class="text-h6">Filter News</div>
+          <div class="text-h6">Filter Bulletin</div>
           <q-space />
           <q-btn icon="close" flat round dense v-close-popup />
         </q-card-section>
