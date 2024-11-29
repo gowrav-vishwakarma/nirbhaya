@@ -4,9 +4,9 @@
       <h4 class="text-h6 text-weight-bold text-primary q-ma-none">
         {{ $t('common.welcome', { name: userName }) }}
       </h4>
-      <p class="text-subtitle1 text-grey-7 q-mt-sm" style="line-height: 16px">
+      <div class="text-subtitle2 text-grey-7">
         {{ $t('common.dashboardSubtitle') }}
-      </p>
+      </div>
     </q-card-section>
   </q-card>
 </template>
