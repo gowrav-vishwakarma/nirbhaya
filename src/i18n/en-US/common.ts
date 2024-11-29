@@ -76,7 +76,7 @@ export default {
   errorGettingLocation: 'Error getting location. Please try again.',
   // Profile Page
   name: 'Name',
-  city: 'City / Pincode',
+  city: 'City',
   userType: 'User Type',
   dob: 'Date Of Birth',
   emergencyContacts: 'Emergency Contacts',
