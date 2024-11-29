@@ -21,7 +21,7 @@
               ( {{ service.number }} )
             </span>
             <q-space />
-            <q-icon style="transform: scaleX(-1);margin-left: 5px;" name="call" color="blue" class="q-mirror"
+            <q-icon style="transform: scaleX(-1);margin-left: 8px; color: #002D62;" name="call" class="q-mirror"
               size="xs"></q-icon>
             <!-- <q-btn round class="q-mx-xs" size="xs">
             </q-btn> -->
