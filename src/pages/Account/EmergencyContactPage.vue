@@ -27,11 +27,13 @@
           <q-list bordered separator>
             <q-item v-for="(contact, index) in values.emergencyContacts" :key="index">
               <q-item-section>
-                <q-input v-model="contact.contactName" :label="t('common.name')" dense outlined class="q-mb-sm" :rules="[
-                  (val) => !!val || t('common.contactNameRequired'),
-                ]" />
-                <q-input v-model="contact.contactPhone" :label="t('common.mobileNumber')" dense outlined class="q-mb-sm"
-                  type="tel" mask="##########" fill-mask :rules="[
+                <q-input v-model="contact.contactName" :disable="contact.consentGiven" :label="t('common.name')" dense
+                  outlined class="q-mb-sm" :rules="[
+                    (val) => !!val || t('common.contactNameRequired'),
+                  ]" />
+                <q-input v-model="contact.contactPhone" :disable="contact.consentGiven"
+                  :label="t('common.mobileNumber')" dense outlined class="q-mb-sm" type="tel" mask="##########"
+                  fill-mask :rules="[
                     (val) => !!val || t('common.contactNumberRequired'),
                     (val) => val.length === 10 || t('common.invalidPhoneNumberLength'),
                     (val) => /^[0-9]+$/.test(val) || t('common.onlyNumbersAllowed')
