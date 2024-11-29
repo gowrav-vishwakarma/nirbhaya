@@ -16,6 +16,8 @@ fi
 # Uncomment the API_BASE_URL with https and comment the one with http
 sed -i.bak 's/^\s*#\(.*https:\/\/.*\)/\1/' .env && rm .env.bak
 sed -i.bak 's/^\s*\(API_BASE_URL=http:\/\/.*\)/#\1/' .env && rm .env.bak
+sed -i.bak 's/^\s*SHOW_INSTALL_PROMPT=.*/SHOW_INSTALL_PROMPT=false/' .env && rm .env.bak
+sed -i.bak 's/^\s*SHORTS_VISIBLE=.*/SHORTS_VISIBLE=false/' .env && rm .env.bak
 
 # Build the app for Android
 npx quasar build -m capacitor -T android --ide
