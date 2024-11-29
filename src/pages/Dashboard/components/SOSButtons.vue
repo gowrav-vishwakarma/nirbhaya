@@ -1,14 +1,7 @@
 <template>
-  <div
-    class="sos-buttons q-mb-lg"
-    style="border: 1px solid white; border-radius: 10px; margin-top: 10px"
-  >
-    <q-btn
-      round
-      style="background-color: #e74c3c"
-      class="sos-button q-my-lg glowing-border"
-      @click="$emit('initiate-sos', true)"
-    >
+  <div class="sos-buttons q-mb-lg" style="border: 1px solid white; border-radius: 10px; margin-top: 10px">
+    <q-btn round style="background-color: #e74c3c" class="sos-button q-my-lg glowing-border"
+      @click="$emit('initiate-sos', true)">
       <div class="row items-center full-width">
         <span style="margin: auto; font-size: 40px; color: white">sos</span>
       </div>
@@ -27,9 +20,7 @@
     </div> -->
     <div>
       <q-banner dense class="transparent-banner">
-        <template v-slot:avatar>
-          <q-icon name="info" @click="showPopup = true" />
-        </template>
+        <q-icon style="font-size: 16px;" class="q-mr-sm " name="info" @click="showPopup = true" />
         <small>{{ $t('common.sosButtonNote_label') }}</small>
         <template v-slot:action> </template>
       </q-banner>
@@ -38,16 +29,15 @@
       <q-dialog v-model="showPopup" persistent>
         <q-card style="max-width: 350px">
           <q-card-section>
-            <div class="text-h6">
+            <div class="text-h6" style="margin-bottom: 15px;">
               {{ $t('common.sosButtonNote_descTitle') }}
             </div>
             <strong>{{ $t('common.sosButtonNote_H1') }} </strong>
             {{ $t('common.sosButtonNote_H1Desc') }} <br /><br />
-            <strong>{{ $t('common.sosButtonNote_H2') }} </strong
-            >{{ $t('common.sosButtonNote_H2Desc') }}<br /><br />
+            <strong>{{ $t('common.sosButtonNote_H2') }} </strong>{{ $t('common.sosButtonNote_H2Desc') }}<br /><br />
             <strong>{{ $t('common.sosButtonNote_H3') }} </strong>
             {{ $t('common.sosButtonNote_H3Desc') }}
-            <q-card-actions>
+            <q-card-actions align="right">
               <q-btn flat color="primary" @click="showPopup = false">
                 {{ $t('common.close') }}
               </q-btn>
