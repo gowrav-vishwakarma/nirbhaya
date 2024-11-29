@@ -4,29 +4,39 @@
       <p class="text-h6 text-weight-bold q-mb-sm">
         {{ $t('common.emergencyServices') }}
       </p>
+
       <div class="row">
         <div v-for="service in emergencyServices" :key="service.name">
-          <q-btn class="button-background q-mx-xs q-mb-sm" @click="callEmergencyService(service.number)" size="sm"
-            style="
-              border-radius: 30px;
-            ">
-            <q-btn size="sm" :style="{
-              marginLeft: '-10px',
-              backgroundColor: `${service.color}`,
-            }" round>
+          <q-btn
+            class="button-background q-mx-xs q-mb-sm"
+            @click="callEmergencyService(service.number)"
+            size="sm"
+            style="border-radius: 30px"
+          >
+            <q-btn
+              size="sm"
+              :style="{
+                marginLeft: '-10px',
+                backgroundColor: `${service.color}`,
+              }"
+              round
+            >
               <q-icon :name="service.icon" style="color: whitesmoke"></q-icon>
             </q-btn>
-            <span class="q-ml-xs " style="font-weight: bold">
+            <span class="q-ml-xs" style="font-weight: bold">
               {{ $t(service.name) }}
               ( {{ service.number }} )
             </span>
             <q-space />
-            <q-icon style="transform: scaleX(-1);margin-left: 8px; color: #002D62;" name="call" class="q-mirror"
-              size="xs"></q-icon>
+            <q-icon
+              style="transform: scaleX(-1); margin-left: 8px; color: #002d62"
+              name="call"
+              class="q-mirror"
+              size="xs"
+            ></q-icon>
             <!-- <q-btn round class="q-mx-xs" size="xs">
             </q-btn> -->
           </q-btn>
-
         </div>
       </div>
     </q-card-section>
@@ -46,9 +56,11 @@ const { emergencyServices, callEmergencyService } = useEmergencyServices();
 }
 
 .button-background {
-  background: linear-gradient(135deg,
-      white,
-      darken(rgb(255, 255, 255), 0%)) !important;
+  background: linear-gradient(
+    135deg,
+    white,
+    darken(rgb(255, 255, 255), 0%)
+  ) !important;
   border: 1px solid rgba(221, 218, 218, 0.418) !important;
   width: 220px;
   align-items: self-start;

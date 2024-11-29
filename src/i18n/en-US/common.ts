@@ -341,4 +341,16 @@ export default {
   sosAudioStarted: 'SOS Audio Started',
   contactRemoved: 'Contact Removed',
   contactApproved: 'Contact Approved',
+
+  sosButtonNote_label: 'Press SOS Button to notify your emergency contacts.',
+  sosButtonNote_descTitle: 'SOS Button Description:',
+  sosButtonNote_H1: 'SOS Button: ',
+  sosButtonNote_H1Desc:
+    'Pressing the SOS button will send a notification to your added emergency contacts, alerting them of your SOS Event and location (if shared).',
+  sosButtonNote_H2: 'Important Note: ',
+  sosButtonNote_H2Desc:
+    'This is a secondary SOS service. Please contact primary emergency services first, such as the police or official helpline numbers, for immediate assistance.',
+  sosButtonNote_H3: 'Disclaimer: ',
+  sosButtonNote_H3Desc:
+    'We do not contact or alter any primary emergency services on your behalf. Our role is limited to notifying the emergency contacts you have added and based on your permission notifying nearby volunteers.',
 };
