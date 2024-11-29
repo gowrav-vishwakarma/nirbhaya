@@ -1,10 +1,11 @@
 <template>
-  <q-select v-model="selectedCity" :label="t('common.city')" outlined dense :error="!!error" :error-message="error"
-    clearable use-input input-debounce="0" :options="cityOptions" @filter="filterCities" behavior="menu"
-    @update:model-value="updateCity" :option-label="formatCityLabel" :disable="disabled" menu-style="max-height: 60vh">
+  <q-select v-model="selectedCity" class="text-capitalize" :label="t('common.city')" outlined dense :error="!!error"
+    :error-message="error" clearable use-input input-debounce="0" :options="cityOptions" @filter="filterCities"
+    behavior="menu" @update:model-value="updateCity" :option-label="formatCityLabel" :disable="disabled"
+    menu-style="max-height: 60vh">
     <template v-slot:no-option>
       <q-item>
-        <q-item-section class="text-grey"> No city found... </q-item-section>
+        <q-item-section class="text-grey"> Search City </q-item-section>
       </q-item>
     </template>
   </q-select>
@@ -97,7 +98,7 @@ const filterCities = async (val, update) => {
       response.data.forEach((city) => {
         // Use tolowarcode as the key to ensure uniqueness
         uniqueDistricts.set(city.tolowarcode, {
-          officename: city.district,
+          officename: city.district.charAt(0).toUpperCase() + city.district.slice(1).toLowerCase(),
           pincode: city.pincode,
           statename: city.statename,
         });
@@ -120,6 +121,7 @@ const filterCities = async (val, update) => {
 
 const formatCityLabel = (city) => {
   if (!city) return '';
-  return `${city.officename}, ${city.statename} - ${city.pincode}`;
+  const capitalizedOfficename = city.officename.charAt(0).toUpperCase() + city.officename.slice(1);
+  return `${capitalizedOfficename}, ${city.statename}`;
 };
 </script>
