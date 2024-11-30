@@ -124,7 +124,7 @@ const routes: RouteRecordRaw[] = [
         component: () => import('pages/Sos/TncPage.vue'),
       },
       {
-        path: '/post',
+        path: '/comunity-post',
         name: 'post',
         component: CommunityPostsList,
       },

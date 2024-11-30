@@ -21,7 +21,7 @@
 
       <q-card-section class="text-center" style="margin: 0px; padding: 0px;">
         <div class="text-h5 text-weight-bold text-primary" style="margin: 0px; padding: 0px; margin-top: -10px;">
-          {{ $t('common.login') }}
+          {{ t('common.login') }}
         </div>
         <!-- <div class="text-h3 text-weight-bold text-primary">Shoutout</div>
         <div class="text-subtitle1 text-weight-medium text-grey-7">
@@ -32,30 +32,29 @@
 
       <q-card-section v-if="isIosNotSafari">
         <q-banner class="bg-negative text-white" rounded>
-          {{ $t('common.iosNotSafariWarning') }}
+          {{ t('common.iosNotSafariWarning') }}
         </q-banner>
       </q-card-section>
       <q-card-section v-else class="text-center">
         <q-form @submit="handleSubmit" class="">
-          <q-input filled v-model="values.mobileNumber" :label="$t('common.mobileNumber')"
-            :error="!!errors.mobileNumber" :error-message="errors.mobileNumber?.join('; ')" mask="##########"
-            :disable="otpSent">
+          <q-input filled v-model="values.mobileNumber" :label="t('common.mobileNumber')" :error="!!errors.mobileNumber"
+            :error-message="errors.mobileNumber?.join('; ')" mask="##########" :disable="otpSent">
             <template v-slot:prepend>
-              <q-icon :name="$t('common.icons.phone')" color="primary" />
+              <q-icon :name="t('common.icons.phone')" color="primary" />
             </template>
           </q-input>
 
-          <q-input v-if="otpSent" filled v-model="values.otp" :label="$t('common.enterOTP')" :error="!!errors.otp"
+          <q-input v-if="otpSent" filled v-model="values.otp" :label="t('common.enterOTP')" :error="!!errors.otp"
             :error-message="errors.otp?.join('; ')" mask="####">
             <template v-slot:prepend>
-              <q-icon :name="$t('common.icons.lock')" color="primary" />
+              <q-icon :name="t('common.icons.lock')" color="primary" />
             </template>
           </q-input>
 
           <div v-if="!otpSent" class="q-ma-none q-py-sm" style="text-align: start; margin-top: -20px;">
             <q-checkbox v-model="acceptedTerms" color="primary">
               <span style="font-size: 9px; font-weight: 700; color: dimgrey; ">
-                {{ $t('common.acceptTerms') }}
+                {{ t('common.acceptTerms') }}
               </span>
             </q-checkbox>
             <span style="font-size: 10px; margin: 3px; cursor: pointer; " @click="goToTnc"
@@ -64,7 +63,7 @@
             </span>
           </div>
 
-          <q-btn :label="otpSent ? $t('common.login') : $t('common.sendOTP')" type="submit" color="primary"
+          <q-btn :label="otpSent ? t('common.login') : t('common.sendOTP')" type="submit" color="primary"
             class="full-width q-py-sm" :loading="isLoading" :disable="!isFormValid" />
         </q-form>
       </q-card-section>
@@ -72,21 +71,21 @@
       <div v-if="otpSent" class="text-center" style="margin-top: -10px;">
         <q-btn flat color="primary" @click="resendOTP" :disable="isLoading || countdown > 0">
           <span style="font-size: 13px;">
-            {{ countdown > 0 ? `${$t('common.resendOTP')} (${countdown}s)` : $t('common.resendOTP') }}
+            {{ countdown > 0 ? `${t('common.resendOTP')} (${countdown}s)` : t('common.resendOTP') }}
           </span>
         </q-btn>
       </div>
       <div class="text-center" style="margin-top: -10px;">
         <q-btn flat @click="goToAboutUs" class="q-mb-md">
           <span style="font-size: 12px;">
-            {{ $t('common.aboutUs') }}
+            {{ t('common.aboutUs') }}
           </span>
         </q-btn>
       </div>
       <!-- <div class="text-center">
         <q-btn flat @click="goToTnc" class="q-mb-md" style="margin-top: -35px;">
           <span style="font-size: 10px;" class="text-capitalize text-primary">
-            {{ $t('common.Tnc') }}
+            {{ t('common.Tnc') }}
           </span>
         </q-btn>
       </div> -->
@@ -104,7 +103,9 @@ import { api } from 'src/boot/axios';
 import { Notify } from 'quasar';
 import LanguageSelector from 'src/components/LanguageSelector.vue';
 import { Device } from '@capacitor/device';
+import { useI18n } from 'vue-i18n';
 
+const { t } = useI18n();
 const $q = useQuasar();
 const userStore = useUserStore();
 const router = useRouter();
@@ -161,22 +162,23 @@ const handleSubmit = async () => {
   }
 };
 
-callbacks.beforeSubmit = (formValues: FormValues) => {
-  const newErrors: FormErrors = {};
+callbacks.beforeSubmit = async (formValues: Record<string, unknown>) => {
+  const typedFormValues = (formValues as unknown) as FormValues;
+  const newErrors: Record<string, string[]> = {};
 
   if (!otpSent.value) {
     if (
-      !formValues.mobileNumber ||
-      formValues.mobileNumber.length !== 10 ||
-      !/^\d+$/.test(formValues.mobileNumber)
+      !typedFormValues.mobileNumber ||
+      typedFormValues.mobileNumber.length !== 10 ||
+      !/^\d+$/.test(typedFormValues.mobileNumber)
     ) {
       newErrors.mobileNumber = ['Please enter a valid 10-digit mobile number'];
     }
   } else {
     if (
-      !formValues.otp ||
-      formValues.otp.length !== 4 ||
-      !/^\d+$/.test(formValues.otp)
+      !typedFormValues.otp ||
+      typedFormValues.otp.length !== 4 ||
+      !/^\d+$/.test(typedFormValues.otp)
     ) {
       newErrors.otp = ['Please enter a valid 4-digit OTP'];
     }
@@ -256,7 +258,8 @@ const goToAboutUs = () => {
   router.push('/about-us'); // Navigate to About Us page
 };
 const goToTnc = () => {
-  router.push('/tnc'); // Navigate to About Us page
+  // Open SOS Bharat website in a new tab
+  window.open('https://sosbharat.com/', '_blank');
 };
 
 const isFormValid = computed(() => {
