@@ -7,6 +7,7 @@ import CreateReelPage from 'pages/CreateReelPage.vue';
 import NewsPage from 'pages/CommunityFeeds/NewsPage.vue';
 import CommunityFeedback from 'pages/Sos/SosRating.vue';
 import ShareCartificatePage from 'pages/Cartificate/ShareCartificatePage.vue';
+import CommunityPostsList from 'pages/CommunityPosts/CommunityPostsList.vue';
 
 const routes: RouteRecordRaw[] = [
   {
@@ -121,6 +122,11 @@ const routes: RouteRecordRaw[] = [
         path: '/tnc',
         name: 'TncPage',
         component: () => import('pages/Sos/TncPage.vue'),
+      },
+      {
+        path: '/post',
+        name: 'post',
+        component: CommunityPostsList,
       },
     ],
   },
