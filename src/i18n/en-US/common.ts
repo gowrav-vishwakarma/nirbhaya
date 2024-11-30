@@ -353,4 +353,10 @@ export default {
   sosButtonNote_H3: 'Disclaimer: ',
   sosButtonNote_H3Desc:
     'We do not contact or alter any primary emergency services on your behalf. Our role is limited to notifying the emergency contacts you have added and based on your permission notifying nearby volunteers.',
+  retry: 'Retry',
+
+  noVolunteersNearby: 'noVolunteersNearby',
+  viewOnMap: 'view On Map',
+  awayFrom: 'awayFrom',
+  pending: 'Pending',
 };
