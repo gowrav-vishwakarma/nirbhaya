@@ -23,7 +23,7 @@
         </div>
       </div>
 
-      <div class="create-post-section q-mb-lg" v-if="userStore.user.isAmbassador">
+      <div class="q-mb-lg" v-if="userStore.user.isAmbassador" style="margin-top: -15px;">
         <q-card class="create-post-card q-pa-md">
           <div class="row items-center no-wrap">
             <q-avatar size="45px">
@@ -118,10 +118,9 @@
               <div v-else-if="post.mediaUrls" class="media-section">
                 <!-- Show Carousel when clicked -->
                 <template v-if="activeCarouselPost === post.id">
-                  <div class="custom-carousel" @wheel="handleScroll" @mouseenter="isHovered = true"
-                    @mouseleave="isHovered = false">
-                    <div class="carousel-inner" :style="carouselStyle" @touchstart="handleTouchStart"
-                      @touchmove="handleTouchMove" @touchend="handleTouchEnd">
+                  <div class="custom-carousel" ref="carousel" @touchstart="handleTouchStart"
+                    @touchmove="handleTouchMove" @touchend="handleTouchEnd">
+                    <div class="carousel-inner" :style="carouselStyle">
                       <div v-for="(url, index) in Array.isArray(post.mediaUrls) ?
                         post.mediaUrls.map(url => imageCdn + url) :
                         [imageCdn + post.mediaUrls]" :key="index" class="carousel-slide"
@@ -623,22 +622,14 @@ const scrollThreshold = 50; // Minimum scroll amount to trigger slide change
 // Update the handleScroll method
 const handleScroll = (event: WheelEvent) => {
   if (!isHovered.value) return;
-
-  // Only handle horizontal scroll (deltaX)
-  if (event.deltaX === 0) return; // Ignore vertical scrolling
-
-  // Only prevent default for horizontal scrolling
-  if (Math.abs(event.deltaX) > Math.abs(event.deltaY)) {
-    event.preventDefault();
-  }
+  event.preventDefault(); // Prevent default scroll
 
   // Clear any existing timeout
   if (scrollTimeout.value) {
     clearTimeout(scrollTimeout.value);
   }
 
-  // Only use deltaX for horizontal scrolling
-  const delta = event.deltaX;
+  const delta = event.deltaX || event.deltaY; // Use either horizontal or vertical scroll
 
   // Determine direction and change slide after threshold is met
   if (Math.abs(delta) > scrollThreshold) {
@@ -669,42 +660,36 @@ onUnmounted(() => {
   }
 });
 
-// Add these new refs after other refs
-const touchStartX = ref(0);
-const touchEndX = ref(0);
-const isSwiping = ref(false);
+// Add these new refs for touch handling
+const touchStart = ref(0);
+const touchEnd = ref(0);
+const carousel = ref<HTMLElement | null>(null);
 
-// Add these new methods before the existing carousel methods
+// Add these new methods for touch handling
 const handleTouchStart = (event: TouchEvent) => {
-  touchStartX.value = event.touches[0].clientX;
-  isSwiping.value = true;
+  touchStart.value = event.touches[0].clientX;
 };
 
 const handleTouchMove = (event: TouchEvent) => {
-  if (!isSwiping.value) return;
-  touchEndX.value = event.touches[0].clientX;
+  touchEnd.value = event.touches[0].clientX;
 };
 
 const handleTouchEnd = () => {
-  if (!isSwiping.value) return;
+  if (!carousel.value) return;
 
-  const swipeDistance = touchEndX.value - touchStartX.value;
-  const minSwipeDistance = 50; // Minimum distance to trigger slide change
+  const diff = touchStart.value - touchEnd.value;
+  const threshold = 50; // minimum distance for swipe
 
-  if (Math.abs(swipeDistance) >= minSwipeDistance) {
-    if (swipeDistance > 0 && currentIndex.value > 0) {
-      prevSlide();
-    } else if (swipeDistance < 0 && currentIndex.value < totalSlides.value - 1) {
+  if (Math.abs(diff) > threshold) {
+    if (diff > 0 && currentIndex.value < totalSlides.value - 1) {
       nextSlide();
+    } else if (diff < 0 && currentIndex.value > 0) {
+      prevSlide();
     }
   }
-
-  isSwiping.value = false;
-  touchStartX.value = 0;
-  touchEndX.value = 0;
 };
 
-// Update the carousel-inner template section to include touch events
+// Update the template to add touch handlers and ref
 </script>
 
 <style scoped lang="scss">
@@ -856,6 +841,7 @@ const handleTouchEnd = () => {
 
 .suggestion-btn {
   font-weight: 500;
+  margin-right: -10px;
   border-radius: 20px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   transition: all 0.3s ease;
@@ -870,7 +856,7 @@ const handleTouchEnd = () => {
 
 .create-post-card {
   background: white;
-  border-radius: 8px;
+  border-radius: 0px;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
   padding: 8px;
 }
@@ -1052,7 +1038,7 @@ const handleTouchEnd = () => {
 .gallery-image {
   max-width: 100%;
   max-height: calc(100vh - 100px);
-  object-fit: contain;
+  object-fit: cover;
 }
 
 .image-counter {
@@ -1220,7 +1206,7 @@ const handleTouchEnd = () => {
 .full-image {
   max-height: 100%;
   width: auto;
-  object-fit: contain;
+  object-fit: cover;
   border-radius: 0;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
@@ -1314,16 +1300,16 @@ const handleTouchEnd = () => {
   width: 100%;
   height: auto;
   background: #000;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: hidden;
   border-radius: 0;
-  touch-action: pan-y pinch-zoom; // Improve touch handling
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  touch-action: pan-x;
 
-  @media (hover: hover) {
-    cursor: grab;
-
-    &:active {
-      cursor: grabbing;
-    }
+  &::-webkit-scrollbar {
+    display: none;
   }
 }
 
@@ -1331,18 +1317,20 @@ const handleTouchEnd = () => {
   display: flex;
   width: 100%;
   will-change: transform;
-  touch-action: pan-x pan-y; // Enable touch scrolling
+  touch-action: pan-x;
 }
 
 .carousel-slide {
   min-width: 100%;
+  width: 100%;
+  flex: 0 0 100%;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 0;
-  opacity: 0.3;
   transition: opacity 0.5s ease;
   aspect-ratio: 16/9;
+  position: relative;
 
   &.active {
     opacity: 1;
@@ -1356,48 +1344,15 @@ const handleTouchEnd = () => {
   pointer-events: none;
   user-select: none;
   border-radius: 0;
-  -webkit-user-drag: none; // Prevent image dragging on iOS
+  -webkit-user-drag: none;
 
   @media (max-width: 600px) {
-    pointer-events: auto; // Enable touch events on mobile
+    pointer-events: auto;
   }
 }
 
 .carousel-arrow {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 44px;
-  height: 44px;
-  z-index: 10;
-  background: transparent;
-  border: none;
-  color: transparent;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.3s ease;
-  opacity: 0;
-
-  &:hover {
-    background: transparent;
-    transform: translateY(-50%);
-  }
-
-  &.prev {
-    left: 0;
-    width: 40%;
-    height: 100%;
-  }
-
-  &.next {
-    right: 0;
-    width: 40%;
-    height: 100%;
-  }
-
-  i {
+  @media (max-width: 600px) {
     display: none;
   }
 }
@@ -1533,6 +1488,27 @@ const handleTouchEnd = () => {
       width: 10px;
       height: 6px;
     }
+  }
+}
+
+// Add these new styles for better touch handling
+@media (max-width: 600px) {
+  .custom-carousel {
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .carousel-slide {
+    scroll-snap-align: start;
+    touch-action: pan-x;
+    scroll-snap-stop: always;
+
+  }
+
+  .carousel-inner {
+    transform: none !important;
+    transition: none !important;
   }
 }
 </style>
