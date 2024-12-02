@@ -152,12 +152,13 @@
                 </template>
                 <!-- Show Collage by default -->
                 <template v-else>
-                  <div class="media-collage" @click="showCarousel(post.id, 0)">
+                  <div class="media-collage">
                     <!-- Single Image -->
                     <template v-if="!Array.isArray(post.mediaUrls) || post.mediaUrls.length === 1">
                       <q-img :src="Array.isArray(post.mediaUrls) ? post.mediaUrls[0] : post.mediaUrls" :ratio="16 / 9"
                         class="single-image" @click="showCarousel(post.id, 0)" />
                     </template>
+
                     <!-- Two Images -->
                     <template v-else-if="post.mediaUrls.length === 2">
                       <div class="two-images-grid">
@@ -166,6 +167,7 @@
                         </div>
                       </div>
                     </template>
+
                     <!-- Three or More Images -->
                     <template v-else>
                       <div class="multi-images-grid">
@@ -524,11 +526,11 @@ const openImageGallery = (images: string[], startIndex: number) => {
 const activeCarouselPost = ref<number | null>(null);
 const carouselSlide = ref(0);
 
-// Add these new methods
-const showCarousel = (postId: number, startSlide: number) => {
+// Update the showCarousel method
+const showCarousel = (postId: number, startIndex: number) => {
   activeCarouselPost.value = postId;
-  carouselSlide.value = startSlide;
-  currentIndex.value = startSlide;
+  carouselSlide.value = startIndex;
+  currentIndex.value = startIndex;
 };
 
 const closeCarousel = () => {
@@ -767,10 +769,13 @@ onUnmounted(() => {
 
 .video-container {
   position: relative;
-  padding-bottom: 56.25%;
-  height: 0;
+  width: 100%;
+  aspect-ratio: 16/9;
+  height: auto;
   overflow: hidden;
   transition: opacity 0.3s ease;
+  margin: 0;
+  padding: 0;
 }
 
 .video-frame {
@@ -780,7 +785,7 @@ onUnmounted(() => {
   width: 100%;
   height: 100%;
   border-radius: 0;
-  box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
+  object-fit: cover;
 }
 
 /* Add this for better background contrast */
@@ -829,13 +834,15 @@ onUnmounted(() => {
 }
 
 .media-collage {
+  width: 100%;
   margin: 0;
   overflow: hidden;
 }
 
 .single-image {
   width: 100%;
-  height: 400px;
+  aspect-ratio: 16/9;
+  object-fit: cover;
 }
 
 .two-images-grid {
@@ -1416,10 +1423,10 @@ onUnmounted(() => {
 
 .carousel-close {
   position: absolute;
-  top: 16px;
-  right: 16px;
-  width: 36px;
-  height: 36px;
+  top: 13px;
+  right: 10px;
+  width: 30px;
+  height: 30px;
   border-radius: 50%;
   background: rgba(0, 0, 0, 0.4);
   backdrop-filter: blur(4px);
@@ -1462,8 +1469,7 @@ onUnmounted(() => {
     width: 6px;
     height: 6px;
 
-    &.active {
-      width: 10px;
+    &.active {      width: 10px;
       height: 6px;
     }
   }
