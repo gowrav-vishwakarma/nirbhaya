@@ -23,7 +23,7 @@
         </div>
       </div>
 
-      <div class="create-post-section q-mb-lg">
+      <div class="create-post-section q-mb-lg" v-if="userStore.user.isAmbassador">
         <q-card class="create-post-card q-pa-md">
           <div class="row items-center no-wrap">
             <q-avatar size="45px">
@@ -72,7 +72,9 @@
                   <img src="/sos_logo_1080_1080.png" style="object-fit: cover;" />
                 </q-avatar>
                 <div class="q-ml-md">
-                  <div class="text-weight-bold " style="font-size: 16px;">SOS Bharat Community</div>
+                  <div class="text-weight-bold text-capitalize" style="font-size: 16px;">
+                    {{ post.userName == 'SOS Bharat Community' ?
+                      'SOS Bharat Community' : post.userName }}</div>
                   <div class="text-caption text-grey-7">
                     <q-icon name="schedule" size="xs" class="q-mr-xs" />
                     {{ formatDate(post.createdAt) }}
@@ -119,8 +121,10 @@
                   <div class="custom-carousel" @wheel="handleScroll" @mouseenter="isHovered = true"
                     @mouseleave="isHovered = false">
                     <div class="carousel-inner" :style="carouselStyle">
-                      <div v-for="(url, index) in Array.isArray(post.mediaUrls) ? post.mediaUrls : [post.mediaUrls]"
-                        :key="index" class="carousel-slide" :class="{ active: currentIndex === index }">
+                      <div v-for="(url, index) in Array.isArray(post.mediaUrls) ?
+                        post.mediaUrls.map(url => imageCdn + url) :
+                        [imageCdn + post.mediaUrls]" :key="index" class="carousel-slide"
+                        :class="{ active: currentIndex === index }">
                         <img :src="url" :alt="`Image ${index + 1}`" class="carousel-image" @click.stop />
                       </div>
                     </div>
@@ -155,15 +159,15 @@
                   <div class="media-collage">
                     <!-- Single Image -->
                     <template v-if="!Array.isArray(post.mediaUrls) || post.mediaUrls.length === 1">
-                      <q-img :src="Array.isArray(post.mediaUrls) ? post.mediaUrls[0] : post.mediaUrls" :ratio="16 / 9"
-                        class="single-image" @click="showCarousel(post.id, 0)" />
+                      <q-img :src="imageCdn + (Array.isArray(post.mediaUrls) ? post.mediaUrls[0] : post.mediaUrls)"
+                        :ratio="16 / 9" class="single-image" @click="showCarousel(post.id, 0)" />
                     </template>
 
                     <!-- Two Images -->
                     <template v-else-if="post.mediaUrls.length === 2">
                       <div class="two-images-grid">
                         <div v-for="(url, index) in post.mediaUrls" :key="index" class="grid-image-container">
-                          <q-img :src="url" class="grid-image" @click="showCarousel(post.id, index)" />
+                          <q-img :src="imageCdn + url" class="grid-image" @click="showCarousel(post.id, index)" />
                         </div>
                       </div>
                     </template>
@@ -172,12 +176,14 @@
                     <template v-else>
                       <div class="multi-images-grid">
                         <div class="main-image-container">
-                          <q-img :src="post.mediaUrls[0]" class="main-grid-image" @click="showCarousel(post.id, 0)" />
+                          <q-img :src="imageCdn + post.mediaUrls[0]" class="main-grid-image"
+                            @click="showCarousel(post.id, 0)" />
                         </div>
                         <div class="secondary-images-container">
                           <div v-for="(url, index) in post.mediaUrls.slice(1, 3)" :key="index"
                             class="secondary-image-wrapper">
-                            <q-img :src="url" class="secondary-grid-image" @click="showCarousel(post.id, index + 1)">
+                            <q-img :src="imageCdn + url" class="secondary-grid-image"
+                              @click="showCarousel(post.id, index + 1)">
                               <div v-if="index === 1 && post.mediaUrls.length > 3" class="see-all-overlay">
                                 <span class="text-white text-weight-bold">+{{ post.mediaUrls.length - 3 }}</span>
                               </div>
@@ -210,7 +216,7 @@
           <q-carousel-slide v-for="(url, index) in currentGalleryImages" :key="index" :name="index"
             class="gallery-slide">
             <div class="gallery-image-container">
-              <q-img :src="url" class="gallery-image" fit="contain" />
+              <q-img :src="imageCdn + url" class="gallery-image" fit="contain" />
             </div>
             <div class="image-counter">{{ index + 1 }} / {{ currentGalleryImages.length }}</div>
           </q-carousel-slide>
@@ -226,7 +232,10 @@ import { useQuasar } from 'quasar';
 import { api } from 'src/boot/axios';
 import { useRouter } from 'vue-router';
 import CreatePostDialog from 'src/components/Community/CreatePostDialog.vue';
+import { useUserStore } from 'src/stores/user-store';
 
+
+const userStore = useUserStore();
 interface Post {
   id: number;
   title: string;
@@ -239,7 +248,10 @@ interface Post {
   tags: string[];
   createdAt: string | null;
   activeSlide?: number;
+  userName: string
 }
+
+const imageCdn = 'http://xavoc-technocrats-pvt-ltd.blr1.cdn.digitaloceanspaces.com/'
 
 const $q = useQuasar();
 const posts = ref<Post[]>([]);

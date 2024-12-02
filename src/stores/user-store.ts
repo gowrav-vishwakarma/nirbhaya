@@ -41,6 +41,7 @@ export interface User {
   dob: Date;
   pincode: string;
   profession: string;
+  isAmbassador: boolean;
 }
 
 interface NewsPreferences {

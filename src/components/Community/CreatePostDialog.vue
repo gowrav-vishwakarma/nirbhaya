@@ -322,6 +322,7 @@ const submitPost = async () => {
     formData.append('location', JSON.stringify(form.value.location));
     formData.append('tags', JSON.stringify(form.value.tags));
     formData.append('userId', String(userStore.user?.id || ''));
+    formData.append('userName', userStore.user?.name || '');
 
     // Append each file
     selectedFiles.value.forEach((file, index) => {
