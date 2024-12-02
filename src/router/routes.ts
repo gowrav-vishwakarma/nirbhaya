@@ -8,6 +8,7 @@ import NewsPage from 'pages/CommunityFeeds/NewsPage.vue';
 import CommunityFeedback from 'pages/Sos/SosRating.vue';
 import ShareCartificatePage from 'pages/Cartificate/ShareCartificatePage.vue';
 import CommunityPostsList from 'pages/CommunityPosts/CommunityPostsList.vue';
+import Feed from 'pages/CommunityFeeds/CommunityFeedsPage.vue';
 
 const routes: RouteRecordRaw[] = [
   {
@@ -127,6 +128,11 @@ const routes: RouteRecordRaw[] = [
         path: '/comunity-post',
         name: 'post',
         component: CommunityPostsList,
+      },
+      {
+        path: '/feed',
+        name: 'feed',
+        component: Feed,
       },
     ],
   },

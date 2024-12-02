@@ -1,0 +1,363 @@
+<template>
+  <q-dialog v-model="isOpen" maximized transition-show="slide-up" transition-hide="slide-down">
+    <q-card class="column">
+      <q-card-section class="row items-center q-pb-none">
+        <div class="text-h6">Create Post</div>
+        <q-space />
+        <q-btn icon="close" flat round dense v-close-popup />
+      </q-card-section>
+
+      <q-separator class="q-my-md" />
+
+      <q-card-section class="col q-pt-none scroll">
+        <div class="row items-center q-mb-md">
+          <q-avatar size="40px">
+            <img src="/sos_logo_1080_1080.png" />
+          </q-avatar>
+          <div class="q-ml-md">
+            <div class="text-weight-bold">SOS Bharat Community</div>
+            <q-btn dense flat size="sm" icon="fas fa-globe-americas" label="Public" />
+          </div>
+        </div>
+
+        <q-input v-model="form.title" label="Title" class="q-mb-md" maxlength="50" :rules="[
+          val => !!val || 'Title is required',
+          val => val.length <= 50 || 'Title cannot exceed 50 characters'
+        ]">
+          <template v-slot:hint>
+            {{ titleCharCount }}/50 characters
+          </template>
+        </q-input>
+
+        <q-input v-model="form.description" type="textarea" label="Description" placeholder="What do you want to share?"
+          autogrow class="text-h6" borderless maxlength="1000" :rules="[
+            val => !!val || 'Description is required',
+            val => val.length <= 1000 || 'Description cannot exceed 1000 characters'
+          ]">
+          <template v-slot:hint>
+            {{ descriptionCharCount }}/1000 characters
+          </template>
+        </q-input>
+
+        <!-- Tags Input -->
+        <q-input v-model="tagInput" label="Add tags (press Enter to add)" @keyup.enter="addTag" class="q-mt-md"
+          :disable="!canAddMoreTags" :hint="canAddMoreTags ? 'Add up to 5 tags' : 'Maximum tags limit reached'">
+          <template v-slot:append>
+            <q-btn round dense flat icon="add" @click="addTag" :disable="!canAddMoreTags" />
+          </template>
+        </q-input>
+
+        <!-- Tags Display -->
+        <div class="q-mt-sm row q-gutter-xs">
+          <q-chip v-for="tag in form.tags" :key="tag" removable @remove="removeTag(tag)" color="primary"
+            text-color="white">
+            #{{ tag }}
+          </q-chip>
+          <div v-if="form.tags.length === 0" class="text-grey-6">
+            No tags added yet
+          </div>
+        </div>
+
+        <div class="row q-mt-lg">
+          <q-btn flat color="primary" class="full-width" @click="handleMediaUpload" :loading="isProcessingImages"
+            :disable="isProcessingImages || !canAddMoreImages">
+            <div class="row items-center">
+              <q-icon name="far fa-image" size="24px" class="q-mr-sm" />
+              {{ isProcessingImages ? 'Processing...' : `Add Photo/Video (${selectedFiles.length}/4)` }}
+            </div>
+          </q-btn>
+        </div>
+
+        <!-- Image Preview Section -->
+        <div v-if="previewUrls.length > 0" class="row q-mt-md q-gutter-x-sm">
+          <div v-for="(url, index) in previewUrls" :key="index" :class="{
+            'col-6': previewUrls.length <= 2,
+            'col-4': previewUrls.length === 3,
+            'col-3': previewUrls.length === 4
+          }" class="relative-position" :style="{
+            'max-width': previewUrls.length === 1 ? '300px' : 'none'
+          }">
+            <q-img :src="url" class="rounded-borders" style="aspect-ratio: 1; object-fit: cover;">
+              <div class="absolute-top-right q-pa-xs">
+                <q-btn round dense color="grey-7" icon="close" size="sm" @click="removeImage(index)" />
+              </div>
+            </q-img>
+          </div>
+        </div>
+
+      </q-card-section>
+
+      <q-separator />
+
+      <q-card-actions align="right" class="q-pa-md">
+        <q-btn unelevated color="primary" label="Post" :disable="!isValid" @click="submitPost" class="full-width" />
+      </q-card-actions>
+    </q-card>
+  </q-dialog>
+</template>
+
+<script setup lang="ts">
+import { ref, computed, watch } from 'vue';
+import { api } from 'src/boot/axios';
+import { useQuasar } from 'quasar';
+import { useUserStore } from 'src/stores/user-store';
+
+
+const userStore = useUserStore();
+
+/// <reference types="@types/google.maps" />
+
+const $q = useQuasar();
+const props = defineProps<{
+  modelValue: boolean
+}>();
+
+const emit = defineEmits<{
+  (e: 'update:modelValue', value: boolean): void
+  (e: 'post-created'): void
+}>();
+
+const isOpen = computed({
+  get: () => props.modelValue,
+  set: (value) => emit('update:modelValue', value)
+});
+
+const form = ref({
+  title: '',
+  description: '',
+  mediaUrls: [] as string[],
+  videoUrl: '',
+  tags: [] as string[],
+  location: {
+    type: 'Point',
+    coordinates: [0, 0]
+  }
+});
+
+const tagInput = ref('');
+
+const titleCharCount = computed(() => {
+  return form.value.title.length;
+});
+
+const descriptionCharCount = computed(() => {
+  return form.value.description.length;
+});
+
+const isValid = computed(() => {
+  return form.value.title.trim() &&
+    form.value.description.trim() &&
+    titleCharCount.value <= 50 &&
+    descriptionCharCount.value <= 1000;
+});
+
+const canAddMoreTags = computed(() => {
+  return form.value.tags.length < 5;
+});
+
+const addTag = () => {
+  const tag = tagInput.value.trim().toLowerCase();
+  if (tag && !form.value.tags.includes(tag) && canAddMoreTags.value) {
+    form.value.tags.push(tag);
+  } else if (!canAddMoreTags.value) {
+    $q.notify({
+      color: 'warning',
+      message: 'Maximum 5 tags allowed',
+      icon: 'warning'
+    });
+  }
+  tagInput.value = '';
+};
+
+const removeTag = (tag: string) => {
+  form.value.tags = form.value.tags.filter(t => t !== tag);
+};
+
+const fileInput = ref<HTMLInputElement | null>(null);
+
+const selectedFiles = ref<File[]>([]);
+const previewUrls = ref<string[]>([]);
+
+const canAddMoreImages = computed(() => {
+  return selectedFiles.value.length < 4;
+});
+
+const resizeImage = (file: File): Promise<Blob> => {
+  return new Promise<Blob>((resolve, reject) => {
+    if (file.size <= 500 * 1024) {
+      resolve(file);
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let width = img.width;
+        let height = img.height;
+
+        let scale = 1;
+        const targetSize = 1024 * 1024; // 1MB
+        if (file.size > targetSize) {
+          scale = Math.sqrt(targetSize / file.size);
+        }
+
+        width = Math.floor(width * scale);
+        height = Math.floor(height * scale);
+
+        canvas.width = width;
+        canvas.height = height;
+
+        const ctx = canvas.getContext('2d')!;
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = 'high';
+        ctx.drawImage(img, 0, 0, width, height);
+
+        canvas.toBlob((result) => {
+          if (result) {
+            resolve(result);
+          } else {
+            reject(new Error('Failed to create blob'));
+          }
+        }, file.type, 1.0);
+      };
+      img.src = e.target?.result as string;
+    };
+    reader.onerror = () => reject(new Error('Failed to read file'));
+    reader.readAsDataURL(file);
+  });
+};
+
+const isProcessingImages = ref(false);
+
+const handleMediaUpload = () => {
+  isProcessingImages.value = true;
+
+  if (!fileInput.value) {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.multiple = true;
+    input.onchange = async (e) => {
+      const files = (e.target as HTMLInputElement).files;
+      if (files) {
+        const remainingSlots = 4 - selectedFiles.value.length;
+        const filesToAdd = Array.from(files).slice(0, remainingSlots);
+
+        if (files.length > remainingSlots) {
+          $q.notify({
+            color: 'warning',
+            message: 'Maximum 4 images allowed',
+            icon: 'warning'
+          });
+        }
+
+        try {
+          for (const file of filesToAdd) {
+            if (file.type.startsWith('image/')) {
+              const resizedBlob = await resizeImage(file);
+              const resizedFile = new File([resizedBlob], file.name, {
+                type: file.type
+              });
+
+              selectedFiles.value.push(resizedFile);
+              const url = URL.createObjectURL(resizedBlob);
+              previewUrls.value.push(url);
+            }
+          }
+        } catch (error) {
+          console.error('Error processing images:', error);
+          $q.notify({
+            color: 'negative',
+            message: 'Error processing images',
+            icon: 'error'
+          });
+        } finally {
+          isProcessingImages.value = false;
+        }
+      } else {
+        isProcessingImages.value = false;
+      }
+    };
+    input.oncancel = () => {
+      isProcessingImages.value = false;
+    };
+    fileInput.value = input;
+  }
+
+  if (canAddMoreImages.value) {
+    fileInput.value.click();
+  } else {
+    isProcessingImages.value = false;
+  }
+};
+
+const removeImage = (index: number) => {
+  URL.revokeObjectURL(previewUrls.value[index]);
+  selectedFiles.value.splice(index, 1);
+  previewUrls.value.splice(index, 1);
+};
+
+
+const submitPost = async () => {
+  try {
+    const formData = new FormData();
+    formData.append('title', form.value.title);
+    formData.append('description', form.value.description);
+    formData.append('postType', 'community');
+    formData.append('status', 'active');
+    formData.append('location', JSON.stringify(form.value.location));
+    formData.append('tags', JSON.stringify(form.value.tags));
+    formData.append('userId', String(userStore.user?.id || ''));
+
+    // Append each file
+    selectedFiles.value.forEach((file, index) => {
+      formData.append(`media_${index}`, file);
+    });
+    await api.post('/posts/post-create', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    });
+
+    $q.notify({
+      color: 'positive',
+      message: 'Post created successfully',
+      icon: 'check'
+    });
+
+    // Reset form and images
+    form.value = {
+      title: '',
+      description: '',
+      mediaUrls: [],
+      videoUrl: '',
+      tags: [],
+      location: {
+        type: 'Point',
+        coordinates: [0, 0]
+      }
+    };
+    selectedFiles.value = [];
+    previewUrls.value.forEach(url => URL.revokeObjectURL(url));
+    previewUrls.value = [];
+
+    isOpen.value = false;
+    emit('post-created');
+  } catch (error) {
+    console.error('Error creating post:', error);
+    $q.notify({
+      color: 'negative',
+      message: 'Failed to create post',
+      icon: 'error'
+    });
+  }
+};
+</script>
+
+<style scoped>
+.q-dialog__inner {
+  min-width: 80vw;
+}
+</style>
