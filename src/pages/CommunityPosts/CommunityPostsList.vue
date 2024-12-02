@@ -120,7 +120,8 @@
                 <template v-if="activeCarouselPost === post.id">
                   <div class="custom-carousel" @wheel="handleScroll" @mouseenter="isHovered = true"
                     @mouseleave="isHovered = false">
-                    <div class="carousel-inner" :style="carouselStyle">
+                    <div class="carousel-inner" :style="carouselStyle" @touchstart="handleTouchStart"
+                      @touchmove="handleTouchMove" @touchend="handleTouchEnd">
                       <div v-for="(url, index) in Array.isArray(post.mediaUrls) ?
                         post.mediaUrls.map(url => imageCdn + url) :
                         [imageCdn + post.mediaUrls]" :key="index" class="carousel-slide"
@@ -667,6 +668,43 @@ onUnmounted(() => {
     clearTimeout(scrollTimeout.value);
   }
 });
+
+// Add these new refs after other refs
+const touchStartX = ref(0);
+const touchEndX = ref(0);
+const isSwiping = ref(false);
+
+// Add these new methods before the existing carousel methods
+const handleTouchStart = (event: TouchEvent) => {
+  touchStartX.value = event.touches[0].clientX;
+  isSwiping.value = true;
+};
+
+const handleTouchMove = (event: TouchEvent) => {
+  if (!isSwiping.value) return;
+  touchEndX.value = event.touches[0].clientX;
+};
+
+const handleTouchEnd = () => {
+  if (!isSwiping.value) return;
+
+  const swipeDistance = touchEndX.value - touchStartX.value;
+  const minSwipeDistance = 50; // Minimum distance to trigger slide change
+
+  if (Math.abs(swipeDistance) >= minSwipeDistance) {
+    if (swipeDistance > 0 && currentIndex.value > 0) {
+      prevSlide();
+    } else if (swipeDistance < 0 && currentIndex.value < totalSlides.value - 1) {
+      nextSlide();
+    }
+  }
+
+  isSwiping.value = false;
+  touchStartX.value = 0;
+  touchEndX.value = 0;
+};
+
+// Update the carousel-inner template section to include touch events
 </script>
 
 <style scoped lang="scss">
@@ -1278,10 +1316,14 @@ onUnmounted(() => {
   background: #000;
   overflow: hidden;
   border-radius: 0;
-  cursor: grab;
+  touch-action: pan-y pinch-zoom; // Improve touch handling
 
-  &:active {
-    cursor: grabbing;
+  @media (hover: hover) {
+    cursor: grab;
+
+    &:active {
+      cursor: grabbing;
+    }
   }
 }
 
@@ -1289,6 +1331,7 @@ onUnmounted(() => {
   display: flex;
   width: 100%;
   will-change: transform;
+  touch-action: pan-x pan-y; // Enable touch scrolling
 }
 
 .carousel-slide {
@@ -1313,6 +1356,11 @@ onUnmounted(() => {
   pointer-events: none;
   user-select: none;
   border-radius: 0;
+  -webkit-user-drag: none; // Prevent image dragging on iOS
+
+  @media (max-width: 600px) {
+    pointer-events: auto; // Enable touch events on mobile
+  }
 }
 
 .carousel-arrow {
