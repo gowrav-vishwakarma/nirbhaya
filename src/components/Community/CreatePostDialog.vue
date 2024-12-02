@@ -29,8 +29,8 @@
           </template>
         </q-input>
 
-        <q-input v-model="form.description" type="textarea" label="Description" placeholder="What do you want to share?"
-          autogrow class="text-h6" borderless maxlength="1000" :rules="[
+        <q-input outlined v-model="form.description" type="textarea" label="Description"
+          placeholder="What do you want to share?" autogrow class="text-h6" borderless maxlength="1000" :rules="[
             val => !!val || 'Description is required',
             val => val.length <= 1000 || 'Description cannot exceed 1000 characters'
           ]">
@@ -63,7 +63,7 @@
             :disable="isProcessingImages || !canAddMoreImages">
             <div class="row items-center">
               <q-icon name="far fa-image" size="24px" class="q-mr-sm" />
-              {{ isProcessingImages ? 'Processing...' : `Add Photo/Video (${selectedFiles.length}/4)` }}
+              {{ isProcessingImages ? 'Processing...' : `Add Photo (${selectedFiles.length}/4)` }}
             </div>
           </q-btn>
         </div>
@@ -90,7 +90,12 @@
       <q-separator />
 
       <q-card-actions align="right" class="q-pa-md">
-        <q-btn unelevated color="primary" label="Post" :disable="!isValid" @click="submitPost" class="full-width" />
+        <q-btn unelevated color="primary" :disable="!isValid" @click="submitPost" class="full-width">
+          <span style="font-size: 14px; font-weight: 800;">
+            Post
+          </span>
+          <i class="fas fa-long-arrow-alt-right" style="font-size: 17px; font-weight: 900; margin-left: 5px;"></i>
+        </q-btn>
       </q-card-actions>
     </q-card>
   </q-dialog>
@@ -237,7 +242,7 @@ const handleMediaUpload = () => {
   if (!fileInput.value) {
     const input = document.createElement('input');
     input.type = 'file';
-    input.accept = 'image/*';
+    input.accept = 'image/jpeg,image/png,image/gif,image/webp,image/heic,image/heif';
     input.multiple = true;
     input.onchange = async (e) => {
       const files = (e.target as HTMLInputElement).files;
@@ -255,16 +260,23 @@ const handleMediaUpload = () => {
 
         try {
           for (const file of filesToAdd) {
-            if (file.type.startsWith('image/')) {
-              const resizedBlob = await resizeImage(file);
-              const resizedFile = new File([resizedBlob], file.name, {
-                type: file.type
+            if (!file.type.match(/^image\/(jpeg|png|gif|webp|heic|heif)$/)) {
+              $q.notify({
+                color: 'negative',
+                message: 'Only image files are allowed',
+                icon: 'error'
               });
-
-              selectedFiles.value.push(resizedFile);
-              const url = URL.createObjectURL(resizedBlob);
-              previewUrls.value.push(url);
+              continue;
             }
+
+            const resizedBlob = await resizeImage(file);
+            const resizedFile = new File([resizedBlob], file.name, {
+              type: file.type
+            });
+
+            selectedFiles.value.push(resizedFile);
+            const url = URL.createObjectURL(resizedBlob);
+            previewUrls.value.push(url);
           }
         } catch (error) {
           console.error('Error processing images:', error);
