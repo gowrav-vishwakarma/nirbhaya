@@ -116,15 +116,33 @@
               </div>
               <!-- Show image collage or carousel based on showCarousel state -->
               <div v-else-if="post.mediaUrls" class="media-section">
-                <!-- Show Carousel when clicked -->
+                <!-- Move controls inside the carousel template -->
                 <template v-if="activeCarouselPost === post.id">
+                  <!-- Dots Navigation -->
+                  <div class="carousel-dots">
+                    <button v-for="index in currentImageCount.total" :key="index" class="dot"
+                      :class="{ active: activeDotIndex === index - 1 }" @click.stop="goToSlide(index - 1)">
+                    </button>
+                  </div>
+
+                  <!-- Image Counter -->
+                  <div class="carousel-counter">
+                    {{ currentVisibleImage }} / {{ currentImageCount.total }}
+                  </div>
+
+                  <!-- Close Button -->
+                  <button class="carousel-close" @click.stop="closeCarousel">
+                    <i class="material-icons">close</i>
+                  </button>
+
                   <div class="custom-carousel" ref="carousel" @touchstart="handleTouchStart"
                     @touchmove="handleTouchMove" @touchend="handleTouchEnd">
                     <div class="carousel-inner" :style="carouselStyle">
                       <div v-for="(url, index) in Array.isArray(post.mediaUrls) ?
                         post.mediaUrls.map(url => imageCdn + url) :
                         [imageCdn + post.mediaUrls]" :key="index" class="carousel-slide"
-                        :class="{ active: currentIndex === index }">
+                        :class="{ active: currentIndex === index }" v-intersection="onCarouselImageIntersection(index)"
+                        ref="carouselImages">
                         <img :src="url" :alt="`Image ${index + 1}`" class="carousel-image" @click.stop />
                       </div>
                     </div>
@@ -133,27 +151,12 @@
                     <button class="carousel-arrow prev" @click.stop="prevSlide" v-show="currentIndex > 0">
                       <i class="material-icons">chevron_left</i>
                     </button>
-                    <button class="carousel-arrow next" @click.stop="nextSlide" v-show="currentIndex < totalSlides - 1">
+                    <button class="carousel-arrow next" @click.stop="nextSlide" v-show="!isLastSlide">
                       <i class="material-icons">chevron_right</i>
-                    </button>
-
-                    <!-- Dots Navigation -->
-                    <div class="carousel-dots">
-                      <button v-for="(_, index) in totalSlides" :key="index" class="dot"
-                        :class="{ active: currentIndex === index }" @click.stop="goToSlide(index)"></button>
-                    </div>
-
-                    <!-- Image Counter -->
-                    <div class="carousel-counter">
-                      {{ currentIndex + 1 }} / {{ totalSlides }}
-                    </div>
-
-                    <!-- Close Button -->
-                    <button class="carousel-close" @click.stop="closeCarousel">
-                      <i class="material-icons">close</i>
                     </button>
                   </div>
                 </template>
+
                 <!-- Show Collage by default -->
                 <template v-else>
                   <div class="media-collage">
@@ -538,11 +541,34 @@ const openImageGallery = (images: string[], startIndex: number) => {
 const activeCarouselPost = ref<number | null>(null);
 const carouselSlide = ref(0);
 
+// First, add a computed property to check if we're on the last slide
+const isLastSlide = computed(() => {
+  return currentIndex.value === totalSlides.value - 1;
+});
+
 // Update the showCarousel method
 const showCarousel = (postId: number, startIndex: number) => {
+  const post = posts.value.find(p => p.id === postId);
   activeCarouselPost.value = postId;
-  carouselSlide.value = startIndex;
   currentIndex.value = startIndex;
+
+  if (post && post.mediaUrls) {
+    const imageData = {
+      postId,
+      startIndex: startIndex + 1,
+      totalImages: Array.isArray(post.mediaUrls) ? post.mediaUrls.length : 1,
+      allImages: Array.isArray(post.mediaUrls) ?
+        post.mediaUrls.map((url, idx) => ({
+          index: idx + 1,
+          url: imageCdn + url,
+          isActive: idx === startIndex
+        })) :
+        [{ index: 1, url: imageCdn + post.mediaUrls, isActive: true }],
+      activeDot: startIndex
+    };
+
+    console.log('Carousel Opened:', imageData);
+  }
 };
 
 const closeCarousel = () => {
@@ -561,11 +587,51 @@ const totalSlides = computed(() => {
   return Array.isArray(activePost.mediaUrls) ? activePost.mediaUrls.length : 1;
 });
 
-// Add these new methods
+// Add this computed property to track current image count
+const currentImageCount = computed(() => {
+  const activePost = posts.value.find(p => p.id === activeCarouselPost.value);
+  if (!activePost?.mediaUrls) return { current: 0, total: 0 };
+
+  return {
+    current: currentIndex.value + 1,
+    total: Array.isArray(activePost.mediaUrls) ? activePost.mediaUrls.length : 1
+  };
+});
+
+// Add this computed property to track active dots
+const activeDotIndex = computed(() => {
+  return currentVisibleImage.value ? currentVisibleImage.value - 1 : currentIndex.value;
+});
+
+// Update the slide navigation methods
+const goToSlide = (index: number) => {
+  if (isTransitioning.value) return;
+  isTransitioning.value = true;
+  currentIndex.value = index;
+  currentVisibleImage.value = index + 1;
+
+  console.log('Go To Slide:', {
+    index: index + 1,
+    total: totalSlides.value,
+    currentVisible: currentVisibleImage.value
+  });
+
+  setTimeout(() => {
+    isTransitioning.value = false;
+  }, 300);
+};
+
 const prevSlide = () => {
   if (isTransitioning.value) return;
   isTransitioning.value = true;
   currentIndex.value = (currentIndex.value - 1 + totalSlides.value) % totalSlides.value;
+  currentVisibleImage.value = currentIndex.value + 1;
+
+  console.log('Previous Slide:', {
+    newIndex: currentIndex.value + 1,
+    currentVisible: currentVisibleImage.value
+  });
+
   setTimeout(() => {
     isTransitioning.value = false;
   }, 300);
@@ -575,15 +641,13 @@ const nextSlide = () => {
   if (isTransitioning.value) return;
   isTransitioning.value = true;
   currentIndex.value = (currentIndex.value + 1) % totalSlides.value;
-  setTimeout(() => {
-    isTransitioning.value = false;
-  }, 300);
-};
+  currentVisibleImage.value = currentIndex.value + 1;
 
-const goToSlide = (index: number) => {
-  if (isTransitioning.value) return;
-  isTransitioning.value = true;
-  currentIndex.value = index;
+  console.log('Next Slide:', {
+    newIndex: currentIndex.value + 1,
+    currentVisible: currentVisibleImage.value
+  });
+
   setTimeout(() => {
     isTransitioning.value = false;
   }, 300);
@@ -614,51 +678,16 @@ const handleKeydown = (event: KeyboardEvent) => {
   }
 };
 
-// Add these new refs
-const isHovered = ref(false);
-const scrollTimeout = ref<number | null>(null);
-const scrollThreshold = 50; // Minimum scroll amount to trigger slide change
 
 // Update the handleScroll method
-const handleScroll = (event: WheelEvent) => {
-  if (!isHovered.value) return;
-  event.preventDefault(); // Prevent default scroll
-
-  // Clear any existing timeout
-  if (scrollTimeout.value) {
-    clearTimeout(scrollTimeout.value);
-  }
-
-  const delta = event.deltaX || event.deltaY; // Use either horizontal or vertical scroll
-
-  // Determine direction and change slide after threshold is met
-  if (Math.abs(delta) > scrollThreshold) {
-    if (delta > 0 && currentIndex.value < totalSlides.value - 1) {
-      nextSlide();
-    } else if (delta < 0 && currentIndex.value > 0) {
-      prevSlide();
-    }
-  }
-
-  // Set a timeout to reset scroll accumulation
-  scrollTimeout.value = window.setTimeout(() => {
-    scrollTimeout.value = null;
-  }, 150);
-};
 
 // Update the carouselStyle computed property
 const carouselStyle = computed(() => ({
-  transform: `translateX(-${currentIndex.value * 100}%)`,
-  transition: 'transform 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
+  transform: `translate3d(-${currentIndex.value * 100}%, 0, 0)`,
   willChange: 'transform'
 }));
 
-// Clean up on unmount
-onUnmounted(() => {
-  if (scrollTimeout.value) {
-    clearTimeout(scrollTimeout.value);
-  }
-});
+
 
 // Add these new refs for touch handling
 const touchStart = ref(0);
@@ -668,28 +697,126 @@ const carousel = ref<HTMLElement | null>(null);
 // Add these new methods for touch handling
 const handleTouchStart = (event: TouchEvent) => {
   touchStart.value = event.touches[0].clientX;
+  // Reset transition during touch
+  if (carousel.value) {
+    carousel.value.style.transition = 'none';
+  }
 };
 
 const handleTouchMove = (event: TouchEvent) => {
-  touchEnd.value = event.touches[0].clientX;
+  if (!touchStart.value || !carousel.value) return;
+
+  const currentX = event.touches[0].clientX;
+  const diff = touchStart.value - currentX;
+  const translateX = -(currentIndex.value * 100) - (diff / carousel.value.offsetWidth * 100);
+
+  // Apply transform directly for smoother movement
+  carousel.value.style.transform = `translate3d(${translateX}%, 0, 0)`;
+  touchEnd.value = currentX;
 };
 
 const handleTouchEnd = () => {
-  if (!carousel.value) return;
+  if (!touchStart.value || !touchEnd.value || !carousel.value) return;
+
+  // Restore transition
+  carousel.value.style.transition = 'transform 0.3s ease-out';
 
   const diff = touchStart.value - touchEnd.value;
-  const threshold = 50; // minimum distance for swipe
+  const threshold = carousel.value.offsetWidth * 0.2; // 20% of width
 
   if (Math.abs(diff) > threshold) {
     if (diff > 0 && currentIndex.value < totalSlides.value - 1) {
       nextSlide();
     } else if (diff < 0 && currentIndex.value > 0) {
       prevSlide();
+    } else {
+      // Reset to current slide if at bounds
+      carousel.value.style.transform = `translate3d(-${currentIndex.value * 100}%, 0, 0)`;
     }
+  } else {
+    // Reset to current slide if threshold not met
+    carousel.value.style.transform = `translate3d(-${currentIndex.value * 100}%, 0, 0)`;
   }
+
+  touchStart.value = 0;
+  touchEnd.value = 0;
 };
 
 // Update the template to add touch handlers and ref
+
+// Add this computed property after other computed properties
+const getCurrentImageIndex = (postId: number) => {
+  const post = posts.value.find(p => p.id === postId);
+  if (!post) return 0;
+
+  const totalImages = Array.isArray(post.mediaUrls) ? post.mediaUrls.length : 1;
+  const result = {
+    current: currentIndex.value + 1,
+    total: totalImages
+  };
+
+  console.log('Current Image Index:', {
+    postId,
+    currentIndex: result.current,
+    totalImages: result.total,
+    mediaUrls: post.mediaUrls
+  });
+
+  return result;
+};
+
+// Then update the carousel section in the template where the images are displayed
+
+// Add these new refs
+const currentVisibleImage = ref<number | null>(null);
+const carouselImages = ref<HTMLElement[]>([]);
+
+// Update the intersection handler method to fix the type error and track image data
+const onCarouselImageIntersection = (index: number) => ({
+  handler: (entry?: IntersectionObserverEntry) => {
+    if (!entry) return false;
+
+    if (entry.isIntersecting) {
+      const activePost = posts.value.find(p => p.id === activeCarouselPost.value);
+      const imageData = {
+        index: index + 1,
+        total: totalSlides.value,
+        isIntersecting: entry.isIntersecting,
+        intersectionRatio: entry.intersectionRatio,
+        currentImage: activePost?.mediaUrls ? (
+          Array.isArray(activePost.mediaUrls) ?
+            activePost.mediaUrls[index] :
+            activePost.mediaUrls
+        ) : null,
+        activeDot: currentIndex.value,
+        postId: activeCarouselPost.value
+      };
+
+      console.log('Image Data:', imageData);
+      currentVisibleImage.value = index + 1;
+    }
+    return true;
+  },
+  cfg: {
+    threshold: [0.5] // Fix type error by making threshold an array
+  }
+});
+
+// Add a watcher to log changes in current index
+watch(currentIndex, (newIndex) => {
+  const activePost = posts.value.find(p => p.id === activeCarouselPost.value);
+  console.log('Carousel State:', {
+    currentIndex: newIndex + 1,
+    totalImages: totalSlides.value,
+    activeDot: newIndex,
+    currentImage: activePost?.mediaUrls ? (
+      Array.isArray(activePost.mediaUrls) ?
+        activePost.mediaUrls[newIndex] :
+        activePost.mediaUrls
+    ) : null,
+    postId: activeCarouselPost.value
+  });
+});
 </script>
 
 <style scoped lang="scss">
@@ -1300,24 +1427,22 @@ const handleTouchEnd = () => {
   width: 100%;
   height: auto;
   background: #000;
-  overflow-x: hidden;
-  overflow-y: hidden;
+  overflow: hidden;
   border-radius: 0;
   -webkit-overflow-scrolling: touch;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-  touch-action: pan-x;
-
-  &::-webkit-scrollbar {
-    display: none;
-  }
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+  scroll-behavior: smooth;
 }
 
 .carousel-inner {
   display: flex;
   width: 100%;
-  will-change: transform;
-  touch-action: pan-x;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+  perspective: 1000px;
 }
 
 .carousel-slide {
@@ -1328,13 +1453,11 @@ const handleTouchEnd = () => {
   align-items: center;
   justify-content: center;
   padding: 0;
-  transition: opacity 0.5s ease;
-  aspect-ratio: 16/9;
-  position: relative;
-
-  &.active {
-    opacity: 1;
-  }
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  will-change: transform;
+  -webkit-transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
 }
 
 .carousel-image {
@@ -1345,15 +1468,65 @@ const handleTouchEnd = () => {
   user-select: none;
   border-radius: 0;
   -webkit-user-drag: none;
-
-  @media (max-width: 600px) {
-    pointer-events: auto;
-  }
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  -webkit-transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
 }
 
 .carousel-arrow {
-  @media (max-width: 600px) {
-    display: none;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(0, 0, 0, 0.4);
+  color: white;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  z-index: 10;
+  opacity: 0.8;
+
+  &:hover {
+    background: rgba(0, 0, 0, 0.6);
+    opacity: 1;
+    transform: translateY(-50%) scale(1.1);
+  }
+
+  &.prev {
+    left: 16px;
+  }
+
+  &.next {
+    right: 16px;
+  }
+
+  i {
+    font-size: 24px;
+  }
+}
+
+@media (max-width: 600px) {
+  .carousel-arrow {
+    width: 36px;
+    height: 36px;
+
+    &.prev {
+      left: 8px;
+    }
+
+    &.next {
+      right: 8px;
+    }
+
+    i {
+      font-size: 20px;
+    }
   }
 }
 
@@ -1368,7 +1541,7 @@ const handleTouchEnd = () => {
   background: rgba(0, 0, 0, 0.15);
   backdrop-filter: blur(8px);
   border-radius: 40px;
-  z-index: 10;
+  z-index: 1000;
   border: 1px solid rgba(255, 255, 255, 0.1);
   transition: all 0.3s ease;
 
@@ -1433,7 +1606,7 @@ const handleTouchEnd = () => {
   border-radius: 20px;
   font-size: 14px;
   backdrop-filter: blur(4px);
-  z-index: 10;
+  z-index: 1000;
 }
 
 .carousel-close {
@@ -1452,7 +1625,7 @@ const handleTouchEnd = () => {
   align-items: center;
   justify-content: center;
   transition: all 0.3s ease;
-  z-index: 10;
+  z-index: 1000;
 
   &:hover {
     background: rgba(0, 0, 0, 0.6);
@@ -1497,18 +1670,66 @@ const handleTouchEnd = () => {
     overflow-x: auto;
     scroll-snap-type: x mandatory;
     -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+
+    // Hide scrollbar in different browsers
+    scrollbar-width: none;
+    /* Firefox */
+    -ms-overflow-style: none;
+
+    /* IE and Edge */
+    &::-webkit-scrollbar {
+      display: none;
+      /* Chrome, Safari and Opera */
+    }
   }
 
   .carousel-slide {
-    scroll-snap-align: start;
-    touch-action: pan-x;
+    scroll-snap-align: center;
+    touch-action: pan-x pan-y;
     scroll-snap-stop: always;
-
   }
 
   .carousel-inner {
     transform: none !important;
     transition: none !important;
+    scroll-padding: 0 10%;
   }
+}
+
+.image-counter-badge {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  background: rgba(0, 0, 0, 0.6);
+  color: white;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 14px;
+  z-index: 20;
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  pointer-events: none;
+}
+
+@media (max-width: 600px) {
+  .image-counter-badge {
+    top: 12px;
+    left: 12px;
+    font-size: 12px;
+    padding: 4px 10px;
+  }
+}
+
+.debug-info {
+  position: absolute;
+  bottom: 16px;
+  right: 16px;
+  background: rgba(0, 0, 0, 0.6);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  z-index: 20;
 }
 </style>
