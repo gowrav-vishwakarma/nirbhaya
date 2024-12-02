@@ -14,7 +14,7 @@
           <p class="text-grey-7 q-mt-sm">Stay connected with your community</p>
         </div>
         <div class="text-right">
-          <q-btn color="primary" class="" @click="goToCommunityPage">
+          <q-btn color="primary" class="" @click="goToCommunityPage" style="border-radius: 9px;">
             <q-icon style="font-size: 20px; " name="add_circle"></q-icon>
             <span style="font-size: 10px; font-weight: 800; padding-left: 5px;">
               Suggestion
