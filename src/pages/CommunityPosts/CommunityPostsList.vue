@@ -1469,7 +1469,8 @@ onUnmounted(() => {
     width: 6px;
     height: 6px;
 
-    &.active {      width: 10px;
+    &.active {
+      width: 10px;
       height: 6px;
     }
   }
