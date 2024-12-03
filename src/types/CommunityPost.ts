@@ -1,14 +1,24 @@
+export interface Comment {
+  id: string;
+  content: string;
+  userId: string;
+  userName: string;
+  userAvatar?: string;
+  createdAt: string;
+  parentId?: string;
+}
+
 export interface CommunityPost {
   id: number;
   title: string;
   description: string;
-  mediaUrls: string[];
-  priority: 'low' | 'medium' | 'high';
-  status: 'active' | 'inactive';
-  postType: string;
-  tags: string[];
+  userId: number;
+  liked: boolean;
   likesCount: number;
   commentsCount: number;
   sharesCount: number;
-  activeSlide?: number;
+  status: string;
+  createdAt: string;
+  updatedAt: string;
+  userName?: string;
 }

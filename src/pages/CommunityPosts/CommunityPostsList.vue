@@ -198,6 +198,8 @@
                   </div>
                 </template>
               </div>
+              <!-- Engagement Actions -->
+              <PostEngagement :post="post" @update:post="updatePost($event)" />
             </q-card-section>
           </q-card>
         </div>
@@ -214,23 +216,16 @@ import { api } from 'src/boot/axios';
 import { useRouter } from 'vue-router';
 import CreatePostDialog from 'src/components/Community/CreatePostDialog.vue';
 import { useUserStore } from 'src/stores/user-store';
+import { communityPostService } from 'src/services/communityPostService';
+import type { CommunityPost, Comment } from 'src/types/CommunityPost';
+import PostEngagement from 'src/pages/CommunityPosts/PostEngagement.vue';
 
+// Update Post interface to extend CommunityPost
+interface Post extends CommunityPost {
+  userName: string;
+}
 
 const userStore = useUserStore();
-interface Post {
-  id: number;
-  title: string;
-  description: string;
-  mediaUrls: string[];
-  videoUrl?: string;
-  priority: string;
-  status: string;
-  postType: string;
-  tags: string[];
-  createdAt: string | null;
-  activeSlide?: number;
-  userName: string
-}
 
 const imageCdn = 'http://xavoc-technocrats-pvt-ltd.blr1.cdn.digitaloceanspaces.com/'
 
@@ -238,16 +233,16 @@ const $q = useQuasar();
 const posts = ref<Post[]>([]);
 
 // Add this new ref for tracking expanded descriptions
-const showFullDescription = ref<{ [key: number]: boolean }>({});
+const showFullDescription = ref<{ [key: string]: boolean }>({});
 
 // Add ref for tracking video visibility
-const videoVisibility = ref<Record<number, boolean>>({});
+const videoVisibility = ref<Record<string, boolean>>({});
 
 // Add loading state
 const loading = ref(true);
 
 // Add a ref to track the currently playing video
-const currentlyPlayingVideo = ref<number | null>(null);
+const currentlyPlayingVideo = ref<string | null>(null);
 
 // Add new refs for dialog
 // const showSuggestionDialog = ref(false);
@@ -355,7 +350,7 @@ const truncateText = (text: string, wordCount: number) => {
 };
 
 // Add toggle function
-const toggleDescription = (postId: number) => {
+const toggleDescription = (postId: string) => {
   showFullDescription.value[postId] = !showFullDescription.value[postId];
 };
 
@@ -397,13 +392,13 @@ const getYouTubeEmbedUrl = (url: string) => {
 };
 
 // Update getVideoUrl function
-const getVideoUrl = (postId: number, url: string) => {
+const getVideoUrl = (postId: string, url: string) => {
   const baseUrl = getYouTubeEmbedUrl(url);
   return `${baseUrl}?enablejsapi=1&rel=0&modestbranding=1&mute=1`;
 };
 
 // Update the controlVideo function to be more reliable
-const controlVideo = (postId: number, command: 'play' | 'pause') => {
+const controlVideo = (postId: string, command: 'play' | 'pause') => {
   const iframe = document.getElementById(`video-${postId}`) as HTMLIFrameElement;
   if (iframe && iframe.contentWindow) {
     try {
@@ -422,7 +417,7 @@ const controlVideo = (postId: number, command: 'play' | 'pause') => {
 };
 
 // Update the onVideoIntersection handler with more precise center detection
-const onVideoIntersection = (postId: number) => ({
+const onVideoIntersection = (postId: string) => ({
   handler: (entry?: IntersectionObserverEntry) => {
     if (!entry) return false;
 
@@ -503,7 +498,7 @@ const handlePostCreated = () => {
 
 
 // Add these new refs
-const activeCarouselPost = ref<number | null>(null);
+const activeCarouselPost = ref<string | null>(null);
 const carouselSlide = ref(0);
 
 // First, add a computed property to check if we're on the last slide
@@ -512,7 +507,7 @@ const isLastSlide = computed(() => {
 });
 
 // Update the showCarousel method
-const showCarousel = (postId: number, startIndex: number) => {
+const showCarousel = (postId: string, startIndex: number) => {
   const post = posts.value.find(p => p.id === postId);
   activeCarouselPost.value = postId;
   currentIndex.value = startIndex;
@@ -761,6 +756,108 @@ watch(currentIndex, (newIndex) => {
     postId: activeCarouselPost.value
   });
 });
+
+// Add these refs
+const activeCommentPost = ref<string | null>(null);
+const newComment = ref('');
+
+// Add these methods
+const handleLike = async (post: Post) => {
+  try {
+    if (!userStore.user) {
+      $q.notify({
+        message: 'Please login to like posts',
+        color: 'warning'
+      });
+      return;
+    }
+
+    if (post.liked) {
+      await communityPostService.unlikePost(Number(post.id), Number(userStore.user.id));
+      post.liked = false;
+      post.likes--;
+    } else {
+      await communityPostService.likePost(Number(post.id), Number(userStore.user.id));
+      post.liked = true;
+      post.likes++;
+    }
+  } catch (error) {
+    console.error('Error handling like:', error);
+    $q.notify({
+      message: 'Failed to update like',
+      color: 'negative'
+    });
+  }
+};
+
+const showComments = (post: Post) => {
+  activeCommentPost.value = activeCommentPost.value === post.id ? null : post.id;
+};
+
+const addComment = async (post: Post) => {
+  if (!newComment.value.trim()) return;
+
+  try {
+    if (!userStore.user) {
+      $q.notify({
+        message: 'Please login to comment',
+        color: 'warning'
+      });
+      return;
+    }
+
+    const comment = await communityPostService.addComment(post.id, newComment.value);
+    post.comments = [...(post.comments || []), comment];
+    newComment.value = '';
+  } catch (error) {
+    console.error('Error adding comment:', error);
+    $q.notify({
+      message: 'Failed to add comment',
+      color: 'negative'
+    });
+  }
+};
+
+const handleShare = async (post: Post) => {
+  try {
+    if (navigator.share) {
+      await navigator.share({
+        title: post.title,
+        text: post.description,
+        url: window.location.href
+      });
+
+      // Update share count
+      await communityPostService.sharePost(post.id);
+      post.shares = (post.shares || 0) + 1;
+    } else {
+      // Fallback for browsers that don't support Web Share API
+      await navigator.clipboard.writeText(window.location.href);
+      $q.notify({
+        message: 'Link copied to clipboard!',
+        color: 'positive'
+      });
+    }
+  } catch (error) {
+    console.error('Error sharing post:', error);
+    $q.notify({
+      message: 'Failed to share post',
+      color: 'negative'
+    });
+  }
+};
+
+// Add this method
+const updatePost = (updatedPost: CommunityPost) => {
+  const index = posts.value.findIndex(p => p.id === updatedPost.id);
+  if (index !== -1) {
+    // Preserve the userName when updating
+    posts.value[index] = {
+      ...updatedPost,
+      userName: posts.value[index].userName
+    };
+  }
+};
 </script>
 
 <style scoped lang="scss">
@@ -1675,5 +1772,194 @@ watch(currentIndex, (newIndex) => {
   border-radius: 4px;
   font-size: 12px;
   z-index: 20;
+}
+
+.engagement-btn {
+  padding: 4px 12px;
+  border-radius: 20px;
+  min-width: 80px;
+
+  &:hover {
+    background: rgba(0, 0, 0, 0.05);
+  }
+}
+
+.comments-section {
+  border-top: 1px solid rgba(0, 0, 0, 0.12);
+  padding-top: 16px;
+}
+
+.comment-bubble {
+  background: #f5f5f5;
+  padding: 8px 12px;
+  border-radius: 12px;
+  display: inline-block;
+}
+
+.comment-item {
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: rgba(0, 0, 0, 0.02);
+  }
+}
+
+// Add responsive styles
+@media (max-width: 600px) {
+  .engagement-btn {
+    min-width: 60px;
+    padding: 4px 8px;
+  }
+}
+
+.engagement-section {
+  padding: 12px 16px;
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+  background: #ffffff;
+}
+
+.engagement-btn {
+  padding: 8px 12px;
+  border-radius: 20px;
+  min-width: 80px;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background: rgba(0, 0, 0, 0.05);
+    transform: translateY(-1px);
+  }
+
+  &.liked {
+    animation: likeAnimation 0.3s ease;
+  }
+}
+
+@keyframes likeAnimation {
+  0% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.2);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+.share-btn {
+  padding: 8px 16px;
+  border-radius: 20px;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background: rgba(0, 0, 0, 0.05);
+    transform: translateY(-1px);
+  }
+}
+
+.engagement-count {
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.comments-section {
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+  margin-top: 12px;
+  padding-top: 16px;
+}
+
+.comment-input-container {
+  background: #f8f9fa;
+  border-radius: 12px;
+  padding: 8px;
+}
+
+.comment-input {
+  :deep(.q-field__control) {
+    border-radius: 20px;
+    background: white;
+  }
+
+  :deep(.q-field__marginal) {
+    height: 40px;
+  }
+}
+
+.send-btn {
+  margin-left: 8px;
+  background: $primary;
+  color: white;
+
+  &:hover {
+    background: darken($primary, 5%);
+  }
+}
+
+.comment-bubble {
+  background: #f0f2f5;
+  padding: 8px 12px;
+  border-radius: 12px;
+  max-width: 100%;
+  word-wrap: break-word;
+}
+
+.comment-content {
+  font-size: 0.95rem;
+  line-height: 1.4;
+  margin-top: 2px;
+}
+
+.timestamp {
+  font-size: 0.75rem;
+  margin-top: 4px;
+  opacity: 0.7;
+}
+
+.comment-item {
+  padding: 4px 8px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: rgba(0, 0, 0, 0.02);
+  }
+}
+
+// Comment animations
+.comment-enter-active,
+.comment-leave-active {
+  transition: all 0.3s ease;
+}
+
+.comment-enter-from {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.comment-leave-to {
+  opacity: 0;
+  transform: translateX(-20px);
+}
+
+// Responsive adjustments
+@media (max-width: 600px) {
+  .engagement-btn {
+    min-width: 60px;
+    padding: 6px 8px;
+  }
+
+  .engagement-count {
+    font-size: 0.8rem;
+  }
+
+  .comment-bubble {
+    padding: 6px 10px;
+  }
+
+  .comment-content {
+    font-size: 0.9rem;
+  }
 }
 </style>
