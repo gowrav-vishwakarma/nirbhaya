@@ -205,32 +205,10 @@
     </div>
   </q-page>
   <CreatePostDialog v-model="showCreatePostDialog" @post-created="handlePostCreated" />
-  <!-- Add Image Gallery Dialog -->
-  <q-dialog v-model="showGallery" full-width maximized>
-    <q-card class="gallery-dialog">
-      <q-card-section class="gallery-header">
-        <div class="text-h6 text-white">Images</div>
-        <q-btn flat round icon="close" color="white" v-close-popup />
-      </q-card-section>
-
-      <q-card-section class="gallery-content">
-        <q-carousel v-model="currentSlide" transition-prev="slide-right" transition-next="slide-left" swipeable animated
-          control-color="white" navigation arrows height="90vh" class="gallery-carousel">
-          <q-carousel-slide v-for="(url, index) in currentGalleryImages" :key="index" :name="index"
-            class="gallery-slide">
-            <div class="gallery-image-container">
-              <q-img :src="imageCdn + url" class="gallery-image" fit="contain" />
-            </div>
-            <div class="image-counter">{{ index + 1 }} / {{ currentGalleryImages.length }}</div>
-          </q-carousel-slide>
-        </q-carousel>
-      </q-card-section>
-    </q-card>
-  </q-dialog>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch, onUnmounted, nextTick, Ref, computed } from 'vue';
+import { ref, onMounted, watch, onUnmounted, computed } from 'vue';
 import { useQuasar } from 'quasar';
 import { api } from 'src/boot/axios';
 import { useRouter } from 'vue-router';
@@ -523,19 +501,6 @@ const handlePostCreated = () => {
   loadPosts();
 };
 
-// Add Image Gallery Dialog
-const showGallery = ref(false);
-const currentSlide = ref(0);
-const currentGalleryImages = ref<string[]>([]);
-
-// Add function to open image gallery
-const openImageGallery = (images: string[], startIndex: number) => {
-  if (Array.isArray(images)) {
-    currentGalleryImages.value = images;
-    currentSlide.value = startIndex;
-    showGallery.value = true;
-  }
-};
 
 // Add these new refs
 const activeCarouselPost = ref<number | null>(null);
@@ -743,27 +708,6 @@ const handleTouchEnd = () => {
 };
 
 // Update the template to add touch handlers and ref
-
-// Add this computed property after other computed properties
-const getCurrentImageIndex = (postId: number) => {
-  const post = posts.value.find(p => p.id === postId);
-  if (!post) return 0;
-
-  const totalImages = Array.isArray(post.mediaUrls) ? post.mediaUrls.length : 1;
-  const result = {
-    current: currentIndex.value + 1,
-    total: totalImages
-  };
-
-  console.log('Current Image Index:', {
-    postId,
-    currentIndex: result.current,
-    totalImages: result.total,
-    mediaUrls: post.mediaUrls
-  });
-
-  return result;
-};
 
 // Then update the carousel section in the template where the images are displayed
 
