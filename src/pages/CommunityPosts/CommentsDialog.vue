@@ -46,10 +46,10 @@
               {{ post.title }}
             </div>
             <div class="text-body1 post-description">
-              {{ showFullDescription[post.id] ? post.description : truncateText(post.description, 15) }}
+              {{ showFullDescription[post.id.toString()] ? post.description : truncateText(post.description, 15) }}
               <span v-if="post.description.split(' ').length > 10" @click="toggleDescription(post.id)"
                 class="read-more-link">
-                {{ showFullDescription[post.id] ? 'Read Less' : 'Read More' }}
+                {{ showFullDescription[post.id.toString()] ? 'Read Less' : 'Read More' }}
               </span>
             </div>
 
@@ -163,21 +163,50 @@
           <div class="row q-mb-lg justify-between">
             <!-- Likes -->
             <q-btn flat dense class="items-center" @click="handleLike(post)">
-              <q-icon :name="post.liked ? 'favorite' : 'favorite_border'" size="24px" class="q-mr-sm"
-                :color="post.liked ? 'red' : 'grey'" />
-              <span class="text-weight-medium">{{ post.likesCount || 0 }}</span>
+              <div class="flex items-center justify-center gap-2 px-3 py-2 cursor-pointer hover:bg-gray-100 rounded-lg">
+                <div :class="['heart-icon', { 'liked': post.liked }]">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor"
+                    viewBox="0 0 256 256">
+                    <path v-if="post.liked"
+                      d="M240,94c0,70-103.79,126.66-108.21,129a8,8,0,0,1-7.58,0C119.79,220.66,16,164,16,94A62.07,62.07,0,0,1,78,32c20.65,0,38.73,8.88,50,23.89C139.27,40.88,157.35,32,178,32A62.07,62.07,0,0,1,240,94Z">
+                    </path>
+                    <path v-else
+                      d="M178,32c-20.65,0-38.73,8.88-50,23.89C116.73,40.88,98.65,32,78,32A62.07,62.07,0,0,0,16,94c0,70,103.79,126.66,108.21,129a8,8,0,0,0,7.58,0C136.21,220.66,240,164,240,94A62.07,62.07,0,0,0,178,32ZM128,206.8C109.74,196.16,32,147.69,32,94A46.06,46.06,0,0,1,78,48c19.45,0,35.78,10.36,42.6,27a8,8,0,0,0,14.8,0c6.82-16.67,23.15-27,42.6-27a46.06,46.06,0,0,1,46,46C224,147.61,146.24,196.15,128,206.8Z">
+                    </path>
+                  </svg>
+                </div>
+              </div>
+              <span class="text-[#637588] text-[13px] font-bold">{{ post.likesCount || 0 }}</span>
             </q-btn>
 
-            <!-- Comments (disabled) -->
+            <!-- Comments -->
             <q-btn flat dense class="items-center" disable>
-              <q-icon name="chat" size="24px" class="q-mr-sm text-grey" />
-              <span class="text-weight-medium">{{ post.commentsCount || 0 }}</span>
+              <div class="flex items-center justify-center gap-2 px-3 py-2 cursor-pointer hover:bg-gray-100 rounded-lg">
+                <div class="text-[#637588]">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor"
+                    viewBox="0 0 256 256">
+                    <path
+                      d="M168,112a8,8,0,0,1-8,8H96a8,8,0,0,1,0-16h64A8,8,0,0,1,168,112Zm-8,24H96a8,8,0,0,0,0,16h64a8,8,0,0,0,0-16Zm72-12A100.11,100.11,0,0,1,132,224H47.67A15.69,15.69,0,0,1,32,208.33V124a100,100,0,0,1,200,0Zm-16,0a84,84,0,0,0-168,0v84h84A84.09,84.09,0,0,0,216,124Z">
+                    </path>
+                  </svg>
+                </div>
+              </div>
+              <span class="text-[#637588] text-[13px] font-bold">{{ post.commentsCount || 0 }}</span>
             </q-btn>
 
             <!-- Share -->
             <q-btn flat dense class="items-center" @click="handleShare(post)">
-              <q-icon name="send" size="24px" class="q-mr-sm" />
-              <span class="text-weight-medium">{{ post.sharesCount || 0 }}</span>
+              <div class="flex items-center justify-center gap-2 px-3 py-2 cursor-pointer hover:bg-gray-100 rounded-lg">
+                <div class="text-[#637588]">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor"
+                    viewBox="0 0 256 256">
+                    <path
+                      d="M223.87,114l-168-95.89A16,16,0,0,0,32.93,37.32l31,90.47a.42.42,0,0,0,0,.1.3.3,0,0,0,0,.1l-31,90.67A16,16,0,0,0,48,240a16.14,16.14,0,0,0,7.92-2.1l167.91-96.05a16,16,0,0,0,.05-27.89ZM48,224l0-.09L78.14,136H136a8,8,0,0,0,0-16H78.22L48.06,32.12,48,32l168,95.83Z">
+                    </path>
+                  </svg>
+                </div>
+              </div>
+              <span class="text-[#637588] text-[13px] font-bold">{{ post.sharesCount || 0 }}</span>
             </q-btn>
           </div>
 
@@ -212,23 +241,38 @@
                 <p class="comment-content q-mt-sm q-mb-sm">{{ comment.content }}</p>
                 <div class="row q-gutter-md">
                   <!-- Like Button -->
-                  <q-btn flat dense size="sm" class="items-center" @click="handleCommentLike(comment)">
-                    <q-icon :name="comment.isLiked ? 'thumb_up' : 'thumb_up_off_alt'"
-                      :color="comment.isLiked ? 'primary' : 'grey'" size="18px" class="q-mr-xs" />
-                    <span>{{ comment.likes || 0 }}</span>
-                  </q-btn>
-
-                  <!-- Dislike Button -->
-                  <q-btn flat dense size="sm" class="items-center" @click="handleCommentDislike(comment)">
-                    <q-icon :name="comment.isDisliked ? 'thumb_down' : 'thumb_down_off_alt'"
-                      :color="comment.isDisliked ? 'negative' : 'grey'" size="18px" class="q-mr-xs" />
-                    <span>{{ comment.dislikes || 0 }}</span>
+                  <q-btn flat dense size="sm" class="items-center" @click="handleCommentLike(comment as Comment)">
+                    <div
+                      class="flex items-center justify-center gap-2 px-2 py-1 cursor-pointer hover:bg-gray-100 rounded-lg">
+                      <div :class="['heart-icon', { 'liked': comment.isLiked }]">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20px" height="20px" fill="currentColor"
+                          viewBox="0 0 256 256">
+                          <path v-if="comment.isLiked"
+                            d="M240,94c0,70-103.79,126.66-108.21,129a8,8,0,0,1-7.58,0C119.79,220.66,16,164,16,94A62.07,62.07,0,0,1,78,32c20.65,0,38.73,8.88,50,23.89C139.27,40.88,157.35,32,178,32A62.07,62.07,0,0,1,240,94Z">
+                          </path>
+                          <path v-else
+                            d="M178,32c-20.65,0-38.73,8.88-50,23.89C116.73,40.88,98.65,32,78,32A62.07,62.07,0,0,0,16,94c0,70,103.79,126.66,108.21,129a8,8,0,0,0,7.58,0C136.21,220.66,240,164,240,94A62.07,62.07,0,0,0,178,32ZM128,206.8C109.74,196.16,32,147.69,32,94A46.06,46.06,0,0,1,78,48c19.45,0,35.78,10.36,42.6,27a8,8,0,0,0,14.8,0c6.82-16.67,23.15-27,42.6-27a46.06,46.06,0,0,1,46,46C224,147.61,146.24,196.15,128,206.8Z">
+                          </path>
+                        </svg>
+                      </div>
+                    </div>
+                    <span class="text-[#637588] text-[13px] font-bold">{{ comment.likes || 0 }}</span>
                   </q-btn>
 
                   <!-- Reply Button -->
-                  <q-btn flat dense size="sm" class="items-center" @click="showReplyInput(comment)">
-                    <q-icon name="reply" size="18px" class="q-mr-xs" />
-                    <span>Reply</span>
+                  <q-btn flat dense size="sm" class="items-center" @click="showReplyInput(comment as Comment)">
+                    <div
+                      class="flex items-center justify-center gap-2 px-2 py-1 cursor-pointer hover:bg-gray-100 rounded-lg">
+                      <div class="text-[#637588]">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20px" height="20px" fill="currentColor"
+                          viewBox="0 0 256 256">
+                          <path
+                            d="M168,112a8,8,0,0,1-8,8H96a8,8,0,0,1,0-16h64A8,8,0,0,1,168,112Zm-8,24H96a8,8,0,0,0,0,16h64a8,8,0,0,0,0-16Zm72-12A100.11,100.11,0,0,1,132,224H47.67A15.69,15.69,0,0,1,32,208.33V124a100,100,0,0,1,200,0Zm-16,0a84,84,0,0,0-168,0v84h84A84.09,84.09,0,0,0,216,124Z">
+                          </path>
+                        </svg>
+                      </div>
+                    </div>
+                    <span class="text-[#637588] text-[13px] font-bold">Reply</span>
                   </q-btn>
                 </div>
 
@@ -239,10 +283,10 @@
                       <img :src="userStore.user?.avatar || '/default-avatar.png'" />
                     </q-avatar>
                     <q-input v-model="replyContent" class="col" outlined dense placeholder="Write a reply..."
-                      maxlength="500" autogrow @keyup.enter="addReply(comment)">
+                      maxlength="500" autogrow @keyup.enter="addReply(comment as Comment)">
                       <template v-slot:after>
-                        <q-btn unelevated color="primary" :disable="!replyContent.trim()" @click="addReply(comment)"
-                          class="q-px-md">
+                        <q-btn unelevated color="primary" :disable="!replyContent.trim()"
+                          @click="addReply(comment as Comment)" class="q-px-md">
                           Reply
                         </q-btn>
                         <q-btn flat color="grey" @click="cancelReply" class="q-ml-sm">
@@ -268,9 +312,21 @@
                         <p class="reply-content q-mt-sm q-mb-sm">{{ reply.content }}</p>
                         <div class="row q-gutter-md">
                           <q-btn flat dense size="sm" class="items-center" @click="handleReplyLike(reply)">
-                            <q-icon :name="reply.isLiked ? 'thumb_up' : 'thumb_up_off_alt'"
-                              :color="reply.isLiked ? 'primary' : 'grey'" size="16px" class="q-mr-xs" />
-                            <span>{{ reply.likes || 0 }}</span>
+                            <div
+                              class="flex items-center justify-center gap-2 px-2 py-1 cursor-pointer hover:bg-gray-100 rounded-lg">
+                              <div :class="['heart-icon', { 'liked': reply.isLiked }]">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20px" height="20px" fill="currentColor"
+                                  viewBox="0 0 256 256">
+                                  <path v-if="reply.isLiked"
+                                    d="M240,94c0,70-103.79,126.66-108.21,129a8,8,0,0,1-7.58,0C119.79,220.66,16,164,16,94A62.07,62.07,0,0,1,78,32c20.65,0,38.73,8.88,50,23.89C139.27,40.88,157.35,32,178,32A62.07,62.07,0,0,1,240,94Z">
+                                  </path>
+                                  <path v-else
+                                    d="M178,32c-20.65,0-38.73,8.88-50,23.89C116.73,40.88,98.65,32,78,32A62.07,62.07,0,0,0,16,94c0,70,103.79,126.66,108.21,129a8,8,0,0,0,7.58,0C136.21,220.66,240,164,240,94A62.07,62.07,0,0,0,178,32ZM128,206.8C109.74,196.16,32,147.69,32,94A46.06,46.06,0,0,1,78,48c19.45,0,35.78,10.36,42.6,27a8,8,0,0,0,14.8,0c6.82-16.67,23.15-27,42.6-27a46.06,46.06,0,0,1,46,46C224,147.61,146.24,196.15,128,206.8Z">
+                                  </path>
+                                </svg>
+                              </div>
+                            </div>
+                            <span class="text-[#637588] text-[13px] font-bold">{{ reply.likes || 0 }}</span>
                           </q-btn>
                         </div>
                       </div>
@@ -661,8 +717,8 @@ const truncateText = (text: string, wordCount: number) => {
 };
 
 // Add toggle function
-const toggleDescription = (postId: string) => {
-  showFullDescription.value[postId] = !showFullDescription.value[postId];
+const toggleDescription = (postId: number) => {
+  showFullDescription.value[postId.toString()] = !showFullDescription.value[postId.toString()];
 };
 
 const showCarousel = (index: number, postId?: string): void => {
@@ -672,7 +728,7 @@ const showCarousel = (index: number, postId?: string): void => {
   activeCarouselPost.value = props.post.id;
 };
 
-const onVideoIntersection = (postId: string) => ({
+const onVideoIntersection = (postId: number) => ({
   handler: (entry?: IntersectionObserverEntry) => {
     if (!entry) return false;
 
@@ -684,7 +740,7 @@ const onVideoIntersection = (postId: string) => ({
     const isCentered = distanceFromCenter < 100;
     const isVisible = entry.isIntersecting;
 
-    videoVisibility.value[postId] = isVisible && isCentered;
+    videoVisibility.value[postId.toString()] = isVisible && isCentered;
 
     if (isVisible && isCentered) {
       if (currentlyPlayingVideo.value !== null && currentlyPlayingVideo.value !== postId) {
@@ -728,14 +784,14 @@ const posts = ref<Array<CommunityPost & { userName: string }>>([props.post]);
 // Add these refs at the top of the script section with other refs
 const videoVisibility = ref<{ [key: string]: boolean }>({});
 const currentlyPlayingVideo = ref<string | null>(null);
-const activeCarouselPost = ref<string | null>(null);
+const activeCarouselPost = ref<number | null>(null);
 
 // Add these methods before the onVideoIntersection function
-const getVideoUrl = (postId: string, videoUrl: string): string => {
+const getVideoUrl = (postId: number, videoUrl: string): string => {
   // Extract video ID from YouTube URL
   const videoId = videoUrl.split('v=')[1];
   // Return embedded URL with autoplay parameter based on visibility
-  return `https://www.youtube.com/embed/${videoId}?autoplay=${videoVisibility.value[postId] ? '1' : '0'}&enablejsapi=1`;
+  return `https://www.youtube.com/embed/${videoId}?autoplay=${videoVisibility.value[postId.toString()] ? '1' : '0'}&enablejsapi=1`;
 };
 
 const controlVideo = (postId: string, action: 'play' | 'pause'): void => {
@@ -794,7 +850,7 @@ const handleShare = async (post: CommunityPost) => {
       });
 
       // Update share count
-      await communityPostService.sharePost(post.id);
+      await communityPostService.sharePost(post.id.toString());
       post.shares = (post.shares || 0) + 1;
 
       // Emit the updated post
@@ -1557,6 +1613,52 @@ const handleReplyLike = async (reply: Reply) => {
 
   &:hover .q-icon {
     transform: scale(1.1);
+  }
+}
+
+.heart-icon {
+  color: #637588;
+  transition: color 0.2s ease;
+
+  &.liked {
+    color: #ef4444;
+  }
+}
+
+.items-center {
+  transition: all 0.3s ease;
+  border-radius: 8px;
+
+  &:hover {
+    background: rgba(0, 0, 0, 0.05);
+  }
+
+  .q-icon,
+  svg {
+    transition: transform 0.3s ease;
+  }
+
+  &:hover .q-icon,
+  &:hover svg {
+    transform: scale(1.1);
+  }
+
+  &:active .heart-icon.liked {
+    animation: likeAnimation 0.3s ease;
+  }
+}
+
+@keyframes likeAnimation {
+  0% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.3);
+  }
+
+  100% {
+    transform: scale(1);
   }
 }
 </style>
