@@ -2,10 +2,14 @@ export interface Comment {
   id: string;
   content: string;
   userId: string;
-  userName: string;
-  userAvatar?: string;
+  postId: string;
   createdAt: string;
-  parentId?: string;
+  user: {
+    id: string;
+    name: string;
+    email: string;
+    avatar?: string;
+  };
 }
 
 export interface CommunityPost {
