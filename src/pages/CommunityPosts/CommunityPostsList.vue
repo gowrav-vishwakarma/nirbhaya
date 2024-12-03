@@ -116,7 +116,7 @@
                 </iframe>
               </div>
               <!-- Show image collage or carousel based on showCarousel state -->
-              <div v-else-if="post.mediaUrls" class="media-section">
+              <div v-else-if="post.mediaUrls && post.mediaUrls.length" class="media-section">
                 <!-- Move controls inside the carousel template -->
                 <template v-if="activeCarouselPost === post.id.toString()">
                   <!-- Dots Navigation -->

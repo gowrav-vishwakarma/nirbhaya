@@ -58,6 +58,11 @@
           </div>
         </div>
 
+        <div class="q-mt-sm text-caption text-grey-7">
+          <q-icon name="location_on" size="xs" />
+          {{ form.location.coordinates[0] !== 0 ? 'Location attached' : 'Getting location...' }}
+        </div>
+
         <div class="row q-mt-lg">
           <q-btn flat color="primary" class="full-width" @click="handleMediaUpload" :loading="isProcessingImages"
             :disable="isProcessingImages || !canAddMoreImages">
@@ -90,11 +95,16 @@
       <q-separator />
 
       <q-card-actions align="right" class="q-pa-md">
-        <q-btn unelevated color="primary" :disable="!isValid" @click="submitPost" class="full-width">
+        <q-btn unelevated color="primary" :disable="!isValid || isSubmitting" @click="submitPost" class="full-width"
+          :loading="isSubmitting">
           <span style="font-size: 14px; font-weight: 800;">
-            Post
+            {{ isSubmitting ? 'Posting...' : 'Post' }}
           </span>
-          <i class="fas fa-long-arrow-alt-right" style="font-size: 17px; font-weight: 900; margin-left: 5px;"></i>
+          <template v-slot:loading>
+            <q-spinner />
+          </template>
+          <i v-if="!isSubmitting" class="fas fa-long-arrow-alt-right"
+            style="font-size: 17px; font-weight: 900; margin-left: 5px;"></i>
         </q-btn>
       </q-card-actions>
     </q-card>
@@ -311,9 +321,34 @@ const removeImage = (index: number) => {
   previewUrls.value.splice(index, 1);
 };
 
+const getCurrentLocation = () => {
+  if ('geolocation' in navigator) {
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        form.value.location.coordinates = [
+          position.coords.longitude,
+          position.coords.latitude
+        ];
+      },
+      (error) => {
+        console.error('Error getting location:', error);
+      }
+    );
+  }
+};
+
+watch(() => isOpen.value, (newValue) => {
+  if (newValue) {
+    getCurrentLocation();
+  }
+});
+
+const isSubmitting = ref(false);
 
 const submitPost = async () => {
   try {
+    isSubmitting.value = true;
+
     const formData = new FormData();
     formData.append('title', form.value.title);
     formData.append('description', form.value.description);
@@ -328,16 +363,11 @@ const submitPost = async () => {
     selectedFiles.value.forEach((file, index) => {
       formData.append(`media_${index}`, file);
     });
+
     await api.post('/posts/post-create', formData, {
       headers: {
         'Content-Type': 'multipart/form-data'
       }
-    });
-
-    $q.notify({
-      color: 'positive',
-      message: 'Post created successfully',
-      icon: 'check'
     });
 
     // Reset form and images
@@ -365,6 +395,9 @@ const submitPost = async () => {
       message: 'Failed to create post',
       icon: 'error'
     });
+  } finally {
+    isSubmitting.value = false;
+
   }
 };
 </script>

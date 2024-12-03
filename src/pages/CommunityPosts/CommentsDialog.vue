@@ -9,9 +9,8 @@
 
       <!-- Dialog Header -->
       <q-bar class="dialog-header">
-        <q-btn dense flat icon="close" v-close-popup class="q-mr-sm" />
         <q-space />
-        <q-btn dense flat icon="send" class="text-primary" />
+        <q-btn dense flat icon="close" v-close-popup class="" />
       </q-bar>
       <div style="width: 100%;">
 
@@ -37,17 +36,23 @@
             </q-avatar>
             <div class="col">
               <div class="comment-content">
-                <span class="username text-capitalize">{{ comment.user.name }}</span>
+                <span class="username text-capitalize">{{ comment.user.name }} </span>
+                <span class="text-grey-6 text-caption">
+                  {{ Number(comment.user.id) == Number(userStore.user.id) ? 'You' : '' }}</span>
                 <br />
                 <span class="comment-text">{{ comment.content }}</span>
               </div>
               <div class="comment-actions row items-center q-gutter-x-md q-mt-xs">
                 <span class="text-grey-6 text-caption">{{ formatDate(comment.createdAt) }}</span>
-                <!-- <span class="text-grey-6 text-caption cursor-pointer">Reply</span>
-                <span class="text-grey-6 text-caption cursor-pointer">Like</span> -->
               </div>
             </div>
-            <q-btn flat round dense size="sm" icon="more_vert" class="q-ml-sm" />
+            <q-btn flat round dense size="sm" :ripple="false">
+              <q-btn flat round dense size="sm">
+                <q-icon name="more_vert" />
+              </q-btn>
+            </q-btn>
+
+
           </div>
         </div>
       </div>
@@ -61,8 +66,19 @@
           <q-input v-model="newComment" class="col comment-input" placeholder="Add a comment..." maxlength="500" dense
             borderless autogrow @keyup.enter="addComment">
             <template v-slot:after>
-              <q-btn flat no-caps :disable="!newComment.trim()" @click="addComment" class="post-btn" color="primary"
-                label="Post" />
+              <q-btn color="primary" flat round @click="addComment" :disable="!newComment.trim()">
+                <div
+                  class="flex items-center justify-center gap-2 px-3 py-2 cursor-pointer hover:bg-gray-100 rounded-lg">
+                  <div class="text-[#637588]" data-icon="PaperPlaneRight" data-size="24px" data-weight="regular">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor"
+                      viewBox="0 0 256 256">
+                      <path
+                        d="M223.87,114l-168-95.89A16,16,0,0,0,32.93,37.32l31,90.47a.42.42,0,0,0,0,.1.3.3,0,0,0,0,.1l-31,90.67A16,16,0,0,0,48,240a16.14,16.14,0,0,0,7.92-2.1l167.91-96.05a16,16,0,0,0,.05-27.89ZM48,224l0-.09L78.14,136H136a8,8,0,0,0,0-16H78.22L48.06,32.12,48,32l168,95.83Z">
+                      </path>
+                    </svg>
+                  </div>
+                </div>
+              </q-btn>
             </template>
           </q-input>
         </div>
@@ -290,7 +306,7 @@ defineExpose({
 
 .dialog-header {
   padding: 8px 16px;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  // border-bottom: 1px solid rgba(0, 0, 0, 0.1);
   background: white;
 }
 
@@ -316,7 +332,9 @@ defineExpose({
 }
 
 .comment-text {
-  color: rgba(0, 0, 0, 0.9);
+  color: rgba(8, 8, 8, 0.9);
+  font-weight: 600;
+
 }
 
 .comment-actions {
@@ -331,8 +349,8 @@ defineExpose({
 
 .comment-input {
   background: #f8f8f8;
-  border-radius: 20px;
-  padding: 8px 16px;
+  border-radius: 50px;
+  padding: 5px 20px;
 }
 
 .comment-input :deep(.q-field__control) {
@@ -342,6 +360,8 @@ defineExpose({
 .post-btn {
   font-weight: 600;
   padding: 0 12px;
+  border: 1px solid red;
+
 }
 
 .cursor-pointer {
