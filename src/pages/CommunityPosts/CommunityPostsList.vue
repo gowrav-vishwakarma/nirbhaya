@@ -89,10 +89,10 @@
                 {{ post.title }}
               </div>
               <div class="text-body1 post-description">
-                {{ showFullDescription[post.id] ? post.description : truncateText(post.description, 15) }}
+                {{ showFullDescription[post.id.toString()] ? post.description : truncateText(post.description, 15) }}
                 <span v-if="post.description.split(' ').length > 10" @click="toggleDescription(post.id)"
                   class="read-more-link">
-                  {{ showFullDescription[post.id] ? 'Read Less' : 'Read More' }}
+                  {{ showFullDescription[post.id.toString()] ? 'Read Less' : 'Read More' }}
                 </span>
               </div>
 
@@ -107,9 +107,10 @@
             <!-- Media Section -->
             <q-card-section v-if="post.mediaUrls || post.videoUrl" class="q-pa-none q-mt-md">
               <!-- Show YouTube video if videoUrl exists -->
-              <div v-if="post.videoUrl" class="video-container" v-intersection="onVideoIntersection(post.id)">
-                <iframe :key="getVideoUrl(post.id, post.videoUrl)" :src="getVideoUrl(post.id, post.videoUrl)"
-                  :id="`video-${post.id}`" frameborder="0"
+              <div v-if="post.videoUrl" class="video-container"
+                v-intersection="onVideoIntersection(post.id.toString())">
+                <iframe :key="getVideoUrl(post.id.toString(), post.videoUrl)"
+                  :src="getVideoUrl(post.id.toString(), post.videoUrl)" :id="`video-${post.id}`" frameborder="0"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                   allowfullscreen class="video-frame">
                 </iframe>
@@ -117,7 +118,7 @@
               <!-- Show image collage or carousel based on showCarousel state -->
               <div v-else-if="post.mediaUrls" class="media-section">
                 <!-- Move controls inside the carousel template -->
-                <template v-if="activeCarouselPost === post.id">
+                <template v-if="activeCarouselPost === post.id.toString()">
                   <!-- Dots Navigation -->
                   <div class="carousel-dots">
                     <button v-for="index in currentImageCount.total" :key="index" class="dot"
@@ -220,9 +221,11 @@ import { communityPostService } from 'src/services/communityPostService';
 import type { CommunityPost, Comment } from 'src/types/CommunityPost';
 import PostEngagement from 'src/pages/CommunityPosts/PostEngagement.vue';
 
-// Update Post interface to extend CommunityPost
+// Add these type definitions at the top of the script section
 interface Post extends CommunityPost {
   userName: string;
+  wasLiked?: boolean;
+  liked?: boolean;
 }
 
 const userStore = useUserStore();
@@ -313,21 +316,24 @@ const loadPosts = async () => {
     loading.value = true;
     const response = await api.get('/posts/community-posts', {
       params: {
-        status: 'active'
+        status: 'active',
+        userId: userStore.user?.id || null
       }
     });
 
-    console.log('response........', response);
-
-    // Check if response.data is an array
+    let postsData: Post[] = [];
     if (Array.isArray(response.data)) {
-      posts.value = response.data;
+      postsData = response.data;
     } else if (response.data.data && Array.isArray(response.data.data)) {
-      posts.value = response.data.data;
-    } else {
-      console.error('Unexpected response format:', response.data);
-      posts.value = [];
+      postsData = response.data.data;
     }
+
+    // Ensure wasLiked is set based on the API response
+    posts.value = postsData.map(post => ({
+      ...post,
+      wasLiked: post.wasLiked || post.liked || false,
+      liked: post.wasLiked || post.liked || false
+    }));
   } catch (error) {
     console.error('Error loading posts:', error);
     $q.notify({
@@ -349,9 +355,10 @@ const truncateText = (text: string, wordCount: number) => {
   return words.slice(0, wordCount).join(' ') + '...';
 };
 
-// Add toggle function
-const toggleDescription = (postId: string) => {
-  showFullDescription.value[postId] = !showFullDescription.value[postId];
+// Update the toggleDescription method
+const toggleDescription = (postId: string | number) => {
+  const key = typeof postId === 'string' ? postId : postId.toString();
+  showFullDescription.value[key] = !showFullDescription.value[key];
 };
 
 // Add tag click handler
@@ -499,6 +506,7 @@ const handlePostCreated = () => {
 
 // Add these new refs
 const activeCarouselPost = ref<string | null>(null);
+const activeCommentPost = ref<string | null>(null);
 const carouselSlide = ref(0);
 
 // First, add a computed property to check if we're on the last slide
@@ -506,15 +514,16 @@ const isLastSlide = computed(() => {
   return currentIndex.value === totalSlides.value - 1;
 });
 
-// Update the showCarousel method
-const showCarousel = (postId: string, startIndex: number) => {
-  const post = posts.value.find(p => p.id === postId);
-  activeCarouselPost.value = postId;
+// Update the showCarousel method to handle number conversion
+const showCarousel = (postId: string | number, startIndex: number) => {
+  const numericPostId = typeof postId === 'string' ? parseInt(postId, 10) : postId;
+  activeCarouselPost.value = numericPostId.toString();
   currentIndex.value = startIndex;
 
+  const post = posts.value.find(p => p.id === numericPostId);
   if (post && post.mediaUrls) {
     const imageData = {
-      postId,
+      postId: numericPostId,
       startIndex: startIndex + 1,
       totalImages: Array.isArray(post.mediaUrls) ? post.mediaUrls.length : 1,
       allImages: Array.isArray(post.mediaUrls) ?
@@ -526,7 +535,6 @@ const showCarousel = (postId: string, startIndex: number) => {
         [{ index: 1, url: imageCdn + post.mediaUrls, isActive: true }],
       activeDot: startIndex
     };
-
     console.log('Carousel Opened:', imageData);
   }
 };
@@ -542,14 +550,14 @@ const currentIndex = ref(0);
 const isTransitioning = ref(false);
 
 const totalSlides = computed(() => {
-  const activePost = posts.value.find(p => p.id === activeCarouselPost.value);
+  const activePost = posts.value.find(p => p.id.toString() === activeCarouselPost.value);
   if (!activePost) return 0;
   return Array.isArray(activePost.mediaUrls) ? activePost.mediaUrls.length : 1;
 });
 
 // Add this computed property to track current image count
 const currentImageCount = computed(() => {
-  const activePost = posts.value.find(p => p.id === activeCarouselPost.value);
+  const activePost = posts.value.find(p => p.id.toString() === activeCarouselPost.value);
   if (!activePost?.mediaUrls) return { current: 0, total: 0 };
 
   return {
@@ -716,7 +724,7 @@ const onCarouselImageIntersection = (index: number) => ({
     if (!entry) return false;
 
     if (entry.isIntersecting) {
-      const activePost = posts.value.find(p => p.id === activeCarouselPost.value);
+      const activePost = posts.value.find(p => p.id.toString() === activeCarouselPost.value);
       const imageData = {
         index: index + 1,
         total: totalSlides.value,
@@ -743,7 +751,7 @@ const onCarouselImageIntersection = (index: number) => ({
 
 // Add a watcher to log changes in current index
 watch(currentIndex, (newIndex) => {
-  const activePost = posts.value.find(p => p.id === activeCarouselPost.value);
+  const activePost = posts.value.find(p => p.id.toString() === activeCarouselPost.value);
   console.log('Carousel State:', {
     currentIndex: newIndex + 1,
     totalImages: totalSlides.value,
@@ -758,7 +766,6 @@ watch(currentIndex, (newIndex) => {
 });
 
 // Add these refs
-const activeCommentPost = ref<string | null>(null);
 const newComment = ref('');
 
 // Add these methods
@@ -791,7 +798,7 @@ const handleLike = async (post: Post) => {
 };
 
 const showComments = (post: Post) => {
-  activeCommentPost.value = activeCommentPost.value === post.id ? null : post.id;
+  activeCommentPost.value = activeCommentPost.value === post.id.toString() ? null : post.id.toString();
 };
 
 const addComment = async (post: Post) => {
@@ -828,7 +835,7 @@ const handleShare = async (post: Post) => {
       });
 
       // Update share count
-      await communityPostService.sharePost(post.id);
+      await communityPostService.sharePost(post.id.toString());
       post.shares = (post.shares || 0) + 1;
     } else {
       // Fallback for browsers that don't support Web Share API
@@ -848,13 +855,13 @@ const handleShare = async (post: Post) => {
 };
 
 // Add this method
-const updatePost = (updatedPost: CommunityPost) => {
+const updatePost = (updatedPost: Post) => {
   const index = posts.value.findIndex(p => p.id === updatedPost.id);
   if (index !== -1) {
-    // Preserve the userName when updating
     posts.value[index] = {
       ...updatedPost,
-      userName: posts.value[index].userName
+      wasLiked: updatedPost.wasLiked || updatedPost.liked,
+      liked: updatedPost.wasLiked || updatedPost.liked
     };
   }
 };

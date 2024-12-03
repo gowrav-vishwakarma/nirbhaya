@@ -20,5 +20,14 @@ export interface CommunityPost {
   status: string;
   createdAt: string;
   updatedAt: string;
-  userName?: string;
+  mediaUrls?: string | string[];
+  videoUrl?: string;
+  tags?: string[];
+  likes: number;
+  shares: number;
+  comments?: Comment[];
+}
+
+export interface Post extends CommunityPost {
+  userName: string;
 }

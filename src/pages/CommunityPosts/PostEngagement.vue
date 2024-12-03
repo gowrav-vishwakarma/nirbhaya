@@ -2,15 +2,19 @@
   <div>
     <!-- Engagement Section -->
     <div class="flex flex-wrap justify-evenly gap-4 px-4 py-2 py-2 q-py-sm">
-      <div class="flex items-start justify-start gap-2" style=" width: 30%; ">
-
+      <div class="flex items-start justify-start gap-2" style="width: 30%;">
         <q-btn @click="handleLike" flat round style="margin-left: 20px;">
           <div class="flex items-center justify-center gap-2 px-3 py-2 cursor-pointer hover:bg-gray-100 rounded-lg">
-            <div class="text-[#637588]" :class="{ 'text-red-500': post.liked }" data-icon="Heart" data-size="24px"
-              data-weight="regular">
+            <div :class="[
+              'heart-icon',
+              { 'liked': post.wasLiked || post.liked }
+            ]">
               <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor"
                 viewBox="0 0 256 256">
-                <path
+                <path v-if="post.wasLiked || post.liked"
+                  d="M240,94c0,70-103.79,126.66-108.21,129a8,8,0,0,1-7.58,0C119.79,220.66,16,164,16,94A62.07,62.07,0,0,1,78,32c20.65,0,38.73,8.88,50,23.89C139.27,40.88,157.35,32,178,32A62.07,62.07,0,0,1,240,94Z">
+                </path>
+                <path v-else
                   d="M178,32c-20.65,0-38.73,8.88-50,23.89C116.73,40.88,98.65,32,78,32A62.07,62.07,0,0,0,16,94c0,70,103.79,126.66,108.21,129a8,8,0,0,0,7.58,0C136.21,220.66,240,164,240,94A62.07,62.07,0,0,0,178,32ZM128,206.8C109.74,196.16,32,147.69,32,94A46.06,46.06,0,0,1,78,48c19.45,0,35.78,10.36,42.6,27a8,8,0,0,0,14.8,0c6.82-16.67,23.15-27,42.6-27a46.06,46.06,0,0,1,46,46C224,147.61,146.24,196.15,128,206.8Z">
                 </path>
               </svg>
@@ -18,13 +22,12 @@
           </div>
         </q-btn>
         <p class="text-[#637588] text-[13px] font-bold leading-normal tracking-[0.015em]" style="padding-top: 10px;">
-          {{ post.likesCount || '' }}
+          {{ post.likesCount }}
         </p>
       </div>
-      <div class="flex items-center justify-center gap-2" style=" width: 30%; ">
 
+      <div class="flex items-center justify-center gap-2" style="width: 30%;">
         <q-btn flat round @click="toggleComments">
-
           <div class="flex items-center justify-center gap-2 px-3 py-2 cursor-pointer hover:bg-gray-100 rounded-lg">
             <div class="text-[#637588]" data-icon="ChatTeardropText" data-size="24px" data-weight="regular">
               <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor"
@@ -36,16 +39,13 @@
             </div>
           </div>
         </q-btn>
-        <p class="text-[#637588] text-[13px] font-bold leading-normal tracking-[0.015em]" style="padding-top: 10px;">{{
-          post.commentsCount
-          ||
-          ''
-        }}</p>
+        <p class="text-[#637588] text-[13px] font-bold leading-normal tracking-[0.015em]" style="padding-top: 10px;">
+          {{ post.commentsCount || '' }}
+        </p>
       </div>
-      <div class="flex items-center justify-center gap-2" style=" width: 40%; ">
 
+      <div class="flex items-center justify-center gap-2" style="width: 40%;">
         <q-btn @click="handleShare" flat round>
-
           <div class="flex items-center justify-center gap-2 px-3 py-2 cursor-pointer hover:bg-gray-100 rounded-lg">
             <div class="text-[#637588]" data-icon="PaperPlaneRight" data-size="24px" data-weight="regular">
               <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor"
@@ -57,8 +57,9 @@
             </div>
           </div>
         </q-btn>
-        <p class="text-[#637588] text-[13px] font-bold leading-normal tracking-[0.015em]" style="padding-top: 10px;">{{
-          post.sharesCount || '' }}</p>
+        <p class="text-[#637588] text-[13px] font-bold leading-normal tracking-[0.015em]" style="padding-top: 10px;">
+          {{ post.sharesCount || '' }}
+        </p>
       </div>
     </div>
 
@@ -75,19 +76,29 @@ import type { CommunityPost } from 'src/types/CommunityPost';
 import { communityPostService } from 'src/services/communityPostService';
 import CommentsDialog from './CommentsDialog.vue';
 
+// Define a type that matches the actual post structure
+interface PostProps extends CommunityPost {
+  wasLiked: boolean;
+  liked: boolean;
+  userName: string;
+  id: number;
+  userId: number;
+  status: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 const props = defineProps<{
-  post: CommunityPost & { userName: string }
+  post: PostProps;
 }>();
 
-const emit = defineEmits<{
-  (e: 'update:post', post: CommunityPost): void
-}>();
+const emit = defineEmits(['update:post']);
 
 const $q = useQuasar();
 const userStore = useUserStore();
 const showComments = ref(false);
 
-const handlePostUpdate = (updatedPost: CommunityPost) => {
+const handlePostUpdate = (updatedPost: CommunityPost | PostProps) => {
   emit('update:post', updatedPost);
 };
 
@@ -101,31 +112,22 @@ const handleLike = async () => {
       return;
     }
 
-    const postId = Number(props.post.id);
-    const userId = userStore.user.id;
-
     const updatedPost = { ...props.post };
+    const postId = typeof updatedPost.id === 'string' ? parseInt(updatedPost.id) : updatedPost.id;
 
-    try {
-      if (updatedPost.liked) {
-        // If post is already liked, unlike it
-        console.log('Unliking post:', postId, 'user:', userId);
-        await communityPostService.unlikePost(postId, userId);
-        updatedPost.liked = false;
-        updatedPost.likesCount = Math.max((updatedPost.likesCount || 1) - 1, 0);
-      } else {
-        // If post is not liked, like it
-        console.log('Liking post:', postId, 'user:', userId);
-        await communityPostService.likePost(postId, userId);
-        updatedPost.liked = true;
-        updatedPost.likesCount = (updatedPost.likesCount || 0) + 1;
-      }
-
-      emit('update:post', updatedPost);
-    } catch (error) {
-      console.error('Error toggling like:', error);
-      throw error;
+    if (updatedPost.wasLiked || updatedPost.liked) {
+      await communityPostService.unlikePost(postId, userStore.user.id);
+      updatedPost.wasLiked = false;
+      updatedPost.liked = false;
+      updatedPost.likesCount = Math.max((updatedPost.likesCount || 1) - 1, 0);
+    } else {
+      await communityPostService.likePost(postId, userStore.user.id);
+      updatedPost.wasLiked = true;
+      updatedPost.liked = true;
+      updatedPost.likesCount = (updatedPost.likesCount || 0) + 1;
     }
+
+    emit('update:post', updatedPost);
   } catch (error) {
     console.error('Error handling like:', error);
     $q.notify({
@@ -174,6 +176,15 @@ const handleShare = async () => {
 </script>
 
 <style lang="scss" scoped>
+.heart-icon {
+  color: #637588;
+  transition: color 0.2s ease;
+
+  &.liked {
+    color: #ef4444;
+  }
+}
+
 .comment-input {
   flex: 1;
 
