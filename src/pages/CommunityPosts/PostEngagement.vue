@@ -156,12 +156,28 @@ const toggleComments = () => {
 
 const handleShare = async () => {
   try {
-    if (navigator.share) {
-      await navigator.share({
+    // Get the first media URL if available
+    let shareobject = {}
+    if (props.post.mediaUrls?.length) {
+      const mediaUrl = props.post.mediaUrls?.[0] || '';
+      shareobject = {
         title: props.post.title,
         text: props.post.description,
-        url: window.location.href
-      });
+        url: window.location.href,
+        files: mediaUrl ? [await fetchImageAsFile(mediaUrl)] : undefined
+      }
+    }
+    if (props.post.videoUrl) {
+      const mediaUrl = `https://www.youtube.com/embed/${props.post.videoUrl}`;
+      shareobject = {
+        title: props.post.title,
+        text: props.post.description,
+        url: mediaUrl,
+      }
+    }
+
+    if (navigator.share) {
+      await navigator.share(shareobject);
 
       // Update share count
       await communityPostService.sharePost(props.post.id.toString());
@@ -172,13 +188,27 @@ const handleShare = async () => {
       emit('update:post', updatedPost);
     } else {
       // Fallback for browsers that don't support Web Share API
-      await navigator.clipboard.writeText(window.location.href);
-
+      const textToShare = `${props.post.title}\n${props.post.description}\n${window.location.href}`;
+      await navigator.clipboard.writeText(textToShare);
+      $q.notify({
+        message: 'Link copied to clipboard!',
+        color: 'positive'
+      });
     }
   } catch (error) {
     console.error('Error sharing post:', error);
-
+    $q.notify({
+      message: 'Failed to share post',
+      color: 'negative'
+    });
   }
+};
+
+// Add this helper function to convert URL to File object
+const fetchImageAsFile = async (url: string): Promise<File> => {
+  const response = await fetch(url);
+  const blob = await response.blob();
+  return new File([blob], 'shared-image.jpg', { type: blob.type });
 };
 
 // Add watch for comments dialog to update comment count
