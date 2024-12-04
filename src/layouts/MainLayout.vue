@@ -403,6 +403,7 @@ svg:hover {
 .ios-community-header {
   height: 2px !important;
   min-height: 2px !important;
+  background-color: #00000000 !important;
 
   // Hide the toolbar content when in iOS community route
   .q-toolbar {
