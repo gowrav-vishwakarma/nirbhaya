@@ -42,12 +42,7 @@
                 src="https://icons-for-free.com/iff/png/512/profile+profile+page+user+icon-1320186864367220794.png"
               />
             </q-avatar>
-            <q-btn
-              class="col post-input-btn"
-              flat
-              color="grey-7"
-              @click="createPost"
-            >
+            <q-btn class="col post-input-btn" flat color="grey-7">
               <div class="row full-width items-center text-left">
                 <span class="text-grey-7" style="font-size: 0.8em"
                   >What's Post on your mind?</span
@@ -346,7 +341,11 @@
                 </template>
               </div>
               <!-- Engagement Actions -->
-              <PostEngagement :post="post" @update:post="updatePost($event)" />
+              <PostEngagement
+                :post="post"
+                :userInteractionRules="userInteractionRules"
+                @update:post="updatePost($event)"
+              />
             </q-card-section>
           </q-card>
         </div>
@@ -390,8 +389,8 @@ import { api } from 'src/boot/axios';
 import { useRouter } from 'vue-router';
 import CreatePostDialog from 'src/components/Community/CreatePostDialog.vue';
 import { useUserStore } from 'src/stores/user-store';
-import { communityPostService } from 'src/services/communityPostService';
-import type { CommunityPost, Comment } from 'src/types/CommunityPost';
+// import { communityPostService } from 'src/services/communityPostService';
+import type { CommunityPost } from 'src/types/CommunityPost';
 import PostEngagement from 'src/pages/CommunityPosts/PostEngagement.vue';
 
 // Add these type definitions at the top of the script section
@@ -401,6 +400,16 @@ interface Post extends Omit<CommunityPost, 'liked'> {
   liked: boolean;
 }
 
+// Add this interface after the Post interface
+interface UserInteractionLimits {
+  dailyLikeLimit: number;
+  dailyCommentLimit: number;
+  dailyPostLimit: number;
+  usedLikeCount: number;
+  usedCommentCount: number;
+  usedPostCount: number;
+}
+
 const userStore = useUserStore();
 
 const imageCdn =
@@ -408,6 +417,7 @@ const imageCdn =
 
 const $q = useQuasar();
 const posts = ref<Post[]>([]);
+const userInteractionRules = ref();
 
 // Add this new ref for tracking expanded descriptions
 const showFullDescription = ref<{ [key: string]: boolean }>({});
@@ -487,18 +497,45 @@ const formatDate = (date: string | null) => {
   }
 };
 
-// Methods
+// Add these new refs near the top of the script section
+const userLocation = ref({
+  latitude: null as number | null,
+  longitude: null as number | null,
+});
+
+// Update the loadPosts function
 const loadPosts = async (loadMore = false) => {
   if (isLoading.value || (!loadMore && !hasMore.value)) return;
 
   try {
     isLoading.value = true;
+
+    // Get user's location if not already available
+    if (!userLocation.value.latitude || !userLocation.value.longitude) {
+      try {
+        const position = await new Promise<GeolocationPosition>(
+          (resolve, reject) => {
+            navigator.geolocation.getCurrentPosition(resolve, reject);
+          }
+        );
+
+        userLocation.value = {
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+        };
+      } catch (error) {
+        console.warn('Could not get user location:', error);
+      }
+    }
+
     const response = await api.get('/posts/community-posts', {
       params: {
         status: 'active',
         userId: userStore.user?.id || null,
         page: page.value,
         limit: limit.value,
+        latitude: userLocation.value.latitude,
+        longitude: userLocation.value.longitude,
       },
     });
 
@@ -684,7 +721,7 @@ const calculateAge = (dob: string): number => {
   ) {
     age--;
   }
-  console.log(age);
+
   return age;
 };
 
@@ -698,6 +735,7 @@ onMounted(() => {
   }
 
   loadPosts();
+  getUserInteraction();
 });
 
 // Clean up on component unmount
@@ -712,20 +750,40 @@ const goToCommunityPage = () => {
   router.push('/community');
 };
 const createPost = () => {
+  if (!userInteractionRules.value) {
+    return;
+  }
+
+  if (
+    userInteractionRules.value.usedPostCount >=
+    userInteractionRules.value.dailyPostLimit
+  ) {
+    console.log('1111111111111111');
+    $q.notify({
+      message: `You've reached your daily post limit of ${userInteractionRules.value.dailyPostLimit} posts`,
+      color: 'gray',
+      position: 'top-right',
+    });
+
+    return;
+  }
+
   showCreatePostDialog.value = true;
 };
 
 // Add this ref after other refs
 const showCreatePostDialog = ref(false);
 
-// Add this to handle post creation
-const handlePostCreated = () => {
-  loadPosts();
+// Add this method to handle successful post creation
+const handlePostCreated = async () => {
+  await loadPosts();
+  showCreatePostDialog.value = false;
+  // Refresh interaction rules after post creation
+  await updateInteractionRules();
 };
 
 // Add these new refs
 const activeCarouselPost = ref<string | null>(null);
-const activeCommentPost = ref<string | null>(null);
 const carouselSlide = ref(0);
 
 // First, add a computed property to check if we're on the last slide
@@ -1000,107 +1058,8 @@ watch(currentIndex, (newIndex) => {
   });
 });
 
-// Add these refs
-const newComment = ref('');
-
-// Add these methods
-const handleLike = async (post: Post) => {
-  try {
-    if (!userStore.user) {
-      $q.notify({
-        message: 'Please login to like posts',
-        color: 'warning',
-      });
-      return;
-    }
-
-    if (post.liked) {
-      await communityPostService.unlikePost(
-        Number(post.id),
-        Number(userStore.user.id)
-      );
-      post.liked = false;
-      post.likes--;
-    } else {
-      await communityPostService.likePost(
-        Number(post.id),
-        Number(userStore.user.id)
-      );
-      post.liked = true;
-      post.likes++;
-    }
-  } catch (error) {
-    console.error('Error handling like:', error);
-    $q.notify({
-      message: 'Failed to update like',
-      color: 'negative',
-    });
-  }
-};
-
-const showComments = (post: Post) => {
-  activeCommentPost.value =
-    activeCommentPost.value === post.id.toString() ? null : post.id.toString();
-};
-
-const addComment = async (post: Post) => {
-  if (!newComment.value.trim()) return;
-
-  try {
-    if (!userStore.user) {
-      $q.notify({
-        message: 'Please login to comment',
-        color: 'warning',
-      });
-      return;
-    }
-
-    const comment = await communityPostService.addComment(
-      post.id,
-      newComment.value
-    );
-    post.comments = [...(post.comments || []), comment];
-    newComment.value = '';
-  } catch (error) {
-    console.error('Error adding comment:', error);
-    $q.notify({
-      message: 'Failed to add comment',
-      color: 'negative',
-    });
-  }
-};
-
-const handleShare = async (post: Post) => {
-  try {
-    if (navigator.share) {
-      await navigator.share({
-        title: post.title,
-        text: post.description,
-        url: window.location.href,
-      });
-
-      // Update share count
-      await communityPostService.sharePost(post.id.toString());
-      post.shares = (post.shares || 0) + 1;
-    } else {
-      // Fallback for browsers that don't support Web Share API
-      await navigator.clipboard.writeText(window.location.href);
-      $q.notify({
-        message: 'Link copied to clipboard!',
-        color: 'positive',
-      });
-    }
-  } catch (error) {
-    console.error('Error sharing post:', error);
-    $q.notify({
-      message: 'Failed to share post',
-      color: 'negative',
-    });
-  }
-};
-
 // Add this method
-const updatePost = (updatedPost: Post) => {
+const updatePost = async (updatedPost: Post) => {
   const index = posts.value.findIndex((p) => p.id === updatedPost.id);
   if (index !== -1) {
     posts.value[index] = {
@@ -1108,6 +1067,8 @@ const updatePost = (updatedPost: Post) => {
       wasLiked: updatedPost.wasLiked || updatedPost.liked,
       liked: updatedPost.wasLiked || updatedPost.liked,
     };
+    // Refresh interaction rules after post update
+    await updateInteractionRules();
   }
 };
 
@@ -1153,7 +1114,21 @@ watch(
   }
 );
 
-// Update the template to add the ref to the last post
+const getUserInteraction = async () => {
+  const res = await api.get(`/posts/user-interaction/${userStore.user?.id}`);
+  userInteractionRules.value = res.data;
+  console.log('res........', userInteractionRules.value);
+};
+
+// Add this method to update interaction rules
+const updateInteractionRules = async () => {
+  try {
+    const res = await api.get(`/posts/user-interaction/${userStore.user?.id}`);
+    userInteractionRules.value = res.data;
+  } catch (error) {
+    console.error('Error updating interaction rules:', error);
+  }
+};
 </script>
 
 <style scoped lang="scss">

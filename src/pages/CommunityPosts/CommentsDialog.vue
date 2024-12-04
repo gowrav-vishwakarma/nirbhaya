@@ -94,15 +94,20 @@ import { useUserStore } from 'src/stores/user-store';
 import type { CommunityPost } from 'src/types/CommunityPost';
 import { commentService } from 'src/services/commentService';
 
-const props = defineProps({
-  modelValue: Boolean,
-  post: {
-    type: Object as () => CommunityPost,
-    required: true
-  }
-});
+const props = defineProps<{
+  modelValue: boolean;
+  post: CommunityPost;
+  userInteractionRules: {
+    dailyLikeLimit: number;
+    dailyCommentLimit: number;
+    dailyPostLimit: number;
+    usedLikeCount: number;
+    usedCommentCount: number;
+    usedPostCount: number;
+  };
+}>();
 
-const emit = defineEmits(['update:modelValue', 'update:post']);
+const emit = defineEmits(['update:modelValue', 'update:post', 'update:userInteractionRules']);
 const $q = useQuasar();
 const userStore = useUserStore();
 const newComment = ref('');
@@ -171,6 +176,15 @@ watch(() => props.modelValue, (newValue) => {
 });
 
 const addComment = async () => {
+  if (props.userInteractionRules.usedCommentCount >= props.userInteractionRules.dailyCommentLimit) {
+    $q.notify({
+      message: 'You have reached your daily comment limit',
+      color: 'black',
+      position: 'top-right'
+    });
+    return;
+  }
+
   if (!newComment.value.trim()) return;
 
   try {
@@ -196,13 +210,18 @@ const addComment = async () => {
     const updatedPost = {
       ...props.post,
       comments: [...(props.post.comments || []), newCommentData],
-      commentsCount: (props.post.commentsCount || 0) + 1  // Increment comment count
+      commentsCount: (props.post.commentsCount || 0) + 1
     };
 
     emit('update:post', updatedPost);
-    newComment.value = ''; // This will now clear the input
+    newComment.value = '';
+
   } catch (error: any) {
     console.error('Error adding comment:', error);
+    $q.notify({
+      message: error.response?.data?.message || 'Failed to add comment',
+      color: 'negative'
+    });
   }
 };
 

@@ -44,10 +44,7 @@
     <q-page-container>
       <router-view />
 
-      <div class="text-center text-subtitle1 versiontextcolor text-weight-thin" style="font-weight: 600">
-        <span style="font-size: 13px">App version : </span>
-        <span style="font-size: 13px">{{ version }}</span>
-      </div>
+
     </q-page-container>
 
     <q-footer class="text-white footerCss background-color-transparent" style="padding: 4px; padding-bottom: 5px"
@@ -145,7 +142,6 @@ import { useBackgroundNotifications } from 'src/composables/useBackgroundNotific
 import { useUserStore } from 'src/stores/user-store';
 import { ref, onMounted, onUnmounted, computed, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { version } from 'src/../package.json';
 import { useMediaPermissions } from 'src/composables/useMediaPermissions';
 import { api } from 'src/boot/axios';
 import { StatusBar } from '@capacitor/status-bar';
@@ -394,10 +390,6 @@ svg {
 
 svg:hover {
   transform: scale(1.05);
-}
-
-.versiontextcolor {
-  color: rgb(206, 204, 204);
 }
 
 .ios-community-header {
