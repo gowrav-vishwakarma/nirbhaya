@@ -9,6 +9,12 @@
       <SOSButtons @initiate-sos="initiateSOSMode" />
       <div class="beta-notice" @click="goToCommunityRoute">
         {{ $t('common.betaNotice') }}
+        <q-icon
+          class="bg-white"
+          style="border-radius: 50%"
+          color="primary"
+          name="arrow_forward"
+        ></q-icon>
       </div>
       <EmergencyContacts />
 

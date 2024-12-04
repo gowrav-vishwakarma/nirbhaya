@@ -241,7 +241,7 @@ export default {
   failedToOpenSafari:
     'Safari ખોલવામાં નિષ્ફળ. કૃપા કરીને Safari ને મેન્યુઅલી ખોલો અને આ વેબસાઇટ પર નેવિગેટ કરો.',
   sosButtonSubtitle: 'નજીકના સ્વયંસેવકોને આપાતકાલીન એલર્ટ મોકલો',
-  dashboardSubtitle: 'સુરક���ષિત રહો અને તમારા સમુદાય સાથે જોડાયેલા રહો',
+  dashboardSubtitle: 'સુરકષિત રહો અને તમારા સમુદાય સાથે જોડાયેલા રહો',
   helpContacts: 'સંપર્કો પાસેથી મદદ',
   helpContactsSubtitle: 'ફક્ત તમારા આપાતકાલીન સંપર્કોને જાણ કરો',
   quickActions: 'ઝડપી ક્રિયાઓ',
