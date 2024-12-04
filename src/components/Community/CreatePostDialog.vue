@@ -130,7 +130,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue';
+import { ref, computed, watch, onMounted } from 'vue';
 import { api } from 'src/boot/axios';
 import { useQuasar } from 'quasar';
 import { useUserStore } from 'src/stores/user-store';

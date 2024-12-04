@@ -96,6 +96,8 @@ import { useRouter } from 'vue-router'
 import { useQuasar } from 'quasar'
 import ProfilePage from './ProfilePage.vue'
 import VolunteeringPage from './VolunteeringPage.vue';
+import { version } from 'src/../package.json';
+
 // import SosRating from '../Sos/SosRating.vue';
 // import YourRatingPage from '../Sos/YourRatingPage.vue';
 import SosHistoryPage from '../Sos/SosHistoryPage.vue';

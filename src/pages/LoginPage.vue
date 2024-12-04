@@ -82,6 +82,7 @@
           </span>
         </q-btn>
       </div>
+
       <!-- <div class="text-center">
         <q-btn flat @click="goToTnc" class="q-mb-md" style="margin-top: -35px;">
           <span style="font-size: 10px;" class="text-capitalize text-primary">
@@ -90,6 +91,10 @@
         </q-btn>
       </div> -->
     </q-card>
+    <div class="text-center text-subtitle1 versiontextcolor text-weight-thin" style="font-weight: 600">
+      <span style="font-size: 13px">App version : </span>
+      <span style="font-size: 13px">{{ version }}</span>
+    </div>
   </q-page>
 </template>
 
@@ -104,6 +109,7 @@ import { Notify } from 'quasar';
 import LanguageSelector from 'src/components/LanguageSelector.vue';
 import { Device } from '@capacitor/device';
 import { useI18n } from 'vue-i18n';
+import { version } from 'src/../package.json';
 
 const { t } = useI18n();
 const $q = useQuasar();
@@ -292,5 +298,9 @@ onUnmounted(() => {
 
 .q-page {
   background: linear-gradient(135deg, $primary, darken($primary, 20%));
+}
+
+.versiontextcolor {
+  color: rgb(206, 204, 204);
 }
 </style>

@@ -228,8 +228,8 @@ import { api } from 'src/boot/axios';
 import { useRouter } from 'vue-router';
 import CreatePostDialog from 'src/components/Community/CreatePostDialog.vue';
 import { useUserStore } from 'src/stores/user-store';
-import { communityPostService } from 'src/services/communityPostService';
-import type { CommunityPost, Comment } from 'src/types/CommunityPost';
+// import { communityPostService } from 'src/services/communityPostService';
+import type { CommunityPost } from 'src/types/CommunityPost';
 import PostEngagement from 'src/pages/CommunityPosts/PostEngagement.vue';
 
 // Add these type definitions at the top of the script section
@@ -245,6 +245,7 @@ const imageCdn = 'http://xavoc-technocrats-pvt-ltd.blr1.cdn.digitaloceanspaces.c
 
 const $q = useQuasar();
 const posts = ref<Post[]>([]);
+const userInteractionRules = ref()
 
 // Add this new ref for tracking expanded descriptions
 const showFullDescription = ref<{ [key: string]: boolean }>({});
@@ -506,6 +507,8 @@ const onVideoIntersection = (postId: string) => ({
 // Add onMounted hook back
 onMounted(() => {
   loadPosts();
+  getUserInteraction();
+
 });
 
 // Clean up on component unmount
@@ -535,7 +538,6 @@ const handlePostCreated = () => {
 
 // Add these new refs
 const activeCarouselPost = ref<string | null>(null);
-const activeCommentPost = ref<string | null>(null);
 const carouselSlide = ref(0);
 
 // First, add a computed property to check if we're on the last slide
@@ -794,94 +796,7 @@ watch(currentIndex, (newIndex) => {
   });
 });
 
-// Add these refs
-const newComment = ref('');
 
-// Add these methods
-const handleLike = async (post: Post) => {
-  try {
-    if (!userStore.user) {
-      $q.notify({
-        message: 'Please login to like posts',
-        color: 'warning'
-      });
-      return;
-    }
-
-    if (post.liked) {
-      await communityPostService.unlikePost(Number(post.id), Number(userStore.user.id));
-      post.liked = false;
-      post.likes--;
-    } else {
-      await communityPostService.likePost(Number(post.id), Number(userStore.user.id));
-      post.liked = true;
-      post.likes++;
-    }
-  } catch (error) {
-    console.error('Error handling like:', error);
-    $q.notify({
-      message: 'Failed to update like',
-      color: 'negative'
-    });
-  }
-};
-
-const showComments = (post: Post) => {
-  activeCommentPost.value = activeCommentPost.value === post.id.toString() ? null : post.id.toString();
-};
-
-const addComment = async (post: Post) => {
-  if (!newComment.value.trim()) return;
-
-  try {
-    if (!userStore.user) {
-      $q.notify({
-        message: 'Please login to comment',
-        color: 'warning'
-      });
-      return;
-    }
-
-    const comment = await communityPostService.addComment(post.id, newComment.value);
-    post.comments = [...(post.comments || []), comment];
-    newComment.value = '';
-  } catch (error) {
-    console.error('Error adding comment:', error);
-    $q.notify({
-      message: 'Failed to add comment',
-      color: 'negative'
-    });
-  }
-};
-
-const handleShare = async (post: Post) => {
-  try {
-    if (navigator.share) {
-      await navigator.share({
-        title: post.title,
-        text: post.description,
-        url: window.location.href
-      });
-
-      // Update share count
-      await communityPostService.sharePost(post.id.toString());
-      post.shares = (post.shares || 0) + 1;
-    } else {
-      // Fallback for browsers that don't support Web Share API
-      await navigator.clipboard.writeText(window.location.href);
-      $q.notify({
-        message: 'Link copied to clipboard!',
-        color: 'positive'
-      });
-    }
-  } catch (error) {
-    console.error('Error sharing post:', error);
-    $q.notify({
-      message: 'Failed to share post',
-      color: 'negative'
-    });
-  }
-};
 
 // Add this method
 const updatePost = (updatedPost: Post) => {
@@ -937,7 +852,13 @@ watch(
   }
 );
 
-// Update the template to add the ref to the last post
+
+const getUserInteraction = async () => {
+  const res = await api.get(`/posts/user-interaction/${userStore.user?.id}`);
+  userInteractionRules.value = res.data
+  console.log('res........', userInteractionRules.value);
+};
+
 </script>
 
 <style scoped lang="scss">
