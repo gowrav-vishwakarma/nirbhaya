@@ -201,7 +201,8 @@
                 </template>
               </div>
               <!-- Engagement Actions -->
-              <PostEngagement :post="post" @update:post="updatePost($event)" />
+              <PostEngagement :post="post" :userInteractionRules="userInteractionRules"
+                @update:post="updatePost($event)" />
             </q-card-section>
           </q-card>
         </div>
@@ -237,6 +238,16 @@ interface Post extends Omit<CommunityPost, 'liked'> {
   userName: string;
   wasLiked: boolean;
   liked: boolean;
+}
+
+// Add this interface after the Post interface
+interface UserInteractionLimits {
+  dailyLikeLimit: number;
+  dailyCommentLimit: number;
+  dailyPostLimit: number;
+  usedLikeCount: number;
+  usedCommentCount: number;
+  usedPostCount: number;
 }
 
 const userStore = useUserStore();
@@ -524,17 +535,37 @@ const goToCommunityPage = () => {
 
 };
 const createPost = () => {
+  if (!userInteractionRules.value) {
+    $q.notify({
+      color: 'negative',
+      message: 'Unable to verify posting limits',
+      icon: 'warning'
+    });
+    return;
+  }
+
+  if (userInteractionRules.value.usedPostCount >= userInteractionRules.value.dailyPostLimit) {
+    $q.notify({
+      color: 'negative',
+      message: `You've reached your daily post limit of ${userInteractionRules.value.dailyPostLimit} posts`,
+      icon: 'warning'
+    });
+    return;
+  }
+
   showCreatePostDialog.value = true;
 };
 
 // Add this ref after other refs
 const showCreatePostDialog = ref(false);
 
-// Add this to handle post creation
-const handlePostCreated = () => {
-  loadPosts();
+// Add this method to handle successful post creation
+const handlePostCreated = async () => {
+  await loadPosts();
+  showCreatePostDialog.value = false;
+  // Refresh interaction rules after post creation
+  await updateInteractionRules();
 };
-
 
 // Add these new refs
 const activeCarouselPost = ref<string | null>(null);
@@ -799,7 +830,7 @@ watch(currentIndex, (newIndex) => {
 
 
 // Add this method
-const updatePost = (updatedPost: Post) => {
+const updatePost = async (updatedPost: Post) => {
   const index = posts.value.findIndex(p => p.id === updatedPost.id);
   if (index !== -1) {
     posts.value[index] = {
@@ -807,6 +838,8 @@ const updatePost = (updatedPost: Post) => {
       wasLiked: updatedPost.wasLiked || updatedPost.liked,
       liked: updatedPost.wasLiked || updatedPost.liked
     };
+    // Refresh interaction rules after post update
+    await updateInteractionRules();
   }
 };
 
@@ -857,6 +890,16 @@ const getUserInteraction = async () => {
   const res = await api.get(`/posts/user-interaction/${userStore.user?.id}`);
   userInteractionRules.value = res.data
   console.log('res........', userInteractionRules.value);
+};
+
+// Add this method to update interaction rules
+const updateInteractionRules = async () => {
+  try {
+    const res = await api.get(`/posts/user-interaction/${userStore.user?.id}`);
+    userInteractionRules.value = res.data;
+  } catch (error) {
+    console.error('Error updating interaction rules:', error);
+  }
 };
 
 </script>

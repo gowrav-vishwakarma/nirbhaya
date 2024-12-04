@@ -64,12 +64,13 @@
     </div>
 
     <!-- Comments Dialog -->
-    <CommentsDialog v-model="showComments" :post="post" @update:post="handlePostUpdate" />
+    <CommentsDialog v-model="showComments" :post="post" :userInteractionRules="userInteractionRules"
+      @update:post="handlePostUpdate" @update:userInteractionRules="$emit('update:userInteractionRules', $event)" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 import { useQuasar } from 'quasar';
 import { useUserStore } from 'src/stores/user-store';
 import type { CommunityPost } from 'src/types/CommunityPost';
@@ -85,9 +86,17 @@ interface PostProps extends Omit<CommunityPost, 'liked'> {
 
 const props = defineProps<{
   post: PostProps;
+  userInteractionRules: {
+    dailyLikeLimit: number;
+    dailyCommentLimit: number;
+    dailyPostLimit: number;
+    usedLikeCount: number;
+    usedCommentCount: number;
+    usedPostCount: number;
+  };
 }>();
 
-const emit = defineEmits(['update:post']);
+const emit = defineEmits(['update:post', 'update:userInteractionRules']);
 
 const $q = useQuasar();
 const userStore = useUserStore();
@@ -105,6 +114,17 @@ const handleLike = async () => {
         color: 'warning'
       });
       return;
+    }
+
+    // Check like limits
+    if (!props.post.wasLiked && !props.post.liked) {
+      if (props.userInteractionRules.usedLikeCount >= props.userInteractionRules.dailyLikeLimit) {
+        $q.notify({
+          message: 'You have reached your daily like limit',
+          color: 'warning'
+        });
+        return;
+      }
     }
 
     const updatedPost = { ...props.post };
@@ -168,6 +188,19 @@ const handleShare = async () => {
     });
   }
 };
+
+// Add watch for comments dialog to update comment count
+watch(showComments, async (newValue) => {
+  if (newValue) {
+    // Check comment limits when opening comments
+    if (props.userInteractionRules.usedCommentCount >= props.userInteractionRules.dailyCommentLimit) {
+      $q.notify({
+        message: 'You have reached your daily comment limit',
+        color: 'warning'
+      });
+    }
+  }
+});
 </script>
 
 <style lang="scss" scoped>
