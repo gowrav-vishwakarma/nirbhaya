@@ -186,11 +186,13 @@ watch(showComments, async (newValue) => {
   if (newValue) {
     // Check comment limits when opening comments
     if (props.userInteractionRules.usedCommentCount >= props.userInteractionRules.dailyCommentLimit) {
-      $q.notify({
-        message: 'You have reached your daily comment limit',
-        color: 'gray',
-        position: 'top-right'
-      });
+      console.log('You have reached your daily comment limit');
+
+      // $q.notify({
+      //   message: 'You have reached your daily comment limit',
+      //   color: 'black',
+      //   position: 'top-right'
+      // });
     }
   }
 });

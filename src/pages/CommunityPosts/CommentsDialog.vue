@@ -179,7 +179,8 @@ const addComment = async () => {
   if (props.userInteractionRules.usedCommentCount >= props.userInteractionRules.dailyCommentLimit) {
     $q.notify({
       message: 'You have reached your daily comment limit',
-      color: 'warning'
+      color: 'black',
+      position: 'top-right'
     });
     return;
   }
