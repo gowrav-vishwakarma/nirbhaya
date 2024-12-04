@@ -79,4 +79,14 @@ export default {
   suggestionAddFailed: 'Failed to add suggestion',
   suggestionUpdateFailed: 'Failed to update suggestion',
   noSuggestions: "You haven't made any suggestions yet",
+
+  CommunityImpact: {
+    title: 'Community Impact',
+    activeVolunteers: 'Active Volunteers',
+    activeLocations: 'Active Locations',
+    successRate: 'Success Rate',
+    responseTime: 'Avg. Response Time',
+    totalHelped: 'Together, We’ve Helped',
+    activeMember: 'Active Users',
+  },
 };
