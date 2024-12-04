@@ -28,10 +28,14 @@
       <div class="q-mb-lg" v-if="userStore.user.isAmbassador" style="margin-top: -15px">
         <q-card class="create-post-card q-pa-md">
           <div class="row items-center no-wrap">
-            <q-avatar size="45px">
-              <img
-                src="https://icons-for-free.com/iff/png/512/profile+profile+page+user+icon-1320186864367220794.png" />
-            </q-avatar>
+            <div class="relative-position">
+              <q-avatar size="45px" class="avatar cursor-pointer" @click="showLocationDialog = true">
+                <img style="height:30px; width:30px" src="/locationIcon.png" />
+              </q-avatar>
+
+              <LocationSelectionDialog v-model="showLocationDialog" :user-locations="userStore.user?.locations || []"
+                @location-selected="handleLocationSelected" />
+            </div>
             <q-btn class="col post-input-btn" flat color="grey-7">
               <div class="row full-width items-center text-left">
                 <span class="text-grey-7" style="font-size: 0.8em">What's Post on your mind?</span>
@@ -267,6 +271,8 @@ import { useUserStore } from 'src/stores/user-store';
 // import { communityPostService } from 'src/services/communityPostService';
 import type { CommunityPost } from 'src/types/CommunityPost';
 import PostEngagement from 'src/pages/CommunityPosts/PostEngagement.vue';
+import { Dialog } from 'quasar';
+import LocationSelectionDialog from 'src/components/Location/LocationSelectionDialog.vue';
 
 // Add these type definitions at the top of the script section
 interface Post extends Omit<CommunityPost, 'liked'> {
@@ -384,23 +390,13 @@ const loadPosts = async (loadMore = false) => {
   try {
     isLoading.value = true;
 
-    // Get user's location if not already available
-    if (!userLocation.value.latitude || !userLocation.value.longitude) {
-      try {
-        const position = await new Promise<GeolocationPosition>(
-          (resolve, reject) => {
-            navigator.geolocation.getCurrentPosition(resolve, reject);
-          }
-        );
-
-        userLocation.value = {
-          latitude: position.coords.latitude,
-          longitude: position.coords.longitude,
-        };
-      } catch (error) {
-        console.warn('Could not get user location:', error);
+    // Use selectedLocation instead of getting current location
+    const locationParams = selectedLocation.value.latitude && selectedLocation.value.longitude
+      ? {
+        latitude: selectedLocation.value.latitude,
+        longitude: selectedLocation.value.longitude
       }
-    }
+      : {}; // Empty object if no location selected
 
     const response = await api.get('/posts/community-posts', {
       params: {
@@ -408,8 +404,7 @@ const loadPosts = async (loadMore = false) => {
         userId: userStore.user?.id || null,
         page: page.value,
         limit: limit.value,
-        latitude: userLocation.value.latitude,
-        longitude: userLocation.value.longitude,
+        ...locationParams // Spread location parameters
       },
     });
 
@@ -584,23 +579,22 @@ const onVideoIntersection = (postId: string) => ({
   },
 });
 
-const calculateAge = (dob: string): number => {
-  const dobDate = new Date(dob);
+// Update the calculateAge function to handle both string and Date inputs
+const calculateAge = (dob: string | Date): number => {
+  const dobDate = dob instanceof Date ? dob : new Date(dob);
   const today = new Date();
   let age = today.getFullYear() - dobDate.getFullYear();
   const monthDiff = today.getMonth() - dobDate.getMonth();
-  if (
-    monthDiff < 0 ||
-    (monthDiff === 0 && today.getDate() < dobDate.getDate())
-  ) {
+
+  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dobDate.getDate())) {
     age--;
   }
 
   return age;
 };
 
-// Add onMounted hook back
-onMounted(() => {
+// Update onMounted to be async
+onMounted(async () => {  // Add async here
   const dob = userStore.user?.dob;
   if (dob) {
     isUserPermitted.value = calculateAge(dob) >= 13;
@@ -608,8 +602,26 @@ onMounted(() => {
     isUserPermitted.value = false;
   }
 
-  loadPosts();
-  getUserInteraction();
+  // Get initial location
+  try {
+    const position = await new Promise<GeolocationPosition>((resolve, reject) => {
+      navigator.geolocation.getCurrentPosition(resolve, reject);
+    });
+
+    selectedLocation.value = {
+      type: 'current',
+      latitude: position.coords.latitude,
+      longitude: position.coords.longitude,
+      name: 'Current Location',
+      address: 'Current Location'
+    };
+  } catch (error) {
+    console.warn('Could not get initial location:', error);
+  }
+
+  // Load initial posts
+  await loadPosts();
+  await getUserInteraction();
 });
 
 // Clean up on component unmount
@@ -1001,8 +1013,70 @@ const updateInteractionRules = async () => {
     console.error('Error updating interaction rules:', error);
   }
 };
-</script>
 
+// Add these refs and methods in the script section
+const showLocationDialog = ref(false);
+const selectedLocation = ref({
+  type: 'current' as 'current' | 'stored',
+  latitude: null as number | null,
+  longitude: null as number | null,
+  name: '' as string,
+  address: '' as string
+});
+
+// Update the watcher to be more verbose
+// watch(showLocationDialog, (newVal) => {
+//   console.log('Location menu visibility changed:', {
+//     isVisible: newVal,
+//     locationState: selectedLocation.value,
+//     menuElement: document.querySelector('.location-menu'),
+//     avatarElement: document.querySelector('.avatar')
+//   });
+// });
+
+// Update the handleLocationSelected method
+const handleLocationSelected = async (location: {
+  type: string;
+  latitude: number;
+  longitude: number;
+  name?: string;
+  address?: string;
+}) => {
+  console.log('Location selected:', location);
+
+  // Update selected location
+  selectedLocation.value = {
+    type: location.type as 'current' | 'stored',
+    latitude: location.latitude,
+    longitude: location.longitude,
+    name: location.name || '',
+    address: location.address || ''
+  };
+
+  // Reset pagination and posts
+  page.value = 1;
+  posts.value = [];
+  hasMore.value = true;
+  loading.value = true;
+
+  try {
+    // Close location dialog
+    showLocationDialog.value = false;
+
+    // Reload posts with new location
+    await loadPosts(false);
+  } catch (error) {
+    console.error('Error loading posts for new location:', error);
+    $q.notify({
+      color: 'negative',
+      message: 'Failed to load posts for selected location',
+      icon: 'error'
+    });
+  } finally {
+    loading.value = false;
+  }
+};
+</script>
 <style scoped lang="scss">
 .container {
   max-width: 1200px;
@@ -2103,5 +2177,72 @@ const updateInteractionRules = async () => {
   .comment-content {
     font-size: 0.9rem;
   }
+
+  .avatar {
+    background-color: rgb(248, 240, 242);
+    margin-right: 2px;
+  }
+}
+
+.avatar {
+  cursor: pointer;
+  transition: transform 0.2s ease;
+
+  &:hover {
+    transform: scale(1.05);
+  }
+}
+
+.location-menu {
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  background: white;
+  min-width: 200px;
+  z-index: 2000;
+
+  :deep(.q-list) {
+    padding: 8px 0;
+  }
+
+  :deep(.q-item) {
+    min-height: 48px;
+    padding: 8px 16px;
+
+    &:hover {
+      background: rgba(0, 0, 0, 0.03);
+    }
+
+    &.disabled {
+      opacity: 0.6;
+    }
+  }
+
+  :deep(.q-item__label) {
+    font-size: 14px;
+    font-weight: 500;
+  }
+
+  :deep(.q-item__label--caption) {
+    font-size: 12px;
+    color: rgba(0, 0, 0, 0.6);
+  }
+
+  :deep(.q-icon) {
+    font-size: 20px;
+  }
+}
+
+.avatar {
+  background-color: rgb(248, 240, 242);
+  transition: transform 0.2s ease;
+
+  &:hover {
+    transform: scale(1.05);
+  }
+}
+
+.relative-position {
+  position: relative;
+  z-index: 2000;
 }
 </style>
