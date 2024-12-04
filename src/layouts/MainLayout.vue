@@ -4,6 +4,7 @@
       'text-white',
       isScrolled ? 'header-bg-color' : 'background-color-transparent',
       { hidden: isHeaderHide },
+      { 'ios-community-header': isIOSCommunityRoute }
     ]">
       <q-toolbar>
         <q-toolbar-title class="text-h6" @click="userStore.isLoggedIn ? goToDashboardPage() : goToLoginPage()">
@@ -322,16 +323,23 @@ const refreshNotifications = async () => {
 // Computed properties
 const isHeaderHide = computed(() => {
   const path = router.currentRoute.value.path;
-  return (
-    ['/create-reel', '/incident-reels', '/account', '/sos-mode', '/comunity-post'].includes(
-      path
-    ) || /^\/news\/\d+$/.test(path)
-  );
+  const hiddenPaths = ['/create-reel', '/incident-reels', '/account', '/sos-mode'];
+
+  // If on iOS and path is /comunity-post, don't hide the header
+  if ($q.platform.is.ios && path === '/comunity-post') {
+    return false;
+  }
+
+  return hiddenPaths.includes(path) || /^\/news\/\d+$/.test(path) || (!$q.platform.is.ios && path === '/comunity-post');
 });
 
 const isFooterHide = computed(() => {
   const currentPath = router.currentRoute.value.path;
   return ['/create-reel', '/sos-mode'].includes(currentPath);
+});
+
+const isIOSCommunityRoute = computed(() => {
+  return $q.platform.is.ios && router.currentRoute.value.path === '/comunity-post';
 });
 </script>
 
@@ -390,5 +398,15 @@ svg:hover {
 
 .versiontextcolor {
   color: rgb(206, 204, 204);
+}
+
+.ios-community-header {
+  height: 2px !important;
+  min-height: 2px !important;
+
+  // Hide the toolbar content when in iOS community route
+  .q-toolbar {
+    display: none;
+  }
 }
 </style>
