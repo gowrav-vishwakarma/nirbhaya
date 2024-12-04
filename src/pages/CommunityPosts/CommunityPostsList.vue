@@ -333,18 +333,43 @@ const formatDate = (date: string | null) => {
   }
 };
 
-// Methods
+// Add these new refs near the top of the script section
+const userLocation = ref({
+  latitude: null as number | null,
+  longitude: null as number | null
+});
+
+// Update the loadPosts function
 const loadPosts = async (loadMore = false) => {
   if (isLoading.value || (!loadMore && !hasMore.value)) return;
 
   try {
     isLoading.value = true;
+
+    // Get user's location if not already available
+    if (!userLocation.value.latitude || !userLocation.value.longitude) {
+      try {
+        const position = await new Promise<GeolocationPosition>((resolve, reject) => {
+          navigator.geolocation.getCurrentPosition(resolve, reject);
+        });
+
+        userLocation.value = {
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude
+        };
+      } catch (error) {
+        console.warn('Could not get user location:', error);
+      }
+    }
+
     const response = await api.get('/posts/community-posts', {
       params: {
         status: 'active',
         userId: userStore.user?.id || null,
         page: page.value,
-        limit: limit.value
+        limit: limit.value,
+        latitude: userLocation.value.latitude,
+        longitude: userLocation.value.longitude
       }
     });
 
