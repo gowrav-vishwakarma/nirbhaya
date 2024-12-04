@@ -58,9 +58,27 @@
           </div>
         </div>
 
-        <div class="q-mt-sm text-caption text-grey-7">
-          <q-icon name="location_on" size="xs" />
-          {{ form.location.coordinates[0] !== 0 ? 'Location attached' : 'Getting location...' }}
+        <div class="q-mt-md">
+          <q-select v-model="selectedLocationId" :options="savedLocations" option-value="id" option-label="name"
+            label="Select Location (to primarily display this post)" emit-value map-options class="q-mb-md"
+            :loading="isLoadingLocations" :disable="isLoadingLocations">
+            <template v-slot:prepend>
+              <q-icon name="location_on" />
+            </template>
+            <template v-slot:option="scope">
+              <q-item v-bind="scope.itemProps">
+                <q-item-section>
+                  <q-item-label>{{ scope.opt.name }}</q-item-label>
+                  <q-item-label caption v-if="scope.opt.id !== 0 || !isLoadingLocations">
+                    {{ scope.opt.location.coordinates.join(', ') }}
+                  </q-item-label>
+                  <q-item-label caption v-else>
+                    Fetching location...
+                  </q-item-label>
+                </q-item-section>
+              </q-item>
+            </template>
+          </q-select>
         </div>
 
         <div class="row q-mt-lg">
@@ -116,7 +134,6 @@ import { ref, computed, watch } from 'vue';
 import { api } from 'src/boot/axios';
 import { useQuasar } from 'quasar';
 import { useUserStore } from 'src/stores/user-store';
-
 
 const userStore = useUserStore();
 
@@ -321,25 +338,104 @@ const removeImage = (index: number) => {
   previewUrls.value.splice(index, 1);
 };
 
+interface SavedLocation {
+  id: number;
+  name: string;
+  location: {
+    type: string;
+    coordinates: number[];
+  };
+  timestamp: string | null;
+}
+
+const selectedLocationId = ref<number | null>(null);
+const savedLocations = ref<SavedLocation[]>([]);
+const isLoadingLocations = ref(true);
+
+const loadSavedLocations = async () => {
+  isLoadingLocations.value = true;
+  try {
+    // Add current location as first option with placeholder coordinates
+    savedLocations.value = [{
+      id: 0,
+      name: 'Current Location',
+      location: {
+        type: 'Point',
+        coordinates: [0, 0]
+      },
+      timestamp: null
+    }];
+
+    // Add user's saved locations
+    if (userStore.user?.locations) {
+      const userLocations = userStore.user.locations.map(loc => ({
+        id: Math.random(),
+        name: loc.name,
+        location: {
+          type: 'Point',
+          coordinates: loc.location.coordinates
+        },
+        timestamp: null
+      })) as SavedLocation[];
+
+      savedLocations.value = [
+        ...savedLocations.value,
+        ...userLocations
+      ];
+    }
+  } finally {
+    isLoadingLocations.value = false;
+  }
+};
+
 const getCurrentLocation = () => {
   if ('geolocation' in navigator) {
     navigator.geolocation.getCurrentPosition(
       (position) => {
-        form.value.location.coordinates = [
-          position.coords.longitude,
-          position.coords.latitude
-        ];
+        // Update the coordinates of the "Current Location" option
+        if (savedLocations.value.length > 0) {
+          savedLocations.value[0].location.coordinates = [
+            position.coords.longitude,
+            position.coords.latitude
+          ];
+        }
+
+        // Set current location as default if no location is selected
+        if (!selectedLocationId.value) {
+          selectedLocationId.value = 0;
+        }
+
+        // Update form location based on selected location
+        const selectedLocation = savedLocations.value.find(loc => loc.id === selectedLocationId.value);
+        if (selectedLocation) {
+          form.value.location = selectedLocation.location;
+        }
       },
       (error) => {
         console.error('Error getting location:', error);
+        $q.notify({
+          color: 'negative',
+          message: 'Could not get current location',
+          icon: 'error'
+        });
       }
     );
   }
 };
 
+// Update the watch section to load saved locations when dialog opens
 watch(() => isOpen.value, (newValue) => {
   if (newValue) {
+    loadSavedLocations();
     getCurrentLocation();
+  }
+});
+
+// Add a watch for selectedLocationId to update form location when selection changes
+watch(() => selectedLocationId.value, (newValue) => {
+  const selectedLocation = savedLocations.value.find(loc => loc.id === newValue);
+  if (selectedLocation) {
+    form.value.location = selectedLocation.location;
   }
 });
 
