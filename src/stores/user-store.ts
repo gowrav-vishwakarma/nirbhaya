@@ -43,6 +43,7 @@ export interface User {
   profession: string;
   isAmbassador: boolean;
   avatar?: string;
+  canCreatePost: boolean;
 }
 
 interface NewsPreferences {

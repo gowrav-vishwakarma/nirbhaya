@@ -25,7 +25,7 @@
         </div>
       </div>
 
-      <div class="q-mb-lg" v-if="userStore.user.isAmbassador" style="margin-top: -15px">
+      <div class="q-mb-lg" v-if="userStore.user.canCreatePost" style="margin-top: -15px">
         <q-card class="create-post-card q-pa-md">
           <div class="row items-center no-wrap">
             <div class="relative-position">
