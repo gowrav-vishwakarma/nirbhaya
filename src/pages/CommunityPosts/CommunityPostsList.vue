@@ -1,6 +1,6 @@
 <template>
   <q-page class="bg-grey-1">
-    <div class="container q-pa-md">
+    <div class="container q-pa-md" v-if="isUserPermitted">
       <!-- Add Suggestion Button -->
       <!-- <div class="suggestion-button-container q-mb-md">
         <q-btn color="primary" icon="add_circle" label="Add Suggestion" class="suggestion-btn"
@@ -10,35 +10,67 @@
       <!-- Header -->
       <div class="row items-center justify-between q-pa-md">
         <div>
-          <h4 class="text-h5 text-weight-bold q-my-none text-primary">Community Posts</h4>
+          <h4 class="text-h5 text-weight-bold q-my-none text-primary">
+            Community Posts
+          </h4>
           <p class="text-grey-7 q-mt-sm">Stay connected with your community</p>
         </div>
         <div class="text-right">
-          <q-btn color="primary" class="" @click="goToCommunityPage" style="border-radius: 9px;">
-            <q-icon style="font-size: 20px; " name="add_circle"></q-icon>
-            <span style="font-size: 10px; font-weight: 800; padding-left: 5px;">
+          <q-btn
+            color="primary"
+            class=""
+            @click="goToCommunityPage"
+            style="border-radius: 9px"
+          >
+            <q-icon style="font-size: 20px" name="add_circle"></q-icon>
+            <span style="font-size: 10px; font-weight: 800; padding-left: 5px">
               Suggestion
             </span>
           </q-btn>
         </div>
       </div>
 
-      <div class="q-mb-lg" v-if="userStore.user.isAmbassador" style="margin-top: -15px;">
+      <div
+        class="q-mb-lg"
+        v-if="userStore.user.isAmbassador"
+        style="margin-top: -15px"
+      >
         <q-card class="create-post-card q-pa-md">
           <div class="row items-center no-wrap">
             <q-avatar size="45px">
               <img
-                src="https://icons-for-free.com/iff/png/512/profile+profile+page+user+icon-1320186864367220794.png" />
+                src="https://icons-for-free.com/iff/png/512/profile+profile+page+user+icon-1320186864367220794.png"
+              />
             </q-avatar>
-            <q-btn class="col post-input-btn" flat color="grey-7" @click="createPost">
+            <q-btn
+              class="col post-input-btn"
+              flat
+              color="grey-7"
+              @click="createPost"
+            >
               <div class="row full-width items-center text-left">
-                <span class="text-grey-7" style="font-size: .8em;">What's Post on your mind?</span>
+                <span class="text-grey-7" style="font-size: 0.8em"
+                  >What's Post on your mind?</span
+                >
                 <q-space />
-                <q-btn color="primary" class="q-ml-sm suggestion-btn" @click="createPost">
-                  <span style="font-size: 20px; font-weight: 800; padding-right: 5px;">
+                <q-btn
+                  color="primary"
+                  class="q-ml-sm suggestion-btn"
+                  @click="createPost"
+                >
+                  <span
+                    style="
+                      font-size: 20px;
+                      font-weight: 800;
+                      padding-right: 5px;
+                    "
+                  >
                     +
                   </span>
-                  <span class="text-capitalize" style="font-weight: 800; padding-top: 1px;">
+                  <span
+                    class="text-capitalize"
+                    style="font-weight: 800; padding-top: 1px"
+                  >
                     Create
                   </span>
                 </q-btn>
@@ -62,20 +94,34 @@
       </div>
 
       <!-- Posts List -->
-      <div v-else class="row q-col-gutter-y-md" style="margin-top: -30px;">
-        <div v-for="(post, index) in posts" :key="post.id" class="col-12"
-          :ref="index === posts.length - 1 ? (el) => { lastPostRef = el as HTMLElement } : undefined">
+      <div v-else class="row q-col-gutter-y-md" style="margin-top: -30px">
+        <div
+          v-for="(post, index) in posts"
+          :key="post.id"
+          class="col-12"
+          :ref="index === posts.length - 1 ? (el) => { lastPostRef = el as HTMLElement } : undefined"
+        >
           <q-card flat class="post-card">
             <!-- User Info Section -->
             <q-card-section class="q-pb-none">
               <div class="row items-center">
                 <q-avatar size="48px" class="shadow-2">
-                  <img src="/sos_logo_1080_1080.png" style="object-fit: cover;" />
+                  <img
+                    src="/sos_logo_1080_1080.png"
+                    style="object-fit: cover"
+                  />
                 </q-avatar>
                 <div class="q-ml-md">
-                  <div class="text-weight-bold text-capitalize" style="font-size: 16px;">
-                    {{ post.userName == 'SOS Bharat Community' ?
-                      'SOS Bharat Community' : post.userName }}</div>
+                  <div
+                    class="text-weight-bold text-capitalize"
+                    style="font-size: 16px"
+                  >
+                    {{
+                      post.userName == 'SOS Bharat Community'
+                        ? 'SOS Bharat Community'
+                        : post.userName
+                    }}
+                  </div>
                   <div class="text-caption text-grey-7">
                     <q-icon name="schedule" size="xs" class="q-mr-xs" />
                     {{ formatDate(post.createdAt) }}
@@ -85,46 +131,86 @@
             </q-card-section>
 
             <!-- Post Content -->
-            <q-card-section style="padding: 10px 10px 0px 10px; ">
-              <div class="text-h5 text-weight-bold text-primary q-mb-sm" style="font-size: 16px;">
+            <q-card-section style="padding: 10px 10px 0px 10px">
+              <div
+                class="text-h5 text-weight-bold text-primary q-mb-sm"
+                style="font-size: 16px"
+              >
                 {{ post.title }}
               </div>
               <div class="text-body1 post-description">
-                {{ showFullDescription[post.id.toString()] ? post.description : truncateText(post.description, 15) }}
-                <span v-if="post.description.split(' ').length > 10" @click="toggleDescription(post.id)"
-                  class="read-more-link">
-                  {{ showFullDescription[post.id.toString()] ? 'Read Less' : 'Read More' }}
+                {{
+                  showFullDescription[post.id.toString()]
+                    ? post.description
+                    : truncateText(post.description, 15)
+                }}
+                <span
+                  v-if="post.description.split(' ').length > 10"
+                  @click="toggleDescription(post.id)"
+                  class="read-more-link"
+                >
+                  {{
+                    showFullDescription[post.id.toString()]
+                      ? 'Read Less'
+                      : 'Read More'
+                  }}
                 </span>
               </div>
 
               <!-- Hashtags section -->
-              <div v-if="post.tags && post.tags.length" class="hashtags-container">
-                <span v-for="tag in post.tags" :key="tag" class="hashtag" @click="handleTagClick(tag)">
+              <div
+                v-if="post.tags && post.tags.length"
+                class="hashtags-container"
+              >
+                <span
+                  v-for="tag in post.tags"
+                  :key="tag"
+                  class="hashtag"
+                  @click="handleTagClick(tag)"
+                >
                   #{{ tag }}
                 </span>
               </div>
             </q-card-section>
 
             <!-- Media Section -->
-            <q-card-section v-if="post.mediaUrls || post.videoUrl" class="q-pa-none q-mt-md">
+            <q-card-section
+              v-if="post.mediaUrls || post.videoUrl"
+              class="q-pa-none q-mt-md"
+            >
               <!-- Show YouTube video if videoUrl exists -->
-              <div v-if="post.videoUrl" class="video-container"
-                v-intersection="onVideoIntersection(post.id.toString())">
-                <iframe :key="getVideoUrl(post.id.toString(), post.videoUrl)"
-                  :src="getVideoUrl(post.id.toString(), post.videoUrl)" :id="`video-${post.id}`" frameborder="0"
+              <div
+                v-if="post.videoUrl"
+                class="video-container"
+                v-intersection="onVideoIntersection(post.id.toString())"
+              >
+                <iframe
+                  :key="getVideoUrl(post.id.toString(), post.videoUrl)"
+                  :src="getVideoUrl(post.id.toString(), post.videoUrl)"
+                  :id="`video-${post.id}`"
+                  frameborder="0"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowfullscreen class="video-frame">
+                  allowfullscreen
+                  class="video-frame"
+                >
                 </iframe>
               </div>
               <!-- Show image collage or carousel based on showCarousel state -->
-              <div v-else-if="post.mediaUrls && post.mediaUrls.length" class="media-section">
+              <div
+                v-else-if="post.mediaUrls && post.mediaUrls.length"
+                class="media-section"
+              >
                 <!-- Move controls inside the carousel template -->
                 <template v-if="activeCarouselPost === post.id.toString()">
                   <!-- Dots Navigation -->
                   <div class="carousel-dots">
-                    <button v-for="index in currentImageCount.total" :key="index" class="dot"
-                      :class="{ active: activeDotIndex === index - 1 }" @click.stop="goToSlide(index - 1)">
-                    </button>
+                    <button
+                      v-for="index in currentImageCount.total"
+                      :key="index"
+                      class="dot"
+                      :class="{ active: activeDotIndex === index - 1 }"
+                      @click.stop="goToSlide(index - 1)"
+                    ></button>
                   </div>
 
                   <!-- Image Counter -->
@@ -137,23 +223,46 @@
                     <i class="material-icons">close</i>
                   </button>
 
-                  <div class="custom-carousel" ref="carousel" @touchstart="handleTouchStart"
-                    @touchmove="handleTouchMove" @touchend="handleTouchEnd">
+                  <div
+                    class="custom-carousel"
+                    ref="carousel"
+                    @touchstart="handleTouchStart"
+                    @touchmove="handleTouchMove"
+                    @touchend="handleTouchEnd"
+                  >
                     <div class="carousel-inner" :style="carouselStyle">
-                      <div v-for="(url, index) in Array.isArray(post.mediaUrls) ?
-                        post.mediaUrls.map(url => imageCdn + url) :
-                        [imageCdn + post.mediaUrls]" :key="index" class="carousel-slide"
-                        :class="{ active: currentIndex === index }" v-intersection="onCarouselImageIntersection(index)"
-                        ref="carouselImages">
-                        <img :src="url" :alt="`Image ${index + 1}`" class="carousel-image" @click.stop />
+                      <div
+                        v-for="(url, index) in Array.isArray(post.mediaUrls)
+                          ? post.mediaUrls.map((url) => imageCdn + url)
+                          : [imageCdn + post.mediaUrls]"
+                        :key="index"
+                        class="carousel-slide"
+                        :class="{ active: currentIndex === index }"
+                        v-intersection="onCarouselImageIntersection(index)"
+                        ref="carouselImages"
+                      >
+                        <img
+                          :src="url"
+                          :alt="`Image ${index + 1}`"
+                          class="carousel-image"
+                          @click.stop
+                        />
                       </div>
                     </div>
 
                     <!-- Navigation Arrows -->
-                    <button class="carousel-arrow prev" @click.stop="prevSlide" v-show="currentIndex > 0">
+                    <button
+                      class="carousel-arrow prev"
+                      @click.stop="prevSlide"
+                      v-show="currentIndex > 0"
+                    >
                       <i class="material-icons">chevron_left</i>
                     </button>
-                    <button class="carousel-arrow next" @click.stop="nextSlide" v-show="!isLastSlide">
+                    <button
+                      class="carousel-arrow next"
+                      @click.stop="nextSlide"
+                      v-show="!isLastSlide"
+                    >
                       <i class="material-icons">chevron_right</i>
                     </button>
                   </div>
@@ -163,16 +272,38 @@
                 <template v-else>
                   <div class="media-collage">
                     <!-- Single Image -->
-                    <template v-if="!Array.isArray(post.mediaUrls) || post.mediaUrls.length === 1">
-                      <q-img :src="imageCdn + (Array.isArray(post.mediaUrls) ? post.mediaUrls[0] : post.mediaUrls)"
-                        :ratio="16 / 9" class="single-image" @click="showCarousel(post.id, 0)" />
+                    <template
+                      v-if="
+                        !Array.isArray(post.mediaUrls) ||
+                        post.mediaUrls.length === 1
+                      "
+                    >
+                      <q-img
+                        :src="
+                          imageCdn +
+                          (Array.isArray(post.mediaUrls)
+                            ? post.mediaUrls[0]
+                            : post.mediaUrls)
+                        "
+                        :ratio="16 / 9"
+                        class="single-image"
+                        @click="showCarousel(post.id, 0)"
+                      />
                     </template>
 
                     <!-- Two Images -->
                     <template v-else-if="post.mediaUrls.length === 2">
                       <div class="two-images-grid">
-                        <div v-for="(url, index) in post.mediaUrls" :key="index" class="grid-image-container">
-                          <q-img :src="imageCdn + url" class="grid-image" @click="showCarousel(post.id, index)" />
+                        <div
+                          v-for="(url, index) in post.mediaUrls"
+                          :key="index"
+                          class="grid-image-container"
+                        >
+                          <q-img
+                            :src="imageCdn + url"
+                            class="grid-image"
+                            @click="showCarousel(post.id, index)"
+                          />
                         </div>
                       </div>
                     </template>
@@ -181,16 +312,30 @@
                     <template v-else>
                       <div class="multi-images-grid">
                         <div class="main-image-container">
-                          <q-img :src="imageCdn + post.mediaUrls[0]" class="main-grid-image"
-                            @click="showCarousel(post.id, 0)" />
+                          <q-img
+                            :src="imageCdn + post.mediaUrls[0]"
+                            class="main-grid-image"
+                            @click="showCarousel(post.id, 0)"
+                          />
                         </div>
                         <div class="secondary-images-container">
-                          <div v-for="(url, index) in post.mediaUrls.slice(1, 3)" :key="index"
-                            class="secondary-image-wrapper">
-                            <q-img :src="imageCdn + url" class="secondary-grid-image"
-                              @click="showCarousel(post.id, index + 1)">
-                              <div v-if="index === 1 && post.mediaUrls.length > 3" class="see-all-overlay">
-                                <span class="text-white text-weight-bold">+{{ post.mediaUrls.length - 3 }}</span>
+                          <div
+                            v-for="(url, index) in post.mediaUrls.slice(1, 3)"
+                            :key="index"
+                            class="secondary-image-wrapper"
+                          >
+                            <q-img
+                              :src="imageCdn + url"
+                              class="secondary-grid-image"
+                              @click="showCarousel(post.id, index + 1)"
+                            >
+                              <div
+                                v-if="index === 1 && post.mediaUrls.length > 3"
+                                class="see-all-overlay"
+                              >
+                                <span class="text-white text-weight-bold"
+                                  >+{{ post.mediaUrls.length - 3 }}</span
+                                >
                               </div>
                             </q-img>
                           </div>
@@ -213,12 +358,29 @@
       </div>
 
       <!-- No more posts message -->
-      <div v-if="!hasMore && posts.length > 0" class="col-12 text-center q-pa-md text-grey-7">
+      <div
+        v-if="!hasMore && posts.length > 0"
+        class="col-12 text-center q-pa-md text-grey-7"
+      >
         No more posts to load
       </div>
     </div>
+    <div v-else class="q-pt-lg">
+      <q-banner dense inline-actions class="text-white bg-red">
+        <template v-slot:action>
+          <q-btn flat color="white" icon="warning" />
+        </template>
+        <div class="text-h5 text-center q-pt-lg">
+          Access Denied: You must be at least 13 years old to view this page.
+        </div>
+      </q-banner>
+    </div>
   </q-page>
-  <CreatePostDialog v-model="showCreatePostDialog" @post-created="handlePostCreated" />
+  <CreatePostDialog
+    v-model="showCreatePostDialog"
+    @post-created="handlePostCreated"
+    v-if="isUserPermitted"
+  />
 </template>
 
 <script setup lang="ts">
@@ -241,7 +403,8 @@ interface Post extends Omit<CommunityPost, 'liked'> {
 
 const userStore = useUserStore();
 
-const imageCdn = 'http://xavoc-technocrats-pvt-ltd.blr1.cdn.digitaloceanspaces.com/'
+const imageCdn =
+  'http://xavoc-technocrats-pvt-ltd.blr1.cdn.digitaloceanspaces.com/';
 
 const $q = useQuasar();
 const posts = ref<Post[]>([]);
@@ -257,6 +420,7 @@ const loading = ref(true);
 
 // Add a ref to track the currently playing video
 const currentlyPlayingVideo = ref<string | null>(null);
+const isUserPermitted = ref(false);
 
 // Add new refs for dialog
 // const showSuggestionDialog = ref(false);
@@ -291,7 +455,9 @@ const formatDate = (date: string | null) => {
 
     // Less than an hour
     if (diffInMinutes < 60) {
-      return `${diffInMinutes} ${diffInMinutes === 1 ? 'minute' : 'minutes'} ago`;
+      return `${diffInMinutes} ${
+        diffInMinutes === 1 ? 'minute' : 'minutes'
+      } ago`;
     }
 
     // Less than a day
@@ -311,7 +477,7 @@ const formatDate = (date: string | null) => {
       day: 'numeric',
       hour: '2-digit',
       minute: '2-digit',
-      hour12: true
+      hour12: true,
     };
 
     return new Intl.DateTimeFormat('en-US', options).format(postDate);
@@ -332,8 +498,8 @@ const loadPosts = async (loadMore = false) => {
         status: 'active',
         userId: userStore.user?.id || null,
         page: page.value,
-        limit: limit.value
-      }
+        limit: limit.value,
+      },
     });
 
     let postsData: Post[] = [];
@@ -344,10 +510,10 @@ const loadPosts = async (loadMore = false) => {
     }
 
     // Transform the posts data
-    const transformedPosts = postsData.map(post => ({
+    const transformedPosts = postsData.map((post) => ({
       ...post,
       wasLiked: post.wasLiked || post.liked || false,
-      liked: post.wasLiked || post.liked || false
+      liked: post.wasLiked || post.liked || false,
     }));
 
     // Update posts array based on whether we're loading more or not
@@ -362,13 +528,12 @@ const loadPosts = async (loadMore = false) => {
     if (hasMore.value) {
       page.value++;
     }
-
   } catch (error) {
     console.error('Error loading posts:', error);
     $q.notify({
       color: 'negative',
       message: 'Failed to load posts',
-      icon: 'error'
+      icon: 'error',
     });
   } finally {
     isLoading.value = false;
@@ -435,14 +600,16 @@ const getVideoUrl = (postId: string, url: string) => {
 
 // Update the controlVideo function to be more reliable
 const controlVideo = (postId: string, command: 'play' | 'pause') => {
-  const iframe = document.getElementById(`video-${postId}`) as HTMLIFrameElement;
+  const iframe = document.getElementById(
+    `video-${postId}`
+  ) as HTMLIFrameElement;
   if (iframe && iframe.contentWindow) {
     try {
       iframe.contentWindow.postMessage(
         JSON.stringify({
           event: 'command',
           func: command === 'play' ? 'playVideo' : 'pauseVideo',
-          args: []
+          args: [],
         }),
         '*'
       );
@@ -462,7 +629,7 @@ const onVideoIntersection = (postId: string) => ({
       const windowHeight = window.innerHeight;
 
       // Calculate how centered the video is in the viewport
-      const elementCenter = rect.top + (rect.height / 2);
+      const elementCenter = rect.top + rect.height / 2;
       const viewportCenter = windowHeight / 2;
       const distanceFromCenter = Math.abs(elementCenter - viewportCenter);
 
@@ -474,7 +641,10 @@ const onVideoIntersection = (postId: string) => ({
 
       if (isVisible && isCentered) {
         // Pause any currently playing video
-        if (currentlyPlayingVideo.value !== null && currentlyPlayingVideo.value !== postId) {
+        if (
+          currentlyPlayingVideo.value !== null &&
+          currentlyPlayingVideo.value !== postId
+        ) {
           controlVideo(currentlyPlayingVideo.value, 'pause');
           videoVisibility.value[currentlyPlayingVideo.value] = false;
         }
@@ -499,12 +669,34 @@ const onVideoIntersection = (postId: string) => ({
   cfg: {
     // Update threshold and rootMargin for more precise center detection
     threshold: [0, 0.25, 0.5, 0.75, 1],
-    rootMargin: '-30% 0px' // This creates a smaller "center" zone
-  }
+    rootMargin: '-30% 0px', // This creates a smaller "center" zone
+  },
 });
+
+const calculateAge = (dob: string): number => {
+  const dobDate = new Date(dob);
+  const today = new Date();
+  let age = today.getFullYear() - dobDate.getFullYear();
+  const monthDiff = today.getMonth() - dobDate.getMonth();
+  if (
+    monthDiff < 0 ||
+    (monthDiff === 0 && today.getDate() < dobDate.getDate())
+  ) {
+    age--;
+  }
+  console.log(age);
+  return age;
+};
 
 // Add onMounted hook back
 onMounted(() => {
+  const dob = userStore.user?.dob;
+  if (dob) {
+    isUserPermitted.value = calculateAge(dob) >= 13;
+  } else {
+    isUserPermitted.value = false;
+  }
+
   loadPosts();
 });
 
@@ -518,7 +710,6 @@ onUnmounted(() => {
 // Replace dialog methods with navigation method
 const goToCommunityPage = () => {
   router.push('/community');
-
 };
 const createPost = () => {
   showCreatePostDialog.value = true;
@@ -532,7 +723,6 @@ const handlePostCreated = () => {
   loadPosts();
 };
 
-
 // Add these new refs
 const activeCarouselPost = ref<string | null>(null);
 const activeCommentPost = ref<string | null>(null);
@@ -545,24 +735,25 @@ const isLastSlide = computed(() => {
 
 // Update the showCarousel method to handle number conversion
 const showCarousel = (postId: string | number, startIndex: number) => {
-  const numericPostId = typeof postId === 'string' ? parseInt(postId, 10) : postId;
+  const numericPostId =
+    typeof postId === 'string' ? parseInt(postId, 10) : postId;
   activeCarouselPost.value = numericPostId.toString();
   currentIndex.value = startIndex;
 
-  const post = posts.value.find(p => p.id === numericPostId);
+  const post = posts.value.find((p) => p.id === numericPostId);
   if (post && post.mediaUrls) {
     const imageData = {
       postId: numericPostId,
       startIndex: startIndex + 1,
       totalImages: Array.isArray(post.mediaUrls) ? post.mediaUrls.length : 1,
-      allImages: Array.isArray(post.mediaUrls) ?
-        post.mediaUrls.map((url, idx) => ({
-          index: idx + 1,
-          url: imageCdn + url,
-          isActive: idx === startIndex
-        })) :
-        [{ index: 1, url: imageCdn + post.mediaUrls, isActive: true }],
-      activeDot: startIndex
+      allImages: Array.isArray(post.mediaUrls)
+        ? post.mediaUrls.map((url, idx) => ({
+            index: idx + 1,
+            url: imageCdn + url,
+            isActive: idx === startIndex,
+          }))
+        : [{ index: 1, url: imageCdn + post.mediaUrls, isActive: true }],
+      activeDot: startIndex,
     };
     console.log('Carousel Opened:', imageData);
   }
@@ -579,25 +770,33 @@ const currentIndex = ref(0);
 const isTransitioning = ref(false);
 
 const totalSlides = computed(() => {
-  const activePost = posts.value.find(p => p.id.toString() === activeCarouselPost.value);
+  const activePost = posts.value.find(
+    (p) => p.id.toString() === activeCarouselPost.value
+  );
   if (!activePost) return 0;
   return Array.isArray(activePost.mediaUrls) ? activePost.mediaUrls.length : 1;
 });
 
 // Add this computed property to track current image count
 const currentImageCount = computed(() => {
-  const activePost = posts.value.find(p => p.id.toString() === activeCarouselPost.value);
+  const activePost = posts.value.find(
+    (p) => p.id.toString() === activeCarouselPost.value
+  );
   if (!activePost?.mediaUrls) return { current: 0, total: 0 };
 
   return {
     current: currentIndex.value + 1,
-    total: Array.isArray(activePost.mediaUrls) ? activePost.mediaUrls.length : 1
+    total: Array.isArray(activePost.mediaUrls)
+      ? activePost.mediaUrls.length
+      : 1,
   };
 });
 
 // Add this computed property to track active dots
 const activeDotIndex = computed(() => {
-  return currentVisibleImage.value ? currentVisibleImage.value - 1 : currentIndex.value;
+  return currentVisibleImage.value
+    ? currentVisibleImage.value - 1
+    : currentIndex.value;
 });
 
 // Update the slide navigation methods
@@ -610,7 +809,7 @@ const goToSlide = (index: number) => {
   console.log('Go To Slide:', {
     index: index + 1,
     total: totalSlides.value,
-    currentVisible: currentVisibleImage.value
+    currentVisible: currentVisibleImage.value,
   });
 
   setTimeout(() => {
@@ -621,12 +820,13 @@ const goToSlide = (index: number) => {
 const prevSlide = () => {
   if (isTransitioning.value) return;
   isTransitioning.value = true;
-  currentIndex.value = (currentIndex.value - 1 + totalSlides.value) % totalSlides.value;
+  currentIndex.value =
+    (currentIndex.value - 1 + totalSlides.value) % totalSlides.value;
   currentVisibleImage.value = currentIndex.value + 1;
 
   console.log('Previous Slide:', {
     newIndex: currentIndex.value + 1,
-    currentVisible: currentVisibleImage.value
+    currentVisible: currentVisibleImage.value,
   });
 
   setTimeout(() => {
@@ -642,7 +842,7 @@ const nextSlide = () => {
 
   console.log('Next Slide:', {
     newIndex: currentIndex.value + 1,
-    currentVisible: currentVisibleImage.value
+    currentVisible: currentVisibleImage.value,
   });
 
   setTimeout(() => {
@@ -675,16 +875,13 @@ const handleKeydown = (event: KeyboardEvent) => {
   }
 };
 
-
 // Update the handleScroll method
 
 // Update the carouselStyle computed property
 const carouselStyle = computed(() => ({
   transform: `translate3d(-${currentIndex.value * 100}%, 0, 0)`,
-  willChange: 'transform'
+  willChange: 'transform',
 }));
-
-
 
 // Add these new refs for touch handling
 const touchStart = ref(0);
@@ -705,7 +902,8 @@ const handleTouchMove = (event: TouchEvent) => {
 
   const currentX = event.touches[0].clientX;
   const diff = touchStart.value - currentX;
-  const translateX = -(currentIndex.value * 100) - (diff / carousel.value.offsetWidth * 100);
+  const translateX =
+    -(currentIndex.value * 100) - (diff / carousel.value.offsetWidth) * 100;
 
   // Apply transform directly for smoother movement
   carousel.value.style.transform = `translate3d(${translateX}%, 0, 0)`;
@@ -728,11 +926,15 @@ const handleTouchEnd = () => {
       prevSlide();
     } else {
       // Reset to current slide if at bounds
-      carousel.value.style.transform = `translate3d(-${currentIndex.value * 100}%, 0, 0)`;
+      carousel.value.style.transform = `translate3d(-${
+        currentIndex.value * 100
+      }%, 0, 0)`;
     }
   } else {
     // Reset to current slide if threshold not met
-    carousel.value.style.transform = `translate3d(-${currentIndex.value * 100}%, 0, 0)`;
+    carousel.value.style.transform = `translate3d(-${
+      currentIndex.value * 100
+    }%, 0, 0)`;
   }
 
   touchStart.value = 0;
@@ -753,19 +955,21 @@ const onCarouselImageIntersection = (index: number) => ({
     if (!entry) return false;
 
     if (entry.isIntersecting) {
-      const activePost = posts.value.find(p => p.id.toString() === activeCarouselPost.value);
+      const activePost = posts.value.find(
+        (p) => p.id.toString() === activeCarouselPost.value
+      );
       const imageData = {
         index: index + 1,
         total: totalSlides.value,
         isIntersecting: entry.isIntersecting,
         intersectionRatio: entry.intersectionRatio,
-        currentImage: activePost?.mediaUrls ? (
-          Array.isArray(activePost.mediaUrls) ?
-            activePost.mediaUrls[index] :
-            activePost.mediaUrls
-        ) : null,
+        currentImage: activePost?.mediaUrls
+          ? Array.isArray(activePost.mediaUrls)
+            ? activePost.mediaUrls[index]
+            : activePost.mediaUrls
+          : null,
         activeDot: currentIndex.value,
-        postId: activeCarouselPost.value
+        postId: activeCarouselPost.value,
       };
 
       console.log('Image Data:', imageData);
@@ -774,23 +978,25 @@ const onCarouselImageIntersection = (index: number) => ({
     return true;
   },
   cfg: {
-    threshold: [0.5] // Fix type error by making threshold an array
-  }
+    threshold: [0.5], // Fix type error by making threshold an array
+  },
 });
 
 // Add a watcher to log changes in current index
 watch(currentIndex, (newIndex) => {
-  const activePost = posts.value.find(p => p.id.toString() === activeCarouselPost.value);
+  const activePost = posts.value.find(
+    (p) => p.id.toString() === activeCarouselPost.value
+  );
   console.log('Carousel State:', {
     currentIndex: newIndex + 1,
     totalImages: totalSlides.value,
     activeDot: newIndex,
-    currentImage: activePost?.mediaUrls ? (
-      Array.isArray(activePost.mediaUrls) ?
-        activePost.mediaUrls[newIndex] :
-        activePost.mediaUrls
-    ) : null,
-    postId: activeCarouselPost.value
+    currentImage: activePost?.mediaUrls
+      ? Array.isArray(activePost.mediaUrls)
+        ? activePost.mediaUrls[newIndex]
+        : activePost.mediaUrls
+      : null,
+    postId: activeCarouselPost.value,
   });
 });
 
@@ -803,17 +1009,23 @@ const handleLike = async (post: Post) => {
     if (!userStore.user) {
       $q.notify({
         message: 'Please login to like posts',
-        color: 'warning'
+        color: 'warning',
       });
       return;
     }
 
     if (post.liked) {
-      await communityPostService.unlikePost(Number(post.id), Number(userStore.user.id));
+      await communityPostService.unlikePost(
+        Number(post.id),
+        Number(userStore.user.id)
+      );
       post.liked = false;
       post.likes--;
     } else {
-      await communityPostService.likePost(Number(post.id), Number(userStore.user.id));
+      await communityPostService.likePost(
+        Number(post.id),
+        Number(userStore.user.id)
+      );
       post.liked = true;
       post.likes++;
     }
@@ -821,13 +1033,14 @@ const handleLike = async (post: Post) => {
     console.error('Error handling like:', error);
     $q.notify({
       message: 'Failed to update like',
-      color: 'negative'
+      color: 'negative',
     });
   }
 };
 
 const showComments = (post: Post) => {
-  activeCommentPost.value = activeCommentPost.value === post.id.toString() ? null : post.id.toString();
+  activeCommentPost.value =
+    activeCommentPost.value === post.id.toString() ? null : post.id.toString();
 };
 
 const addComment = async (post: Post) => {
@@ -837,19 +1050,22 @@ const addComment = async (post: Post) => {
     if (!userStore.user) {
       $q.notify({
         message: 'Please login to comment',
-        color: 'warning'
+        color: 'warning',
       });
       return;
     }
 
-    const comment = await communityPostService.addComment(post.id, newComment.value);
+    const comment = await communityPostService.addComment(
+      post.id,
+      newComment.value
+    );
     post.comments = [...(post.comments || []), comment];
     newComment.value = '';
   } catch (error) {
     console.error('Error adding comment:', error);
     $q.notify({
       message: 'Failed to add comment',
-      color: 'negative'
+      color: 'negative',
     });
   }
 };
@@ -860,7 +1076,7 @@ const handleShare = async (post: Post) => {
       await navigator.share({
         title: post.title,
         text: post.description,
-        url: window.location.href
+        url: window.location.href,
       });
 
       // Update share count
@@ -871,26 +1087,26 @@ const handleShare = async (post: Post) => {
       await navigator.clipboard.writeText(window.location.href);
       $q.notify({
         message: 'Link copied to clipboard!',
-        color: 'positive'
+        color: 'positive',
       });
     }
   } catch (error) {
     console.error('Error sharing post:', error);
     $q.notify({
       message: 'Failed to share post',
-      color: 'negative'
+      color: 'negative',
     });
   }
 };
 
 // Add this method
 const updatePost = (updatedPost: Post) => {
-  const index = posts.value.findIndex(p => p.id === updatedPost.id);
+  const index = posts.value.findIndex((p) => p.id === updatedPost.id);
   if (index !== -1) {
     posts.value[index] = {
       ...updatedPost,
       wasLiked: updatedPost.wasLiked || updatedPost.liked,
-      liked: updatedPost.wasLiked || updatedPost.liked
+      liked: updatedPost.wasLiked || updatedPost.liked,
     };
   }
 };
@@ -912,7 +1128,7 @@ const observeLastPost = () => {
       }
     },
     {
-      rootMargin: '100px'
+      rootMargin: '100px',
     }
   );
 
@@ -946,16 +1162,13 @@ watch(
   margin: 0 auto;
   padding: 0px;
   //background: linear-gradient(135deg, $primary, darken($primary, 20%));
-
 }
 
 .post-card {
   background: white;
   transition: all 0.3s ease;
-  box-shadow:
-    0 -10px 10px -10px rgba(0, 0, 0, 0.3),
-    /* Top shadow */
-    0 10px 10px -10px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 -10px 10px -10px rgba(0, 0, 0, 0.3),
+    /* Top shadow */ 0 10px 10px -10px rgba(0, 0, 0, 0.3);
   /* Bottom shadow */
   overflow: hidden;
   border: none;
@@ -966,10 +1179,8 @@ watch(
 
 .post-card:hover {
   transform: translateY(-2px);
-  box-shadow:
-    0 -10px 15px -10px rgba(0, 0, 0, 0.4),
-    /* Enhanced top shadow on hover */
-    0 10px 15px -10px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 -10px 15px -10px rgba(0, 0, 0, 0.4),
+    /* Enhanced top shadow on hover */ 0 10px 15px -10px rgba(0, 0, 0, 0.4);
   /* Enhanced bottom shadow on hover */
 }
 
@@ -1219,7 +1430,6 @@ watch(
 
 // Responsive adjustments
 @media (max-width: 600px) {
-
   .single-image,
   .two-images-grid,
   .multi-images-grid {
@@ -1254,7 +1464,11 @@ watch(
   justify-content: space-between;
   align-items: center;
   padding: 12px 20px;
-  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.7) 0%, rgba(0, 0, 0, 0) 100%);
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.7) 0%,
+    rgba(0, 0, 0, 0) 100%
+  );
 }
 
 .gallery-content {

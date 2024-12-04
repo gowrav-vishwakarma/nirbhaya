@@ -140,7 +140,7 @@ export default {
   resolveSOSIssue: 'Resolve SOS Issue',
   audioOpen: 'Audio Open',
   clickToOpenAudio: 'Click to Open Audio',
-  sosMode: 'SOS Mode',
+  sosMode: 'SOS Alert Sent Successfully',
   sosCountdownMessage: '',
   notifiedPersons: 'Notified',
   // notifiedPersons: 'Notified to persons',
