@@ -167,12 +167,12 @@
                     </div>
 
                     <!-- Navigation Arrows -->
-                    <button class="carousel-arrow prev" @click.stop="prevSlide" v-show="currentIndex > 0">
+                    <!-- <button class="carousel-arrow prev" @click.stop="prevSlide" v-show="currentIndex > 0">
                       <i class="material-icons">chevron_left</i>
                     </button>
                     <button class="carousel-arrow next" @click.stop="nextSlide" v-show="!isLastSlide">
                       <i class="material-icons">chevron_right</i>
-                    </button>
+                    </button> -->
                   </div>
                 </template>
 
