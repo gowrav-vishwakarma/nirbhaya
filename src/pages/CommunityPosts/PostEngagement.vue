@@ -77,15 +77,10 @@ import { communityPostService } from 'src/services/communityPostService';
 import CommentsDialog from './CommentsDialog.vue';
 
 // Define a type that matches the actual post structure
-interface PostProps extends CommunityPost {
+interface PostProps extends Omit<CommunityPost, 'liked'> {
+  userName: string;
   wasLiked: boolean;
   liked: boolean;
-  userName: string;
-  id: number;
-  userId: number;
-  status: string;
-  createdAt: string;
-  updatedAt: string;
 }
 
 const props = defineProps<{

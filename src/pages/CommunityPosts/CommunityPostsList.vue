@@ -63,7 +63,8 @@
 
       <!-- Posts List -->
       <div v-else class="row q-col-gutter-y-md" style="margin-top: -30px;">
-        <div v-for="post in posts" :key="post.id" class="col-12">
+        <div v-for="(post, index) in posts" :key="post.id" class="col-12"
+          :ref="index === posts.length - 1 ? (el) => { lastPostRef = el as HTMLElement } : undefined">
           <q-card flat class="post-card">
             <!-- User Info Section -->
             <q-card-section class="q-pb-none">
@@ -205,13 +206,23 @@
           </q-card>
         </div>
       </div>
+
+      <!-- Loading indicator for infinite scroll -->
+      <div v-if="isLoading" class="col-12 flex justify-center q-pa-md">
+        <q-spinner-dots color="primary" size="40" />
+      </div>
+
+      <!-- No more posts message -->
+      <div v-if="!hasMore && posts.length > 0" class="col-12 text-center q-pa-md text-grey-7">
+        No more posts to load
+      </div>
     </div>
   </q-page>
   <CreatePostDialog v-model="showCreatePostDialog" @post-created="handlePostCreated" />
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch, onUnmounted, computed } from 'vue';
+import { ref, onMounted, watch, onUnmounted, computed, nextTick } from 'vue';
 import { useQuasar } from 'quasar';
 import { api } from 'src/boot/axios';
 import { useRouter } from 'vue-router';
@@ -222,10 +233,10 @@ import type { CommunityPost, Comment } from 'src/types/CommunityPost';
 import PostEngagement from 'src/pages/CommunityPosts/PostEngagement.vue';
 
 // Add these type definitions at the top of the script section
-interface Post extends CommunityPost {
+interface Post extends Omit<CommunityPost, 'liked'> {
   userName: string;
-  wasLiked?: boolean;
-  liked?: boolean;
+  wasLiked: boolean;
+  liked: boolean;
 }
 
 const userStore = useUserStore();
@@ -311,13 +322,17 @@ const formatDate = (date: string | null) => {
 };
 
 // Methods
-const loadPosts = async () => {
+const loadPosts = async (loadMore = false) => {
+  if (isLoading.value || (!loadMore && !hasMore.value)) return;
+
   try {
-    loading.value = true;
+    isLoading.value = true;
     const response = await api.get('/posts/community-posts', {
       params: {
         status: 'active',
-        userId: userStore.user?.id || null
+        userId: userStore.user?.id || null,
+        page: page.value,
+        limit: limit.value
       }
     });
 
@@ -328,12 +343,26 @@ const loadPosts = async () => {
       postsData = response.data.data;
     }
 
-    // Ensure wasLiked is set based on the API response
-    posts.value = postsData.map(post => ({
+    // Transform the posts data
+    const transformedPosts = postsData.map(post => ({
       ...post,
       wasLiked: post.wasLiked || post.liked || false,
       liked: post.wasLiked || post.liked || false
     }));
+
+    // Update posts array based on whether we're loading more or not
+    if (loadMore) {
+      posts.value = [...posts.value, ...transformedPosts];
+    } else {
+      posts.value = transformedPosts;
+    }
+
+    // Update pagination state
+    hasMore.value = transformedPosts.length === limit.value;
+    if (hasMore.value) {
+      page.value++;
+    }
+
   } catch (error) {
     console.error('Error loading posts:', error);
     $q.notify({
@@ -341,8 +370,8 @@ const loadPosts = async () => {
       message: 'Failed to load posts',
       icon: 'error'
     });
-    posts.value = [];
   } finally {
+    isLoading.value = false;
     loading.value = false;
   }
 };
@@ -865,6 +894,50 @@ const updatePost = (updatedPost: Post) => {
     };
   }
 };
+
+// Add these new refs for pagination
+const page = ref(1);
+const limit = ref(5);
+const hasMore = ref(true);
+const isLoading = ref(false);
+
+// Add intersection observer for infinite scroll
+const lastPostRef = ref<HTMLElement | null>(null);
+
+const observeLastPost = () => {
+  const observer = new IntersectionObserver(
+    async ([entry]) => {
+      if (entry?.isIntersecting && hasMore.value && !isLoading.value) {
+        await loadPosts(true);
+      }
+    },
+    {
+      rootMargin: '100px'
+    }
+  );
+
+  if (lastPostRef.value) {
+    observer.observe(lastPostRef.value);
+  }
+
+  return () => {
+    if (lastPostRef.value) {
+      observer.unobserve(lastPostRef.value);
+    }
+  };
+};
+
+// Watch posts array to update the observer
+watch(
+  () => posts.value,
+  () => {
+    nextTick(() => {
+      observeLastPost();
+    });
+  }
+);
+
+// Update the template to add the ref to the last post
 </script>
 
 <style scoped lang="scss">
