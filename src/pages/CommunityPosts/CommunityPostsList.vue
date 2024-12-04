@@ -30,7 +30,7 @@
               <img
                 src="https://icons-for-free.com/iff/png/512/profile+profile+page+user+icon-1320186864367220794.png" />
             </q-avatar>
-            <q-btn class="col post-input-btn" flat color="grey-7" @click="createPost">
+            <q-btn class="col post-input-btn" flat color="grey-7">
               <div class="row full-width items-center text-left">
                 <span class="text-grey-7" style="font-size: .8em;">What's Post on your mind?</span>
                 <q-space />
@@ -536,20 +536,17 @@ const goToCommunityPage = () => {
 };
 const createPost = () => {
   if (!userInteractionRules.value) {
-    $q.notify({
-      color: 'negative',
-      message: 'Unable to verify posting limits',
-      icon: 'warning'
-    });
     return;
   }
 
   if (userInteractionRules.value.usedPostCount >= userInteractionRules.value.dailyPostLimit) {
+    console.log('1111111111111111');
     $q.notify({
-      color: 'negative',
       message: `You've reached your daily post limit of ${userInteractionRules.value.dailyPostLimit} posts`,
-      icon: 'warning'
+      color: 'gray',
+      position: 'top-right'
     });
+
     return;
   }
 

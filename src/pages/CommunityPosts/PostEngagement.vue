@@ -121,7 +121,8 @@ const handleLike = async () => {
       if (props.userInteractionRules.usedLikeCount >= props.userInteractionRules.dailyLikeLimit) {
         $q.notify({
           message: 'You have reached your daily like limit',
-          color: 'warning'
+          color: 'gray',
+          position: 'top-right'
         });
         return;
       }
@@ -145,10 +146,7 @@ const handleLike = async () => {
     emit('update:post', updatedPost);
   } catch (error) {
     console.error('Error handling like:', error);
-    $q.notify({
-      message: 'Failed to update like',
-      color: 'negative'
-    });
+
   }
 };
 
@@ -175,17 +173,11 @@ const handleShare = async () => {
     } else {
       // Fallback for browsers that don't support Web Share API
       await navigator.clipboard.writeText(window.location.href);
-      $q.notify({
-        message: 'Link copied to clipboard!',
-        color: 'positive'
-      });
+
     }
   } catch (error) {
     console.error('Error sharing post:', error);
-    $q.notify({
-      message: 'Failed to share post',
-      color: 'negative'
-    });
+
   }
 };
 
@@ -196,7 +188,8 @@ watch(showComments, async (newValue) => {
     if (props.userInteractionRules.usedCommentCount >= props.userInteractionRules.dailyCommentLimit) {
       $q.notify({
         message: 'You have reached your daily comment limit',
-        color: 'warning'
+        color: 'gray',
+        position: 'top-right'
       });
     }
   }
