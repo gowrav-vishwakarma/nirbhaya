@@ -163,7 +163,7 @@ const handleShare = async () => {
     const shareObject = {
       title: props.post.title,
       text: props.post.description,
-      url: window.location.href,
+      // url: window.location.href,
     };
 
     // First check if basic sharing is supported
@@ -301,11 +301,11 @@ const handleShare = async () => {
 
   } catch (error) {
     console.error('Error sharing post:', error);
-    $q.notify({
-      message: 'Error sharing post. Please try again.',
-      color: 'negative',
-      position: 'top-right'
-    });
+    // $q.notify({
+    //   message: 'Error sharing post. Please try again.',
+    //   color: 'negative',
+    //   position: 'top-right'
+    // });
   }
 };
 
