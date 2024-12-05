@@ -157,9 +157,13 @@ const toggleComments = () => {
 const handleShare = async () => {
   try {
     // Get the first media URL if available
+    console.log('props.post.mediaUrls', props.post);
+
     let shareobject = {}
     if (props.post.mediaUrls?.length) {
       const mediaUrl = props.post.mediaUrls?.[0] || '';
+      console.log('mediaUrl', mediaUrl);
+
       shareobject = {
         title: props.post.title,
         text: props.post.description,
@@ -197,10 +201,6 @@ const handleShare = async () => {
     }
   } catch (error) {
     console.error('Error sharing post:', error);
-    $q.notify({
-      message: 'Failed to share post',
-      color: 'negative'
-    });
   }
 };
 

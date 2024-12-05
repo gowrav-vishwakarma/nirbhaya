@@ -37,7 +37,7 @@
 
               <q-item-label @click="handleLocationSelect('stored', location)" class="text-capitalize">{{
                 location.name ? location.name : 'Location'
-                }}</q-item-label>
+              }}</q-item-label>
 
               <q-item-label caption>Saved Location</q-item-label>
             </q-item-section>
@@ -174,16 +174,16 @@ const handleLocationSelect = async (locationType: 'current' | 'stored', storedLo
 
         // Get location name
         try {
-          const response = await fetch(
-            `https://nominatim.openstreetmap.org/reverse?lat=${position.coords.latitude}&lon=${position.coords.longitude}&format=json`
-          );
+          // const response = await fetch(
+          //   `https://nominatim.openstreetmap.org/reverse?lat=${position.coords.latitude}&lon=${position.coords.longitude}&format=json`
+          // );
 
-          if (!response.ok) {
-            throw new Error('Failed to fetch location name');
-          }
+          // if (!response.ok) {
+          //   throw new Error('Failed to fetch location name');
+          // }
 
-          const data = await response.json();
-          currentLocationName.value = data.display_name;
+          // const data = await response.json();
+          currentLocationName.value = ''
         } catch (error) {
           console.error('Error getting location name:', error);
           currentLocationName.value = 'Current Location';

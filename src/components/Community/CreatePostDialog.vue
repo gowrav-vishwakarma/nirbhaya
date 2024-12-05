@@ -68,7 +68,7 @@
             <template v-slot:option="scope">
               <q-item v-bind="scope.itemProps">
                 <q-item-section>
-                  <q-item-label>{{ scope.opt.name }}</q-item-label>
+                  <q-item-label>{{ scope.opt.name ? scope.opt.name : 'Your Saved Location' }}</q-item-label>
                   <q-item-label caption v-if="scope.opt.id !== 0 || !isLoadingLocations">
                     {{ scope.opt.location.coordinates.join(', ') }}
                   </q-item-label>
