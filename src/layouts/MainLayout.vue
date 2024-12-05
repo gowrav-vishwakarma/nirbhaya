@@ -59,18 +59,6 @@
         </div>
       </q-toolbar>
     </q-header>
-
-    <q-drawer v-model="drawer" class="bg-grey-2" :persistent="true" bordered>
-      <q-list>
-        <q-item @click="goToHomePage" clickable>
-          <q-item-section>Home</q-item-section>
-        </q-item>
-        <q-item @click="goToAboutUsPage" clickable>
-          <q-item-section>About Us</q-item-section>
-        </q-item>
-      </q-list>
-    </q-drawer>
-
     <q-page-container>
       <router-view />
     </q-page-container>

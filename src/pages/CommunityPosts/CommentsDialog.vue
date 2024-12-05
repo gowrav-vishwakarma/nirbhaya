@@ -18,7 +18,7 @@
       </div>
 
       <!-- Comments List -->
-      <div class="comments-list q-px-md custom-scroll" style="overflow-y: auto">
+      <div class="comments-list q-px-md custom-scroll" style="flex: 1; overflow-y: auto;">
         <div v-if="isLoading" class="text-center q-pa-md">
           <q-spinner color="primary" size="2em" />
           <div class="q-mt-sm">Loading comments...</div>
@@ -289,7 +289,6 @@ defineExpose({
   max-height: 90vh;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
   position: relative;
   touch-action: none;
   overscroll-behavior-y: contain;
@@ -310,16 +309,16 @@ defineExpose({
 }
 
 .custom-scroll {
-  overflow-y: auto;
-  scrollbar-width: none;
   -ms-overflow-style: none;
-  -webkit-overflow-scrolling: touch;
-  height: 100%;
+  /* IE and Edge */
+  scrollbar-width: none;
+  /* Firefox */
 
   &::-webkit-scrollbar {
+    display: none;
+    /* Chrome, Safari and Opera */
     width: 0;
     height: 0;
-    display: none;
   }
 }
 
@@ -331,9 +330,11 @@ defineExpose({
 
 .comments-list {
   flex: 1;
-  min-height: 0;
+  overflow-y: auto;
   background: white;
   padding-bottom: env(safe-area-inset-bottom);
+  height: calc(90vh - 150px);
+  -webkit-overflow-scrolling: touch;
 }
 
 .comment-item {
