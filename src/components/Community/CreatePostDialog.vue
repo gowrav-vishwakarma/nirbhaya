@@ -192,11 +192,13 @@ const addTag = () => {
   if (tag && !form.value.tags.includes(tag) && canAddMoreTags.value) {
     form.value.tags.push(tag);
   } else if (!canAddMoreTags.value) {
-    $q.notify({
-      color: 'warning',
-      message: 'Maximum 5 tags allowed',
-      icon: 'warning'
-    });
+    console.log('Maximum 5 tags allowed');
+
+    // $q.notify({
+    //   color: 'warning',
+    //   message: 'Maximum 5 tags allowed',
+    //   icon: 'warning'
+    // });
   }
   tagInput.value = '';
 };
@@ -216,11 +218,6 @@ const canAddMoreImages = computed(() => {
 
 const resizeImage = (file: File): Promise<Blob> => {
   return new Promise<Blob>((resolve, reject) => {
-    if (file.size <= 500 * 1024) {
-      resolve(file);
-      return;
-    }
-
     const reader = new FileReader();
     reader.onload = (e) => {
       const img = new Image();
@@ -229,14 +226,25 @@ const resizeImage = (file: File): Promise<Blob> => {
         let width = img.width;
         let height = img.height;
 
-        let scale = 1;
-        const targetSize = 1024 * 1024; // 1MB
-        if (file.size > targetSize) {
-          scale = Math.sqrt(targetSize / file.size);
+        // Calculate aspect ratio
+        const aspectRatio = width / height;
+
+        // Target size is 1MB (1048576 bytes)
+        const MAX_SIZE = 1048576;
+
+        // Start with maximum dimensions while maintaining aspect ratio
+        const MAX_WIDTH = 1920;
+        const MAX_HEIGHT = 1080;
+
+        if (width > MAX_WIDTH) {
+          width = MAX_WIDTH;
+          height = width / aspectRatio;
         }
 
-        width = Math.floor(width * scale);
-        height = Math.floor(height * scale);
+        if (height > MAX_HEIGHT) {
+          height = MAX_HEIGHT;
+          width = height * aspectRatio;
+        }
 
         canvas.width = width;
         canvas.height = height;
@@ -246,14 +254,33 @@ const resizeImage = (file: File): Promise<Blob> => {
         ctx.imageSmoothingQuality = 'high';
         ctx.drawImage(img, 0, 0, width, height);
 
-        canvas.toBlob((result) => {
-          if (result) {
-            resolve(result);
-          } else {
-            reject(new Error('Failed to create blob'));
-          }
-        }, file.type, 1.0);
+        // Start with quality 0.7 and adjust if needed
+        let quality = 0.7;
+        const compressImage = (q: number) => {
+          canvas.toBlob(
+            (blob) => {
+              if (!blob) {
+                reject(new Error('Failed to create blob'));
+                return;
+              }
+
+              // If the blob is still too large and quality can be reduced
+              if (blob.size > MAX_SIZE && q > 0.1) {
+                // Reduce quality by 0.1 and try again
+                compressImage(q - 0.1);
+              } else {
+                resolve(blob);
+              }
+            },
+            'image/jpeg',
+            q
+          );
+        };
+
+        compressImage(quality);
       };
+
+      img.onerror = () => reject(new Error('Failed to load image'));
       img.src = e.target?.result as string;
     };
     reader.onerror = () => reject(new Error('Failed to read file'));
@@ -278,11 +305,12 @@ const handleMediaUpload = () => {
         const filesToAdd = Array.from(files).slice(0, remainingSlots);
 
         if (files.length > remainingSlots) {
-          $q.notify({
-            color: 'warning',
-            message: 'Maximum 4 images allowed',
-            icon: 'warning'
-          });
+          // $q.notify({
+          //   color: 'warning',
+          //   message: 'Maximum 4 images allowed',
+          //   icon: 'warning'
+          // });
+          console.log('Maximum 4 images allowed');
         }
 
         try {
@@ -291,7 +319,8 @@ const handleMediaUpload = () => {
               $q.notify({
                 color: 'negative',
                 message: 'Only image files are allowed',
-                icon: 'error'
+                icon: 'error',
+                position: 'top-right'
               });
               continue;
             }
@@ -413,11 +442,11 @@ const getCurrentLocation = () => {
       },
       (error) => {
         console.error('Error getting location:', error);
-        $q.notify({
-          color: 'negative',
-          message: 'Could not get current location',
-          icon: 'error'
-        });
+        // $q.notify({
+        //   color: 'negative',
+        //   message: 'Could not get current location',
+        //   icon: 'error'
+        // });
       }
     );
   }
@@ -486,11 +515,11 @@ const submitPost = async () => {
     emit('post-created');
   } catch (error) {
     console.error('Error creating post:', error);
-    $q.notify({
-      color: 'negative',
-      message: 'Failed to create post',
-      icon: 'error'
-    });
+    // $q.notify({
+    //   color: 'negative',
+    //   message: 'Failed to create post',
+    //   icon: 'error'
+    // });
   } finally {
     isSubmitting.value = false;
 
