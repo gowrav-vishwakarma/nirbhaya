@@ -170,11 +170,11 @@ const handleShare = async () => {
       // Fallback for browsers that don't support Web Share API
       const textToShare = `${props.post.title}\n${props.post.description}\n${window.location.href}`;
       await navigator.clipboard.writeText(textToShare);
-      // $q.notify({
-      //   message: 'Link copied to clipboard!',
-      //   color: 'black',
-      //   position: 'top-right'
-      // });
+      $q.notify({
+        message: 'Link copied to clipboard!',
+        color: 'black',
+        position: 'top-right'
+      });
       return;
     }
 
@@ -184,16 +184,43 @@ const handleShare = async () => {
         const mediaUrl = props.post.mediaUrls[0];
         const fullUrl = `${imageCdn.value}${mediaUrl}`;
 
-        // Fetch the image
-        const response = await fetch(fullUrl);
-        const blob = await response.blob();
+        // Create an image element to handle cross-origin issues
+        const img = new Image();
+        img.crossOrigin = 'Anonymous'; // Enable CORS
 
-        // Determine file extension and type
-        const contentType = blob.type;
-        const extension = contentType.split('/')[1] || 'jpg';
+        // Create a promise to handle image loading
+        const imgLoadPromise = new Promise((resolve, reject) => {
+          img.onload = () => {
+            // Create canvas to draw image
+            const canvas = document.createElement('canvas');
+            canvas.width = img.width;
+            canvas.height = img.height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0);
+
+            // Convert canvas to blob
+            canvas.toBlob((blob) => {
+              if (blob) {
+                resolve(blob);
+              } else {
+                reject(new Error('Could not convert image to blob'));
+              }
+            }, 'image/png');
+          };
+
+          img.onerror = () => {
+            reject(new Error('Failed to load image'));
+          };
+
+          // Set the source to trigger loading
+          img.src = fullUrl;
+        });
+
+        // Wait for image to load and convert to blob
+        const blob = await imgLoadPromise;
 
         // Create file
-        const file = new File([blob], `shared-image.${extension}`, { type: contentType });
+        const file = new File([blob], 'shared-image.png', { type: 'image/png' });
 
         // Detailed logging
         console.log('Sharing File Details:', {
@@ -210,19 +237,17 @@ const handleShare = async () => {
         };
 
         // Try sharing with file
-        if (navigator.canShare && navigator.canShare({ files: [file] })) {
-          try {
-            await navigator.share(fileShareObject);
-          } catch (fileShareError) {
-            console.warn('File share failed, attempting basic share:', fileShareError);
-            await navigator.share(shareObject);
-          }
-        } else {
-          // If file sharing not supported, use basic share
+        try {
+          await navigator.share(fileShareObject);
+        } catch (fileShareError) {
+          console.warn('File share failed, attempting basic share:', fileShareError);
+
+          // Fallback to basic share
           await navigator.share(shareObject);
         }
       } catch (error) {
         console.error('Error preparing media for share:', error);
+
         // Fallback to basic share
         await navigator.share(shareObject);
       }
