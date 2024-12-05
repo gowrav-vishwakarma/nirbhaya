@@ -756,6 +756,14 @@ onMounted(async () => {
     };
   } catch (error) {
     console.warn('Could not get initial location:', error);
+    if (userStore.user?.locations) {
+      handleLocationSelected({
+        type: 'Point',
+        latitude: userStore.user.locations[0].location.coordinates[1],
+        longitude: userStore.user.locations[0].location.coordinates[0],
+        name: userStore.user.locations[0].name,
+      });
+    }
   }
 
   // Load initial posts
