@@ -608,9 +608,23 @@ onMounted(async () => {
 
   // Get initial location
   try {
+    // const position = await new Promise<GeolocationPosition>(
+    //   (resolve, reject) => {
+    //     navigator.geolocation.getCurrentPosition(resolve, reject);
+    //   }
+    // );
     const position = await new Promise<GeolocationPosition>(
       (resolve, reject) => {
-        navigator.geolocation.getCurrentPosition(resolve, reject);
+        navigator.geolocation.getCurrentPosition(resolve, (error) => {
+          if (error.code === error.PERMISSION_DENIED) {
+            console.warn('Geolocation permission denied:', error);
+            reject(new Error('Geolocation permission denied'));
+          } else {
+            console.warn('Geolocation permission denied:', error);
+            reject(new Error('Geolocation permission denied'));
+            // reject(error);
+          }
+        });
       }
     );
 
@@ -623,7 +637,8 @@ onMounted(async () => {
     };
   } catch (error) {
     console.warn('Could not get initial location:', error);
-    if (userStore.user?.locations) {
+    if (userStore.user?.locations && userStore.user.locations.length) {
+      console.log('inside user location', userStore.user);
       handleLocationSelected({
         type: 'Point',
         latitude: userStore.user.locations[0].location.coordinates[1],

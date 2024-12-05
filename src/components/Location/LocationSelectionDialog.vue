@@ -37,7 +37,7 @@
 
               <q-item-label @click="handleLocationSelect('stored', location)" class="text-capitalize">{{
                 location.name ? location.name : 'Location'
-              }}</q-item-label>
+                }}</q-item-label>
 
               <q-item-label caption>Saved Location</q-item-label>
             </q-item-section>
