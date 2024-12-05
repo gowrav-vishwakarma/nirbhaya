@@ -121,32 +121,45 @@ const touchStartY = ref(0);
 const touchEndY = ref(0);
 const minSwipeDistance = 100;
 const swipeProgress = ref(0);
+const isSwipingDown = ref(false);
 
 const handleTouchStart = (event: TouchEvent) => {
   touchStartY.value = event.touches[0].clientY;
+  isSwipingDown.value = false;
 };
 
 const handleTouchMove = (event: TouchEvent) => {
-  const target = event.target as HTMLElement;
   const commentsList = document.querySelector('.comments-list');
+  const currentY = event.touches[0].clientY;
 
-  if (commentsList && commentsList.scrollTop === 0 && event.touches[0].clientY > touchStartY.value) {
-    event.preventDefault();
-    touchEndY.value = event.touches[0].clientY;
-    const progress = Math.min(
-      Math.max((touchEndY.value - touchStartY.value) / minSwipeDistance, 0),
-      1
-    );
-    swipeProgress.value = progress;
+  // Only handle swipe if we're at the top of the comments list
+  if (commentsList && commentsList.scrollTop <= 0) {
+    const deltaY = currentY - touchStartY.value;
+
+    // Only consider downward swipes
+    if (deltaY > 0) {
+      isSwipingDown.value = true;
+      touchEndY.value = currentY;
+      const progress = Math.min(Math.max(deltaY / minSwipeDistance, 0), 1);
+      swipeProgress.value = progress;
+
+      // Prevent default only for downward swipes at the top
+      event.preventDefault();
+    }
   }
 };
 
 const handleTouchEnd = () => {
   const swipeDistance = touchEndY.value - touchStartY.value;
-  if (swipeDistance > minSwipeDistance && dialogRef.value) {
+
+  // Only close if we were swiping down and met the distance threshold
+  if (isSwipingDown.value && swipeDistance > minSwipeDistance && dialogRef.value) {
     dialogRef.value.hide();
   }
+
+  // Reset values
   swipeProgress.value = 0;
+  isSwipingDown.value = false;
 };
 
 const dialogModel = computed({
@@ -341,7 +354,8 @@ defineExpose({
   height: calc(90vh - 150px);
   -webkit-overflow-scrolling: touch;
   touch-action: pan-y;
-  overscroll-behavior: contain;
+  overscroll-behavior-y: contain;
+  position: relative;
 }
 
 .comment-item {
