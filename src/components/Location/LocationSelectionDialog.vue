@@ -30,22 +30,25 @@
           <!-- <q-separator spaced /> -->
           <q-item v-for="location in userLocations" :key="location.id" clickable v-ripple class="location-item"
             :class="{ 'selected': selectedLocationId === location.id?.toString() }">
-            <q-item-section avatar>
-              <q-icon name="location_on" color="primary" size="24px" />
-            </q-item-section>
-            <q-item-section>
+            <div @click="handleLocationSelect('stored', location)" style="width: 100%; display: flex;">
 
-              <q-item-label @click="handleLocationSelect('stored', location)" class="text-capitalize">{{
-                location.name ? location.name : 'Location'
-                }}</q-item-label>
+              <q-item-section avatar>
+                <q-icon name="location_on" color="primary" size="24px" />
+              </q-item-section>
+              <q-item-section>
 
-              <q-item-label caption>Saved Location</q-item-label>
-            </q-item-section>
+                <q-item-label class="text-capitalize">{{
+                  location.name ? location.name : 'Location'
+                  }}</q-item-label>
 
-            <q-item-section side v-if="selectedLocationId === location.id?.toString()">
-              <q-icon name="check" color="primary" />
-            </q-item-section>
-            <q-separator spaced />
+                <q-item-label caption>Saved Location</q-item-label>
+              </q-item-section>
+
+              <q-item-section side v-if="selectedLocationId === location.id?.toString()">
+                <q-icon name="check" color="primary" />
+              </q-item-section>
+              <q-separator spaced />
+            </div>
 
           </q-item>
 
