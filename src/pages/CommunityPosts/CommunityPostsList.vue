@@ -16,9 +16,9 @@
           <p class="text-grey-7 q-mt-sm">Stay connected with your community</p>
         </div>
         <div class="text-right">
-          <q-btn color="primary" class="" @click="goToCommunityPage" style="border-radius: 9px">
+          <q-btn color="primary" class="" @click="goToCommunityPage" style="border-radius: 9px;margin-bottom: 10px">
             <q-icon style="font-size: 20px" name="add_circle"></q-icon>
-            <span style="font-size: 10px; font-weight: 800; padding-left: 5px">
+            <span style="font-size: 10px; font-weight: 800; padding-left: 5px; ">
               Suggestion
             </span>
           </q-btn>
@@ -1264,6 +1264,24 @@ const handleLocationSelected = async (location: {
   height: 45px;
   text-align: left;
   justify-content: flex-start;
+  white-space: nowrap;
+  overflow: hidden;
+
+  .row {
+    flex-wrap: nowrap;
+    min-width: 0;
+
+    span {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+  }
+
+  .suggestion-btn {
+    flex-shrink: 0;
+    margin-left: 8px !important;
+  }
 }
 
 .media-collage {
