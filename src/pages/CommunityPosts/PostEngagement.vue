@@ -162,7 +162,7 @@ const handleShare = async () => {
     const shareObject = {
       title: props.post.title,
       text: props.post.description,
-      url: window.location.href,
+      // url: window.location.href,
     };
 
     // First check if basic sharing is supported
