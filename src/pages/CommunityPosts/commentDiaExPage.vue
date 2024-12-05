@@ -1,20 +1,34 @@
 <template>
-  <q-dialog v-model="dialogModel" maximized transition-show="slide-up" transition-hide="slide-down">
+  <q-dialog
+    v-model="dialogModel"
+    maximized
+    transition-show="slide-up"
+    transition-hide="slide-down"
+  >
     <q-card class="column">
       <template #default>
         <!-- Header -->
         <q-card-section class="row items-center q-pb-none">
-          <div style="width: 100%;">
+          <div style="width: 100%">
             <div class="text-h6 text-center">Post</div>
           </div>
-          <q-btn flat round dense v-close-popup style="margin-top: -35px;">
-            <div class="text-[#111418] flex size-12 shrink-0 items-center" data-icon="ArrowLeft" data-size="24px"
-              data-weight="regular">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor"
-                viewBox="0 0 256 256">
+          <q-btn flat round dense v-close-popup style="margin-top: -35px">
+            <div
+              class="text-[#111418] flex size-12 shrink-0 items-center"
+              data-icon="ArrowLeft"
+              data-size="24px"
+              data-weight="regular"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24px"
+                height="24px"
+                fill="currentColor"
+                viewBox="0 0 256 256"
+              >
                 <path
-                  d="M224,128a8,8,0,0,1-8,8H59.31l58.35,58.34a8,8,0,0,1-11.32,11.32l-72-72a8,8,0,0,1,0-11.32l72-72a8,8,0,0,1,11.32,11.32L59.31,120H216A8,8,0,0,1,224,128Z">
-                </path>
+                  d="M224,128a8,8,0,0,1-8,8H59.31l58.35,58.34a8,8,0,0,1-11.32,11.32l-72-72a8,8,0,0,1,0-11.32l72-72a8,8,0,0,1,11.32,11.32L59.31,120H216A8,8,0,0,1,224,128Z"
+                ></path>
               </svg>
             </div>
           </q-btn>
@@ -23,16 +37,23 @@
         <!-- <q-separator class="q-my-md" /> -->
 
         <!-- Main Content Area -->
-        <q-card-section class="col q-pt-lg scroll" style=" padding: 0px;">
+        <q-card-section class="col q-pt-lg scroll" style="padding: 0px">
           <!-- Post Author Section -->
           <div class="row items-center">
             <q-avatar size="48px" class="shadow-2">
-              <img src="/sos_logo_1080_1080.png" style="object-fit: cover;" />
+              <img src="/sos_logo_1080_1080.png" style="object-fit: cover" />
             </q-avatar>
             <div class="q-ml-md">
-              <div class="text-weight-bold text-capitalize" style="font-size: 16px;">
-                {{ post.userName == 'SOS Bharat Community' ?
-                  'SOS Bharat Community' : post.userName }}</div>
+              <div
+                class="text-weight-bold text-capitalize"
+                style="font-size: 16px"
+              >
+                {{
+                  post.userName == 'SOS Bharat Community'
+                    ? 'SOS Bharat Community'
+                    : post.userName
+                }}
+              </div>
               <div class="text-caption text-grey-7">
                 <q-icon name="schedule" size="xs" class="q-mr-xs" />
                 {{ formatDate(post.createdAt) }}
@@ -41,20 +62,37 @@
           </div>
 
           <!-- Post Content -->
-          <q-card-section style="padding: 10px 10px 0px 10px; ">
-            <div class="text-h5 text-weight-bold text-primary q-mb-sm" style="font-size: 16px;">
+          <q-card-section style="padding: 10px 10px 0px 10px">
+            <div
+              class="text-h5 text-weight-bold text-primary q-mb-sm"
+              style="font-size: 16px"
+            >
               {{ post.title }}
             </div>
             <div class="text-body1 post-description">
-              {{ showFullDescription[post.id.toString()] ? post.description : truncateText(post.description, 15) }}
-              <span v-if="post.description.split(' ').length > 10" @click="toggleDescription(post.id)"
-                class="read-more-link">
-                {{ showFullDescription[post.id.toString()] ? 'Read Less' : 'Read More' }}
+              {{
+                showFullDescription[post.id.toString()]
+                  ? post.description
+                  : truncateText(post.description, 15)
+              }}
+              <span
+                v-if="post.description.split(' ').length > 10"
+                @click="toggleDescription(post.id)"
+                class="read-more-link"
+              >
+                {{
+                  showFullDescription[post.id.toString()]
+                    ? 'Read Less'
+                    : 'Read More'
+                }}
               </span>
             </div>
 
             <!-- Hashtags section -->
-            <div v-if="post.tags && post.tags.length" class="hashtags-container">
+            <div
+              v-if="post.tags && post.tags.length"
+              class="hashtags-container"
+            >
               <span v-for="tag in post.tags" :key="tag" class="hashtag">
                 #{{ tag }}
               </span>
@@ -64,11 +102,20 @@
           <!-- Post Images -->
           <div v-if="post.mediaUrls || post.videoUrl" class="q-pa-none q-mt-md">
             <!-- Show YouTube video if videoUrl exists -->
-            <div v-if="post.videoUrl" class="video-container" v-intersection="onVideoIntersection(post.id)">
-              <iframe :key="getVideoUrl(post.id, post.videoUrl)" :src="getVideoUrl(post.id, post.videoUrl)"
-                :id="`video-${post.id}`" frameborder="0"
+            <div
+              v-if="post.videoUrl"
+              class="video-container"
+              v-intersection="onVideoIntersection(post.id)"
+            >
+              <iframe
+                :key="getVideoUrl(post.id, post.videoUrl)"
+                :src="getVideoUrl(post.id, post.videoUrl)"
+                :id="`video-${post.id}`"
+                frameborder="0"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowfullscreen class="video-frame">
+                allowfullscreen
+                class="video-frame"
+              >
               </iframe>
             </div>
 
@@ -78,16 +125,38 @@
               <template v-if="!isCarouselMode">
                 <div class="media-collage">
                   <!-- Single Image -->
-                  <template v-if="!Array.isArray(post.mediaUrls) || post.mediaUrls.length === 1">
-                    <q-img :src="imageCdn + (Array.isArray(post.mediaUrls) ? post.mediaUrls[0] : post.mediaUrls)"
-                      :ratio="16 / 9" class="single-image" @click="showCarousel(0)" />
+                  <template
+                    v-if="
+                      !Array.isArray(post.mediaUrls) ||
+                      post.mediaUrls.length === 1
+                    "
+                  >
+                    <q-img
+                      :src="
+                        imageCdn +
+                        (Array.isArray(post.mediaUrls)
+                          ? post.mediaUrls[0]
+                          : post.mediaUrls)
+                      "
+                      :ratio="16 / 9"
+                      class="single-image"
+                      @click="showCarousel(0)"
+                    />
                   </template>
 
                   <!-- Two Images -->
                   <template v-else-if="post.mediaUrls.length === 2">
                     <div class="two-images-grid">
-                      <div v-for="(url, index) in post.mediaUrls" :key="index" class="grid-image-container">
-                        <q-img :src="imageCdn + url" class="grid-image" @click="showCarousel(index)" />
+                      <div
+                        v-for="(url, index) in post.mediaUrls"
+                        :key="index"
+                        class="grid-image-container"
+                      >
+                        <q-img
+                          :src="imageCdn + url"
+                          class="grid-image"
+                          @click="showCarousel(index)"
+                        />
                       </div>
                     </div>
                   </template>
@@ -96,14 +165,30 @@
                   <template v-else>
                     <div class="multi-images-grid">
                       <div class="main-image-container">
-                        <q-img :src="imageCdn + post.mediaUrls[0]" class="main-grid-image" @click="showCarousel(0)" />
+                        <q-img
+                          :src="imageCdn + post.mediaUrls[0]"
+                          class="main-grid-image"
+                          @click="showCarousel(0)"
+                        />
                       </div>
                       <div class="secondary-images-container">
-                        <div v-for="(url, index) in post.mediaUrls.slice(1, 3)" :key="index"
-                          class="secondary-image-wrapper">
-                          <q-img :src="imageCdn + url" class="secondary-grid-image" @click="showCarousel(index + 1)">
-                            <div v-if="index === 1 && post.mediaUrls.length > 3" class="see-all-overlay">
-                              <span class="text-white text-weight-bold">+{{ post.mediaUrls.length - 3 }}</span>
+                        <div
+                          v-for="(url, index) in post.mediaUrls.slice(1, 3)"
+                          :key="index"
+                          class="secondary-image-wrapper"
+                        >
+                          <q-img
+                            :src="imageCdn + url"
+                            class="secondary-grid-image"
+                            @click="showCarousel(index + 1)"
+                          >
+                            <div
+                              v-if="index === 1 && post.mediaUrls.length > 3"
+                              class="see-all-overlay"
+                            >
+                              <span class="text-white text-weight-bold"
+                                >+{{ post.mediaUrls.length - 3 }}</span
+                              >
                             </div>
                           </q-img>
                         </div>
@@ -115,8 +200,13 @@
 
               <!-- Show Carousel when in carousel mode -->
               <template v-else>
-                <div class="custom-carousel" ref="carousel" @touchstart="handleTouchStart" @touchmove="handleTouchMove"
-                  @touchend="handleTouchEnd">
+                <div
+                  class="custom-carousel"
+                  ref="carousel"
+                  @touchstart="handleTouchStart"
+                  @touchmove="handleTouchMove"
+                  @touchend="handleTouchEnd"
+                >
                   <!-- Close button -->
                   <button class="carousel-close" @click="closeCarousel">
                     <i class="material-icons">close</i>
@@ -128,28 +218,50 @@
                   </div>
 
                   <div class="carousel-inner" :style="carouselStyle">
-                    <div v-for="(url, index) in Array.isArray(post.mediaUrls) ?
-                      post.mediaUrls.map(url => imageCdn + url) :
-                      [imageCdn + post.mediaUrls]" :key="index" class="carousel-slide"
-                      :class="{ active: currentIndex === index }" v-intersection="onCarouselImageIntersection(index)"
-                      ref="carouselImages">
-                      <img :src="url" :alt="`Image ${index + 1}`" class="carousel-image" @click.stop />
+                    <div
+                      v-for="(url, index) in Array.isArray(post.mediaUrls)
+                        ? post.mediaUrls.map((url) => imageCdn + url)
+                        : [imageCdn + post.mediaUrls]"
+                      :key="index"
+                      class="carousel-slide"
+                      :class="{ active: currentIndex === index }"
+                      v-intersection="onCarouselImageIntersection(index)"
+                      ref="carouselImages"
+                    >
+                      <img
+                        :src="url"
+                        :alt="`Image ${index + 1}`"
+                        class="carousel-image"
+                        @click.stop
+                      />
                     </div>
                   </div>
 
                   <!-- Navigation Arrows -->
-                  <button class="carousel-arrow prev" @click.stop="prevSlide" v-show="currentIndex > 0">
+                  <button
+                    class="carousel-arrow prev"
+                    @click.stop="prevSlide"
+                    v-show="currentIndex > 0"
+                  >
                     <i class="material-icons">chevron_left</i>
                   </button>
-                  <button class="carousel-arrow next" @click.stop="nextSlide" v-show="!isLastSlide">
+                  <button
+                    class="carousel-arrow next"
+                    @click.stop="nextSlide"
+                    v-show="!isLastSlide"
+                  >
                     <i class="material-icons">chevron_right</i>
                   </button>
 
                   <!-- Dots Navigation -->
                   <div class="carousel-dots">
-                    <button v-for="index in currentImageCount.total" :key="index" class="dot"
-                      :class="{ active: activeDotIndex === index - 1 }" @click.stop="goToSlide(index - 1)">
-                    </button>
+                    <button
+                      v-for="index in currentImageCount.total"
+                      :key="index"
+                      class="dot"
+                      :class="{ active: activeDotIndex === index - 1 }"
+                      @click.stop="goToSlide(index - 1)"
+                    ></button>
                   </div>
                 </div>
               </template>
@@ -163,50 +275,79 @@
           <div class="row q-mb-lg justify-between">
             <!-- Likes -->
             <q-btn flat dense class="items-center" @click="handleLike(post)">
-              <div class="flex items-center justify-center gap-2 px-3 py-2 cursor-pointer hover:bg-gray-100 rounded-lg">
-                <div :class="['heart-icon', { 'liked': post.liked }]">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor"
-                    viewBox="0 0 256 256">
-                    <path v-if="post.liked"
-                      d="M240,94c0,70-103.79,126.66-108.21,129a8,8,0,0,1-7.58,0C119.79,220.66,16,164,16,94A62.07,62.07,0,0,1,78,32c20.65,0,38.73,8.88,50,23.89C139.27,40.88,157.35,32,178,32A62.07,62.07,0,0,1,240,94Z">
-                    </path>
-                    <path v-else
-                      d="M178,32c-20.65,0-38.73,8.88-50,23.89C116.73,40.88,98.65,32,78,32A62.07,62.07,0,0,0,16,94c0,70,103.79,126.66,108.21,129a8,8,0,0,0,7.58,0C136.21,220.66,240,164,240,94A62.07,62.07,0,0,0,178,32ZM128,206.8C109.74,196.16,32,147.69,32,94A46.06,46.06,0,0,1,78,48c19.45,0,35.78,10.36,42.6,27a8,8,0,0,0,14.8,0c6.82-16.67,23.15-27,42.6-27a46.06,46.06,0,0,1,46,46C224,147.61,146.24,196.15,128,206.8Z">
-                    </path>
+              <div
+                class="flex items-center justify-center gap-2 px-3 py-2 cursor-pointer hover:bg-gray-100 rounded-lg"
+              >
+                <div :class="['heart-icon', { liked: post.liked }]">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24px"
+                    height="24px"
+                    fill="currentColor"
+                    viewBox="0 0 256 256"
+                  >
+                    <path
+                      v-if="post.liked"
+                      d="M240,94c0,70-103.79,126.66-108.21,129a8,8,0,0,1-7.58,0C119.79,220.66,16,164,16,94A62.07,62.07,0,0,1,78,32c20.65,0,38.73,8.88,50,23.89C139.27,40.88,157.35,32,178,32A62.07,62.07,0,0,1,240,94Z"
+                    ></path>
+                    <path
+                      v-else
+                      d="M178,32c-20.65,0-38.73,8.88-50,23.89C116.73,40.88,98.65,32,78,32A62.07,62.07,0,0,0,16,94c0,70,103.79,126.66,108.21,129a8,8,0,0,0,7.58,0C136.21,220.66,240,164,240,94A62.07,62.07,0,0,0,178,32ZM128,206.8C109.74,196.16,32,147.69,32,94A46.06,46.06,0,0,1,78,48c19.45,0,35.78,10.36,42.6,27a8,8,0,0,0,14.8,0c6.82-16.67,23.15-27,42.6-27a46.06,46.06,0,0,1,46,46C224,147.61,146.24,196.15,128,206.8Z"
+                    ></path>
                   </svg>
                 </div>
               </div>
-              <span class="text-[#637588] text-[13px] font-bold">{{ post.likesCount || 0 }}</span>
+              <span class="text-[#637588] text-[13px] font-bold">{{
+                post.likesCount || 0
+              }}</span>
             </q-btn>
 
             <!-- Comments -->
             <q-btn flat dense class="items-center" disable>
-              <div class="flex items-center justify-center gap-2 px-3 py-2 cursor-pointer hover:bg-gray-100 rounded-lg">
+              <div
+                class="flex items-center justify-center gap-2 px-3 py-2 cursor-pointer hover:bg-gray-100 rounded-lg"
+              >
                 <div class="text-[#637588]">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor"
-                    viewBox="0 0 256 256">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24px"
+                    height="24px"
+                    fill="currentColor"
+                    viewBox="0 0 256 256"
+                  >
                     <path
-                      d="M168,112a8,8,0,0,1-8,8H96a8,8,0,0,1,0-16h64A8,8,0,0,1,168,112Zm-8,24H96a8,8,0,0,0,0,16h64a8,8,0,0,0,0-16Zm72-12A100.11,100.11,0,0,1,132,224H47.67A15.69,15.69,0,0,1,32,208.33V124a100,100,0,0,1,200,0Zm-16,0a84,84,0,0,0-168,0v84h84A84.09,84.09,0,0,0,216,124Z">
-                    </path>
+                      d="M168,112a8,8,0,0,1-8,8H96a8,8,0,0,1,0-16h64A8,8,0,0,1,168,112Zm-8,24H96a8,8,0,0,0,0,16h64a8,8,0,0,0,0-16Zm72-12A100.11,100.11,0,0,1,132,224H47.67A15.69,15.69,0,0,1,32,208.33V124a100,100,0,0,1,200,0Zm-16,0a84,84,0,0,0-168,0v84h84A84.09,84.09,0,0,0,216,124Z"
+                    ></path>
                   </svg>
                 </div>
               </div>
-              <span class="text-[#637588] text-[13px] font-bold">{{ post.commentsCount || 0 }}</span>
+              <span class="text-[#637588] text-[13px] font-bold">{{
+                post.commentsCount || 0
+              }}</span>
             </q-btn>
 
             <!-- Share -->
             <q-btn flat dense class="items-center" @click="handleShare(post)">
-              <div class="flex items-center justify-center gap-2 px-3 py-2 cursor-pointer hover:bg-gray-100 rounded-lg">
+              <div
+                class="flex items-center justify-center gap-2 px-3 py-2 cursor-pointer hover:bg-gray-100 rounded-lg"
+              >
                 <div class="text-[#637588]">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor"
-                    viewBox="0 0 256 256">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24px"
+                    height="24px"
+                    fill="currentColor"
+                    viewBox="0 0 256 256"
+                  >
                     <path
-                      d="M223.87,114l-168-95.89A16,16,0,0,0,32.93,37.32l31,90.47a.42.42,0,0,0,0,.1.3.3,0,0,0,0,.1l-31,90.67A16,16,0,0,0,48,240a16.14,16.14,0,0,0,7.92-2.1l167.91-96.05a16,16,0,0,0,.05-27.89ZM48,224l0-.09L78.14,136H136a8,8,0,0,0,0-16H78.22L48.06,32.12,48,32l168,95.83Z">
-                    </path>
+                      d="M223.87,114l-168-95.89A16,16,0,0,0,32.93,37.32l31,90.47a.42.42,0,0,0,0,.1.3.3,0,0,0,0,.1l-31,90.67A16,16,0,0,0,48,240a16.14,16.14,0,0,0,7.92-2.1l167.91-96.05a16,16,0,0,0,.05-27.89ZM48,224l0-.09L78.14,136H136a8,8,0,0,0,0-16H78.22L48.06,32.12,48,32l168,95.83Z"
+                    ></path>
                   </svg>
                 </div>
               </div>
-              <span class="text-[#637588] text-[13px] font-bold">{{ post.sharesCount || 0 }}</span>
+              <span class="text-[#637588] text-[13px] font-bold">{{
+                post.sharesCount || 0
+              }}</span>
             </q-btn>
           </div>
 
@@ -214,7 +355,9 @@
 
           <!-- Comments Section Header -->
           <div class="comments-header q-px-md q-mb-md">
-            <div class="text-h6">Comments ({{ post.comments?.length || 0 }})</div>
+            <div class="text-h6">
+              Comments ({{ post.comments?.length || 0 }})
+            </div>
           </div>
 
           <!-- Comments List -->
@@ -224,55 +367,99 @@
               <div class="q-mt-sm">Loading comments...</div>
             </div>
 
-            <div v-else-if="!post.comments?.length" class="text-grey text-center q-pa-md">
+            <div
+              v-else-if="!post.comments?.length"
+              class="text-grey text-center q-pa-md"
+            >
               No comments yet. Be the first to comment!
             </div>
 
-            <div v-else v-for="comment in post.comments" :key="comment.id"
-              :class="['comment-item row q-mb-md', { 'q-ml-xl': comment.parentId }]">
+            <div
+              v-else
+              v-for="comment in post.comments"
+              :key="comment.id"
+              :class="[
+                'comment-item row q-mb-md',
+                { 'q-ml-xl': comment.parentId },
+              ]"
+            >
               <q-avatar size="40px" class="q-mr-md">
                 <img :src="comment.userAvatar || '/default-avatar.png'" />
               </q-avatar>
               <div class="col">
                 <div class="row items-center q-gutter-x-sm">
                   <span class="text-weight-bold">{{ comment.userName }}</span>
-                  <span class="text-grey-7 text-caption">{{ formatDate(comment.createdAt) }}</span>
+                  <span class="text-grey-7 text-caption">{{
+                    formatDate(comment.createdAt)
+                  }}</span>
                 </div>
-                <p class="comment-content q-mt-sm q-mb-sm">{{ comment.content }}</p>
+                <p class="comment-content q-mt-sm q-mb-sm">
+                  {{ comment.content }}
+                </p>
                 <div class="row q-gutter-md">
                   <!-- Like Button -->
-                  <q-btn flat dense size="sm" class="items-center" @click="handleCommentLike(comment as Comment)">
+                  <q-btn
+                    flat
+                    dense
+                    size="sm"
+                    class="items-center"
+                    @click="handleCommentLike(comment as Comment)"
+                  >
                     <div
-                      class="flex items-center justify-center gap-2 px-2 py-1 cursor-pointer hover:bg-gray-100 rounded-lg">
-                      <div :class="['heart-icon', { 'liked': comment.isLiked }]">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20px" height="20px" fill="currentColor"
-                          viewBox="0 0 256 256">
-                          <path v-if="comment.isLiked"
-                            d="M240,94c0,70-103.79,126.66-108.21,129a8,8,0,0,1-7.58,0C119.79,220.66,16,164,16,94A62.07,62.07,0,0,1,78,32c20.65,0,38.73,8.88,50,23.89C139.27,40.88,157.35,32,178,32A62.07,62.07,0,0,1,240,94Z">
-                          </path>
-                          <path v-else
-                            d="M178,32c-20.65,0-38.73,8.88-50,23.89C116.73,40.88,98.65,32,78,32A62.07,62.07,0,0,0,16,94c0,70,103.79,126.66,108.21,129a8,8,0,0,0,7.58,0C136.21,220.66,240,164,240,94A62.07,62.07,0,0,0,178,32ZM128,206.8C109.74,196.16,32,147.69,32,94A46.06,46.06,0,0,1,78,48c19.45,0,35.78,10.36,42.6,27a8,8,0,0,0,14.8,0c6.82-16.67,23.15-27,42.6-27a46.06,46.06,0,0,1,46,46C224,147.61,146.24,196.15,128,206.8Z">
-                          </path>
+                      class="flex items-center justify-center gap-2 px-2 py-1 cursor-pointer hover:bg-gray-100 rounded-lg"
+                    >
+                      <div :class="['heart-icon', { liked: comment.isLiked }]">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="20px"
+                          height="20px"
+                          fill="currentColor"
+                          viewBox="0 0 256 256"
+                        >
+                          <path
+                            v-if="comment.isLiked"
+                            d="M240,94c0,70-103.79,126.66-108.21,129a8,8,0,0,1-7.58,0C119.79,220.66,16,164,16,94A62.07,62.07,0,0,1,78,32c20.65,0,38.73,8.88,50,23.89C139.27,40.88,157.35,32,178,32A62.07,62.07,0,0,1,240,94Z"
+                          ></path>
+                          <path
+                            v-else
+                            d="M178,32c-20.65,0-38.73,8.88-50,23.89C116.73,40.88,98.65,32,78,32A62.07,62.07,0,0,0,16,94c0,70,103.79,126.66,108.21,129a8,8,0,0,0,7.58,0C136.21,220.66,240,164,240,94A62.07,62.07,0,0,0,178,32ZM128,206.8C109.74,196.16,32,147.69,32,94A46.06,46.06,0,0,1,78,48c19.45,0,35.78,10.36,42.6,27a8,8,0,0,0,14.8,0c6.82-16.67,23.15-27,42.6-27a46.06,46.06,0,0,1,46,46C224,147.61,146.24,196.15,128,206.8Z"
+                          ></path>
                         </svg>
                       </div>
                     </div>
-                    <span class="text-[#637588] text-[13px] font-bold">{{ comment.likes || 0 }}</span>
+                    <span class="text-[#637588] text-[13px] font-bold">{{
+                      comment.likes || 0
+                    }}</span>
                   </q-btn>
 
                   <!-- Reply Button -->
-                  <q-btn flat dense size="sm" class="items-center" @click="showReplyInput(comment as Comment)">
+                  <q-btn
+                    flat
+                    dense
+                    size="sm"
+                    class="items-center"
+                    @click="showReplyInput(comment as Comment)"
+                  >
                     <div
-                      class="flex items-center justify-center gap-2 px-2 py-1 cursor-pointer hover:bg-gray-100 rounded-lg">
+                      class="flex items-center justify-center gap-2 px-2 py-1 cursor-pointer hover:bg-gray-100 rounded-lg"
+                    >
                       <div class="text-[#637588]">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20px" height="20px" fill="currentColor"
-                          viewBox="0 0 256 256">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="20px"
+                          height="20px"
+                          fill="currentColor"
+                          viewBox="0 0 256 256"
+                        >
                           <path
-                            d="M168,112a8,8,0,0,1-8,8H96a8,8,0,0,1,0-16h64A8,8,0,0,1,168,112Zm-8,24H96a8,8,0,0,0,0,16h64a8,8,0,0,0,0-16Zm72-12A100.11,100.11,0,0,1,132,224H47.67A15.69,15.69,0,0,1,32,208.33V124a100,100,0,0,1,200,0Zm-16,0a84,84,0,0,0-168,0v84h84A84.09,84.09,0,0,0,216,124Z">
-                          </path>
+                            d="M168,112a8,8,0,0,1-8,8H96a8,8,0,0,1,0-16h64A8,8,0,0,1,168,112Zm-8,24H96a8,8,0,0,0,0,16h64a8,8,0,0,0,0-16Zm72-12A100.11,100.11,0,0,1,132,224H47.67A15.69,15.69,0,0,1,32,208.33V124a100,100,0,0,1,200,0Zm-16,0a84,84,0,0,0-168,0v84h84A84.09,84.09,0,0,0,216,124Z"
+                          ></path>
                         </svg>
                       </div>
                     </div>
-                    <span class="text-[#637588] text-[13px] font-bold">Reply</span>
+                    <span class="text-[#637588] text-[13px] font-bold"
+                      >Reply</span
+                    >
                   </q-btn>
                 </div>
 
@@ -280,16 +467,36 @@
                 <div v-if="replyingTo === comment.id" class="q-mt-md">
                   <div class="row items-center">
                     <q-avatar size="32px" class="q-mr-md">
-                      <img :src="userStore.user?.avatar || '/default-avatar.png'" />
+                      <img
+                        :src="userStore.user?.avatar || '/default-avatar.png'"
+                      />
                     </q-avatar>
-                    <q-input v-model="replyContent" class="col" outlined dense placeholder="Write a reply..."
-                      maxlength="500" autogrow @keyup.enter="addReply(comment as Comment)">
+                    <q-input
+                      v-model="replyContent"
+                      class="col"
+                      outlined
+                      dense
+                      placeholder="Write a reply..."
+                      maxlength="500"
+                      autogrow
+                      @keyup.enter="addReply(comment as Comment)"
+                    >
                       <template v-slot:after>
-                        <q-btn unelevated color="primary" :disable="!replyContent.trim()"
-                          @click="addReply(comment as Comment)" class="q-px-md">
+                        <q-btn
+                          unelevated
+                          color="primary"
+                          :disable="!replyContent.trim()"
+                          @click="addReply(comment as Comment)"
+                          class="q-px-md"
+                        >
                           Reply
                         </q-btn>
-                        <q-btn flat color="grey" @click="cancelReply" class="q-ml-sm">
+                        <q-btn
+                          flat
+                          color="grey"
+                          @click="cancelReply"
+                          class="q-ml-sm"
+                        >
                           Cancel
                         </q-btn>
                       </template>
@@ -299,34 +506,66 @@
 
                 <!-- Replies Section -->
                 <div v-if="comment.replies?.length" class="q-ml-lg q-mt-md">
-                  <div v-for="reply in comment.replies" :key="reply.id" class="reply-item q-mb-md">
+                  <div
+                    v-for="reply in comment.replies"
+                    :key="reply.id"
+                    class="reply-item q-mb-md"
+                  >
                     <div class="row items-start">
                       <q-avatar size="32px" class="q-mr-md">
                         <img :src="reply.userAvatar || '/default-avatar.png'" />
                       </q-avatar>
                       <div class="col">
                         <div class="row items-center q-gutter-x-sm">
-                          <span class="text-weight-bold">{{ reply.userName }}</span>
-                          <span class="text-grey-7 text-caption">{{ formatDate(reply.createdAt) }}</span>
+                          <span class="text-weight-bold">{{
+                            reply.userName
+                          }}</span>
+                          <span class="text-grey-7 text-caption">{{
+                            formatDate(reply.createdAt)
+                          }}</span>
                         </div>
-                        <p class="reply-content q-mt-sm q-mb-sm">{{ reply.content }}</p>
+                        <p class="reply-content q-mt-sm q-mb-sm">
+                          {{ reply.content }}
+                        </p>
                         <div class="row q-gutter-md">
-                          <q-btn flat dense size="sm" class="items-center" @click="handleReplyLike(reply)">
+                          <q-btn
+                            flat
+                            dense
+                            size="sm"
+                            class="items-center"
+                            @click="handleReplyLike(reply)"
+                          >
                             <div
-                              class="flex items-center justify-center gap-2 px-2 py-1 cursor-pointer hover:bg-gray-100 rounded-lg">
-                              <div :class="['heart-icon', { 'liked': reply.isLiked }]">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="20px" height="20px" fill="currentColor"
-                                  viewBox="0 0 256 256">
-                                  <path v-if="reply.isLiked"
-                                    d="M240,94c0,70-103.79,126.66-108.21,129a8,8,0,0,1-7.58,0C119.79,220.66,16,164,16,94A62.07,62.07,0,0,1,78,32c20.65,0,38.73,8.88,50,23.89C139.27,40.88,157.35,32,178,32A62.07,62.07,0,0,1,240,94Z">
-                                  </path>
-                                  <path v-else
-                                    d="M178,32c-20.65,0-38.73,8.88-50,23.89C116.73,40.88,98.65,32,78,32A62.07,62.07,0,0,0,16,94c0,70,103.79,126.66,108.21,129a8,8,0,0,0,7.58,0C136.21,220.66,240,164,240,94A62.07,62.07,0,0,0,178,32ZM128,206.8C109.74,196.16,32,147.69,32,94A46.06,46.06,0,0,1,78,48c19.45,0,35.78,10.36,42.6,27a8,8,0,0,0,14.8,0c6.82-16.67,23.15-27,42.6-27a46.06,46.06,0,0,1,46,46C224,147.61,146.24,196.15,128,206.8Z">
-                                  </path>
+                              class="flex items-center justify-center gap-2 px-2 py-1 cursor-pointer hover:bg-gray-100 rounded-lg"
+                            >
+                              <div
+                                :class="[
+                                  'heart-icon',
+                                  { liked: reply.isLiked },
+                                ]"
+                              >
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  width="20px"
+                                  height="20px"
+                                  fill="currentColor"
+                                  viewBox="0 0 256 256"
+                                >
+                                  <path
+                                    v-if="reply.isLiked"
+                                    d="M240,94c0,70-103.79,126.66-108.21,129a8,8,0,0,1-7.58,0C119.79,220.66,16,164,16,94A62.07,62.07,0,0,1,78,32c20.65,0,38.73,8.88,50,23.89C139.27,40.88,157.35,32,178,32A62.07,62.07,0,0,1,240,94Z"
+                                  ></path>
+                                  <path
+                                    v-else
+                                    d="M178,32c-20.65,0-38.73,8.88-50,23.89C116.73,40.88,98.65,32,78,32A62.07,62.07,0,0,0,16,94c0,70,103.79,126.66,108.21,129a8,8,0,0,0,7.58,0C136.21,220.66,240,164,240,94A62.07,62.07,0,0,0,178,32ZM128,206.8C109.74,196.16,32,147.69,32,94A46.06,46.06,0,0,1,78,48c19.45,0,35.78,10.36,42.6,27a8,8,0,0,0,14.8,0c6.82-16.67,23.15-27,42.6-27a46.06,46.06,0,0,1,46,46C224,147.61,146.24,196.15,128,206.8Z"
+                                  ></path>
                                 </svg>
                               </div>
                             </div>
-                            <span class="text-[#637588] text-[13px] font-bold">{{ reply.likes || 0 }}</span>
+                            <span
+                              class="text-[#637588] text-[13px] font-bold"
+                              >{{ reply.likes || 0 }}</span
+                            >
                           </q-btn>
                         </div>
                       </div>
@@ -343,10 +582,24 @@
               <q-avatar size="40px" class="q-mr-md">
                 <img :src="userStore.user?.avatar || '/default-avatar.png'" />
               </q-avatar>
-              <q-input v-model="newComment" class="col" outlined dense placeholder="Add your comment" maxlength="500"
-                autogrow @keyup.enter="addComment">
+              <q-input
+                v-model="newComment"
+                class="col"
+                outlined
+                dense
+                placeholder="Add your comment"
+                maxlength="500"
+                autogrow
+                @keyup.enter="addComment"
+              >
                 <template v-slot:after>
-                  <q-btn unelevated color="primary" :disable="!newComment.trim()" @click="addComment" class="q-px-md">
+                  <q-btn
+                    unelevated
+                    color="primary"
+                    :disable="!newComment.trim()"
+                    @click="addComment"
+                    class="q-px-md"
+                  >
                     Post
                   </q-btn>
                 </template>
@@ -396,9 +649,8 @@ interface Reply extends Omit<Comment, 'replies'> {
 
 const props = defineProps<{
   modelValue: boolean;
-  post: CommunityPost & { userName: string }
+  post: CommunityPost & { userName: string };
 }>();
-
 
 console.log('post........', props.post);
 
@@ -410,12 +662,13 @@ const emit = defineEmits<{
 const $q = useQuasar();
 const userStore = useUserStore();
 const newComment = ref('');
-const imageCdn = 'http://xavoc-technocrats-pvt-ltd.blr1.cdn.digitaloceanspaces.com/';
+const imageCdn =
+  'https://xavoc-technocrats-pvt-ltd.blr1.cdn.digitaloceanspaces.com/';
 
 // Create computed property for v-model
 const dialogModel = computed({
   get: () => props.modelValue,
-  set: (value) => emit('update:modelValue', value)
+  set: (value) => emit('update:modelValue', value),
 });
 
 // Add carousel refs and computed properties
@@ -428,7 +681,6 @@ const touchEnd = ref(0);
 const carousel = ref<HTMLElement | null>(null);
 const carouselImages = ref<HTMLElement[]>([]);
 const showFullDescription = ref<{ [key: string]: boolean }>({});
-
 
 const isLastSlide = computed(() => {
   return currentIndex.value === totalSlides.value - 1;
@@ -443,20 +695,22 @@ const currentImageCount = computed(() => {
   if (!props.post.mediaUrls) return { current: 0, total: 0 };
   return {
     current: currentIndex.value + 1,
-    total: Array.isArray(props.post.mediaUrls) ? props.post.mediaUrls.length : 1
+    total: Array.isArray(props.post.mediaUrls)
+      ? props.post.mediaUrls.length
+      : 1,
   };
 });
 
 const activeDotIndex = computed(() => {
-  return currentVisibleImage.value ? currentVisibleImage.value - 1 : currentIndex.value;
+  return currentVisibleImage.value
+    ? currentVisibleImage.value - 1
+    : currentIndex.value;
 });
 
 const carouselStyle = computed(() => ({
   transform: `translate3d(-${currentIndex.value * 100}%, 0, 0)`,
-  willChange: 'transform'
+  willChange: 'transform',
 }));
-
-
 
 const closeCarousel = () => {
   isCarouselMode.value = false;
@@ -473,13 +727,13 @@ const goToSlide = (index: number) => {
   console.log('Go To Slide:', {
     index: index + 1,
     total: totalSlides.value,
-    currentVisible: currentVisibleImage.value
+    currentVisible: currentVisibleImage.value,
   });
 
   const scrollWidth = carousel.value.scrollWidth / totalSlides.value;
   carousel.value.scrollTo({
     left: index * scrollWidth,
-    behavior: 'smooth'
+    behavior: 'smooth',
   });
 
   setTimeout(() => {
@@ -537,7 +791,7 @@ const handleTouchEnd = () => {
 
   carousel.value.scrollTo({
     left: boundedIndex * scrollWidth,
-    behavior: 'smooth'
+    behavior: 'smooth',
   });
 
   touchStart.value = 0;
@@ -555,12 +809,12 @@ const onCarouselImageIntersection = (index: number) => ({
         total: totalSlides.value,
         isIntersecting: entry.isIntersecting,
         intersectionRatio: entry.intersectionRatio,
-        currentImage: props.post.mediaUrls ? (
-          Array.isArray(props.post.mediaUrls) ?
-            props.post.mediaUrls[index] :
-            props.post.mediaUrls
-        ) : null,
-        activeDot: currentIndex.value
+        currentImage: props.post.mediaUrls
+          ? Array.isArray(props.post.mediaUrls)
+            ? props.post.mediaUrls[index]
+            : props.post.mediaUrls
+          : null,
+        activeDot: currentIndex.value,
       };
 
       console.log('Image Data:', imageData);
@@ -569,8 +823,8 @@ const onCarouselImageIntersection = (index: number) => ({
     return true;
   },
   cfg: {
-    threshold: [0.5]
-  }
+    threshold: [0.5],
+  },
 });
 
 // Keyboard navigation
@@ -598,9 +852,13 @@ const isMobile = computed(() => {
 onMounted(() => {
   window.addEventListener('keydown', handleKeydown);
   if (carousel.value) {
-    carousel.value.addEventListener('touchstart', (e) => {
-      e.preventDefault();
-    }, { passive: false });
+    carousel.value.addEventListener(
+      'touchstart',
+      (e) => {
+        e.preventDefault();
+      },
+      { passive: false }
+    );
   }
 });
 
@@ -620,7 +878,7 @@ const addComment = async () => {
     if (!userStore.user) {
       $q.notify({
         message: 'Please login to comment',
-        color: 'warning'
+        color: 'warning',
       });
       return;
     }
@@ -628,26 +886,29 @@ const addComment = async () => {
     // Create the comment data with userId
     const commentData = {
       content: newComment.value,
-      userId: userStore.user.id  // Add userId to request
+      userId: userStore.user.id, // Add userId to request
     };
 
     console.log('Adding comment with data:', commentData); // Debug log
 
     // Call the service method with userId
-    const response = await api.post(`/posts/${props.post.id}/comments`, commentData);
+    const response = await api.post(
+      `/posts/${props.post.id}/comments`,
+      commentData
+    );
 
     // Create complete comment object with user info
     const newCommentData = {
       ...response.data,
       userName: userStore.user.name || userStore.user.email,
       userAvatar: userStore.user.avatar || '/default-avatar.png',
-      createdAt: new Date().toISOString()
+      createdAt: new Date().toISOString(),
     };
 
     // Update the post with new comment
     const updatedPost = {
       ...props.post,
-      comments: [...(props.post.comments || []), newCommentData]
+      comments: [...(props.post.comments || []), newCommentData],
     };
 
     // Emit the updated post
@@ -659,14 +920,13 @@ const addComment = async () => {
     // Show success message
     $q.notify({
       message: 'Comment added successfully',
-      color: 'positive'
+      color: 'positive',
     });
-
   } catch (error: any) {
     console.error('Error adding comment:', error);
     $q.notify({
       message: error.response?.data?.message || 'Failed to add comment',
-      color: 'negative'
+      color: 'negative',
     });
   }
 };
@@ -700,11 +960,11 @@ watch(currentIndex, (newIndex) => {
     currentIndex: newIndex + 1,
     totalImages: totalSlides.value,
     activeDot: newIndex,
-    currentImage: props.post.mediaUrls ? (
-      Array.isArray(props.post.mediaUrls) ?
-        props.post.mediaUrls[newIndex] :
-        props.post.mediaUrls
-    ) : null
+    currentImage: props.post.mediaUrls
+      ? Array.isArray(props.post.mediaUrls)
+        ? props.post.mediaUrls[newIndex]
+        : props.post.mediaUrls
+      : null,
   });
 });
 
@@ -718,7 +978,8 @@ const truncateText = (text: string, wordCount: number) => {
 
 // Add toggle function
 const toggleDescription = (postId: number) => {
-  showFullDescription.value[postId.toString()] = !showFullDescription.value[postId.toString()];
+  showFullDescription.value[postId.toString()] =
+    !showFullDescription.value[postId.toString()];
 };
 
 const showCarousel = (index: number, postId?: string): void => {
@@ -734,7 +995,7 @@ const onVideoIntersection = (postId: number) => ({
 
     const rect = entry.boundingClientRect;
     const windowHeight = window.innerHeight;
-    const elementCenter = rect.top + (rect.height / 2);
+    const elementCenter = rect.top + rect.height / 2;
     const viewportCenter = windowHeight / 2;
     const distanceFromCenter = Math.abs(elementCenter - viewportCenter);
     const isCentered = distanceFromCenter < 100;
@@ -743,7 +1004,10 @@ const onVideoIntersection = (postId: number) => ({
     videoVisibility.value[postId.toString()] = isVisible && isCentered;
 
     if (isVisible && isCentered) {
-      if (currentlyPlayingVideo.value !== null && currentlyPlayingVideo.value !== postId) {
+      if (
+        currentlyPlayingVideo.value !== null &&
+        currentlyPlayingVideo.value !== postId
+      ) {
         controlVideo(currentlyPlayingVideo.value, 'pause');
         videoVisibility.value[currentlyPlayingVideo.value] = false;
       }
@@ -761,18 +1025,18 @@ const onVideoIntersection = (postId: number) => ({
   },
   cfg: {
     threshold: [0, 0.25, 0.5, 0.75, 1],
-    rootMargin: '-30% 0px'
-  }
+    rootMargin: '-30% 0px',
+  },
 });
 
 // Add this method
 const updatePost = (updatedPost: CommunityPost): void => {
   const postsCopy = [...posts.value];
-  const index = postsCopy.findIndex(p => p.id === updatedPost.id);
+  const index = postsCopy.findIndex((p) => p.id === updatedPost.id);
   if (index !== -1) {
     postsCopy[index] = {
       ...updatedPost,
-      userName: postsCopy[index].userName
+      userName: postsCopy[index].userName,
     };
     posts.value = postsCopy;
   }
@@ -791,18 +1055,22 @@ const getVideoUrl = (postId: number, videoUrl: string): string => {
   // Extract video ID from YouTube URL
   const videoId = videoUrl.split('v=')[1];
   // Return embedded URL with autoplay parameter based on visibility
-  return `https://www.youtube.com/embed/${videoId}?autoplay=${videoVisibility.value[postId.toString()] ? '1' : '0'}&enablejsapi=1`;
+  return `https://www.youtube.com/embed/${videoId}?autoplay=${
+    videoVisibility.value[postId.toString()] ? '1' : '0'
+  }&enablejsapi=1`;
 };
 
 const controlVideo = (postId: string, action: 'play' | 'pause'): void => {
-  const iframe = document.getElementById(`video-${postId}`) as HTMLIFrameElement;
+  const iframe = document.getElementById(
+    `video-${postId}`
+  ) as HTMLIFrameElement;
   if (!iframe) return;
 
   // Send message to YouTube iframe
   iframe.contentWindow?.postMessage(
     JSON.stringify({
       event: 'command',
-      func: action === 'play' ? 'playVideo' : 'pauseVideo'
+      func: action === 'play' ? 'playVideo' : 'pauseVideo',
     }),
     '*'
   );
@@ -814,17 +1082,23 @@ const handleLike = async (post: CommunityPost) => {
     if (!userStore.user) {
       $q.notify({
         message: 'Please login to like posts',
-        color: 'warning'
+        color: 'warning',
       });
       return;
     }
 
     if (post.liked) {
-      await communityPostService.unlikePost(Number(post.id), Number(userStore.user.id));
+      await communityPostService.unlikePost(
+        Number(post.id),
+        Number(userStore.user.id)
+      );
       post.liked = false;
       post.likes = (post.likes || 1) - 1;
     } else {
-      await communityPostService.likePost(Number(post.id), Number(userStore.user.id));
+      await communityPostService.likePost(
+        Number(post.id),
+        Number(userStore.user.id)
+      );
       post.liked = true;
       post.likes = (post.likes || 0) + 1;
     }
@@ -835,7 +1109,7 @@ const handleLike = async (post: CommunityPost) => {
     console.error('Error handling like:', error);
     $q.notify({
       message: 'Failed to update like',
-      color: 'negative'
+      color: 'negative',
     });
   }
 };
@@ -846,7 +1120,7 @@ const handleShare = async (post: CommunityPost) => {
       await navigator.share({
         title: post.title,
         text: post.description,
-        url: window.location.href
+        url: window.location.href,
       });
 
       // Update share count
@@ -860,14 +1134,14 @@ const handleShare = async (post: CommunityPost) => {
       await navigator.clipboard.writeText(window.location.href);
       $q.notify({
         message: 'Link copied to clipboard!',
-        color: 'positive'
+        color: 'positive',
       });
     }
   } catch (error) {
     console.error('Error sharing post:', error);
     $q.notify({
       message: 'Failed to share post',
-      color: 'negative'
+      color: 'negative',
     });
   }
 };
@@ -888,7 +1162,7 @@ const showReplyInput = (comment: Comment) => {
   if (!userStore.user) {
     $q.notify({
       message: 'Please login to reply',
-      color: 'warning'
+      color: 'warning',
     });
     return;
   }
@@ -907,7 +1181,7 @@ const addReply = async (comment: Comment) => {
   try {
     const response = await api.post(`/posts/comments/${comment.id}/replies`, {
       content: replyContent.value,
-      userId: userStore.user.id
+      userId: userStore.user.id,
     });
 
     // Create complete reply object
@@ -916,7 +1190,7 @@ const addReply = async (comment: Comment) => {
       userName: userStore.user.name || userStore.user.email,
       userAvatar: userStore.user.avatar || '/default-avatar.png',
       isLiked: false,
-      likes: 0
+      likes: 0,
     };
 
     // Update the comment with new reply
@@ -928,13 +1202,13 @@ const addReply = async (comment: Comment) => {
     // Show success message
     $q.notify({
       message: 'Reply added successfully',
-      color: 'positive'
+      color: 'positive',
     });
   } catch (error) {
     console.error('Error adding reply:', error);
     $q.notify({
       message: 'Failed to add reply',
-      color: 'negative'
+      color: 'negative',
     });
   }
 };
@@ -943,7 +1217,7 @@ const handleCommentLike = async (comment: Comment) => {
   if (!userStore.user) {
     $q.notify({
       message: 'Please login to like comments',
-      color: 'warning'
+      color: 'warning',
     });
     return;
   }
@@ -951,13 +1225,13 @@ const handleCommentLike = async (comment: Comment) => {
   try {
     if (comment.isLiked) {
       await api.delete(`/posts/comments/${comment.id}/like`, {
-        data: { userId: userStore.user.id }
+        data: { userId: userStore.user.id },
       });
       comment.likes = Math.max(0, (comment.likes || 1) - 1);
       comment.isLiked = false;
     } else {
       await api.post(`/posts/comments/${comment.id}/like`, {
-        userId: userStore.user.id
+        userId: userStore.user.id,
       });
       comment.likes = (comment.likes || 0) + 1;
       comment.isLiked = true;
@@ -972,7 +1246,7 @@ const handleCommentLike = async (comment: Comment) => {
     console.error('Error handling comment like:', error);
     $q.notify({
       message: 'Failed to update like',
-      color: 'negative'
+      color: 'negative',
     });
   }
 };
@@ -981,7 +1255,7 @@ const handleCommentDislike = async (comment: Comment) => {
   if (!userStore.user) {
     $q.notify({
       message: 'Please login to dislike comments',
-      color: 'warning'
+      color: 'warning',
     });
     return;
   }
@@ -989,13 +1263,13 @@ const handleCommentDislike = async (comment: Comment) => {
   try {
     if (comment.isDisliked) {
       await api.delete(`/posts/comments/${comment.id}/dislike`, {
-        data: { userId: userStore.user.id }
+        data: { userId: userStore.user.id },
       });
       comment.dislikes = Math.max(0, (comment.dislikes || 1) - 1);
       comment.isDisliked = false;
     } else {
       await api.post(`/posts/comments/${comment.id}/dislike`, {
-        userId: userStore.user.id
+        userId: userStore.user.id,
       });
       comment.dislikes = (comment.dislikes || 0) + 1;
       comment.isDisliked = true;
@@ -1010,7 +1284,7 @@ const handleCommentDislike = async (comment: Comment) => {
     console.error('Error handling comment dislike:', error);
     $q.notify({
       message: 'Failed to update dislike',
-      color: 'negative'
+      color: 'negative',
     });
   }
 };
@@ -1026,24 +1300,28 @@ const fetchComments = async () => {
     // Update the post with fetched comments
     const updatedPost = {
       ...props.post,
-      comments: await Promise.all(response.data.map(async (comment: any) => {
-        // Fetch replies for each comment
-        const repliesResponse = await api.get(`/posts/comments/${comment.id}/replies`);
+      comments: await Promise.all(
+        response.data.map(async (comment: any) => {
+          // Fetch replies for each comment
+          const repliesResponse = await api.get(
+            `/posts/comments/${comment.id}/replies`
+          );
 
-        return {
-          ...comment,
-          userName: comment.user?.name || comment.user?.email || 'Anonymous',
-          userAvatar: comment.user?.avatar || '/default-avatar.png',
-          isLiked: comment.userLikes?.includes(userStore.user?.id),
-          isDisliked: comment.userDislikes?.includes(userStore.user?.id),
-          replies: repliesResponse.data.map((reply: any) => ({
-            ...reply,
-            userName: reply.user?.name || reply.user?.email || 'Anonymous',
-            userAvatar: reply.user?.avatar || '/default-avatar.png',
-            isLiked: reply.userLikes?.includes(userStore.user?.id)
-          }))
-        };
-      }))
+          return {
+            ...comment,
+            userName: comment.user?.name || comment.user?.email || 'Anonymous',
+            userAvatar: comment.user?.avatar || '/default-avatar.png',
+            isLiked: comment.userLikes?.includes(userStore.user?.id),
+            isDisliked: comment.userDislikes?.includes(userStore.user?.id),
+            replies: repliesResponse.data.map((reply: any) => ({
+              ...reply,
+              userName: reply.user?.name || reply.user?.email || 'Anonymous',
+              userAvatar: reply.user?.avatar || '/default-avatar.png',
+              isLiked: reply.userLikes?.includes(userStore.user?.id),
+            })),
+          };
+        })
+      ),
     };
 
     emit('update:post', updatedPost);
@@ -1051,7 +1329,7 @@ const fetchComments = async () => {
     console.error('Error fetching comments:', error);
     $q.notify({
       message: 'Failed to load comments',
-      color: 'negative'
+      color: 'negative',
     });
   } finally {
     isLoading.value = false;
@@ -1059,11 +1337,14 @@ const fetchComments = async () => {
 };
 
 // Add this watcher to fetch comments when dialog opens
-watch(() => props.modelValue, (newValue) => {
-  if (newValue) {
-    fetchComments();
+watch(
+  () => props.modelValue,
+  (newValue) => {
+    if (newValue) {
+      fetchComments();
+    }
   }
-});
+);
 
 // Update the comments list section in template
 
@@ -1072,7 +1353,7 @@ const handleReplyLike = async (reply: Reply) => {
   if (!userStore.user) {
     $q.notify({
       message: 'Please login to like replies',
-      color: 'warning'
+      color: 'warning',
     });
     return;
   }
@@ -1080,13 +1361,13 @@ const handleReplyLike = async (reply: Reply) => {
   try {
     if (reply.isLiked) {
       await api.delete(`/posts/comments/${reply.id}/like`, {
-        data: { userId: userStore.user.id }
+        data: { userId: userStore.user.id },
       });
       reply.likes = Math.max(0, (reply.likes || 1) - 1);
       reply.isLiked = false;
     } else {
       await api.post(`/posts/comments/${reply.id}/like`, {
-        userId: userStore.user.id
+        userId: userStore.user.id,
       });
       reply.likes = (reply.likes || 0) + 1;
       reply.isLiked = true;
@@ -1095,7 +1376,7 @@ const handleReplyLike = async (reply: Reply) => {
     console.error('Error handling reply like:', error);
     $q.notify({
       message: 'Failed to update like',
-      color: 'negative'
+      color: 'negative',
     });
   }
 };
@@ -1103,7 +1384,7 @@ const handleReplyLike = async (reply: Reply) => {
 
 <style lang="scss" scoped>
 .q-card {
-  font-family: "Plus Jakarta Sans", "Noto Sans", sans-serif;
+  font-family: 'Plus Jakarta Sans', 'Noto Sans', sans-serif;
 }
 
 .comments-list {
@@ -1499,7 +1780,7 @@ const handleReplyLike = async (reply: Reply) => {
   }
 
   // Animation for like button
-  &:active .q-icon[name="favorite"] {
+  &:active .q-icon[name='favorite'] {
     animation: likeAnimation 0.3s ease;
   }
 }

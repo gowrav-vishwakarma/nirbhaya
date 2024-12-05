@@ -435,7 +435,7 @@ interface UserInteractionLimits {
 const userStore = useUserStore();
 
 const imageCdn =
-  'http://xavoc-technocrats-pvt-ltd.blr1.cdn.digitaloceanspaces.com/';
+  'https://xavoc-technocrats-pvt-ltd.blr1.cdn.digitaloceanspaces.com/';
 
 const $q = useQuasar();
 const posts = ref<Post[]>([]);
