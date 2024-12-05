@@ -158,7 +158,15 @@ const toggleComments = () => {
 
 const handleShare = async () => {
   try {
-    let shareObject: any = {
+    // Define the type for our share object
+    interface ShareData {
+      title: string;
+      text: string;
+      url: string;
+      files?: File[];
+    }
+
+    let shareObject: ShareData = {
       title: props.post.title,
       text: props.post.description,
       url: window.location.href,
@@ -209,11 +217,7 @@ const handleShare = async () => {
     }
   } catch (error) {
     console.error('Error sharing post:', error);
-    $q.notify({
-      message: 'Unable to share the post. Please try again.',
-      color: 'negative',
-      position: 'top-right'
-    });
+
   }
 };
 
