@@ -166,7 +166,8 @@
                         : [imageCdn + post.mediaUrls]" :key="index" class="carousel-slide"
                         :class="{ active: currentIndex === index }" v-intersection="onCarouselImageIntersection(index)"
                         ref="carouselImages">
-                        <img :src="url" :alt="`Image ${index + 1}`" class="carousel-image" @click.stop />
+                        <q-img :src="url" :alt="`Image ${index + 1}`" class="carousel-image" @click.stop
+                          :fit="'contain'" />
                       </div>
                     </div>
 
@@ -192,7 +193,7 @@
                         (Array.isArray(post.mediaUrls)
                           ? post.mediaUrls[0]
                           : post.mediaUrls)
-                        " :ratio="16 / 9" class="single-image" @click="showCarousel(post.id, 0)" />
+                        " class="single-image" :fit="'contain'" />
                     </template>
 
                     <!-- Two Images -->
@@ -907,37 +908,41 @@ const currentVisibleImage = ref<number | null>(null);
 const carouselImages = ref<HTMLElement[]>([]);
 
 // Update the intersection handler method to fix the type error and track image data
-const onCarouselImageIntersection = (index: number) => ({
-  handler: (entry?: IntersectionObserverEntry) => {
-    if (!entry) return false;
+const onCarouselImageIntersection = (index: number) => (
 
-    if (entry.isIntersecting) {
-      const activePost = posts.value.find(
-        (p) => p.id.toString() === activeCarouselPost.value
-      );
-      const imageData = {
-        index: index + 1,
-        total: totalSlides.value,
-        isIntersecting: entry.isIntersecting,
-        intersectionRatio: entry.intersectionRatio,
-        currentImage: activePost?.mediaUrls
-          ? Array.isArray(activePost.mediaUrls)
-            ? activePost.mediaUrls[index]
-            : activePost.mediaUrls
-          : null,
-        activeDot: currentIndex.value,
-        postId: activeCarouselPost.value,
-      };
 
-      console.log('Image Data:', imageData);
-      currentVisibleImage.value = index + 1;
-    }
-    return true;
-  },
-  cfg: {
-    threshold: [0.5], // Fix type error by making threshold an array
-  },
-});
+  {
+
+    handler: (entry?: IntersectionObserverEntry) => {
+      if (!entry) return false;
+
+      if (entry.isIntersecting) {
+        const activePost = posts.value.find(
+          (p) => p.id.toString() === activeCarouselPost.value
+        );
+        const imageData = {
+          index: index + 1,
+          total: totalSlides.value,
+          isIntersecting: entry.isIntersecting,
+          intersectionRatio: entry.intersectionRatio,
+          currentImage: activePost?.mediaUrls
+            ? Array.isArray(activePost.mediaUrls)
+              ? activePost.mediaUrls[index]
+              : activePost.mediaUrls
+            : null,
+          activeDot: currentIndex.value,
+          postId: activeCarouselPost.value,
+        };
+
+        console.log('Image Data:', imageData);
+        currentVisibleImage.value = index + 1;
+      }
+      return true;
+    },
+    cfg: {
+      threshold: [0.5], // Fix type error by making threshold an array
+    },
+  });
 
 // Add a watcher to log changes in current index
 watch(currentIndex, (newIndex) => {
@@ -1291,9 +1296,9 @@ const handleLocationSelected = async (location: {
 }
 
 .single-image {
-  width: 100%;
-  aspect-ratio: 16/9;
-  object-fit: cover;
+  // width: 100%;
+  // aspect-ratio: 16/9;
+  // object-fit: cover;
 }
 
 .two-images-grid {
@@ -1390,7 +1395,8 @@ const handleLocationSelected = async (location: {
   .single-image,
   .two-images-grid,
   .multi-images-grid {
-    height: 300px;
+    // height: 300px;
+    max-height: 60vh;
   }
 }
 
@@ -1528,7 +1534,7 @@ const handleLocationSelected = async (location: {
 
 .carousel-slide {
   padding: 0;
-  height: 400px;
+  height: 60vh;
   background: #000;
 }
 
@@ -1550,7 +1556,7 @@ const handleLocationSelected = async (location: {
 // Responsive adjustments
 @media (max-width: 600px) {
   .carousel-slide {
-    height: 300px;
+    height: 60vh;
   }
 }
 
@@ -1607,7 +1613,7 @@ const handleLocationSelected = async (location: {
 
 .carousel-slide {
   padding: 0;
-  height: 400px;
+  height: 60vh;
   background: #000;
 }
 
@@ -1695,7 +1701,7 @@ const handleLocationSelected = async (location: {
 // Responsive adjustments
 @media (max-width: 600px) {
   .carousel-slide {
-    height: 300px;
+    height: 60vh;
   }
 
   .carousel-view {
