@@ -76,6 +76,7 @@ import { useUserStore } from 'src/stores/user-store';
 import type { CommunityPost } from 'src/types/CommunityPost';
 import { communityPostService } from 'src/services/communityPostService';
 import CommentsDialog from './CommentsDialog.vue';
+import Konva from 'konva';
 
 // Define a type that matches the actual post structure
 interface PostProps extends Omit<CommunityPost, 'liked'> {
@@ -101,6 +102,8 @@ const emit = defineEmits(['update:post', 'update:userInteractionRules']);
 const $q = useQuasar();
 const userStore = useUserStore();
 const showComments = ref(false);
+const imageCdn =
+  ref('http://xavoc-technocrats-pvt-ltd.blr1.cdn.digitaloceanspaces.com/')
 
 const handlePostUpdate = (updatedPost: CommunityPost | PostProps) => {
   emit('update:post', updatedPost);
@@ -156,59 +159,154 @@ const toggleComments = () => {
 
 const handleShare = async () => {
   try {
-    // Get the first media URL if available
-    console.log('props.post.mediaUrls', props.post);
+    // Basic share object without files
+    const shareObject = {
+      title: props.post.title,
+      text: props.post.description,
+      // url: window.location.href,
+    };
 
-    let shareobject = {}
-    if (props.post.mediaUrls?.length) {
-      const mediaUrl = props.post.mediaUrls?.[0] || '';
-      console.log('mediaUrl', mediaUrl);
-
-      shareobject = {
-        title: props.post.title,
-        text: props.post.description,
-        url: window.location.href,
-        files: mediaUrl ? [await fetchImageAsFile(mediaUrl)] : undefined
-      }
-    }
-    if (props.post.videoUrl) {
-      const mediaUrl = `https://www.youtube.com/embed/${props.post.videoUrl}`;
-      shareobject = {
-        title: props.post.title,
-        text: props.post.description,
-        url: mediaUrl,
-      }
-    }
-
-    if (navigator.share) {
-      await navigator.share(shareobject);
-
-      // Update share count
-      await communityPostService.sharePost(props.post.id.toString());
-      const updatedPost = {
-        ...props.post,
-        sharesCount: (props.post.sharesCount || 0) + 1
-      };
-      emit('update:post', updatedPost);
-    } else {
+    // First check if basic sharing is supported
+    if (!navigator.share) {
       // Fallback for browsers that don't support Web Share API
       const textToShare = `${props.post.title}\n${props.post.description}\n${window.location.href}`;
       await navigator.clipboard.writeText(textToShare);
       $q.notify({
         message: 'Link copied to clipboard!',
-        color: 'positive'
+        color: 'black',
+        position: 'top-right'
       });
+      return;
     }
+
+    // Handle media sharing
+    if (props.post.mediaUrls?.length) {
+      try {
+        const mediaUrl = props.post.mediaUrls[0];
+        const fullUrl = `${imageCdn.value}${mediaUrl}`;
+
+        // Create a promise to load image using Konva
+        const loadImageWithKonva = (): Promise<string> => {
+          return new Promise((resolve, reject) => {
+            const imageObj = new Image();
+            imageObj.crossOrigin = 'Anonymous';
+
+            imageObj.onload = () => {
+              // Create a Konva stage and layer
+              const stage = new Konva.Stage({
+                width: imageObj.width,
+                height: imageObj.height,
+                container: 'temp-konva-container'
+              });
+
+              const layer = new Konva.Layer();
+              stage.add(layer);
+
+              // Create Konva image
+              const konvaImage = new Konva.Image({
+                image: imageObj,
+                width: imageObj.width,
+                height: imageObj.height
+              });
+
+              layer.add(konvaImage);
+              layer.draw();
+
+              // Convert to data URL
+              const dataURL = stage.toDataURL({
+                mimeType: 'image/png',
+                quality: 1
+              });
+
+              // Destroy the stage to free up memory
+              stage.destroy();
+
+              resolve(dataURL);
+            };
+
+            imageObj.onerror = () => {
+              reject(new Error('Failed to load image with Konva'));
+            };
+
+            imageObj.src = fullUrl;
+          });
+        };
+
+        // Create a temporary container for Konva (hidden)
+        const tempContainer = document.createElement('div');
+        tempContainer.id = 'temp-konva-container';
+        tempContainer.style.display = 'none';
+        document.body.appendChild(tempContainer);
+
+        // Load image and convert to blob
+        const dataURL = await loadImageWithKonva();
+
+        // Remove temporary container
+        document.body.removeChild(tempContainer);
+
+        // Convert data URL to blob
+        const response = await fetch(dataURL as string);
+        const blob = await response.blob();
+
+        // Create file
+        const file = new File([blob], 'shared-image.png', { type: 'image/png' });
+
+        // Detailed logging
+        console.log('Sharing File Details:', {
+          name: file.name,
+          type: file.type,
+          size: file.size,
+          canShare: navigator.canShare && navigator.canShare({ files: [file] })
+        });
+
+        // Prepare share object with file
+        const fileShareObject = {
+          ...shareObject,
+          files: [file]
+        };
+
+        // Try sharing with file
+        try {
+          await navigator.share(fileShareObject);
+        } catch (fileShareError) {
+          console.warn('File share failed, attempting basic share:', fileShareError);
+
+          // Fallback to basic share
+          await navigator.share(shareObject);
+        }
+      } catch (error) {
+        console.error('Error preparing media for share:', error);
+
+        // Fallback to basic share
+        await navigator.share(shareObject);
+      }
+    } else if (props.post.videoUrl) {
+      // For video posts
+      await navigator.share({
+        ...shareObject,
+        url: `https://www.youtube.com/embed/${props.post.videoUrl}`
+      });
+    } else {
+      // For text-only posts
+      await navigator.share(shareObject);
+    }
+
+    // Update share count only if share was successful
+    await communityPostService.sharePost(props.post.id.toString());
+    const updatedPost = {
+      ...props.post,
+      sharesCount: (props.post.sharesCount || 0) + 1
+    };
+    emit('update:post', updatedPost);
+
   } catch (error) {
     console.error('Error sharing post:', error);
+    // $q.notify({
+    //   message: 'Error sharing post. Please try again.',
+    //   color: 'negative',
+    //   position: 'top-right'
+    // });
   }
-};
-
-// Add this helper function to convert URL to File object
-const fetchImageAsFile = async (url: string): Promise<File> => {
-  const response = await fetch(url);
-  const blob = await response.blob();
-  return new File([blob], 'shared-image.jpg', { type: blob.type });
 };
 
 // Add watch for comments dialog to update comment count
@@ -219,9 +317,9 @@ watch(showComments, async (newValue) => {
       console.log('You have reached your daily comment limit');
 
       // $q.notify({
-      //   message: 'You have reached your daily comment limit',
+      //   me 'You have reacur daily comment limit',
       //   color: 'black',
-      //   position: 'top-right'
+      //sition: 'top-right'
       // });
     }
   }

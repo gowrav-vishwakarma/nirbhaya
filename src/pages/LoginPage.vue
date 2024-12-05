@@ -9,92 +9,96 @@
         </div>
       </q-card-section> -->
     <!-- </q-card> -->
+    <div class="login-card-main">
 
-    <q-card class="login-card">
-      <div class="flex justify-center">
-        <q-img src="/sosLogo_512_512.png" style="height: 100px; width: 100px; margin-top: 30px;"></q-img>
+      <q-card class="login-card">
+        <div class="flex justify-center">
+          <q-img src="/sosLogo_512_512.png" style="height: 100px; width: 100px; margin-top: 30px;"></q-img>
 
-      </div>
-      <div class="text-subtitle1 text-weight-medium text-grey-7 q-mb-lg q-mt-md text-center">
-        Community SOS
-      </div>
-
-      <q-card-section class="text-center" style="margin: 0px; padding: 0px;">
-        <div class="text-h5 text-weight-bold text-primary" style="margin: 0px; padding: 0px; margin-top: -10px;">
-          {{ t('common.login') }}
         </div>
-        <!-- <div class="text-h3 text-weight-bold text-primary">Shoutout</div>
-        <div class="text-subtitle1 text-weight-medium text-grey-7">
+        <div class="text-subtitle1 text-weight-medium text-grey-7 q-mb-lg q-mt-md text-center">
           Community SOS
-        </div> -->
-        <LanguageSelector class="q-mt-md q-px-md" />
-      </q-card-section>
+        </div>
 
-      <q-card-section v-if="isIosNotSafari">
-        <q-banner class="bg-negative text-white" rounded>
-          {{ t('common.iosNotSafariWarning') }}
-        </q-banner>
-      </q-card-section>
-      <q-card-section v-else class="text-center">
-        <q-form @submit="handleSubmit" class="">
-          <q-input filled v-model="values.mobileNumber" :label="t('common.mobileNumber')" :error="!!errors.mobileNumber"
-            :error-message="errors.mobileNumber?.join('; ')" mask="##########" :disable="otpSent">
-            <template v-slot:prepend>
-              <q-icon :name="t('common.icons.phone')" color="primary" />
-            </template>
-          </q-input>
-
-          <q-input v-if="otpSent" filled v-model="values.otp" :label="t('common.enterOTP')" :error="!!errors.otp"
-            :error-message="errors.otp?.join('; ')" mask="####">
-            <template v-slot:prepend>
-              <q-icon :name="t('common.icons.lock')" color="primary" />
-            </template>
-          </q-input>
-
-          <div v-if="!otpSent" class="q-ma-none q-py-sm" style="text-align: start; margin-top: -20px;">
-            <q-checkbox v-model="acceptedTerms" color="primary">
-              <span style="font-size: 9px; font-weight: 700; color: dimgrey; ">
-                {{ t('common.acceptTerms') }}
-              </span>
-            </q-checkbox>
-            <span style="font-size: 10px; margin: 3px; cursor: pointer; " @click="goToTnc"
-              class="text-capitalize text-primary">
-              Read
-            </span>
+        <q-card-section class="text-center" style="margin: 0px; padding: 0px;">
+          <div class="text-h5 text-weight-bold text-primary" style="margin: 0px; padding: 0px; margin-top: -10px;">
+            {{ t('common.login') }}
           </div>
+          <!-- <div class="text-h3 text-weight-bold text-primary">Shoutout</div>
+           <div class="text-subtitle1 text-weight-medium text-grey-7">
+             Community SOS
+           </div> -->
+          <LanguageSelector class="q-mt-md q-px-md" />
+        </q-card-section>
 
-          <q-btn :label="otpSent ? t('common.login') : t('common.sendOTP')" type="submit" color="primary"
-            class="full-width q-py-sm" :loading="isLoading" :disable="!isFormValid" />
-        </q-form>
-      </q-card-section>
+        <q-card-section v-if="isIosNotSafari">
+          <q-banner class="bg-negative text-white" rounded>
+            {{ t('common.iosNotSafariWarning') }}
+          </q-banner>
+        </q-card-section>
+        <q-card-section v-else class="text-center">
+          <q-form @submit="handleSubmit" class="">
+            <q-input filled v-model="values.mobileNumber" :label="t('common.mobileNumber')"
+              :error="!!errors.mobileNumber" :error-message="errors.mobileNumber?.join('; ')" mask="##########"
+              :disable="otpSent">
+              <template v-slot:prepend>
+                <q-icon :name="t('common.icons.phone')" color="primary" />
+              </template>
+            </q-input>
 
-      <div v-if="otpSent" class="text-center" style="margin-top: -10px;">
-        <q-btn flat color="primary" @click="resendOTP" :disable="isLoading || countdown > 0">
-          <span style="font-size: 13px;">
-            {{ countdown > 0 ? `${t('common.resendOTP')} (${countdown}s)` : t('common.resendOTP') }}
-          </span>
-        </q-btn>
+            <q-input v-if="otpSent" filled v-model="values.otp" :label="t('common.enterOTP')" :error="!!errors.otp"
+              :error-message="errors.otp?.join('; ')" mask="####">
+              <template v-slot:prepend>
+                <q-icon :name="t('common.icons.lock')" color="primary" />
+              </template>
+            </q-input>
+
+            <div v-if="!otpSent" class="q-ma-none q-py-sm" style="text-align: start; margin-top: -20px;">
+              <q-checkbox v-model="acceptedTerms" color="primary">
+                <span style="font-size: 9px; font-weight: 700; color: dimgrey; ">
+                  {{ t('common.acceptTerms') }}
+                </span>
+              </q-checkbox>
+              <span style="font-size: 10px; margin: 3px; cursor: pointer; " @click="goToTnc"
+                class="text-capitalize text-primary">
+                Read
+              </span>
+            </div>
+
+            <q-btn :label="otpSent ? t('common.login') : t('common.sendOTP')" type="submit" color="primary"
+              class="full-width q-py-sm" :loading="isLoading" :disable="!isFormValid" />
+          </q-form>
+        </q-card-section>
+
+        <div v-if="otpSent" class="text-center" style="margin-top: -10px;">
+          <q-btn flat color="primary" @click="resendOTP" :disable="isLoading || countdown > 0">
+            <span style="font-size: 13px;">
+              {{ countdown > 0 ? `${t('common.resendOTP')} (${countdown}s)` : t('common.resendOTP') }}
+            </span>
+          </q-btn>
+        </div>
+        <div class="text-center" style="margin-top: -10px;">
+          <q-btn flat @click="goToAboutUs" class="q-mb-md">
+            <span style="font-size: 12px;">
+              {{ t('common.aboutUs') }}
+            </span>
+          </q-btn>
+        </div>
+
+        <!-- <div class="text-center">
+           <q-btn flat @click="goToTnc" class="q-mb-md" style="margin-top: -35px;">
+             <span style="font-size: 10px;" class="text-capitalize text-primary">
+               {{ t('common.Tnc') }}
+             </span>
+           </q-btn>
+         </div> -->
+      </q-card>
+      <div class="text-center text-subtitle1 versiontextcolor text-weight-thin" style="font-weight: 600">
+        <span style="font-size: 13px">App version : </span>
+        <span style="font-size: 13px">{{ version }}</span>
       </div>
-      <div class="text-center" style="margin-top: -10px;">
-        <q-btn flat @click="goToAboutUs" class="q-mb-md">
-          <span style="font-size: 12px;">
-            {{ t('common.aboutUs') }}
-          </span>
-        </q-btn>
-      </div>
-
-      <!-- <div class="text-center">
-        <q-btn flat @click="goToTnc" class="q-mb-md" style="margin-top: -35px;">
-          <span style="font-size: 10px;" class="text-capitalize text-primary">
-            {{ t('common.Tnc') }}
-          </span>
-        </q-btn>
-      </div> -->
-    </q-card>
-    <div class="text-center text-subtitle1 versiontextcolor text-weight-thin" style="font-weight: 600">
-      <span style="font-size: 13px">App version : </span>
-      <span style="font-size: 13px">{{ version }}</span>
     </div>
+
   </q-page>
 </template>
 
@@ -294,6 +298,13 @@ onUnmounted(() => {
   width: 90%;
   border-radius: 12px;
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+  margin: auto;
+}
+
+.login-card-main {
+  max-width: 400px;
+  width: 100%;
+
 }
 
 .q-page {
