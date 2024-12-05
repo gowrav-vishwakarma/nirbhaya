@@ -102,7 +102,7 @@ const $q = useQuasar();
 const userStore = useUserStore();
 const showComments = ref(false);
 const imageCdn =
-  'http://xavoc-technocrats-pvt-ltd.blr1.cdn.digitaloceanspaces.com/';
+  ref('http://xavoc-technocrats-pvt-ltd.blr1.cdn.digitaloceanspaces.com/')
 
 const handlePostUpdate = (updatedPost: CommunityPost | PostProps) => {
   emit('update:post', updatedPost);
@@ -158,75 +158,15 @@ const toggleComments = () => {
 
 const handleShare = async () => {
   try {
-    interface ShareData {
-      title: string;
-      text: string;
-      url: string;
-      files?: File[];
-    }
-
-    let shareObject: ShareData = {
+    // Basic share object without files
+    const shareObject = {
       title: props.post.title,
       text: props.post.description,
       url: window.location.href,
     };
 
-    if (props.post.mediaUrls?.length) {
-      try {
-        const mediaUrl = props.post.mediaUrls[0];
-        const fullUrl = `${imageCdn}${mediaUrl}`;
-
-        // Fetch the image and convert to base64
-        const response = await fetch(fullUrl);
-        const blob = await response.blob();
-
-        // Convert blob to base64
-        const reader = new FileReader();
-        const base64Promise = new Promise<string>((resolve) => {
-          reader.onloadend = () => {
-            const base64data = reader.result as string;
-            resolve(base64data);
-          };
-        });
-        reader.readAsDataURL(blob);
-        const base64Image = await base64Promise;
-
-        // Create file from base64
-        const byteString = atob(base64Image.split(',')[1]);
-        const mimeType = base64Image.split(',')[0].split(':')[1].split(';')[0];
-        const ab = new ArrayBuffer(byteString.length);
-        const ia = new Uint8Array(ab);
-
-        for (let i = 0; i < byteString.length; i++) {
-          ia[i] = byteString.charCodeAt(i);
-        }
-
-        const extension = mimeType.split('/')[1] || 'png';
-        const file = new File([ab], `shared-image.${extension}`, { type: mimeType });
-
-        // Only add files if the browser supports it
-        if (navigator.canShare && navigator.canShare({ files: [file] })) {
-          shareObject.files = [file];
-        }
-      } catch (error) {
-        console.error('Error preparing image for share:', error);
-        // Continue without the file if there's an error
-      }
-    } else if (props.post.videoUrl) {
-      shareObject.url = `https://www.youtube.com/embed/${props.post.videoUrl}`;
-    }
-
-    if (navigator.share) {
-      await navigator.share(shareObject);
-
-      // Update share count
-      await communityPostService.sharePost(props.post.id.toString());
-      const updatedPost = {
-        ...props.post,
-        sharesCount: (props.post.sharesCount || 0) + 1
-      };
-      emit('update:post', updatedPost);
-    } else {
+    // First check if basic sharing is supported
+    if (!navigator.share) {
       // Fallback for browsers that don't support Web Share API
       const textToShare = `${props.post.title}\n${props.post.description}\n${window.location.href}`;
       await navigator.clipboard.writeText(textToShare);
@@ -235,11 +175,57 @@ const handleShare = async () => {
         color: 'black',
         position: 'top-right'
       });
+      return;
     }
+
+    // Handle media sharing
+    if (props.post.mediaUrls?.length) {
+      try {
+        const mediaUrl = props.post.mediaUrls[0];
+        const fullUrl = `${imageCdn.value}${mediaUrl}`;
+        const response = await fetch(fullUrl);
+        const blob = await response.blob();
+
+        // Try sharing with file if supported
+        const file = new File([blob], 'shared-image.jpg', { type: blob.type });
+
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+          await navigator.share({
+            ...shareObject,
+            files: [file]
+          });
+        } else {
+          // If file sharing is not supported, share without file
+          await navigator.share(shareObject);
+        }
+      } catch (error) {
+        console.error('Error with file share, falling back to basic share:', error);
+        // Fallback to basic share if file sharing fails
+        await navigator.share(shareObject);
+      }
+    } else if (props.post.videoUrl) {
+      // For video posts
+      await navigator.share({
+        ...shareObject,
+        url: `https://www.youtube.com/embed/${props.post.videoUrl}`
+      });
+    } else {
+      // For text-only posts
+      await navigator.share(shareObject);
+    }
+
+    // Update share count only if share was successful
+    await communityPostService.sharePost(props.post.id.toString());
+    const updatedPost = {
+      ...props.post,
+      sharesCount: (props.post.sharesCount || 0) + 1
+    };
+    emit('update:post', updatedPost);
+
   } catch (error) {
     console.error('Error sharing post:', error);
     $q.notify({
-      message: 'Error sharing post',
+      message: 'Error sharing post. Please try again.',
       color: 'negative',
       position: 'top-right'
     });
