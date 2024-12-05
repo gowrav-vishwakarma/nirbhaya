@@ -101,6 +101,8 @@ const emit = defineEmits(['update:post', 'update:userInteractionRules']);
 const $q = useQuasar();
 const userStore = useUserStore();
 const showComments = ref(false);
+const imageCdn =
+  'http://xavoc-technocrats-pvt-ltd.blr1.cdn.digitaloceanspaces.com/';
 
 const handlePostUpdate = (updatedPost: CommunityPost | PostProps) => {
   emit('update:post', updatedPost);
@@ -163,7 +165,8 @@ const handleShare = async () => {
     if (props.post.mediaUrls?.length) {
       const mediaUrl = props.post.mediaUrls?.[0] || '';
       console.log('mediaUrl', mediaUrl);
-      const blob = await (await fetch(mediaUrl)).blob();
+      const newUrl = imageCdn + mediaUrl
+      const blob = await (await fetch(newUrl)).blob();
       const file = new File([blob], 'fileName.png', { type: blob.type });
       shareobject = {
         title: props.post.title,
