@@ -46,11 +46,11 @@
                 <span class="text-grey-6 text-caption">{{ formatDate(comment.createdAt) }}</span>
               </div>
             </div>
-            <q-btn flat round dense size="sm" :ripple="false">
+            <!-- <q-btn flat round dense size="sm" :ripple="false">
               <q-btn flat round dense size="sm">
                 <q-icon name="more_vert" />
               </q-btn>
-            </q-btn>
+            </q-btn> -->
 
 
           </div>
