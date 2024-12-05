@@ -75,6 +75,12 @@ export default {
   notificationsPermissionHelp: 'notifications Permission Help',
   errorGettingLocation: 'Error getting location. Please try again.',
   // Profile Page
+  myProfile: 'My Profile',
+  emergencyContact: 'Emergency Contact',
+  beVolunteers: 'Become Volunteers',
+  // communityImpact: 'Community Impact',
+  sosHistory: 'SOS History',
+  sosSetting: 'SOS Setting',
   name: 'Name',
   city: 'City',
   userType: 'User Type',

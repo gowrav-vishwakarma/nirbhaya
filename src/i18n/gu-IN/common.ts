@@ -72,6 +72,12 @@ export default {
     'સ્થાન પરવાનગી જરૂરી છે જેથી નજીકના વ્યક્તિઓને મદદ મોકલવામાં આવે.',
   retry: 'પુનઃ પ્રયાસ કરો',
   // Profile Page
+  myProfile: 'મારું પ્રોફાઇલ',
+  emergencyContact: 'આપાતકાળીન સંપર્ક',
+  beVolunteers: 'સ્વયંસેવકો બનવું',
+  // communityImpact: 'સમુદાય પર અસર',
+  sosHistory: 'SOS ઇતિહાસ',
+  sosSetting: 'SOS સેટિંગ',
   name: 'નામ',
   city: 'શહેર',
   userType: 'વપરાશકર્તા પ્રકાર',
