@@ -158,34 +158,37 @@ const toggleComments = () => {
 
 const handleShare = async () => {
   try {
-    // Get the first media URL if available
-    console.log('props.post.mediaUrls', props.post);
+    let shareObject: any = {
+      title: props.post.title,
+      text: props.post.description,
+      url: window.location.href,
+    };
 
-    let shareobject = {}
     if (props.post.mediaUrls?.length) {
-      const mediaUrl = props.post.mediaUrls?.[0] || '';
-      console.log('mediaUrl', mediaUrl);
-      const newUrl = imageCdn + mediaUrl
-      const blob = await (await fetch(newUrl)).blob();
-      const file = new File([blob], 'fileName.png', { type: blob.type });
-      shareobject = {
-        title: props.post.title,
-        text: props.post.description,
-        url: window.location.href,
-        files: [file]
+      try {
+        const mediaUrl = props.post.mediaUrls[0];
+        const fullUrl = `${imageCdn}${mediaUrl}`;
+        const response = await fetch(fullUrl);
+        const blob = await response.blob();
+
+        // Create file with proper extension based on MIME type
+        const extension = blob.type.split('/')[1] || 'png';
+        const file = new File([blob], `shared-image.${extension}`, { type: blob.type });
+
+        // Only add files if the browser supports it
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+          shareObject.files = [file];
+        }
+      } catch (error) {
+        console.error('Error preparing image for share:', error);
+        // Continue without the file if there's an error
       }
-    }
-    if (props.post.videoUrl) {
-      const mediaUrl = `https://www.youtube.com/embed/${props.post.videoUrl}`;
-      shareobject = {
-        title: props.post.title,
-        text: props.post.description,
-        url: mediaUrl,
-      }
+    } else if (props.post.videoUrl) {
+      shareObject.url = `https://www.youtube.com/embed/${props.post.videoUrl}`;
     }
 
     if (navigator.share) {
-      await navigator.share(shareobject);
+      await navigator.share(shareObject);
 
       // Update share count
       await communityPostService.sharePost(props.post.id.toString());
@@ -206,6 +209,11 @@ const handleShare = async () => {
     }
   } catch (error) {
     console.error('Error sharing post:', error);
+    $q.notify({
+      message: 'Unable to share the post. Please try again.',
+      color: 'negative',
+      position: 'top-right'
+    });
   }
 };
 
