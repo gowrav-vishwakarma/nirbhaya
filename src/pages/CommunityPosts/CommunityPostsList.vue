@@ -769,7 +769,8 @@ onMounted(async () => {
     };
   } catch (error) {
     console.warn('Could not get initial location:', error);
-    if (userStore.user?.locations) {
+    if (userStore.user?.locations && userStore.user.locations.length) {
+      console.log('inside user location', userStore.user);
       handleLocationSelected({
         type: 'Point',
         latitude: userStore.user.locations[0].location.coordinates[1],
