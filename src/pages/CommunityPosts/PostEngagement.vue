@@ -170,11 +170,11 @@ const handleShare = async () => {
       // Fallback for browsers that don't support Web Share API
       const textToShare = `${props.post.title}\n${props.post.description}\n${window.location.href}`;
       await navigator.clipboard.writeText(textToShare);
-      $q.notify({
-        message: 'Link copied to clipboard!',
-        color: 'black',
-        position: 'top-right'
-      });
+      // $q.notify({
+      //   message: 'Link copied to clipboard!',
+      //   color: 'black',
+      //   position: 'top-right'
+      // });
       return;
     }
 
