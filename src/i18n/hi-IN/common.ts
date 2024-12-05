@@ -96,6 +96,12 @@ export default {
     'स्थान परवानगी जरूरी है जिससे नज़दीकी व्यक्तियों को मदद भेजने में मदद मिले।',
   retry: 'पुनः प्रयास करें',
   // Profile Page
+  myProfile: 'मेरा प्रोफ़ाइल',
+  emergencyContact: 'आपातकालीन संपर्क',
+  beVolunteers: 'स्वयंसेवक बनें',
+  // communityImpact: 'समुदाय पर प्रभाव',
+  sosHistory: 'SOS इतिहास',
+  sosSetting: 'SOS सेटिंग',
   name: 'नाम',
   city: 'शहर',
   userType: 'उपयोगकर्ता प्रकार',

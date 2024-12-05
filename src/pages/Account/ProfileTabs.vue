@@ -3,8 +3,11 @@
     <!-- Enhanced Profile Header -->
     <div class="profile-header">
       <div class="cover-image">
-        <img src="https://img.freepik.com/premium-vector/line-drawing-children-holding-hands_904506-140.jpg?w=826"
-          alt="Cover" class="cover-img">
+        <img
+          src="https://img.freepik.com/premium-vector/line-drawing-children-holding-hands_904506-140.jpg?w=826"
+          alt="Cover"
+          class="cover-img"
+        />
         <div class="overlay"></div>
         <!-- <q-btn round flat color="dark" icon="edit" size="sm" class="edit-cover-btn" @click="handleCoverUpload" /> -->
       </div>
@@ -12,7 +15,9 @@
         <div class="profile-main">
           <div class="profile-image-container">
             <div class="profile-image">
-              <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS59s6qBOFlkS5LN4Z0U3G71nCWWg3SuHGVMw&s">
+              <img
+                src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS59s6qBOFlkS5LN4Z0U3G71nCWWg3SuHGVMw&s"
+              />
               <div class="online-status"></div>
             </div>
             <!-- <q-btn round color="primary" icon="edit" size="sm" class="edit-avatar-btn" @click="handleImageUpload" /> -->
@@ -20,9 +25,10 @@
 
           <div class="profile-info-container">
             <div class="profile-text">
-              <h2 class="profile-name q-ma-none text-capitalize">{{ userStore.user.name }}</h2>
+              <h2 class="profile-name q-ma-none text-capitalize">
+                {{ userStore.user.name }}
+              </h2>
             </div>
-
           </div>
         </div>
       </div>
@@ -32,49 +38,77 @@
       <div class="expansion-container">
         <q-list separator>
           <!-- Account Details -->
-          <q-expansion-item v-model="expandedItems.profile" group="profile-tabs" v-ripple icon="person"
-            label="My Profile" header-class="glass-effect">
+          <q-expansion-item
+            v-model="expandedItems.profile"
+            group="profile-tabs"
+            v-ripple
+            icon="person"
+            :label="$t('common.myProfile')"
+            header-class="glass-effect"
+          >
             <q-card>
               <ProfilePage />
             </q-card>
           </q-expansion-item>
 
           <!-- EmergencyContactPage -->
-          <q-expansion-item v-if="userStore.user.name" v-model="expandedItems.emergencyContact" group="profile-tabs"
-            icon="mdi-human-greeting-proximity" label="Emergency Contact">
+          <q-expansion-item
+            v-if="userStore.user.name"
+            v-model="expandedItems.emergencyContact"
+            group="profile-tabs"
+            icon="mdi-human-greeting-proximity"
+            :label="$t('common.emergencyContact')"
+          >
             <EmergencyContactPage />
-
           </q-expansion-item>
 
           <!-- Volunteers Section -->
-          <q-expansion-item v-if="userStore.user.name" v-model="expandedItems.volunteers" group="profile-tabs"
-            icon="volunteer_activism" label="Be Volunteers">
+          <q-expansion-item
+            v-if="userStore.user.name"
+            v-model="expandedItems.volunteers"
+            group="profile-tabs"
+            icon="volunteer_activism"
+            :label="$t('common.beVolunteers')"
+          >
             <q-card>
               <VolunteeringPage />
             </q-card>
           </q-expansion-item>
 
           <!-- Community Impact -->
-          <q-expansion-item v-if="userStore.user.name" v-model="expandedItems.community" group="profile-tabs"
-            icon="people" label="Community Impact">
+          <q-expansion-item
+            v-if="userStore.user.name"
+            v-model="expandedItems.community"
+            group="profile-tabs"
+            icon="people"
+            :label="$t('common.communityImpact')"
+          >
             <CommunityImpactPage />
           </q-expansion-item>
 
           <!-- Feedback Impact -->
-          <q-expansion-item v-if="userStore.user.name" v-model="expandedItems.feedback" group="profile-tabs"
-            icon="fas fa-history" label="SOS History">
+          <q-expansion-item
+            v-if="userStore.user.name"
+            v-model="expandedItems.feedback"
+            group="profile-tabs"
+            icon="fas fa-history"
+            :label="$t('common.sosHistory')"
+          >
             <SosHistoryPage />
           </q-expansion-item>
 
           <!-- Feedback Impact -->
-          <q-expansion-item v-if="userStore.user.name" v-model="expandedItems.settings" group="profile-tabs"
-            icon="mdi-cog" label="SOS Settings">
+          <q-expansion-item
+            v-if="userStore.user.name"
+            v-model="expandedItems.settings"
+            group="profile-tabs"
+            icon="mdi-cog"
+            :label="$t('common.sosSetting')"
+          >
             <ProfileAppPermission />
           </q-expansion-item>
 
           <!-- Feedback Impact -->
-
-
 
           <!-- <q-expansion-item v-if="userStore.user.name" v-model="expandedItems.rating" group="profile-tabs"
             icon="fas fa-star" label="Your Rating">
@@ -85,16 +119,22 @@
 
       <!-- Logout Button -->
       <div class="logout-section q-pb-md">
-        <q-btn style="width: 90%; margin: auto" label="Logout" @click="logout" class="logout-btn" icon="logout" />
+        <q-btn
+          style="width: 90%; margin: auto"
+          label="Logout"
+          @click="logout"
+          class="logout-btn"
+          icon="logout"
+        />
       </div>
     </div>
   </div>
 </template>
 <script setup lang="ts">
-import { ref } from 'vue'
-import { useRouter } from 'vue-router'
-import { useQuasar } from 'quasar'
-import ProfilePage from './ProfilePage.vue'
+import { ref } from 'vue';
+import { useRouter } from 'vue-router';
+import { useQuasar } from 'quasar';
+import ProfilePage from './ProfilePage.vue';
 import VolunteeringPage from './VolunteeringPage.vue';
 import { version } from 'src/../package.json';
 
@@ -111,8 +151,8 @@ import { useI18n } from 'vue-i18n';
 const { t } = useI18n();
 const userStore = useUserStore();
 
-const router = useRouter()
-const $q = useQuasar()
+const router = useRouter();
+const $q = useQuasar();
 
 const logout = async () => {
   try {
@@ -141,8 +181,8 @@ const expandedItems = ref({
   feedback: false,
   rating: false,
   settings: false,
-  emergencyContact: false
-})
+  emergencyContact: false,
+});
 </script>
 <style lang="scss" scoped>
 .profile-container {
@@ -187,9 +227,11 @@ const expandedItems = ref({
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(to bottom,
-      rgba(0, 0, 0, 0.2),
-      rgba(0, 0, 0, 0.5));
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.2),
+    rgba(0, 0, 0, 0.5)
+  );
   pointer-events: none;
 }
 
@@ -246,8 +288,6 @@ const expandedItems = ref({
   background: #fff;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
-
-
 
 .profile-name {
   font-size: 32px;
@@ -361,7 +401,6 @@ const expandedItems = ref({
   /* width: 100%; */
   /* border: 1px solid red; */
   background-color: white;
-
 }
 
 .expansion-container {
@@ -370,9 +409,7 @@ const expandedItems = ref({
   width: 100%;
   margin-top: -30px;
   /* border: 1px solid red; */
-
 }
-
 
 :deep(.q-expansion-item) {
   margin-bottom: -2px;
@@ -575,7 +612,13 @@ const expandedItems = ref({
 
 .shimmer {
   animation: shimmer 1s linear infinite;
-  background: linear-gradient(to right, #f6f7f8 0%, #edeef1 20%, #f6f7f8 40%, #f6f7f8 100%);
+  background: linear-gradient(
+    to right,
+    #f6f7f8 0%,
+    #edeef1 20%,
+    #f6f7f8 40%,
+    #f6f7f8 100%
+  );
   background-size: 800px 104px;
 }
 
@@ -651,7 +694,7 @@ const expandedItems = ref({
 }
 
 /* Additional specificity for icon containers */
-:deep(.q-item__section--avatar)>.q-icon {
+:deep(.q-item__section--avatar) > .q-icon {
   color: #8b8888e8 !important;
 }
 
