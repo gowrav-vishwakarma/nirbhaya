@@ -76,6 +76,7 @@ import { useUserStore } from 'src/stores/user-store';
 import type { CommunityPost } from 'src/types/CommunityPost';
 import { communityPostService } from 'src/services/communityPostService';
 import CommentsDialog from './CommentsDialog.vue';
+import Konva from 'konva';
 
 // Define a type that matches the actual post structure
 interface PostProps extends Omit<CommunityPost, 'liked'> {
@@ -184,40 +185,68 @@ const handleShare = async () => {
         const mediaUrl = props.post.mediaUrls[0];
         const fullUrl = `${imageCdn.value}${mediaUrl}`;
 
-        // Create an image element to handle cross-origin issues
-        const img = new Image();
-        img.crossOrigin = 'Anonymous'; // Enable CORS
+        // Create a promise to load image using Konva
+        const loadImageWithKonva = (): Promise<string> => {
+          return new Promise((resolve, reject) => {
+            const imageObj = new Image();
+            imageObj.crossOrigin = 'Anonymous';
 
-        // Create a promise to handle image loading
-        const imgLoadPromise = new Promise((resolve, reject) => {
-          img.onload = () => {
-            // Create canvas to draw image
-            const canvas = document.createElement('canvas');
-            canvas.width = img.width;
-            canvas.height = img.height;
-            const ctx = canvas.getContext('2d');
-            ctx.drawImage(img, 0, 0);
+            imageObj.onload = () => {
+              // Create a Konva stage and layer
+              const stage = new Konva.Stage({
+                width: imageObj.width,
+                height: imageObj.height,
+                container: 'temp-konva-container'
+              });
 
-            // Convert canvas to blob
-            canvas.toBlob((blob) => {
-              if (blob) {
-                resolve(blob);
-              } else {
-                reject(new Error('Could not convert image to blob'));
-              }
-            }, 'image/png');
-          };
+              const layer = new Konva.Layer();
+              stage.add(layer);
 
-          img.onerror = () => {
-            reject(new Error('Failed to load image'));
-          };
+              // Create Konva image
+              const konvaImage = new Konva.Image({
+                image: imageObj,
+                width: imageObj.width,
+                height: imageObj.height
+              });
 
-          // Set the source to trigger loading
-          img.src = fullUrl;
-        });
+              layer.add(konvaImage);
+              layer.draw();
 
-        // Wait for image to load and convert to blob
-        const blob = await imgLoadPromise;
+              // Convert to data URL
+              const dataURL = stage.toDataURL({
+                mimeType: 'image/png',
+                quality: 1
+              });
+
+              // Destroy the stage to free up memory
+              stage.destroy();
+
+              resolve(dataURL);
+            };
+
+            imageObj.onerror = () => {
+              reject(new Error('Failed to load image with Konva'));
+            };
+
+            imageObj.src = fullUrl;
+          });
+        };
+
+        // Create a temporary container for Konva (hidden)
+        const tempContainer = document.createElement('div');
+        tempContainer.id = 'temp-konva-container';
+        tempContainer.style.display = 'none';
+        document.body.appendChild(tempContainer);
+
+        // Load image and convert to blob
+        const dataURL = await loadImageWithKonva();
+
+        // Remove temporary container
+        document.body.removeChild(tempContainer);
+
+        // Convert data URL to blob
+        const response = await fetch(dataURL as string);
+        const blob = await response.blob();
 
         // Create file
         const file = new File([blob], 'shared-image.png', { type: 'image/png' });
