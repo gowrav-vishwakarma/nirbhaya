@@ -69,11 +69,11 @@
               </q-item-section>
             </q-item>
           </q-list> -->
-          <div class="text-center q-mt-md">
+          <!-- <div class="text-center q-mt-md">
             <q-btn class="volunteers-bg-color" @click="router.push('/sos-events-map')">
               <span class="text-bold"> View SOS Events Map </span>
             </q-btn>
-          </div>
+          </div> -->
         </q-card-section>
       </q-card>
     </div>

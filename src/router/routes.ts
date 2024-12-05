@@ -145,11 +145,11 @@ const routes: RouteRecordRaw[] = [
     component: VolunteersNearByPage,
     meta: { requiresAuth: true },
   },
-  {
-    path: '/sos-events-map',
-    component: () => import('layouts/MainLayout.vue'),
-    children: [{ path: '', component: SOSEventsMapPage }],
-  },
+  // {
+  //   path: '/sos-events-map',
+  //   component: () => import('layouts/MainLayout.vue'),
+  //   children: [{ path: '', component: SOSEventsMapPage }],
+  // },
 ];
 
 export default routes;
