@@ -37,6 +37,14 @@
     <div class="main-content">
       <div class="expansion-container">
         <q-list separator>
+
+          <!-- My Posts -->
+          <q-btn 
+            @click="router.push(`/my-posts/${userStore.user.id}`)" 
+            label="My Posts" 
+            color="primary" 
+            class="q-ma-sm"
+          />
           <!-- Account Details -->
           <q-expansion-item
             v-model="expandedItems.profile"
@@ -74,6 +82,8 @@
               <VolunteeringPage />
             </q-card>
           </q-expansion-item>
+
+        
 
           <!-- Community Impact -->
           <q-expansion-item
@@ -137,7 +147,6 @@ import { useQuasar } from 'quasar';
 import ProfilePage from './ProfilePage.vue';
 import VolunteeringPage from './VolunteeringPage.vue';
 import { version } from 'src/../package.json';
-
 // import SosRating from '../Sos/SosRating.vue';
 // import YourRatingPage from '../Sos/YourRatingPage.vue';
 import SosHistoryPage from '../Sos/SosHistoryPage.vue';
@@ -177,6 +186,7 @@ const logout = async () => {
 const expandedItems = ref({
   profile: !userStore.user?.name,
   volunteers: false,
+  myPosts: false,
   community: false,
   feedback: false,
   rating: false,

@@ -1,38 +1,33 @@
 <template>
   <q-page class="bg-grey-1" style="padding-top: env(safe-area-inset-top)">
     <div class="container q-pa-md" v-if="isUserPermitted">
-      <!-- Add Suggestion Button -->
-      <!-- <div class="suggestion-button-container q-mb-md">
-        <q-btn color="primary" icon="add_circle" label="Add Suggestion" class="suggestion-btn"
-          @click="goToCommunityPage" />
-      </div> -->
-
       <!-- Header -->
       <div class="row items-center justify-between q-pa-md">
         <div>
-          <h4 class="text-h5 text-weight-bold q-my-none text-primary">
-            Community Posts
+          <h4
+            class="text-h5 text-weight-bold q-my-none text-primary"
+            v-if="findUserData"
+          >
+            {{ findUserData.name }}
           </h4>
           <p class="text-grey-7 q-mt-sm">Stay connected with your community</p>
         </div>
-        <div class="text-right">
-          <q-btn
-            color="primary"
-            class=""
-            @click="goToCommunityPage"
-            style="border-radius: 9px"
-          >
-            <q-icon style="font-size: 20px" name="add_circle"></q-icon>
-            <span style="font-size: 10px; font-weight: 800; padding-left: 5px">
-              Suggestion
-            </span>
-          </q-btn>
-        </div>
+        <!-- <div class="text-right">
+            <q-btn color="primary" class="" @click="goToCommunityPage" style="border-radius: 9px">
+              <q-icon style="font-size: 20px" name="add_circle"></q-icon>
+              <span style="font-size: 10px; font-weight: 800; padding-left: 5px">
+                Suggestion
+              </span>
+            </q-btn>
+          </div> -->
       </div>
 
       <div
         class="q-mb-lg"
-        v-if="userStore.user.canCreatePost"
+        v-if="
+          userStore.user?.canCreatePost &&
+          Number(userId) === Number(userStore.user?.id)
+        "
         style="margin-top: -15px"
       >
         <q-card class="create-post-card q-pa-md">
@@ -113,11 +108,7 @@
             <!-- User Info Section -->
             <q-card-section class="q-pb-none">
               <div class="row items-center">
-                <q-avatar
-                  size="48px"
-                  class="shadow-2"
-                  @click="router.push(`/my-posts/${post.userId}`)"
-                >
+                <q-avatar size="48px" class="shadow-2">
                   <img
                     src="/sos_logo_1080_1080.png"
                     style="object-fit: cover"
@@ -139,6 +130,18 @@
                     {{ formatDate(post.createdAt) }}
                   </div>
                 </div>
+                <q-space />
+                <q-btn
+                  flat
+                  round
+                  color="grey-7"
+                  icon="delete"
+                  size="sm"
+                  @click="confirmDelete(post.id)"
+                  v-if="Number(post.userId) == Number(userId)"
+                >
+                  <q-tooltip>Delete Post</q-tooltip>
+                </q-btn>
               </div>
             </q-card-section>
 
@@ -264,11 +267,11 @@
 
                     <!-- Navigation Arrows -->
                     <!-- <button class="carousel-arrow prev" @click.stop="prevSlide" v-show="currentIndex > 0">
-                      <i class="material-icons">chevron_left</i>
-                    </button>
-                    <button class="carousel-arrow next" @click.stop="nextSlide" v-show="!isLastSlide">
-                      <i class="material-icons">chevron_right</i>
-                    </button> -->
+                        <i class="material-icons">chevron_left</i>
+                      </button>
+                      <button class="carousel-arrow next" @click.stop="nextSlide" v-show="!isLastSlide">
+                        <i class="material-icons">chevron_right</i>
+                      </button> -->
                   </div>
                 </template>
 
@@ -397,6 +400,7 @@
 </template>
 
 <script setup lang="ts">
+import { useRoute } from 'vue-router';
 import { ref, onMounted, watch, onUnmounted, computed, nextTick } from 'vue';
 import { useQuasar } from 'quasar';
 import { api } from 'src/boot/axios';
@@ -408,14 +412,16 @@ import type { CommunityPost } from 'src/types/CommunityPost';
 import PostEngagement from 'src/pages/CommunityPosts/PostEngagement.vue';
 import { Dialog } from 'quasar';
 import LocationSelectionDialog from 'src/components/Location/LocationSelectionDialog.vue';
-
+const route = useRoute();
+const userId = computed(() => route.params.id);
+console.log('userId...........', userId.value, route.params.id);
 // Add these type definitions at the top of the script section
 interface Post extends Omit<CommunityPost, 'liked'> {
   userName: string;
   wasLiked: boolean;
   liked: boolean;
 }
-
+const findUserData = ref(null);
 // Add this interface after the Post interface
 interface UserInteractionLimits {
   dailyLikeLimit: number;
@@ -534,22 +540,29 @@ const loadPosts = async (loadMore = false) => {
             longitude: selectedLocation.value.longitude,
           }
         : {}; // Empty object if no location selected
-
-    const response = await api.get('/posts/community-posts', {
+    console.log('userId...........', userId);
+    const response = await api.get('/posts/my-posts', {
       params: {
         status: 'active',
-        userId: userStore.user?.id || null,
-        page: page.value,
-        limit: limit.value,
-        ...locationParams, // Spread location parameters
+        userId:
+          Number(userId.value) === userStore.user?.id
+            ? userStore.user?.id
+            : userId.value,
       },
     });
-
+    console.log('response.data...........', response.data.posts);
+    if (response.data.user) {
+      findUserData.value = response.data.user;
+    }
     let postsData: Post[] = [];
-    if (Array.isArray(response.data)) {
-      postsData = response.data;
-    } else if (response.data.data && Array.isArray(response.data.data)) {
-      postsData = response.data.data;
+    if (Array.isArray(response.data.posts)) {
+      console.log('response.data...........1111', response.data);
+      postsData = response.data.posts;
+    } else if (
+      response.data.data.posts &&
+      Array.isArray(response.data.data.posts)
+    ) {
+      postsData = response.data.data.posts;
     }
 
     // Transform the posts data
@@ -760,14 +773,6 @@ onMounted(async () => {
     };
   } catch (error) {
     console.warn('Could not get initial location:', error);
-    if (userStore.user?.locations) {
-      handleLocationSelected({
-        type: 'Point',
-        latitude: userStore.user.locations[0].location.coordinates[1],
-        longitude: userStore.user.locations[0].location.coordinates[0],
-        name: userStore.user.locations[0].name,
-      });
-    }
   }
 
   // Load initial posts
@@ -1122,7 +1127,7 @@ const observeLastPost = () => {
   const observer = new IntersectionObserver(
     async ([entry]) => {
       if (entry?.isIntersecting && hasMore.value && !isLoading.value) {
-        await loadPosts(true);
+        // await loadPosts(true);
       }
     },
     {
@@ -1228,6 +1233,36 @@ const handleLocationSelected = async (location: {
   } finally {
     loading.value = false;
   }
+};
+
+// Add these methods in the script section
+const confirmDelete = (postId: number | string) => {
+  $q.dialog({
+    title: 'Confirm Delete',
+    message: 'Are you sure you want to delete this post?',
+    cancel: true,
+    persistent: true,
+  }).onOk(async () => {
+    try {
+      await api.post('/posts/delete-post', {
+        postId: postId,
+        userId: userStore.user?.id,
+      });
+      posts.value = posts.value.filter((post) => post.id !== postId);
+      $q.notify({
+        color: 'positive',
+        message: 'Post deleted successfully',
+        icon: 'check',
+      });
+    } catch (error) {
+      console.error('Error deleting post:', error);
+      $q.notify({
+        color: 'negative',
+        message: 'Failed to delete post',
+        icon: 'error',
+      });
+    }
+  });
 };
 </script>
 <style scoped lang="scss">
@@ -2177,145 +2212,6 @@ const handleLocationSelected = async (location: {
   .engagement-btn {
     min-width: 60px;
     padding: 4px 8px;
-  }
-}
-
-.engagement-section {
-  padding: 12px 16px;
-  border-top: 1px solid rgba(0, 0, 0, 0.08);
-  background: #ffffff;
-}
-
-.engagement-btn {
-  padding: 8px 12px;
-  border-radius: 20px;
-  min-width: 80px;
-  transition: all 0.3s ease;
-
-  &:hover {
-    background: rgba(0, 0, 0, 0.05);
-    transform: translateY(-1px);
-  }
-
-  &.liked {
-    animation: likeAnimation 0.3s ease;
-  }
-}
-
-@keyframes likeAnimation {
-  0% {
-    transform: scale(1);
-  }
-
-  50% {
-    transform: scale(1.2);
-  }
-
-  100% {
-    transform: scale(1);
-  }
-}
-
-.share-btn {
-  padding: 8px 16px;
-  border-radius: 20px;
-  transition: all 0.3s ease;
-
-  &:hover {
-    background: rgba(0, 0, 0, 0.05);
-    transform: translateY(-1px);
-  }
-}
-
-.engagement-count {
-  font-size: 0.9rem;
-  font-weight: 500;
-}
-
-.comments-section {
-  border-top: 1px solid rgba(0, 0, 0, 0.08);
-  margin-top: 12px;
-  padding-top: 16px;
-}
-
-.comment-input-container {
-  background: #f8f9fa;
-  border-radius: 12px;
-  padding: 8px;
-}
-
-.comment-input {
-  :deep(.q-field__control) {
-    border-radius: 20px;
-    background: white;
-  }
-
-  :deep(.q-field__marginal) {
-    height: 40px;
-  }
-}
-
-.send-btn {
-  margin-left: 8px;
-  background: $primary;
-  color: white;
-
-  &:hover {
-    background: darken($primary, 5%);
-  }
-}
-
-.comment-bubble {
-  background: #f0f2f5;
-  padding: 8px 12px;
-  border-radius: 12px;
-  max-width: 100%;
-  word-wrap: break-word;
-}
-
-.comment-content {
-  font-size: 0.95rem;
-  line-height: 1.4;
-  margin-top: 2px;
-}
-
-.timestamp {
-  font-size: 0.75rem;
-  margin-top: 4px;
-  opacity: 0.7;
-}
-
-.comment-item {
-  padding: 4px 8px;
-  border-radius: 8px;
-  transition: all 0.2s ease;
-
-  &:hover {
-    background: rgba(0, 0, 0, 0.02);
-  }
-}
-
-// Comment animations
-.comment-enter-active,
-.comment-leave-active {
-  transition: all 0.3s ease;
-}
-
-.comment-enter-from {
-  opacity: 0;
-  transform: translateY(20px);
-}
-
-.comment-leave-to {
-  opacity: 0;
-  transform: translateX(-20px);
-}
-
-// Responsive adjustments
-@media (max-width: 600px) {
-  .engagement-btn {
-    min-width: 60px;
-    padding: 6px 8px;
   }
 
   .engagement-count {
