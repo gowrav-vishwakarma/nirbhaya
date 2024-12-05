@@ -1,9 +1,25 @@
 <template>
-  <q-dialog v-model="isOpen" position="top" @hide="$emit('update:modelValue', false)" @touchstart="handleTouchStart"
-    @touchmove.prevent="handleTouchMove" @touchend="handleTouchEnd" @click="checkSwipeToClose" persistent
-    :maximized="false" transition-show="slide-down" transition-hide="slide-up">
-    <q-card class="dialog-card" :style="{ '--swipe-progress': swipeProgress }" @touchstart="handleTouchStart"
-      @touchmove="handleTouchMove" @touchend="handleTouchEnd" @click="checkSwipeToClose">
+  <q-dialog
+    v-model="isOpen"
+    position="top"
+    @hide="$emit('update:modelValue', false)"
+    @touchstart="handleTouchStart"
+    @touchmove.prevent="handleTouchMove"
+    @touchend="handleTouchEnd"
+    @click="checkSwipeToClose"
+    persistent
+    :maximized="false"
+    transition-show="slide-down"
+    transition-hide="slide-up"
+  >
+    <q-card
+      class="dialog-card"
+      :style="{ '--swipe-progress': swipeProgress }"
+      @touchstart="handleTouchStart"
+      @touchmove="handleTouchMove"
+      @touchend="handleTouchEnd"
+      @click="checkSwipeToClose"
+    >
       <q-card-section class="row items-center q-pb-none">
         <div class="text-h6">Select Location</div>
         <q-space />
@@ -12,11 +28,26 @@
 
       <q-card-section class="q-pt-md">
         <q-list>
-          <q-item clickable v-ripple @click="handleLocationSelect('current')" class="location-item"
-            :class="{ 'selected': selectedLocationId === 'current' }">
+          <q-item
+            clickable
+            v-ripple
+            @click="handleLocationSelect('current')"
+            class="location-item"
+            :class="{ selected: selectedLocationId === 'current' }"
+          >
             <q-item-section avatar>
-              <q-icon :name="isLoading && selectedLocationId === 'current' ? 'sync' : 'my_location'" color="primary"
-                size="24px" :class="{ 'rotate': isLoading && selectedLocationId === 'current' }" />
+              <q-icon
+                :name="
+                  isLoading && selectedLocationId === 'current'
+                    ? 'sync'
+                    : 'my_location'
+                "
+                color="primary"
+                size="24px"
+                :class="{
+                  rotate: isLoading && selectedLocationId === 'current',
+                }"
+              />
             </q-item-section>
             <q-item-section>
               <q-item-label>Current Location</q-item-label>
@@ -28,25 +59,35 @@
           </q-item>
 
           <!-- <q-separator spaced /> -->
-          <q-item v-for="location in userLocations" :key="location.id" clickable v-ripple class="location-item"
-            :class="{ 'selected': selectedLocationId === location.id?.toString() }">
+          <q-item
+            v-for="location in userLocations"
+            :key="location.id"
+            clickable
+            v-ripple
+            class="location-item"
+            :class="{
+              selected: selectedLocationId === location.id?.toString(),
+            }"
+            @click="handleLocationSelect('stored', location)"
+          >
             <q-item-section avatar>
               <q-icon name="location_on" color="primary" size="24px" />
             </q-item-section>
             <q-item-section>
-
-              <q-item-label @click="handleLocationSelect('stored', location)" class="text-capitalize">{{
+              <q-item-label class="text-capitalize">{{
                 location.name ? location.name : 'Location'
               }}</q-item-label>
 
               <q-item-label caption>Saved Location</q-item-label>
             </q-item-section>
 
-            <q-item-section side v-if="selectedLocationId === location.id?.toString()">
+            <q-item-section
+              side
+              v-if="selectedLocationId === location.id?.toString()"
+            >
               <q-icon name="check" color="primary" />
             </q-item-section>
             <q-separator spaced />
-
           </q-item>
 
           <q-item v-if="!userLocations?.length" class="location-item disabled">
@@ -72,7 +113,7 @@ interface UserLocation {
   id?: string | number;
   name: string;
   location: {
-    type: "Point";
+    type: 'Point';
     coordinates: [number, number]; // [longitude, latitude]
   };
 }
@@ -87,18 +128,21 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   (e: 'update:modelValue', value: boolean): void;
-  (e: 'location-selected', location: {
-    type: string;
-    latitude: number;
-    longitude: number;
-    name?: string;
-    source?: 'current' | 'stored';
-  }): void;
+  (
+    e: 'location-selected',
+    location: {
+      type: string;
+      latitude: number;
+      longitude: number;
+      name?: string;
+      source?: 'current' | 'stored';
+    }
+  ): void;
 }>();
 
 const isOpen = computed({
   get: () => props.modelValue,
-  set: (value) => emit('update:modelValue', value)
+  set: (value) => emit('update:modelValue', value),
 });
 
 const touchStartY = ref(0);
@@ -116,7 +160,10 @@ const handleTouchStart = (event: TouchEvent) => {
 const handleTouchMove = (event: TouchEvent) => {
   event.preventDefault();
   touchEndY.value = event.touches[0].clientY;
-  const progress = Math.min(Math.max((touchStartY.value - touchEndY.value) / minSwipeDistance, 0), 1);
+  const progress = Math.min(
+    Math.max((touchStartY.value - touchEndY.value) / minSwipeDistance, 0),
+    1
+  );
   swipeProgress.value = progress;
 };
 
@@ -132,11 +179,20 @@ const checkSwipeToClose = (event: MouseEvent) => {
   event.stopPropagation();
 };
 
-const handleLocationSelect = async (locationType: 'current' | 'stored', storedLocation?: UserLocation) => {
-  console.log('handleLocationSelect called with:', { locationType, storedLocation });
+const handleLocationSelect = async (
+  locationType: 'current' | 'stored',
+  storedLocation?: UserLocation
+) => {
+  console.log('handleLocationSelect called with:', {
+    locationType,
+    storedLocation,
+  });
   try {
     isLoading.value = true;
-    selectedLocationId.value = locationType === 'current' ? 'current' : storedLocation?.id?.toString() || '';
+    selectedLocationId.value =
+      locationType === 'current'
+        ? 'current'
+        : storedLocation?.id?.toString() || '';
 
     if (locationType === 'current') {
       try {
@@ -145,32 +201,34 @@ const handleLocationSelect = async (locationType: 'current' | 'stored', storedLo
           throw new Error('Geolocation is not supported by your browser');
         }
 
-        const position = await new Promise<GeolocationPosition>((resolve, reject) => {
-          navigator.geolocation.getCurrentPosition(
-            resolve,
-            (error) => {
-              switch (error.code) {
-                case error.PERMISSION_DENIED:
-                  reject(new Error('Location permission denied'));
-                  break;
-                case error.POSITION_UNAVAILABLE:
-                  reject(new Error('Location information is unavailable'));
-                  break;
-                case error.TIMEOUT:
-                  reject(new Error('Location request timed out'));
-                  break;
-                default:
-                  reject(new Error('An unknown error occurred'));
-                  break;
+        const position = await new Promise<GeolocationPosition>(
+          (resolve, reject) => {
+            navigator.geolocation.getCurrentPosition(
+              resolve,
+              (error) => {
+                switch (error.code) {
+                  case error.PERMISSION_DENIED:
+                    reject(new Error('Location permission denied'));
+                    break;
+                  case error.POSITION_UNAVAILABLE:
+                    reject(new Error('Location information is unavailable'));
+                    break;
+                  case error.TIMEOUT:
+                    reject(new Error('Location request timed out'));
+                    break;
+                  default:
+                    reject(new Error('An unknown error occurred'));
+                    break;
+                }
+              },
+              {
+                enableHighAccuracy: true,
+                timeout: 10000,
+                maximumAge: 0,
               }
-            },
-            {
-              enableHighAccuracy: true,
-              timeout: 10000,
-              maximumAge: 0
-            }
-          );
-        });
+            );
+          }
+        );
 
         // Get location name
         try {
@@ -183,7 +241,7 @@ const handleLocationSelect = async (locationType: 'current' | 'stored', storedLo
           // }
 
           // const data = await response.json();
-          currentLocationName.value = ''
+          currentLocationName.value = '';
         } catch (error) {
           console.error('Error getting location name:', error);
           currentLocationName.value = 'Current Location';
@@ -195,15 +253,13 @@ const handleLocationSelect = async (locationType: 'current' | 'stored', storedLo
           latitude: position.coords.latitude,
           longitude: position.coords.longitude,
           name: currentLocationName.value,
-          source: 'current'
+          source: 'current',
         });
-        isOpen.value = false;  // Close dialog after successful selection
-
+        isOpen.value = false; // Close dialog after successful selection
       } catch (error: any) {
         console.error('Geolocation error:', error);
         throw error;
       }
-
     } else if (storedLocation && storedLocation.location) {
       console.log('Selected stored location:', storedLocation);
       console.log('Coordinates:', storedLocation.location.coordinates);
@@ -213,14 +269,13 @@ const handleLocationSelect = async (locationType: 'current' | 'stored', storedLo
         latitude: storedLocation.location.coordinates[1],
         longitude: storedLocation.location.coordinates[0],
         name: storedLocation.name,
-        source: 'stored' as const
+        source: 'stored' as const,
       };
 
       console.log('Emitting location data:', locationData);
       emit('location-selected', locationData);
-      isOpen.value = false;  // Close dialog after successful selection
+      isOpen.value = false; // Close dialog after successful selection
     }
-
   } catch (error: any) {
     console.error('Location selection failed:', error);
     $q.notify({
@@ -228,7 +283,7 @@ const handleLocationSelect = async (locationType: 'current' | 'stored', storedLo
       message: error.message || 'Failed to get location',
       position: 'top',
       timeout: 3000,
-      icon: 'error'
+      icon: 'error',
     });
   } finally {
     isLoading.value = false;
