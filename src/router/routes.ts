@@ -9,7 +9,7 @@ import CommunityFeedback from 'pages/Sos/SosRating.vue';
 import ShareCartificatePage from 'pages/Cartificate/ShareCartificatePage.vue';
 import CommunityPostsList from 'pages/CommunityPosts/CommunityPostsList.vue';
 import Feed from 'pages/CommunityFeeds/CommunityFeedsPage.vue';
-
+import MyPostsPage from 'pages/CommunityPosts/MyPostsPage.vue';
 const routes: RouteRecordRaw[] = [
   {
     path: '/',
@@ -71,6 +71,11 @@ const routes: RouteRecordRaw[] = [
       {
         path: 'create-reel',
         component: CreateReelPage,
+        meta: { requiresAuth: true },
+      },
+      {
+        path: 'my-posts',
+        component: MyPostsPage,
         meta: { requiresAuth: true },
       },
       {
