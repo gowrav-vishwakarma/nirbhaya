@@ -158,7 +158,6 @@ const toggleComments = () => {
 
 const handleShare = async () => {
   try {
-    // Define the type for our share object
     interface ShareData {
       title: string;
       text: string;
@@ -176,12 +175,34 @@ const handleShare = async () => {
       try {
         const mediaUrl = props.post.mediaUrls[0];
         const fullUrl = `${imageCdn}${mediaUrl}`;
+
+        // Fetch the image and convert to base64
         const response = await fetch(fullUrl);
         const blob = await response.blob();
 
-        // Create file with proper extension based on MIME type
-        const extension = blob.type.split('/')[1] || 'png';
-        const file = new File([blob], `shared-image.${extension}`, { type: blob.type });
+        // Convert blob to base64
+        const reader = new FileReader();
+        const base64Promise = new Promise<string>((resolve) => {
+          reader.onloadend = () => {
+            const base64data = reader.result as string;
+            resolve(base64data);
+          };
+        });
+        reader.readAsDataURL(blob);
+        const base64Image = await base64Promise;
+
+        // Create file from base64
+        const byteString = atob(base64Image.split(',')[1]);
+        const mimeType = base64Image.split(',')[0].split(':')[1].split(';')[0];
+        const ab = new ArrayBuffer(byteString.length);
+        const ia = new Uint8Array(ab);
+
+        for (let i = 0; i < byteString.length; i++) {
+          ia[i] = byteString.charCodeAt(i);
+        }
+
+        const extension = mimeType.split('/')[1] || 'png';
+        const file = new File([ab], `shared-image.${extension}`, { type: mimeType });
 
         // Only add files if the browser supports it
         if (navigator.canShare && navigator.canShare({ files: [file] })) {
@@ -217,7 +238,11 @@ const handleShare = async () => {
     }
   } catch (error) {
     console.error('Error sharing post:', error);
-
+    $q.notify({
+      message: 'Error sharing post',
+      color: 'negative',
+      position: 'top-right'
+    });
   }
 };
 
