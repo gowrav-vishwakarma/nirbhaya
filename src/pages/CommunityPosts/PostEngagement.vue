@@ -163,12 +163,13 @@ const handleShare = async () => {
     if (props.post.mediaUrls?.length) {
       const mediaUrl = props.post.mediaUrls?.[0] || '';
       console.log('mediaUrl', mediaUrl);
-
+      const blob = await (await fetch(mediaUrl)).blob();
+      const file = new File([blob], 'fileName.png', { type: blob.type });
       shareobject = {
         title: props.post.title,
         text: props.post.description,
         url: window.location.href,
-        files: mediaUrl ? [await fetchImageAsFile(mediaUrl)] : undefined
+        files: [file]
       }
     }
     if (props.post.videoUrl) {
@@ -196,19 +197,13 @@ const handleShare = async () => {
       await navigator.clipboard.writeText(textToShare);
       $q.notify({
         message: 'Link copied to clipboard!',
-        color: 'positive'
+        color: 'black',
+        position: 'top-right'
       });
     }
   } catch (error) {
     console.error('Error sharing post:', error);
   }
-};
-
-// Add this helper function to convert URL to File object
-const fetchImageAsFile = async (url: string): Promise<File> => {
-  const response = await fetch(url);
-  const blob = await response.blob();
-  return new File([blob], 'shared-image.jpg', { type: blob.type });
 };
 
 // Add watch for comments dialog to update comment count
