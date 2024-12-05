@@ -46,10 +46,20 @@
                 <span class="text-grey-6 text-caption">{{ formatDate(comment.createdAt) }}</span>
               </div>
             </div>
-            <q-btn flat round dense size="sm" :ripple="false">
-              <q-btn flat round dense size="sm">
-                <q-icon name="more_vert" />
-              </q-btn>
+            <q-btn flat round dense size="sm" :ripple="false" v-if="Number(comment.user.id) == Number(userStore.user.id)">
+              <q-menu>
+                <q-card>
+                  <q-list>
+                    <q-item clickable v-ripple>
+                      <q-item-section>
+                        <q-btn flat dense icon="delete" color="red" label="delete" size="sm" class="q-pa-none"
+                          @click="deleteComment(comment.id,comment.user.id,comment.postId)"/>
+                      </q-item-section>
+                    </q-item>
+                  </q-list>
+                </q-card>
+              </q-menu>
+              <q-icon name="more_vert" />
             </q-btn>
 
 
@@ -93,7 +103,7 @@ import { useQuasar, useDialogPluginComponent } from 'quasar';
 import { useUserStore } from 'src/stores/user-store';
 import type { CommunityPost } from 'src/types/CommunityPost';
 import { commentService } from 'src/services/commentService';
-
+import { api } from 'src/boot/axios';
 const props = defineProps<{
   modelValue: boolean;
   post: CommunityPost;
@@ -127,7 +137,35 @@ const handleTouchStart = (event: TouchEvent) => {
   touchStartY.value = event.touches[0].clientY;
   isSwipingDown.value = false;
 };
+const deleteComment = async (commentId: string, userId: string, postId: string) => {
+  try {
+    await api.post('/posts/delete-comment', {
+      commentId: commentId,
+      userId: userId,
+      postId: postId
+    });
 
+    // Update the post by filtering out the deleted comment
+    const updatedPost = {
+      ...props.post,
+      comments: props.post.comments.filter(comment => comment.id !== commentId),
+      commentsCount: (props.post.commentsCount || 0) - 1
+    };
+
+    // Emit the updated post to parent component
+    emit('update:post', updatedPost);
+
+    // Show success notification (optional)
+
+  } catch (error) {
+    console.error('Error deleting comment:', error);
+    $q.notify({
+      message: 'Failed to delete comment',
+      color: 'negative',
+      position: 'top-right'
+    });
+  }
+};
 const handleTouchMove = (event: TouchEvent) => {
   const commentsList = document.querySelector('.comments-list');
   const currentY = event.touches[0].clientY;
