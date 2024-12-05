@@ -70,7 +70,7 @@
         </p>
       </div>
 
-      <div class="flex items-center justify-center gap-2" style="width: 40%">
+      <!-- <div class="flex items-center justify-center gap-2" style="width: 40%">
         <q-btn @click="handleShare" flat round>
           <div
             class="flex items-center justify-center gap-2 px-3 py-2 cursor-pointer hover:bg-gray-100 rounded-lg"
@@ -101,7 +101,7 @@
         >
           {{ post.sharesCount || '' }}
         </p>
-      </div>
+      </div> -->
     </div>
 
     <!-- Comments Dialog -->
