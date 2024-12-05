@@ -74,8 +74,10 @@ const routes: RouteRecordRaw[] = [
         meta: { requiresAuth: true },
       },
       {
-        path: 'my-posts',
+        path: 'my-posts/:id?',
         component: MyPostsPage,
+        name: 'my-posts',
+        props: true,
         meta: { requiresAuth: true },
       },
       {

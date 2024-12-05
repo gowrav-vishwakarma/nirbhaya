@@ -79,7 +79,8 @@
             <!-- User Info Section -->
             <q-card-section class="q-pb-none">
               <div class="row items-center">
-                <q-avatar size="48px" class="shadow-2">
+                <q-avatar size="48px" class="shadow-2"
+                  @click="router.push(`/my-posts/${post.userId}`)">
                   <img src="/sos_logo_1080_1080.png" style="object-fit: cover" />
                 </q-avatar>
                 <div class="q-ml-md">

@@ -33,7 +33,12 @@
         <q-list separator>
 
           <!-- My Posts -->
-          <q-btn @click="router.push('/my-posts')" label="My Posts" color="primary" class="q-ma-sm"/>
+          <q-btn 
+            @click="router.push(`/my-posts/${userStore.user.id}`)" 
+            label="My Posts" 
+            color="primary" 
+            class="q-ma-sm"
+          />
           <!-- Account Details -->
           <q-expansion-item v-model="expandedItems.profile" group="profile-tabs" v-ripple icon="person"
             label="My Profile" header-class="glass-effect">
@@ -102,7 +107,6 @@ import { useQuasar } from 'quasar'
 import ProfilePage from './ProfilePage.vue'
 import VolunteeringPage from './VolunteeringPage.vue';
 import { version } from 'src/../package.json';
-import MyPostsPage from './MyPostsPage.vue';
 // import SosRating from '../Sos/SosRating.vue';
 // import YourRatingPage from '../Sos/YourRatingPage.vue';
 import SosHistoryPage from '../Sos/SosHistoryPage.vue';
