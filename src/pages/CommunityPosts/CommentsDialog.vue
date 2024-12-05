@@ -46,20 +46,20 @@
                 <span class="text-grey-6 text-caption">{{ formatDate(comment.createdAt) }}</span>
               </div>
             </div>
-            <q-btn flat round dense size="sm" :ripple="false" v-if="Number(comment.user.id) == Number(userStore.user.id)">
-              <q-menu>
-                <q-card>
-                  <q-list>
+            <q-btn flat round dense size="sm" :ripple="false" v-if="Number(comment.user.id) == Number(userStore.user.id)"
+              @click="deleteComment(comment.id,comment.user.id,comment.postId)" icon="delete" color="red">
+
+              
+
+
+              <!-- <q-menu style="margin-top: -20px;">
                     <q-item clickable v-ripple>
                       <q-item-section>
                         <q-btn flat dense icon="delete" color="red" label="delete" size="sm" class="q-pa-none"
-                          @click="deleteComment(comment.id,comment.user.id,comment.postId)"/>
                       </q-item-section>
                     </q-item>
-                  </q-list>
-                </q-card>
-              </q-menu>
-              <q-icon name="more_vert" />
+              </q-menu> -->
+              <!-- <q-icon name="more_vert" /> -->
             </q-btn>
 
 
