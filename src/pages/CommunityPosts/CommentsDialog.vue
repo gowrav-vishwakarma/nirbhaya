@@ -1,7 +1,7 @@
 <template>
   <q-dialog ref="dialogRef" v-model="dialogModel" position="bottom" persistent :maximized="false"
     transition-show="slide-up" transition-hide="slide-down" @hide="onDialogHide" @touchstart="handleTouchStart"
-    @touchmove.prevent="handleTouchMove" @touchend="handleTouchEnd">
+    @touchmove="handleTouchMove" @touchend="handleTouchEnd">
     <q-card class="column dialog-card" :style="{ '--swipe-progress': swipeProgress }" @touchstart="handleTouchStart"
       @touchmove="handleTouchMove" @touchend="handleTouchEnd">
       <!-- Swipe indicator -->
@@ -127,13 +127,18 @@ const handleTouchStart = (event: TouchEvent) => {
 };
 
 const handleTouchMove = (event: TouchEvent) => {
-  event.preventDefault();
-  touchEndY.value = event.touches[0].clientY;
-  const progress = Math.min(
-    Math.max((touchEndY.value - touchStartY.value) / minSwipeDistance, 0),
-    1
-  );
-  swipeProgress.value = progress;
+  const target = event.target as HTMLElement;
+  const commentsList = document.querySelector('.comments-list');
+
+  if (commentsList && commentsList.scrollTop === 0 && event.touches[0].clientY > touchStartY.value) {
+    event.preventDefault();
+    touchEndY.value = event.touches[0].clientY;
+    const progress = Math.min(
+      Math.max((touchEndY.value - touchStartY.value) / minSwipeDistance, 0),
+      1
+    );
+    swipeProgress.value = progress;
+  }
 };
 
 const handleTouchEnd = () => {
@@ -276,10 +281,10 @@ defineExpose({
 <style lang="scss" scoped>
 :deep(body) {
   overscroll-behavior-y: contain;
-  overflow: hidden;
+  /* overflow: hidden;
   position: fixed;
   width: 100%;
-  height: 100%;
+  height: 100%; */
 }
 
 .dialog-card {
@@ -290,8 +295,8 @@ defineExpose({
   display: flex;
   flex-direction: column;
   position: relative;
-  touch-action: none;
-  overscroll-behavior-y: contain;
+  touch-action: pan-y;
+  overscroll-behavior: contain;
 
   &::before {
     content: '';
@@ -335,6 +340,8 @@ defineExpose({
   padding-bottom: env(safe-area-inset-bottom);
   height: calc(90vh - 150px);
   -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
+  overscroll-behavior: contain;
 }
 
 .comment-item {
