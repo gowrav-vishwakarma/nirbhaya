@@ -183,41 +183,47 @@ const handleShare = async () => {
       try {
         const mediaUrl = props.post.mediaUrls[0];
         const fullUrl = `${imageCdn.value}${mediaUrl}`;
-        // Fetch the image and convert to Blob
+
+        // Fetch the image
         const response = await fetch(fullUrl);
         const blob = await response.blob();
 
-        // Determine file extension
+        // Determine file extension and type
         const contentType = blob.type;
         const extension = contentType.split('/')[1] || 'jpg';
 
-        // te file with appropriate name and type
+        // Create file
         const file = new File([blob], `shared-image.${extension}`, { type: contentType });
 
-        // Logging for debugging
-        console.log('File details:', {
+        // Detailed logging
+        console.log('Sharing File Details:', {
           name: file.name,
           type: file.type,
           size: file.size,
           canShare: navigator.canShare && navigator.canShare({ files: [file] })
         });
 
-        // Attempt to share with file
-        try {
-          await navigator.share({
-            ...shareObject,
-            files: [file]
-          });
-        } catch (shareError) {
-          console.error('Error sharing with file, attempting basic share:', shareError);
+        // Prepare share object with file
+        const fileShareObject = {
+          ...shareObject,
+          files: [file]
+        };
 
-          // Fabasic share without file
+        // Try sharing with file
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+          try {
+            await navigator.share(fileShareObject);
+          } catch (fileShareError) {
+            console.warn('File share failed, attempting basic share:', fileShareError);
+            await navigator.share(shareObject);
+          }
+        } else {
+          // If file sharing not supported, use basic share
           await navigator.share(shareObject);
         }
       } catch (error) {
-        console.error('Error preparing file for share:', error);
-
-        // Fallback to bae if file preparation fails
+        console.error('Error preparing media for share:', error);
+        // Fallback to basic share
         await navigator.share(shareObject);
       }
     } else if (props.post.videoUrl) {
