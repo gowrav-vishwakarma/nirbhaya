@@ -97,7 +97,7 @@
                     icon="delete"
                     size="sm"
                     @click="confirmDelete(post.id)"
-                    v-if="Number(post.userId) == Number(userId)"
+                    v-if="post.userId == userStore.user?.id"
                   >
                     <q-tooltip>Delete Post</q-tooltip>
                   </q-btn>
@@ -281,8 +281,7 @@
   import { Dialog } from 'quasar';
   import LocationSelectionDialog from 'src/components/Location/LocationSelectionDialog.vue';
   const route = useRoute();
-  const userId = computed(() => route.params.id);
-  console.log('userId...........', userId.value,route.params.id);
+  const userId = computed(() => Number(route.params.id));
   // Add these type definitions at the top of the script section
   interface Post extends Omit<CommunityPost, 'liked'> {
     userName: string;

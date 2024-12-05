@@ -15,6 +15,13 @@
               <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS59s6qBOFlkS5LN4Z0U3G71nCWWg3SuHGVMw&s">
               <div class="online-status"></div>
             </div>
+            <q-btn 
+              v-if="$q.screen.lg || $q.screen.xl || $q.screen.md"
+          flat
+            @click="router.push(`/my-posts/${userStore.user.id}`)" 
+            label="My Posts" 
+            class="text-center my-posts-btn1"
+          />
             <!-- <q-btn round color="primary" icon="edit" size="sm" class="edit-avatar-btn" @click="handleImageUpload" /> -->
           </div>
 
@@ -22,7 +29,14 @@
             <div class="profile-text">
               <h2 class="profile-name q-ma-none text-capitalize">{{ userStore.user.name }}</h2>
             </div>
-
+             <!-- My Posts -->
+          <q-btn 
+          flat
+            @click="router.push(`/my-posts/${userStore.user.id}`)" 
+            label="My Posts" 
+            class="text-center my-posts-btn"
+            v-if="$q.screen.sm  || $q.screen.xs"
+          />
           </div>
         </div>
       </div>
@@ -32,13 +46,6 @@
       <div class="expansion-container">
         <q-list separator>
 
-          <!-- My Posts -->
-          <q-btn 
-            @click="router.push(`/my-posts/${userStore.user.id}`)" 
-            label="My Posts" 
-            color="primary" 
-            class="q-ma-sm"
-          />
           <!-- Account Details -->
           <q-expansion-item v-model="expandedItems.profile" group="profile-tabs" v-ripple icon="person"
             label="My Profile" header-class="glass-effect">
@@ -155,6 +162,50 @@ const expandedItems = ref({
 })
 </script>
 <style lang="scss" scoped>
+
+.my-posts-btn {
+  background: rgba(229, 185, 192, 0.15);  // Light pink with transparency
+  color: $primary;
+  font-weight: 600;
+  padding: 5px 25px;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+  border-radius: 20px;
+  margin-top: -10px;
+  // border: 1px solid rgba(255, 192, 203, 0.3);
+  
+  &:hover {
+    background: rgba(255, 192, 203, 0.25);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255, 192, 203, 0.2);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }}
+
+.my-posts-btn1 {
+  background: rgba(229, 185, 192, 0.15);  // Light pink with transparency
+  color: $primary;
+  font-weight: 600;
+  padding: 5px 25px;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+  border-radius: 20px;
+  margin-top: 20px;
+  margin-left: 25px;
+  // border: 1px solid rgba(255, 192, 203, 0.3);
+  
+  &:hover {
+    background: rgba(255, 192, 203, 0.25);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255, 192, 203, 0.2);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+}
 .profile-container {
   max-width: 100%;
   margin: 0 auto;
