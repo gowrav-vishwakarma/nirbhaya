@@ -242,13 +242,12 @@ const handleShare = async () => {
         const fileName = `shared_image_${Date.now()}.${extension}`;
 
         // Save file using Filesystem
-        const savedFile = await Filesystem.writeFile({
+        await Filesystem.writeFile({
           path: fileName,
           data: base64Data,
           directory: Directory.Cache,
           recursive: true
         });
-        console.log('savedFile', savedFile);
 
         // Get the actual file path
         const fileInfo = await Filesystem.getUri({
@@ -256,11 +255,18 @@ const handleShare = async () => {
           path: fileName
         });
 
+        console.log('File path:', fileInfo.uri);
+
+        // On Android, we need to ensure the path is properly formatted
+        const filePath = fileInfo.uri.startsWith('file://')
+          ? fileInfo.uri
+          : `file://${fileInfo.uri}`;
+
         // Share with the actual file path
         await Share.share({
           title: shareTitle,
           text: shareText,
-          files: [fileInfo.uri], // Use the actual file path
+          files: [filePath], // Use the formatted file path
           dialogTitle: 'Share Image'
         });
 
@@ -275,24 +281,24 @@ const handleShare = async () => {
         }
 
       } catch (fileError) {
-        console.warn('File share failed, falling back to basic share:', fileError);
+        console.error('File share error:', fileError);
 
         // Fallback to basic share with URL
-        await Share.share({
-          title: shareTitle,
-          text: `${shareText}\n${fullUrl}`,
-          url: shareUrl
-        });
+        // await Share.share({
+        //   title: shareTitle,
+        //   text: `${shareText}\n${fullUrl}`,
+        //   url: shareUrl
+        // });
       }
     }
     // For text-only posts
-    // else {
-    //   await Share.share({
-    //     title: shareTitle,
-    //     text: shareText,
-    //     url: shareUrl
-    //   });
-    // }
+    else {
+      await Share.share({
+        title: shareTitle,
+        text: shareText,
+        url: shareUrl
+      });
+    }
 
     // Update share count
     await communityPostService.sharePost(props.post.id.toString());
