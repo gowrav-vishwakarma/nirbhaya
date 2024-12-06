@@ -77,6 +77,7 @@ import { communityPostService } from 'src/services/communityPostService';
 import CommentsDialog from './CommentsDialog.vue';
 import { Share } from '@capacitor/share';
 import { Filesystem, Directory } from '@capacitor/filesystem';
+import Konva from 'konva';
 
 // Define a type that matches the actual post structure
 interface PostProps extends Omit<CommunityPost, 'liked'> {
@@ -163,11 +164,58 @@ const toggleComments = () => {
   showComments.value = !showComments.value;
 };
 
+// Add utility function for Konva conversion
+const imageToBase64WithKonva = (imageUrl: string): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const image = new Image();
+    image.crossOrigin = 'Anonymous';
 
+    image.onload = () => {
+      // Create temporary container
+      const container = document.createElement('div');
+      container.style.display = 'none';
+      document.body.appendChild(container);
 
+      // Create Konva stage
+      const stage = new Konva.Stage({
+        container: container,
+        width: image.width,
+        height: image.height
+      });
+
+      // Create layer and add image
+      const layer = new Konva.Layer();
+      const konvaImage = new Konva.Image({
+        image: image,
+        width: image.width,
+        height: image.height
+      });
+
+      layer.add(konvaImage);
+      stage.add(layer);
+
+      // Convert to base64
+      const dataUrl = stage.toDataURL({
+        mimeType: 'image/png',
+        quality: 1
+      });
+
+      // Clean up
+      stage.destroy();
+      document.body.removeChild(container);
+
+      // Return base64 data without the prefix
+      resolve(dataUrl.split(',')[1]);
+    };
+
+    image.onerror = () => reject(new Error('Failed to load image'));
+    image.src = imageUrl;
+  });
+};
+
+// Update handleShare function
 const handleShare = async () => {
   try {
-    // Construct share parameters
     const shareTitle = props.post.title || '';
     const shareText = props.post.description || '';
     const shareUrl = window.location.href;
@@ -186,37 +234,46 @@ const handleShare = async () => {
       const fullUrl = `${imageCdn.value}${mediaUrl}`;
 
       try {
-        // Fetch the image
-        const response = await fetch(fullUrl);
-        const blob = await response.blob();
+        // Convert image to base64 using Konva
+        const base64Data = await imageToBase64WithKonva(fullUrl);
 
-        // Convert blob to base64
-        const base64Data = await blobToBase64(blob);
-
-        // Get file extension
+        // Get file extension and create unique filename
         const extension = mediaUrl.split('.').pop() || 'jpg';
-        const fileName = `shared-image.${extension}`;
+        const fileName = `shared_image_${Date.now()}.${extension}`;
 
         // Save file using Filesystem
         const savedFile = await Filesystem.writeFile({
           path: fileName,
           data: base64Data,
-          directory: Directory.Cache
+          directory: Directory.Cache,
+          recursive: true
+        });
+        console.log('savedFile', savedFile);
+
+
+        // Get the actual file path
+        const fileInfo = await Filesystem.getUri({
+          directory: Directory.Cache,
+          path: fileName
         });
 
-        // Share with the saved file
+        // Share with the actual file path
         await Share.share({
           title: shareTitle,
           text: shareText,
-          url: savedFile.uri,
-          files: [savedFile.uri]
+          files: [fileInfo.uri], // Use the actual file path
+          dialogTitle: 'Share Image'
         });
 
         // Clean up - delete the temporary file
-        await Filesystem.deleteFile({
-          path: fileName,
-          directory: Directory.Cache
-        });
+        try {
+          await Filesystem.deleteFile({
+            path: fileName,
+            directory: Directory.Cache
+          });
+        } catch (cleanupError) {
+          console.warn('Error cleaning up temp file:', cleanupError);
+        }
 
       } catch (fileError) {
         console.warn('File share failed, falling back to basic share:', fileError);
@@ -248,29 +305,12 @@ const handleShare = async () => {
 
   } catch (error) {
     console.error('Error sharing post:', error);
-    // Use your preferred notification method
     $q.notify({
       message: 'Share not supported',
       color: 'black',
       position: 'top-right'
     });
   }
-};
-
-// Utility function to convert blob to base64
-const blobToBase64 = (blob: Blob): Promise<string> => {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      if (typeof reader.result === 'string') {
-        resolve(reader.result.split(',')[1]);
-      } else {
-        reject(new Error('Could not convert blob to base64'));
-      }
-    };
-    reader.onerror = reject;
-    reader.readAsDataURL(blob);
-  });
 };
 
 // Add watch for comments dialog to update comment count
