@@ -272,6 +272,8 @@ import type { CommunityPost } from 'src/types/CommunityPost';
 import PostEngagement from 'src/pages/CommunityPosts/PostEngagement.vue';
 import { Dialog } from 'quasar';
 import LocationSelectionDialog from 'src/components/Location/LocationSelectionDialog.vue';
+import { Geolocation } from '@capacitor/geolocation';
+
 
 // Add these type definitions at the top of the script section
 interface Post extends Omit<CommunityPost, 'liked'> {
@@ -608,25 +610,12 @@ onMounted(async () => {
 
   // Get initial location
   try {
-    // const position = await new Promise<GeolocationPosition>(
-    //   (resolve, reject) => {
-    //     navigator.geolocation.getCurrentPosition(resolve, reject);
-    //   }
-    // );
-    const position = await new Promise<GeolocationPosition>(
-      (resolve, reject) => {
-        navigator.geolocation.getCurrentPosition(resolve, (error) => {
-          if (error.code === error.PERMISSION_DENIED) {
-            console.warn('Geolocation permission denied:', error);
-            reject(new Error('Geolocation permission denied'));
-          } else {
-            console.warn('Geolocation permission denied:', error);
-            reject(new Error('Geolocation permission denied'));
-            // reject(error);
-          }
-        });
-      }
-    );
+
+    const position = await Geolocation.getCurrentPosition({
+      enableHighAccuracy: true,
+      timeout: 10000,
+    });
+    console.log('position......', position);
 
     selectedLocation.value = {
       type: 'current',

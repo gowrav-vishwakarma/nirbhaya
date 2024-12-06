@@ -134,6 +134,7 @@ import { ref, computed, watch, onMounted } from 'vue';
 import { api } from 'src/boot/axios';
 import { useQuasar } from 'quasar';
 import { useUserStore } from 'src/stores/user-store';
+import { Geolocation } from '@capacitor/geolocation';
 
 const userStore = useUserStore();
 
@@ -394,12 +395,11 @@ const loadSavedLocations = async () => {
       },
       timestamp: null
     }];
-
     // Add user's saved locations
     if (userStore.user?.locations) {
       const userLocations = userStore.user.locations.map(loc => ({
         id: Math.random(),
-        name: loc.name,
+        name: loc.name || 'saved location',
         location: {
           type: 'Point',
           coordinates: loc.location.coordinates
@@ -417,38 +417,45 @@ const loadSavedLocations = async () => {
   }
 };
 
-const getCurrentLocation = () => {
-  if ('geolocation' in navigator) {
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        // Update the coordinates of the "Current Location" option
-        if (savedLocations.value.length > 0) {
-          savedLocations.value[0].location.coordinates = [
-            position.coords.longitude,
-            position.coords.latitude
-          ];
-        }
+const getCurrentLocation = async () => {
+  try {
+    const position = await Geolocation.getCurrentPosition({
+      enableHighAccuracy: true,
+      timeout: 10000,
+    });
 
-        // Set current location as default if no location is selected
-        if (!selectedLocationId.value) {
-          selectedLocationId.value = 0;
-        }
-
-        // Update form location based on selected location
-        const selectedLocation = savedLocations.value.find(loc => loc.id === selectedLocationId.value);
-        if (selectedLocation) {
-          form.value.location = selectedLocation.location;
-        }
-      },
-      (error) => {
-        console.error('Error getting location:', error);
-        // $q.notify({
-        //   color: 'negative',
-        //   message: 'Could not get current location',
-        //   icon: 'error'
-        // });
+    if (position) {
+      if (savedLocations.value.length > 0) {
+        savedLocations.value[0].location.coordinates = [
+          position.coords.longitude,
+          position.coords.latitude
+        ];
       }
-    );
+      if (!selectedLocationId.value) {
+        selectedLocationId.value = 0;
+      }
+
+      // Update form location based on selected location
+      const selectedLocation = savedLocations.value.find(loc => loc.id === selectedLocationId.value);
+      if (selectedLocation) {
+        form.value.location = selectedLocation.location;
+      }
+    }
+  } catch (error) {
+    // Remove current location option if we can't get the location
+    savedLocations.value = savedLocations.value.filter(loc => loc.id !== 0);
+
+    // If current location was selected or no location is selected,
+    // select the first saved location if available
+    if (selectedLocationId.value === 0 || selectedLocationId.value === null) {
+      const firstSavedLocation = savedLocations.value[0];
+      if (firstSavedLocation) {
+        selectedLocationId.value = firstSavedLocation.id;
+        form.value.location = firstSavedLocation.location;
+      }
+    }
+
+    console.error('Error getting current location:', error);
   }
 };
 
