@@ -218,7 +218,7 @@
       </q-banner>
     </div>
   </q-page>
-  <CreatePostDialog v-model="showCreatePostDialog" @post-created="handlePostCreated" v-if="isUserPermitted" />
+
 </template>
 
 <script setup lang="ts">
@@ -226,14 +226,9 @@ import { ref, onMounted, watch, onUnmounted, computed, nextTick } from 'vue';
 import { useQuasar } from 'quasar';
 import { api } from 'src/boot/axios';
 import { useRouter, useRoute } from 'vue-router';
-import CreatePostDialog from 'src/components/Community/CreatePostDialog.vue';
 import { useUserStore } from 'src/stores/user-store';
-// import { communityPostService } from 'src/services/communityPostService';
 import type { CommunityPost } from 'src/types/CommunityPost';
 import PostEngagement from 'src/pages/CommunityPosts/PostEngagement.vue';
-import { Dialog } from 'quasar';
-import LocationSelectionDialog from 'src/components/Location/LocationSelectionDialog.vue';
-import { Geolocation } from '@capacitor/geolocation';
 const route = useRoute();
 const router = useRouter();
 
@@ -246,15 +241,6 @@ interface Post extends Omit<CommunityPost, 'liked'> {
   liked: boolean;
 }
 
-// Add this interface after the Post interface
-interface UserInteractionLimits {
-  dailyLikeLimit: number;
-  dailyCommentLimit: number;
-  dailyPostLimit: number;
-  usedLikeCount: number;
-  usedCommentCount: number;
-  usedPostCount: number;
-}
 
 const userStore = useUserStore();
 
@@ -356,12 +342,12 @@ const loadPosts = async (loadMore = false) => {
 
     const postId = route.params.postId;
 
-    const response = await api.post('/auth/shared-post', {
-      // params: {
-      status: 'active',
-      page: page.value,
-      postId: postId
-      // },
+    const response = await api.get('/auth/shared-post', {
+      params: {
+        status: 'active',
+        page: page.value,
+        postId: postId
+      },
     });
 
     let postsData: Post[] = [];
@@ -605,7 +591,6 @@ onMounted(async () => {
 
   // Load initial posts
   await loadPosts();
-  await getUserInteraction();
 });
 
 // Clean up on component unmount
@@ -987,12 +972,6 @@ watch(
     });
   }
 );
-
-const getUserInteraction = async () => {
-  const res = await api.get(`/posts/user-interaction/${userStore.user?.id}`);
-  userInteractionRules.value = res.data;
-  console.log('res........', userInteractionRules.value);
-};
 
 // Add this method to update interaction rules
 const updateInteractionRules = async () => {
