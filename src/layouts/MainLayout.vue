@@ -310,7 +310,8 @@ const isHeaderHide = computed(() => {
     '/incident-reels',
     '/account',
     '/sos-mode',
-    '/my-posts'
+    '/my-posts',
+    '/news'
   ];
 
   // If on iOS and path is /comunity-post, don't hide the header
