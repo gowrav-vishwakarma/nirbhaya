@@ -123,16 +123,29 @@
 
 <script setup lang="ts">
 import { useRouter } from 'vue-router';
-import { useQuasar } from 'quasar';
+import { useQuasar, QVueGlobals } from 'quasar';
 import { useBackgroundNotifications } from 'src/composables/useBackgroundNotifications';
 import { useUserStore } from 'src/stores/user-store';
-import { ref, onMounted, onUnmounted, computed, watch } from 'vue';
+import { ref, onMounted, onUnmounted, computed, watch, nextTick } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useMediaPermissions } from 'src/composables/useMediaPermissions';
 import { api } from 'src/boot/axios';
 import { StatusBar } from '@capacitor/status-bar';
+import { Platform } from 'quasar';
 
-const $q = useQuasar();
+const $q = useQuasar() as QVueGlobals & {
+  pullToRefresh: {
+    stop: () => void;
+    destroy: () => void;
+    create: (opts: {
+      onPull: () => Promise<void>;
+      spinnerColor?: string;
+      spinnerSize?: number;
+      distance?: number;
+      threshold?: number;
+    }) => void;
+  }
+};
 const router = useRouter();
 const { t, locale } = useI18n();
 const { unreadNotificationCount, fetchUnreadNotificationCount } =
@@ -337,6 +350,69 @@ const isIOSCommunityRoute = computed(() => {
     $q.platform.is.ios && router.currentRoute.value.path === '/comunity-post'
   );
 });
+
+const isPullToRefreshDisabled = computed(() => {
+  const path = router.currentRoute.value.path;
+  const enabledPaths = [
+    '/help'
+  ];
+  return !enabledPaths.includes(path);
+});
+
+const isMobileApp = computed(() => {
+  return $q.platform.is.capacitor || $q.platform.is.cordova;
+});
+
+watch(() => router.currentRoute.value.path, async (newPath) => {
+  await nextTick();
+
+  try {
+    if (isPullToRefreshDisabled.value) {
+      if ($q.pullToRefresh) {
+        $q.pullToRefresh.stop();
+        $q.pullToRefresh.destroy();
+      }
+    } else {
+      if ($q.pullToRefresh) {
+        $q.pullToRefresh.destroy();
+      }
+
+      // Different configuration for mobile apps vs PWA
+      if (isMobileApp.value) {
+        $q.pullToRefresh?.create({
+          onPull: async () => {
+            ReloadKey.value = Date.now();
+            $q.pullToRefresh?.stop();
+          },
+          spinnerColor: 'primary',
+          spinnerSize: 60,
+          distance: 80,
+          threshold: 30
+        });
+      } else {
+        // PWA configuration
+        $q.pullToRefresh?.create({
+          onPull: async () => {
+            ReloadKey.value = Date.now();
+            $q.pullToRefresh?.stop();
+          }
+        });
+      }
+    }
+  } catch (error) {
+    console.error('Error handling pull to refresh:', error);
+  }
+}, { immediate: true });
+
+onUnmounted(() => {
+  try {
+    if ($q.pullToRefresh) {
+      $q.pullToRefresh.destroy();
+    }
+  } catch (error) {
+    console.error('Error cleaning up pull to refresh:', error);
+  }
+});
 </script>
 
 <style lang="scss" scoped>
@@ -400,6 +476,27 @@ svg:hover {
   // Hide the toolbar content when in iOS community route
   .q-toolbar {
     display: none;
+  }
+}
+
+.body--capacitor,
+.body--cordova {
+  .q-pull-to-refresh {
+    position: fixed;
+    width: 100%;
+    z-index: 1000;
+
+    &__puller {
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      margin: 0 auto;
+
+      &-spinner {
+        width: 100%;
+        height: 100%;
+      }
+    }
   }
 }
 </style>
