@@ -70,6 +70,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
 import { useQuasar } from 'quasar';
+import { Geolocation } from '@capacitor/geolocation';
 
 interface UserLocation {
   id?: string | number;
@@ -137,70 +138,29 @@ const checkSwipeToClose = (event: MouseEvent) => {
 
 const handleLocationSelect = async (locationType: 'current' | 'stored', storedLocation?: UserLocation) => {
   console.log('handleLocationSelect called with:', { locationType, storedLocation });
+  selectedLocationId.value = locationType === 'current' ? 'current' : storedLocation?.id?.toString() || '';
   try {
     isLoading.value = true;
-    selectedLocationId.value = locationType === 'current' ? 'current' : storedLocation?.id?.toString() || '';
 
     if (locationType === 'current') {
+
       try {
-        // Check for geolocation support
-        if (!navigator.geolocation) {
-          throw new Error('Geolocation is not supported by your browser');
-        }
-
-        const position = await new Promise<GeolocationPosition>((resolve, reject) => {
-          navigator.geolocation.getCurrentPosition(
-            resolve,
-            (error) => {
-              switch (error.code) {
-                case error.PERMISSION_DENIED:
-                  reject(new Error('Location permission denied'));
-                  break;
-                case error.POSITION_UNAVAILABLE:
-                  reject(new Error('Location information is unavailable'));
-                  break;
-                case error.TIMEOUT:
-                  reject(new Error('Location request timed out'));
-                  break;
-                default:
-                  reject(new Error('An unknown error occurred'));
-                  break;
-              }
-            },
-            {
-              enableHighAccuracy: true,
-              timeout: 10000,
-              maximumAge: 0
-            }
-          );
+        const position = await Geolocation.getCurrentPosition({
+          enableHighAccuracy: true,
+          timeout: 10000,
         });
-
-        // Get location name
-        try {
-          // const response = await fetch(
-          //   `https://nominatim.openstreetmap.org/reverse?lat=${position.coords.latitude}&lon=${position.coords.longitude}&format=json`
-          // );
-
-          // if (!response.ok) {
-          //   throw new Error('Failed to fetch location name');
-          // }
-
-          // const data = await response.json();
-          currentLocationName.value = ''
-        } catch (error) {
-          console.error('Error getting location name:', error);
-          currentLocationName.value = 'Current Location';
-        }
-
         // Emit current location data
-        emit('location-selected', {
-          type: 'Point',
-          latitude: position.coords.latitude,
-          longitude: position.coords.longitude,
-          name: currentLocationName.value,
-          source: 'current'
-        });
-        isOpen.value = false;  // Close dialog after successful selection
+        if (position) {
+
+          emit('location-selected', {
+            type: 'Point',
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude,
+            name: currentLocationName.value,
+            source: 'current'
+          });
+          isOpen.value = false;  // Close dialog after successful selection
+        }
 
       } catch (error: any) {
         console.error('Geolocation error:', error);
@@ -228,9 +188,10 @@ const handleLocationSelect = async (locationType: 'current' | 'stored', storedLo
     console.error('Location selection failed:', error);
     $q.notify({
       type: 'negative',
-      message: error.message || 'Failed to get location',
-      position: 'top',
+      message: 'Failed to get location',
+      position: 'top-right',
       timeout: 3000,
+      color: 'black',
       icon: 'error'
     });
   } finally {
