@@ -292,13 +292,13 @@ const handleShare = async () => {
       }
     }
     // For text-only posts
-    else {
-      await Share.share({
-        title: shareTitle,
-        text: shareText,
-        url: shareUrl
-      });
-    }
+    // else {
+    //   await Share.share({
+    //     title: shareTitle,
+    //     text: shareText,
+    //     url: shareUrl
+    //   });
+    // }
 
     // Update share count
     await communityPostService.sharePost(props.post.id.toString());
