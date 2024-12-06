@@ -4,10 +4,7 @@
       <!-- Header -->
       <div class="row items-center justify-between q-pa-md">
         <div>
-          <h4
-            class="text-h5 text-weight-bold q-my-none text-primary"
-            v-if="findUserData"
-          >
+          <h4 class="text-h5 text-weight-bold q-my-none text-primary" v-if="findUserData">
             {{ findUserData.name }}
           </h4>
           <p class="text-grey-7 q-mt-sm">Stay connected with your community</p>
@@ -22,58 +19,33 @@
           </div> -->
       </div>
 
-      <div
-        class="q-mb-lg"
-        v-if="
-          userStore.user?.canCreatePost &&
-          Number(userId) === Number(userStore.user?.id)
-        "
-        style="margin-top: -15px"
-      >
+      <div class="q-mb-lg" v-if="
+        userStore.user?.canCreatePost &&
+        Number(userId) === Number(userStore.user?.id)
+      " style="margin-top: -15px">
         <q-card class="create-post-card q-pa-md">
           <div class="row items-center no-wrap">
             <div class="relative-position">
-              <q-avatar
-                size="45px"
-                class="avatar cursor-pointer"
-                @click="showLocationDialog = true"
-              >
-                <img
-                  style="height: 30px; width: 30px"
-                  src="/locationIcon.png"
-                />
+              <q-avatar size="45px" class="avatar cursor-pointer" @click="showLocationDialog = true">
+                <img style="height: 30px; width: 30px" src="/locationIcon.png" />
               </q-avatar>
 
-              <LocationSelectionDialog
-                v-model="showLocationDialog"
-                :user-locations="userStore.user?.locations || []"
-                @location-selected="handleLocationSelected"
-              />
+              <LocationSelectionDialog v-model="showLocationDialog" :user-locations="userStore.user?.locations || []"
+                @location-selected="handleLocationSelected" />
             </div>
             <q-btn class="col post-input-btn" flat color="grey-7">
               <div class="row full-width items-center text-left">
-                <span class="text-grey-7" style="font-size: 0.8em"
-                  >What's Post on your mind?</span
-                >
+                <span class="text-grey-7" style="font-size: 0.8em">What's Post on your mind?</span>
                 <q-space />
-                <q-btn
-                  color="primary"
-                  class="q-ml-sm suggestion-btn"
-                  @click="createPost"
-                >
-                  <span
-                    style="
+                <q-btn color="primary" class="q-ml-sm suggestion-btn" @click="createPost">
+                  <span style="
                       font-size: 20px;
                       font-weight: 800;
                       padding-right: 5px;
-                    "
-                  >
+                    ">
                     +
                   </span>
-                  <span
-                    class="text-capitalize"
-                    style="font-weight: 800; padding-top: 1px"
-                  >
+                  <span class="text-capitalize" style="font-weight: 800; padding-top: 1px">
                     Create
                   </span>
                 </q-btn>
@@ -98,27 +70,17 @@
 
       <!-- Posts List -->
       <div v-else class="row q-col-gutter-y-md" style="margin-top: -30px">
-        <div
-          v-for="(post, index) in posts"
-          :key="post.id"
-          class="col-12"
-          :ref="index === posts.length - 1 ? (el) => { lastPostRef = el as HTMLElement } : undefined"
-        >
+        <div v-for="(post, index) in posts" :key="post.id" class="col-12"
+          :ref="index === posts.length - 1 ? (el) => { lastPostRef = el as HTMLElement } : undefined">
           <q-card flat class="post-card">
             <!-- User Info Section -->
             <q-card-section class="q-pb-none">
               <div class="row items-center">
                 <q-avatar size="48px" class="shadow-2">
-                  <img
-                    src="/sos_logo_1080_1080.png"
-                    style="object-fit: cover"
-                  />
+                  <img src="/sos_logo_1080_1080.png" style="object-fit: cover" />
                 </q-avatar>
                 <div class="q-ml-md">
-                  <div
-                    class="text-weight-bold text-capitalize"
-                    style="font-size: 16px"
-                  >
+                  <div class="text-weight-bold text-capitalize" style="font-size: 16px">
                     {{
                       post.userName == 'SOS Bharat Community'
                         ? 'SOS Bharat Community'
@@ -131,15 +93,8 @@
                   </div>
                 </div>
                 <q-space />
-                <q-btn
-                  flat
-                  round
-                  color="grey-7"
-                  icon="delete"
-                  size="sm"
-                  @click="confirmDelete(post.id)"
-                  v-if="Number(userStore.user?.id) == Number(userId)"
-                >
+                <q-btn flat round color="grey-7" icon="delete" size="sm" @click="confirmDelete(post.id)"
+                  v-if="Number(userStore.user?.id) == Number(userId)">
                   <q-tooltip>Delete Post</q-tooltip>
                 </q-btn>
               </div>
@@ -147,10 +102,7 @@
 
             <!-- Post Content -->
             <q-card-section style="padding: 10px 10px 0px 10px">
-              <div
-                class="text-h5 text-weight-bold text-primary q-mb-sm"
-                style="font-size: 16px"
-              >
+              <div class="text-h5 text-weight-bold text-primary q-mb-sm" style="font-size: 16px">
                 {{ post.title }}
               </div>
               <div class="text-body1 post-description">
@@ -159,11 +111,8 @@
                     ? post.description
                     : truncateText(post.description, 15)
                 }}
-                <span
-                  v-if="post.description.split(' ').length > 10"
-                  @click="toggleDescription(post.id)"
-                  class="read-more-link"
-                >
+                <span v-if="post.description.split(' ').length > 10" @click="toggleDescription(post.id)"
+                  class="read-more-link">
                   {{
                     showFullDescription[post.id.toString()]
                       ? 'Read Less'
@@ -173,59 +122,32 @@
               </div>
 
               <!-- Hashtags section -->
-              <div
-                v-if="post.tags && post.tags.length"
-                class="hashtags-container"
-              >
-                <span
-                  v-for="tag in post.tags"
-                  :key="tag"
-                  class="hashtag"
-                  @click="handleTagClick(tag)"
-                >
+              <div v-if="post.tags && post.tags.length" class="hashtags-container">
+                <span v-for="tag in post.tags" :key="tag" class="hashtag" @click="handleTagClick(tag)">
                   #{{ tag }}
                 </span>
               </div>
             </q-card-section>
 
             <!-- Media Section -->
-            <q-card-section
-              v-if="post.mediaUrls || post.videoUrl"
-              class="q-pa-none q-mt-md"
-            >
+            <q-card-section v-if="post.mediaUrls || post.videoUrl" class="q-pa-none q-mt-md">
               <!-- Show YouTube video if videoUrl exists -->
-              <div
-                v-if="post.videoUrl"
-                class="video-container"
-                v-intersection="onVideoIntersection(post.id.toString())"
-              >
-                <iframe
-                  :key="getVideoUrl(post.id.toString(), post.videoUrl)"
-                  :src="getVideoUrl(post.id.toString(), post.videoUrl)"
-                  :id="`video-${post.id}`"
-                  frameborder="0"
+              <div v-if="post.videoUrl" class="video-container"
+                v-intersection="onVideoIntersection(post.id.toString())">
+                <iframe :key="getVideoUrl(post.id.toString(), post.videoUrl)"
+                  :src="getVideoUrl(post.id.toString(), post.videoUrl)" :id="`video-${post.id}`" frameborder="0"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowfullscreen
-                  class="video-frame"
-                >
+                  allowfullscreen class="video-frame">
                 </iframe>
               </div>
               <!-- Show image collage or carousel based on showCarousel state -->
-              <div
-                v-else-if="post.mediaUrls && post.mediaUrls.length"
-                class="media-section"
-              >
+              <div v-else-if="post.mediaUrls && post.mediaUrls.length" class="media-section">
                 <!-- Move controls inside the carousel template -->
                 <template v-if="activeCarouselPost === post.id.toString()">
                   <!-- Dots Navigation -->
                   <div class="carousel-dots">
-                    <button
-                      v-for="index in currentImageCount.total"
-                      :key="index"
-                      class="dot"
-                      :class="{ active: activeDotIndex === index - 1 }"
-                      @click.stop="goToSlide(index - 1)"
-                    ></button>
+                    <button v-for="index in currentImageCount.total" :key="index" class="dot"
+                      :class="{ active: activeDotIndex === index - 1 }" @click.stop="goToSlide(index - 1)"></button>
                   </div>
 
                   <!-- Image Counter -->
@@ -238,30 +160,15 @@
                     <i class="material-icons">close</i>
                   </button>
 
-                  <div
-                    class="custom-carousel"
-                    ref="carousel"
-                    @touchstart="handleTouchStart"
-                    @touchmove="handleTouchMove"
-                    @touchend="handleTouchEnd"
-                  >
+                  <div class="custom-carousel" ref="carousel" @touchstart="handleTouchStart"
+                    @touchmove="handleTouchMove" @touchend="handleTouchEnd">
                     <div class="carousel-inner" :style="carouselStyle">
-                      <div
-                        v-for="(url, index) in Array.isArray(post.mediaUrls)
-                          ? post.mediaUrls.map((url) => imageCdn + url)
-                          : [imageCdn + post.mediaUrls]"
-                        :key="index"
-                        class="carousel-slide"
-                        :class="{ active: currentIndex === index }"
-                        v-intersection="onCarouselImageIntersection(index)"
-                        ref="carouselImages"
-                      >
-                        <img
-                          :src="url"
-                          :alt="`Image ${index + 1}`"
-                          class="carousel-image"
-                          @click.stop
-                        />
+                      <div v-for="(url, index) in Array.isArray(post.mediaUrls)
+                        ? post.mediaUrls.map((url) => imageCdn + url)
+                        : [imageCdn + post.mediaUrls]" :key="index" class="carousel-slide"
+                        :class="{ active: currentIndex === index }" v-intersection="onCarouselImageIntersection(index)"
+                        ref="carouselImages">
+                        <img :src="url" :alt="`Image ${index + 1}`" class="carousel-image" @click.stop />
                       </div>
                     </div>
 
@@ -279,38 +186,22 @@
                 <template v-else>
                   <div class="media-collage">
                     <!-- Single Image -->
-                    <template
-                      v-if="
-                        !Array.isArray(post.mediaUrls) ||
-                        post.mediaUrls.length === 1
-                      "
-                    >
-                      <q-img
-                        :src="
-                          imageCdn +
-                          (Array.isArray(post.mediaUrls)
-                            ? post.mediaUrls[0]
-                            : post.mediaUrls)
-                        "
-                        :ratio="16 / 9"
-                        class="single-image"
-                        @click="showCarousel(post.id, 0)"
-                      />
+                    <template v-if="
+                      !Array.isArray(post.mediaUrls) ||
+                      post.mediaUrls.length === 1
+                    ">
+                      <q-img :src="imageCdn +
+                        (Array.isArray(post.mediaUrls)
+                          ? post.mediaUrls[0]
+                          : post.mediaUrls)
+                        " :ratio="16 / 9" class="single-image" @click="showCarousel(post.id, 0)" />
                     </template>
 
                     <!-- Two Images -->
                     <template v-else-if="post.mediaUrls.length === 2">
                       <div class="two-images-grid">
-                        <div
-                          v-for="(url, index) in post.mediaUrls"
-                          :key="index"
-                          class="grid-image-container"
-                        >
-                          <q-img
-                            :src="imageCdn + url"
-                            class="grid-image"
-                            @click="showCarousel(post.id, index)"
-                          />
+                        <div v-for="(url, index) in post.mediaUrls" :key="index" class="grid-image-container">
+                          <q-img :src="imageCdn + url" class="grid-image" @click="showCarousel(post.id, index)" />
                         </div>
                       </div>
                     </template>
@@ -319,30 +210,16 @@
                     <template v-else>
                       <div class="multi-images-grid">
                         <div class="main-image-container">
-                          <q-img
-                            :src="imageCdn + post.mediaUrls[0]"
-                            class="main-grid-image"
-                            @click="showCarousel(post.id, 0)"
-                          />
+                          <q-img :src="imageCdn + post.mediaUrls[0]" class="main-grid-image"
+                            @click="showCarousel(post.id, 0)" />
                         </div>
                         <div class="secondary-images-container">
-                          <div
-                            v-for="(url, index) in post.mediaUrls.slice(1, 3)"
-                            :key="index"
-                            class="secondary-image-wrapper"
-                          >
-                            <q-img
-                              :src="imageCdn + url"
-                              class="secondary-grid-image"
-                              @click="showCarousel(post.id, index + 1)"
-                            >
-                              <div
-                                v-if="index === 1 && post.mediaUrls.length > 3"
-                                class="see-all-overlay"
-                              >
-                                <span class="text-white text-weight-bold"
-                                  >+{{ post.mediaUrls.length - 3 }}</span
-                                >
+                          <div v-for="(url, index) in post.mediaUrls.slice(1, 3)" :key="index"
+                            class="secondary-image-wrapper">
+                            <q-img :src="imageCdn + url" class="secondary-grid-image"
+                              @click="showCarousel(post.id, index + 1)">
+                              <div v-if="index === 1 && post.mediaUrls.length > 3" class="see-all-overlay">
+                                <span class="text-white text-weight-bold">+{{ post.mediaUrls.length - 3 }}</span>
                               </div>
                             </q-img>
                           </div>
@@ -353,11 +230,8 @@
                 </template>
               </div>
               <!-- Engagement Actions -->
-              <PostEngagement
-                :post="post"
-                :userInteractionRules="userInteractionRules"
-                @update:post="updatePost($event)"
-              />
+              <PostEngagement :post="post" :userInteractionRules="userInteractionRules"
+                @update:post="updatePost($event)" />
             </q-card-section>
           </q-card>
         </div>
@@ -369,20 +243,12 @@
       </div>
 
       <!-- No more posts message -->
-      <div
-        v-if="!hasMore && posts.length > 0"
-        class="col-12 text-center q-pa-md text-grey-7"
-      >
+      <div v-if="!hasMore && posts.length > 0" class="col-12 text-center q-pa-md text-grey-7">
         No more posts to load
       </div>
     </div>
     <div v-else class="q-pt-lg q-px-md">
-      <q-banner
-        dense
-        inline-actions
-        class="text-white bg-primary"
-        style="border-radius: 10px"
-      >
+      <q-banner dense inline-actions class="text-white bg-primary" style="border-radius: 10px">
         <div class="text-h5 q-pa-sm">
           <q-icon flat color="white" name="warning" />
           <span>
@@ -392,11 +258,7 @@
       </q-banner>
     </div>
   </q-page>
-  <CreatePostDialog
-    v-model="showCreatePostDialog"
-    @post-created="handlePostCreated"
-    v-if="isUserPermitted"
-  />
+  <CreatePostDialog v-model="showCreatePostDialog" @post-created="handlePostCreated" v-if="isUserPermitted" />
 </template>
 
 <script setup lang="ts">
@@ -487,9 +349,8 @@ const formatDate = (date: string | null) => {
 
     // Less than an hour
     if (diffInMinutes < 60) {
-      return `${diffInMinutes} ${
-        diffInMinutes === 1 ? 'minute' : 'minutes'
-      } ago`;
+      return `${diffInMinutes} ${diffInMinutes === 1 ? 'minute' : 'minutes'
+        } ago`;
     }
 
     // Less than a day
@@ -536,9 +397,9 @@ const loadPosts = async (loadMore = false) => {
     const locationParams =
       selectedLocation.value.latitude && selectedLocation.value.longitude
         ? {
-            latitude: selectedLocation.value.latitude,
-            longitude: selectedLocation.value.longitude,
-          }
+          latitude: selectedLocation.value.latitude,
+          longitude: selectedLocation.value.longitude,
+        }
         : {}; // Empty object if no location selected
     console.log('userId...........', userId);
     const response = await api.get('/posts/my-posts', {
@@ -848,10 +709,10 @@ const showCarousel = (postId: string | number, startIndex: number) => {
       totalImages: Array.isArray(post.mediaUrls) ? post.mediaUrls.length : 1,
       allImages: Array.isArray(post.mediaUrls)
         ? post.mediaUrls.map((url, idx) => ({
-            index: idx + 1,
-            url: imageCdn + url,
-            isActive: idx === startIndex,
-          }))
+          index: idx + 1,
+          url: imageCdn + url,
+          isActive: idx === startIndex,
+        }))
         : [{ index: 1, url: imageCdn + post.mediaUrls, isActive: true }],
       activeDot: startIndex,
     };
@@ -1026,15 +887,13 @@ const handleTouchEnd = () => {
       prevSlide();
     } else {
       // Reset to current slide if at bounds
-      carousel.value.style.transform = `translate3d(-${
-        currentIndex.value * 100
-      }%, 0, 0)`;
+      carousel.value.style.transform = `translate3d(-${currentIndex.value * 100
+        }%, 0, 0)`;
     }
   } else {
     // Reset to current slide if threshold not met
-    carousel.value.style.transform = `translate3d(-${
-      currentIndex.value * 100
-    }%, 0, 0)`;
+    carousel.value.style.transform = `translate3d(-${currentIndex.value * 100
+      }%, 0, 0)`;
   }
 
   touchStart.value = 0;
@@ -1277,7 +1136,8 @@ const confirmDelete = (postId: number | string) => {
   background: white;
   transition: all 0.3s ease;
   box-shadow: 0 -10px 10px -10px rgba(0, 0, 0, 0.3),
-    /* Top shadow */ 0 10px 10px -10px rgba(0, 0, 0, 0.3);
+    /* Top shadow */
+    0 10px 10px -10px rgba(0, 0, 0, 0.3);
   /* Bottom shadow */
   overflow: hidden;
   border: none;
@@ -1289,7 +1149,8 @@ const confirmDelete = (postId: number | string) => {
 .post-card:hover {
   transform: translateY(-2px);
   box-shadow: 0 -10px 15px -10px rgba(0, 0, 0, 0.4),
-    /* Enhanced top shadow on hover */ 0 10px 15px -10px rgba(0, 0, 0, 0.4);
+    /* Enhanced top shadow on hover */
+    0 10px 15px -10px rgba(0, 0, 0, 0.4);
   /* Enhanced bottom shadow on hover */
 }
 
@@ -1539,6 +1400,7 @@ const confirmDelete = (postId: number | string) => {
 
 // Responsive adjustments
 @media (max-width: 600px) {
+
   .single-image,
   .two-images-grid,
   .multi-images-grid {
@@ -1573,11 +1435,9 @@ const confirmDelete = (postId: number | string) => {
   justify-content: space-between;
   align-items: center;
   padding: 12px 20px;
-  background: linear-gradient(
-    to bottom,
-    rgba(0, 0, 0, 0.7) 0%,
-    rgba(0, 0, 0, 0) 100%
-  );
+  background: linear-gradient(to bottom,
+      rgba(0, 0, 0, 0.7) 0%,
+      rgba(0, 0, 0, 0) 100%);
 }
 
 .gallery-content {
