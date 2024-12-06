@@ -63,10 +63,10 @@
 
         <!-- Load More Button -->
         <div class="row justify-center q-mt-md">
-          <div ref="scrollTarget" style="height: 20px; width: 100%">
-            <q-inner-loading :showing="loading && news.length > 0">
-              <q-spinner-dots size="40px" color="primary" />
-            </q-inner-loading>
+          <div ref="scrollTarget" style="height: 20px; width: 100%;text-align: center;">
+            <!-- <q-inner-loading :showing="loading && news.length > 0"> -->
+            <q-spinner-dots :showing="loading && news.length > 0" size="40px" color="white" />
+            <!-- </q-inner-loading> -->
           </div>
         </div>
       </div>
