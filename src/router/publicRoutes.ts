@@ -25,6 +25,10 @@ const publicRoutes: RouteRecordRaw[] = [
     path: 'about-us',
     component: () => import('pages/AboutUs.vue'),
   },
+  {
+    path: 'sos-bharat-community-post/:postId',
+    component: () => import('pages/CommunityPosts/CommunityPostOpenRoute.vue'),
+  },
   // Add more public routes here
 ];
 

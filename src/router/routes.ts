@@ -141,6 +141,13 @@ const routes: RouteRecordRaw[] = [
         name: 'feed',
         component: Feed,
       },
+      {
+        path: '/community-post/:id',
+        component: () =>
+          import('pages/CommunityPosts/CommunityPostOpenRoute.vue'),
+        name: 'CommunityPostOpen',
+        meta: { requiresAuth: true },
+      },
     ],
   },
   {
