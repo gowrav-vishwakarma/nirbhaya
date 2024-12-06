@@ -250,7 +250,6 @@ const handleShare = async () => {
         });
         console.log('savedFile', savedFile);
 
-
         // Get the actual file path
         const fileInfo = await Filesystem.getUri({
           directory: Directory.Cache,
@@ -287,13 +286,13 @@ const handleShare = async () => {
       }
     }
     // For text-only posts
-    else {
-      await Share.share({
-        title: shareTitle,
-        text: shareText,
-        url: shareUrl
-      });
-    }
+    // else {
+    //   await Share.share({
+    //     title: shareTitle,
+    //     text: shareText,
+    //     url: shareUrl
+    //   });
+    // }
 
     // Update share count
     await communityPostService.sharePost(props.post.id.toString());
