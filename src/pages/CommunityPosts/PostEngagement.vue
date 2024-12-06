@@ -77,7 +77,6 @@ import { communityPostService } from 'src/services/communityPostService';
 import CommentsDialog from './CommentsDialog.vue';
 import { Share } from '@capacitor/share';
 import { Filesystem, Directory } from '@capacitor/filesystem';
-import Konva from 'konva';
 
 // Define a type that matches the actual post structure
 interface PostProps extends Omit<CommunityPost, 'liked'> {
@@ -164,20 +163,21 @@ const toggleComments = () => {
   showComments.value = !showComments.value;
 };
 
+
+
 const handleShare = async () => {
   try {
-    let shareUrl = window.location.href;
-    let shareText = props.post.description || '';
-    let shareTitle = props.post.title || '';
+    // Construct share parameters
+    const shareTitle = props.post.title || '';
+    const shareText = props.post.description || '';
+    const shareUrl = window.location.href;
 
     // For video posts
     if (props.post.videoUrl) {
-      shareUrl = `https://www.youtube.com/embed/${props.post.videoUrl}`;
       await Share.share({
         title: shareTitle,
         text: shareText,
-        url: shareUrl,
-        dialogTitle: 'Share this post',
+        url: `https://www.youtube.com/embed/${props.post.videoUrl}`
       });
     }
     // For posts with media
@@ -186,93 +186,46 @@ const handleShare = async () => {
       const fullUrl = `${imageCdn.value}${mediaUrl}`;
 
       try {
-        // Create a promise to load image using Konva
-        const loadImageWithKonva = (): Promise<string> => {
-          return new Promise((resolve, reject) => {
-            const imageObj = new Image();
-            imageObj.crossOrigin = 'Anonymous';
+        // Fetch the image
+        const response = await fetch(fullUrl);
+        const blob = await response.blob();
 
-            imageObj.onload = () => {
-              // Create a temporary container for Konva
-              const tempContainer = document.createElement('div');
-              tempContainer.style.display = 'none';
-              document.body.appendChild(tempContainer);
+        // Convert blob to base64
+        const base64Data = await blobToBase64(blob);
 
-              // Create Konva stage and layer
-              const stage = new Konva.Stage({
-                container: tempContainer,
-                width: imageObj.width,
-                height: imageObj.height,
-              });
-
-              const layer = new Konva.Layer();
-              stage.add(layer);
-
-              // Create Konva image
-              const konvaImage = new Konva.Image({
-                image: imageObj,
-                width: imageObj.width,
-                height: imageObj.height,
-              });
-
-              layer.add(konvaImage);
-              layer.draw();
-
-              // Get base64 data
-              const dataUrl = stage.toDataURL({
-                mimeType: 'image/png',
-                quality: 1,
-              });
-
-              // Clean up
-              stage.destroy();
-              document.body.removeChild(tempContainer);
-
-              resolve(dataUrl);
-            };
-
-            imageObj.onerror = () => reject(new Error('Failed to load image'));
-            imageObj.src = fullUrl;
-          });
-        };
-
-        // Get base64 data using Konva
-        const base64Data = await loadImageWithKonva();
-
-        // Get file extension from URL or default to .jpg
+        // Get file extension
         const extension = mediaUrl.split('.').pop() || 'jpg';
         const fileName = `shared-image.${extension}`;
 
-        // Save file temporarily using Filesystem
+        // Save file using Filesystem
         const savedFile = await Filesystem.writeFile({
           path: fileName,
           data: base64Data,
-          directory: Directory.Cache,
+          directory: Directory.Cache
         });
 
-        // Share the file
+        // Share with the saved file
         await Share.share({
           title: shareTitle,
           text: shareText,
           url: savedFile.uri,
-          files: [savedFile.uri],
-          dialogTitle: 'Share this post',
+          files: [savedFile.uri]
         });
 
         // Clean up - delete the temporary file
         await Filesystem.deleteFile({
           path: fileName,
-          directory: Directory.Cache,
+          directory: Directory.Cache
         });
 
       } catch (fileError) {
         console.warn('File share failed, falling back to basic share:', fileError);
-        // Fallback to basic share
+
+        // Fallback to basic share with URL
         await Share.share({
           title: shareTitle,
           text: `${shareText}\n${fullUrl}`,
-          url: shareUrl,
-          dialogTitle: 'Share this post',
+          url: shareUrl
         });
       }
     }
@@ -281,27 +234,43 @@ const handleShare = async () => {
       await Share.share({
         title: shareTitle,
         text: shareText,
-        url: shareUrl,
-        dialogTitle: 'Share this post',
+        url: shareUrl
       });
     }
 
-    // Update share count after successful share
+    // Update share count
     await communityPostService.sharePost(props.post.id.toString());
     const updatedPost = {
       ...props.post,
-      sharesCount: (props.post.sharesCount || 0) + 1,
+      sharesCount: (props.post.sharesCount || 0) + 1
     };
     emit('update:post', updatedPost);
 
   } catch (error) {
     console.error('Error sharing post:', error);
+    // Use your preferred notification method
     $q.notify({
       message: 'Share not supported',
       color: 'black',
       position: 'top-right'
     });
   }
+};
+
+// Utility function to convert blob to base64
+const blobToBase64 = (blob: Blob): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      if (typeof reader.result === 'string') {
+        resolve(reader.result.split(',')[1]);
+      } else {
+        reject(new Error('Could not convert blob to base64'));
+      }
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
 };
 
 // Add watch for comments dialog to update comment count
