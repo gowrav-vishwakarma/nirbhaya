@@ -21,7 +21,6 @@
         </div>
 
         <q-input v-model="form.title" label="Title" class="q-mb-md" maxlength="50" :rules="[
-          val => !!val || 'Title is required',
           val => val.length <= 50 || 'Title cannot exceed 50 characters'
         ]">
           <template v-slot:hint>
@@ -31,7 +30,6 @@
 
         <q-input outlined v-model="form.description" type="textarea" label="Description"
           placeholder="What do you want to share?" autogrow class="text-h6" borderless maxlength="1000" :rules="[
-            val => !!val || 'Description is required',
             val => val.length <= 1000 || 'Description cannot exceed 1000 characters'
           ]">
           <template v-slot:hint>
@@ -178,10 +176,19 @@ const descriptionCharCount = computed(() => {
 });
 
 const isValid = computed(() => {
-  return form.value.title.trim() &&
-    form.value.description.trim() &&
-    titleCharCount.value <= 50 &&
-    descriptionCharCount.value <= 1000;
+  const hasTitle = form.value.title.trim().length > 0;
+  const hasDescription = form.value.description.trim().length > 0;
+  const hasMedia = selectedFiles.value.length > 0;
+
+  // Check if at least one field has content
+  const hasContent = hasTitle || hasDescription || hasMedia;
+
+  // Check if the content meets length restrictions
+  const validLength =
+    form.value.title.length <= 50 &&
+    form.value.description.length <= 1000;
+
+  return hasContent && validLength;
 });
 
 const canAddMoreTags = computed(() => {
