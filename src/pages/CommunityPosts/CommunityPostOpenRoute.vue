@@ -228,7 +228,7 @@ import { api } from 'src/boot/axios';
 import { useRouter, useRoute } from 'vue-router';
 import { useUserStore } from 'src/stores/user-store';
 import type { CommunityPost } from 'src/types/CommunityPost';
-import PostEngagement from 'src/pages/CommunityPosts/PostEngagement.vue';
+import PostEngagement from 'src/pages/CommunityPosts/PostEngagementOpenRoute.vue';
 const route = useRoute();
 const router = useRouter();
 
