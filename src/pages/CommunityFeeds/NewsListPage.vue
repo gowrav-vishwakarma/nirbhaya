@@ -145,7 +145,7 @@ const userStore = useUserStore();
 const news = ref<NewsItem[]>([]);
 const loading = ref(false);
 const page = ref(1);
-const pageSize = 12;
+const pageSize = 6;
 const hasMoreNews = ref(true);
 
 const selectedLanguage = ref(userStore.newsPreferences.language || 'en');
