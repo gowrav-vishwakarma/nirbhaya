@@ -17,7 +17,11 @@
 
         <div class="location-section q-mt-xs">
           <q-btn class="full-width" :loading="isLoadingLocation" @click="getCurrentLocation" icon="my_location"
-            label="Get Current Location" color="primary" flat />
+            color="primary" flat>
+            <span style="font-size: 12px; margin-left: 5px; font-weight: 700;">
+              Get Current Location
+            </span>
+          </q-btn>
 
 
           <div v-if="businessData.latitude && businessData.longitude" class="coordinates-display q-mt-xs">
