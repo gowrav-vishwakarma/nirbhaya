@@ -89,8 +89,8 @@
           </q-expansion-item>
 
           <!-- Feedback Impact -->
-          <q-expansion-item v-if="userStore.user.name" v-model="expandedItems.business" group="business" icon="mdi-cog"
-            label="Business">
+          <q-expansion-item v-if="userStore.user.name" v-model="expandedItems.business" group="profile-tabs"
+            icon="mdi-google-my-business" label="Business">
             <BusinessInfo :reload-components="reloadComponents" />
           </q-expansion-item>
 
