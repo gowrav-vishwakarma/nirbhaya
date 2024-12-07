@@ -106,7 +106,7 @@ export default {
   tech: 'તકનિકી',
   student: 'વિદ્યાર્થી',
   nurse: 'નિયુસ',
-  freelancer: 'फ्रीलांसर,
+  freelancer: 'ફ્રીલાંસર',
   onlineSeller: 'ઑનલાઈન વેચનાર',
   handicraftMaker: 'હેન્ડીક્રાફ્ટ બનાવનાર',
   tailor: 'દરજી',
