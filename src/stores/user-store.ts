@@ -44,6 +44,8 @@ export interface User {
   isAmbassador: boolean;
   avatar?: string;
   canCreatePost: boolean;
+  businessName: string;
+  whatsappNumber: string;
 }
 
 interface NewsPreferences {
@@ -76,7 +78,9 @@ const defaultUser: User = {
   pincode: '',
   profession: '',
   isAmbassador: false,
-  avatar: undefined,
+  canCreatePost: false,
+  businessName: '',
+  whatsappNumber: '',
 };
 
 export const useUserStore = defineStore('userStore', {

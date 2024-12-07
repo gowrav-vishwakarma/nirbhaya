@@ -127,6 +127,16 @@ const userStore = useUserStore();
 // Create a ref for $t to make it available in the template
 const $t = (key: string) => t(key);
 
+// Add this interface near the top of the script section
+interface UserLocation {
+  name: string;
+  location: {
+    type: 'Point';
+    coordinates: [number | null, number | null];
+  };
+  isBusinessLocation?: boolean;
+}
+
 const { values, isLoading, validateAndSubmit, callbacks } = useForm(
   api,
   'user/user-profile-update',
@@ -140,7 +150,10 @@ const locationLoading = ref<boolean[]>([]);
 
 const loadUserData = () => {
   const userData = userStore.user;
-  values.value.locations = JSON.parse(JSON.stringify(userData.locations || []));
+  // Filter out business locations and create a deep copy
+  values.value.locations = JSON.parse(JSON.stringify(
+    (userData.locations || []).filter((loc: UserLocation) => !loc.isBusinessLocation)
+  ));
   values.value.availableForCommunity = userData.availableForCommunity || false;
   values.value.availableForPaidProfessionalService =
     userData.availableForPaidProfessionalService || false;
@@ -265,6 +278,8 @@ const handleSubmit = async () => {
     try {
       await validateAndSubmit(false); // This will trigger the API call
       // Store update will happen in callbacks.onSuccess
+      window.location.reload();
+
     } catch (error) {
       console.error('Form submission error:', error);
       $q.notify({

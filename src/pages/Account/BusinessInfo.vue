@@ -51,11 +51,13 @@ import { useQuasar } from 'quasar';
 import { Geolocation } from '@capacitor/geolocation';
 import { useI18n } from 'vue-i18n';
 import { api } from 'src/boot/axios';
+import { useUserStore } from 'src/stores/user-store';
 
 const $q = useQuasar();
 const formRef = ref();
 const loading = ref(false);
 const isLoadingLocation = ref(false);
+const userStore = useUserStore();
 
 interface BusinessData {
   businessName: string;
@@ -63,6 +65,22 @@ interface BusinessData {
   locationName: string;
   latitude: number | null;
   longitude: number | null;
+}
+
+interface LocationPoint {
+  type: 'Point';
+  coordinates: [number, number];
+}
+
+interface UserLocation {
+  id: number;
+  name: string;
+  location: {
+    type: 'Point';
+    coordinates: [number, number];
+  };
+  timestamp: string | null;
+  isBusinessLocation: boolean;
 }
 
 const businessData = reactive<BusinessData>({
@@ -162,11 +180,42 @@ const handleSubmit = async () => {
       longitude: businessData.longitude
     };
 
-    // Make API call to save/update business information
-    const response = await api.post('/user/add-business-information', businessInfo,
-    );
+    const response = await api.post('/user/add-business-information', businessInfo);
 
     if (response.data) {
+      // Get current locations from user store with correct type
+      const currentLocations = [...(userStore.user?.locations || [])] as UserLocation[];
+
+      // Now the findIndex will work correctly with the proper type
+      const businessLocationIndex = currentLocations.findIndex(loc => loc.isBusinessLocation);
+
+      const updatedLocation: UserLocation = {
+        id: response.data.locationId,
+        name: businessData.locationName,
+        location: {
+          type: 'Point',
+          coordinates: [businessData.longitude, businessData.latitude]
+        },
+        timestamp: null,
+        isBusinessLocation: true
+      };
+
+      // If business location exists, update it. Otherwise, add new location
+      if (businessLocationIndex !== -1) {
+        currentLocations[businessLocationIndex] = updatedLocation;
+      } else {
+        currentLocations.push(updatedLocation);
+      }
+
+      // Update the user store
+      userStore.updateUser({
+        ...userStore.user,
+        businessName: businessData.businessName,
+        whatsappNumber: businessData.whatsappNumber?.toString(),
+        locations: currentLocations
+      });
+
+
       $q.notify({
         type: 'positive',
         message: 'Business information saved successfully',
@@ -183,14 +232,44 @@ const handleSubmit = async () => {
     });
   } finally {
     loading.value = false;
+    window.location.reload();
   }
 };
 
-// Add function to fetch existing business info
+const fetchExistingBusinessInfo = () => {
+  const user = userStore.user;
+  if (user) {
+    if (user.businessName) {
+      businessData.businessName = user.businessName;
+    }
+    if (user.whatsappNumber) {
+      businessData.whatsappNumber = parseInt(user.whatsappNumber, 10);
+    }
 
+    // Get the business location from user's locations
+    const locations = user.locations as UserLocation[];
+    if (locations && locations.length > 0) {
+      // Filter for business locations and get the most recent one
+      const businessLocations = locations.filter(loc => loc.isBusinessLocation);
 
-// Load existing business info when component mounts
+      if (businessLocations.length > 0) {
+        const mostRecentLocation = businessLocations.sort((a, b) => {
+          if (!a.timestamp) return 1;
+          if (!b.timestamp) return -1;
+          return new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime();
+        })[0];
 
+        businessData.locationName = mostRecentLocation.name;
+        businessData.longitude = mostRecentLocation.location.coordinates[0];
+        businessData.latitude = mostRecentLocation.location.coordinates[1];
+      }
+    }
+  }
+};
+
+onMounted(() => {
+  fetchExistingBusinessInfo();
+});
 
 const { t } = useI18n();
 
