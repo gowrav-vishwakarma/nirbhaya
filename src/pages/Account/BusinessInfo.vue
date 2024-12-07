@@ -146,13 +146,6 @@ const getCurrentLocation = async () => {
       // Update business data with coordinates
       businessData.latitude = latitude;
       businessData.longitude = longitude;
-
-      $q.notify({
-        type: 'positive',
-        color: 'black',
-        message: 'Location Fatched',
-        position: 'top-right'
-      });
     }
   } catch (error) {
     console.error('Location error:', error);
@@ -230,6 +223,7 @@ const handleSubmit = async () => {
 
       $q.notify({
         type: 'positive',
+        color: 'black',
         message: 'Business information saved successfully',
         position: 'top-right'
       });
