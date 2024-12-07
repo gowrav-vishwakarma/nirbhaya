@@ -89,6 +89,12 @@
           </q-expansion-item>
 
           <!-- Feedback Impact -->
+          <q-expansion-item v-if="userStore.user.name" v-model="expandedItems.business" group="business" icon="mdi-cog"
+            label="Business">
+            <BusinessInfo />
+          </q-expansion-item>
+
+          <!-- Feedback Impact -->
 
           <!-- <q-expansion-item v-if="userStore.user.name" v-model="expandedItems.rating" group="profile-tabs"
             icon="fas fa-star" label="Your Rating">
@@ -117,6 +123,7 @@ import SosHistoryPage from '../Sos/SosHistoryPage.vue';
 import CommunityImpactPage from './CommunityImpactPage.vue';
 import ProfileAppPermission from './ProfileAppPermission.vue';
 import EmergencyContactPage from './EmergencyContactPage.vue';
+import BusinessInfo from './BusinessInfo.vue';
 import { useUserStore } from 'src/stores/user-store';
 import { api } from 'src/boot/axios';
 import { useI18n } from 'vue-i18n';
@@ -156,6 +163,7 @@ const expandedItems = ref({
   rating: false,
   settings: false,
   emergencyContact: false,
+  business: false
 });
 </script>
 <style lang="scss" scoped>
