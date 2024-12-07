@@ -199,6 +199,7 @@ const { values, errors, validateAndSubmit, updateUrl, callbacks } =
     mobileNumber: '',
     otp: '',
     deviceId: '',
+    platform: $q.platform.is,
   });
 
 const isLoading = ref(false);
@@ -289,7 +290,10 @@ const startCountdown = () => {
 const resendOTP = async () => {
   isLoading.value = true;
   try {
-    await api.post('auth/sendOtp', { mobileNumber: values.value.mobileNumber });
+    await api.post('auth/sendOtp', {
+      mobileNumber: values.value.mobileNumber,
+      platform: $q.platform.is,
+    });
     Notify.create({
       type: 'positive',
       message: 'OTP resent successfully',
