@@ -190,7 +190,11 @@ const $q = useQuasar();
 const userStore = useUserStore();
 
 // const STREAM_SAVE = computed(() => process.env.STREAM_SAVE);
+const props = defineProps<{
+  reloadComponents?: () => void
+}>();
 
+const emit = defineEmits(['reloadComponents']);
 const userTypeOptions = ['Girl', 'Child', 'Elder Woman', 'Elder Man', 'Youth'];
 
 const originalStateOptions = [
@@ -482,6 +486,9 @@ callbacks.onSuccess = (data) => {
     icon: 'check',
     position: 'top-right',
   });
+
+  props.reloadComponents?.();
+  emit('reloadComponents');
 };
 
 callbacks.onError = async (error: any): Promise<void> => {

@@ -107,6 +107,10 @@
       <div class="logout-section q-pb-md">
         <q-btn style="width: 90%; margin: auto" label="Logout" @click="logout" class="logout-btn" icon="logout" />
       </div>
+      <div class="text-center text-subtitle1 versiontextcolor text-weight-thin" style="font-weight: 600">
+        <span style="font-size: 13px">App version : </span>
+        <span style="font-size: 13px">{{ version }}</span>
+      </div>
     </div>
   </div>
 </template>
@@ -738,5 +742,9 @@ const expandedItems = ref({
 
 :deep(.q-ripple) {
   display: none !important;
+}
+
+.versiontextcolor {
+  color: rgb(206, 204, 204);
 }
 </style>
