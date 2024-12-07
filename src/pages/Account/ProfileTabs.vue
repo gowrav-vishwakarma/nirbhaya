@@ -3,11 +3,8 @@
     <!-- Enhanced Profile Header -->
     <div class="profile-header">
       <div class="cover-image">
-        <img
-          src="https://img.freepik.com/premium-vector/line-drawing-children-holding-hands_904506-140.jpg?w=826"
-          alt="Cover"
-          class="cover-img"
-        />
+        <img src="https://img.freepik.com/premium-vector/line-drawing-children-holding-hands_904506-140.jpg?w=826"
+          alt="Cover" class="cover-img" />
         <div class="overlay"></div>
         <!-- <q-btn round flat color="dark" icon="edit" size="sm" class="edit-cover-btn" @click="handleCoverUpload" /> -->
       </div>
@@ -15,18 +12,15 @@
         <div class="profile-main">
           <div class="profile-image-container">
             <div class="profile-image">
-              <img
-                src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS59s6qBOFlkS5LN4Z0U3G71nCWWg3SuHGVMw&s"
-              />
+              <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS59s6qBOFlkS5LN4Z0U3G71nCWWg3SuHGVMw&s" />
               <div class="online-status"></div>
             </div>
-            <q-btn 
-              v-if="$q.screen.lg || $q.screen.xl || $q.screen.md"
-          flat
-            @click="router.push(`/my-posts/${userStore.user.id}`)" 
-            label="My Posts" 
-            class="text-center my-posts-btn1"
-          />
+            <q-btn v-if="$q.screen.lg || $q.screen.xl || $q.screen.md" flat
+              @click="router.push(`/my-posts/${userStore.user.id}`)" class="text-center my-posts-btn1">
+              <span style="font-size: 13px">
+                My Posts
+              </span>
+            </q-btn>
             <!-- <q-btn round color="primary" icon="edit" size="sm" class="edit-avatar-btn" @click="handleImageUpload" /> -->
           </div>
 
@@ -36,14 +30,13 @@
                 {{ userStore.user.name }}
               </h2>
             </div>
-             <!-- My Posts -->
-          <q-btn 
-          flat
-            @click="router.push(`/my-posts/${userStore.user.id}`)" 
-            label="My Posts" 
-            class="text-center my-posts-btn"
-            v-if="$q.screen.sm  || $q.screen.xs"
-          />
+            <!-- My Posts -->
+            <q-btn flat @click="router.push(`/my-posts/${userStore.user.id}`)" class="text-center my-posts-btn"
+              v-if="$q.screen.sm || $q.screen.xs">
+              <span style="font-size: 13px">
+                My Posts
+              </span>
+            </q-btn>
           </div>
         </div>
       </div>
@@ -54,75 +47,44 @@
         <q-list separator>
 
           <!-- Account Details -->
-          <q-expansion-item
-            v-model="expandedItems.profile"
-            group="profile-tabs"
-            v-ripple
-            icon="person"
-            :label="$t('common.myProfile')"
-            header-class="glass-effect"
-          >
+          <q-expansion-item v-model="expandedItems.profile" group="profile-tabs" v-ripple icon="person"
+            :label="$t('common.myProfile')" header-class="glass-effect">
             <q-card>
               <ProfilePage />
             </q-card>
           </q-expansion-item>
 
           <!-- EmergencyContactPage -->
-          <q-expansion-item
-            v-if="userStore.user.name"
-            v-model="expandedItems.emergencyContact"
-            group="profile-tabs"
-            icon="mdi-human-greeting-proximity"
-            :label="$t('common.emergencyContact')"
-          >
+          <q-expansion-item v-if="userStore.user.name" v-model="expandedItems.emergencyContact" group="profile-tabs"
+            icon="mdi-human-greeting-proximity" :label="$t('common.emergencyContact')">
             <EmergencyContactPage />
           </q-expansion-item>
 
           <!-- Volunteers Section -->
-          <q-expansion-item
-            v-if="userStore.user.name"
-            v-model="expandedItems.volunteers"
-            group="profile-tabs"
-            icon="volunteer_activism"
-            :label="$t('common.beVolunteers')"
-          >
+          <q-expansion-item v-if="userStore.user.name" v-model="expandedItems.volunteers" group="profile-tabs"
+            icon="volunteer_activism" :label="$t('common.beVolunteers')">
             <q-card>
               <VolunteeringPage />
             </q-card>
           </q-expansion-item>
 
-        
+
 
           <!-- Community Impact -->
-          <q-expansion-item
-            v-if="userStore.user.name"
-            v-model="expandedItems.community"
-            group="profile-tabs"
-            icon="people"
-            :label="$t('common.communityImpact')"
-          >
+          <q-expansion-item v-if="userStore.user.name" v-model="expandedItems.community" group="profile-tabs"
+            icon="people" :label="$t('common.communityImpact')">
             <CommunityImpactPage />
           </q-expansion-item>
 
           <!-- Feedback Impact -->
-          <q-expansion-item
-            v-if="userStore.user.name"
-            v-model="expandedItems.feedback"
-            group="profile-tabs"
-            icon="fas fa-history"
-            :label="$t('common.sosHistory')"
-          >
+          <q-expansion-item v-if="userStore.user.name" v-model="expandedItems.feedback" group="profile-tabs"
+            icon="fas fa-history" :label="$t('common.sosHistory')">
             <SosHistoryPage />
           </q-expansion-item>
 
           <!-- Feedback Impact -->
-          <q-expansion-item
-            v-if="userStore.user.name"
-            v-model="expandedItems.settings"
-            group="profile-tabs"
-            icon="mdi-cog"
-            :label="$t('common.sosSetting')"
-          >
+          <q-expansion-item v-if="userStore.user.name" v-model="expandedItems.settings" group="profile-tabs"
+            icon="mdi-cog" :label="$t('common.sosSetting')">
             <ProfileAppPermission />
           </q-expansion-item>
 
@@ -137,13 +99,7 @@
 
       <!-- Logout Button -->
       <div class="logout-section q-pb-md">
-        <q-btn
-          style="width: 90%; margin: auto"
-          label="Logout"
-          @click="logout"
-          class="logout-btn"
-          icon="logout"
-        />
+        <q-btn style="width: 90%; margin: auto" label="Logout" @click="logout" class="logout-btn" icon="logout" />
       </div>
     </div>
   </div>
@@ -203,9 +159,8 @@ const expandedItems = ref({
 });
 </script>
 <style lang="scss" scoped>
-
 .my-posts-btn {
-  background: rgba(229, 185, 192, 0.15);  // Light pink with transparency
+  background: rgba(229, 185, 192, 0.15); // Light pink with transparency
   color: $primary;
   font-weight: 600;
   padding: 5px 25px;
@@ -214,29 +169,7 @@ const expandedItems = ref({
   border-radius: 20px;
   margin-top: -10px;
   // border: 1px solid rgba(255, 192, 203, 0.3);
-  
-  &:hover {
-    background: rgba(255, 192, 203, 0.25);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(255, 192, 203, 0.2);
-  }
 
-  &:active {
-    transform: translateY(0);
-  }}
-
-.my-posts-btn1 {
-  background: rgba(229, 185, 192, 0.15);  // Light pink with transparency
-  color: $primary;
-  font-weight: 600;
-  padding: 5px 25px;
-  border-radius: 12px;
-  transition: all 0.3s ease;
-  border-radius: 20px;
-  margin-top: 20px;
-  margin-left: 25px;
-  // border: 1px solid rgba(255, 192, 203, 0.3);
-  
   &:hover {
     background: rgba(255, 192, 203, 0.25);
     transform: translateY(-2px);
@@ -247,6 +180,30 @@ const expandedItems = ref({
     transform: translateY(0);
   }
 }
+
+.my-posts-btn1 {
+  background: rgba(229, 185, 192, 0.15); // Light pink with transparency
+  color: $primary;
+  font-weight: 600;
+  padding: 5px 25px;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+  border-radius: 20px;
+  margin-top: 20px;
+  margin-left: 25px;
+  // border: 1px solid rgba(255, 192, 203, 0.3);
+
+  &:hover {
+    background: rgba(255, 192, 203, 0.25);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255, 192, 203, 0.2);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+}
+
 .profile-container {
   max-width: 100%;
   margin: 0 auto;
@@ -289,11 +246,9 @@ const expandedItems = ref({
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(
-    to bottom,
-    rgba(0, 0, 0, 0.2),
-    rgba(0, 0, 0, 0.5)
-  );
+  background: linear-gradient(to bottom,
+      rgba(0, 0, 0, 0.2),
+      rgba(0, 0, 0, 0.5));
   pointer-events: none;
 }
 
@@ -674,13 +629,11 @@ const expandedItems = ref({
 
 .shimmer {
   animation: shimmer 1s linear infinite;
-  background: linear-gradient(
-    to right,
-    #f6f7f8 0%,
-    #edeef1 20%,
-    #f6f7f8 40%,
-    #f6f7f8 100%
-  );
+  background: linear-gradient(to right,
+      #f6f7f8 0%,
+      #edeef1 20%,
+      #f6f7f8 40%,
+      #f6f7f8 100%);
   background-size: 800px 104px;
 }
 
@@ -756,7 +709,7 @@ const expandedItems = ref({
 }
 
 /* Additional specificity for icon containers */
-:deep(.q-item__section--avatar) > .q-icon {
+:deep(.q-item__section--avatar)>.q-icon {
   color: #8b8888e8 !important;
 }
 

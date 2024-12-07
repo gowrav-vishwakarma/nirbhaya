@@ -180,6 +180,7 @@ const removeEmergencyContact = async (index: number) => {
       color: 'negative',
       message: t('common.emergencyContactDeleteError'),
       icon: 'error',
+      position: 'top-right',
     });
   }
 };
@@ -244,6 +245,7 @@ const handleSubmit = async () => {
           color: 'negative',
           message: t('common.pleaseFixErrors'),
           icon: 'error',
+          position: 'top-right',
         });
         return;
       }
@@ -258,6 +260,7 @@ const handleSubmit = async () => {
       color: 'negative',
       message: t('common.unexpectedError'),
       icon: 'error',
+      position: 'top-right',
     });
   }
 };
@@ -272,9 +275,10 @@ callbacks.onSuccess = (data) => {
   loadUserData(); // Reload user data
 
   $q.notify({
-    color: 'positive',
-    message: t('common.emergencyContactsUpdateSuccess'),
+    color: 'black',
+    message: 'Emergency Contacts Updated Successfully',
     icon: 'check',
+    position: 'top-right',
   });
 };
 

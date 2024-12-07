@@ -461,6 +461,7 @@ const handleSubmit = async () => {
       color: 'negative',
       message: t('common.pleaseFixErrors'),
       icon: 'error',
+      position: 'top-right',
     });
   }
 };
@@ -479,9 +480,10 @@ callbacks.onSuccess = (data) => {
   loadUserData(); // Reload user data from the store
 
   $q.notify({
-    color: 'positive',
+    color: 'black',
     message: t('common.profileUpdateSuccess'),
     icon: 'check',
+    position: 'top-right',
   });
 };
 
@@ -491,6 +493,7 @@ callbacks.onError = async (error: any): Promise<void> => {
     color: 'negative',
     message: t('common.profileUpdateError'),
     icon: 'error',
+    position: 'top-right',
   });
 };
 
