@@ -180,8 +180,6 @@ import { useUserStore } from 'src/stores/user-store';
 import { api } from 'src/boot/axios';
 import { useForm } from 'src/qnatk/composibles/use-form';
 import LanguageSelector from 'src/components/LanguageSelector.vue';
-
-import EmergencyContactRequestsDialog from 'components/EmergencyContactRequestsDialog.vue';
 import SearchCity from 'src/components/SearchCity.vue';
 import type { QSelectFilterFn } from 'quasar';
 
@@ -239,9 +237,9 @@ const originalStateOptions = [
 
 const stateOptions = ref([...originalStateOptions]);
 
-const isNavigatorMediaSupported = computed(() => {
-  return !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
-});
+// const isNavigatorMediaSupported = computed(() => {
+//   return !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
+// });
 
 const professionOptions = [
   { label: t('common.hospital'), value: 'hospital' },
@@ -282,6 +280,12 @@ interface EmergencyContact {
   priority: number;
   consentGiven: boolean;
 }
+interface City {
+  officename: string;
+  statename: string;
+  pincode: string;
+  city?: string;
+}
 
 interface FormValues {
   name: string;
@@ -318,7 +322,7 @@ const { values, errors, isLoading, validateAndSubmit, callbacks } = useForm<Form
     referredBy: '',
   }
 );
-callbacks.beforeSubmit = (data: FormValues) => {
+callbacks.beforeSubmit = (data) => {
   console.log('data before processing...', data);
   const processedData = {
     ...data,
@@ -399,24 +403,6 @@ onMounted(() => {
   // checkPermissions();
 });
 
-const addEmergencyContact = () => {
-  if (values.value.emergencyContacts.length < 3) {
-    values.value.emergencyContacts.push({
-      contactName: '',
-      contactPhone: '',
-      relationship: '',
-      isAppUser: false,
-      priority: 0,
-      consentGiven: false,
-    });
-  }
-};
-
-const removeEmergencyContact = (index: number) => {
-  values.value.emergencyContacts.splice(index, 1);
-};
-
-
 
 const hasEmergencyContacts = computed(
   () => values.value.emergencyContacts.length > 0
@@ -448,30 +434,9 @@ const isFormValid = computed(() => {
   );
 });
 
-const validatePhoneNumber = async (phoneNumber: string, index: number): Promise<void> => {
-  try {
-    const response = await api.post('auth/validate-phone', { phoneNumber });
-    if (!response.data.isValid) {
-      errors.value[`emergencyContact${index}`] = [t('phoneNumberNotInSystem')];
-    } else {
-      delete errors.value[`emergencyContact${index}`];
-    }
-  } catch (error) {
-    console.error('Error validating phone number:', error);
-    errors.value[`emergencyContact${index}`] = [t('phoneValidationError')];
-  }
-};
+
 
 const handleSubmit = async () => {
-  // Validate phone numbers only if emergency contacts are present
-  // if (values.value.emergencyContacts.length > 0) {
-  //   for (let i = 0; i < values.value.emergencyContacts.length; i++) {
-  //     await validatePhoneNumber(
-  //       values.value.emergencyContacts[i].contactPhone,
-  //       i
-  //     );
-  //   }
-  // }
 
   if (isFormValid.value || values.value.emergencyContacts.length === 0) {
     validateAndSubmit(false);
@@ -519,20 +484,10 @@ callbacks.onError = async (error: any): Promise<void> => {
   });
 };
 
-const openEmergencyContactRequests = () => {
-  $q.dialog({
-    component: EmergencyContactRequestsDialog,
-  });
-};
+
 
 // Add a reactive reference to track the last checked referral ID
 const lastCheckedReferralId = ref('');
-
-const dateOptions = (date: string) => {
-  const today = new Date();
-  const selectedDate = new Date(date);
-  return selectedDate <= today;
-};
 
 // Type-safe city selection handler
 const handleCitySelection = (selectedCity: City | null) => {
