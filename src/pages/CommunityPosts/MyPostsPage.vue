@@ -3,7 +3,7 @@
     <div class="container q-pa-md" v-if="isUserPermitted">
       <!-- Header -->
       <div style="padding-top: 5px; padding-left: 10px;">
-        <q-btn size="sm" flat class="back-button">
+        <q-btn size="sm" flat class="back-button" @click="router.go(-1)">
           <i style="font-size: 14px;" class="fa-solid fa-arrow-left-long"></i>
         </q-btn>
       </div>
