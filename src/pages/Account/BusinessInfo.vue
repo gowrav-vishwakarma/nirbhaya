@@ -46,10 +46,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed } from 'vue';
+import { ref, reactive, computed, onMounted } from 'vue';
 import { useQuasar } from 'quasar';
 import { Geolocation } from '@capacitor/geolocation';
 import { useI18n } from 'vue-i18n';
+import { api } from 'src/boot/axios';
 
 const $q = useQuasar();
 const formRef = ref();
@@ -142,32 +143,54 @@ const handleSubmit = async () => {
   if (!isValid) return;
 
   if (!businessData.latitude || !businessData.longitude) {
+    $q.notify({
+      type: 'warning',
+      message: 'Please get your current location first',
+      position: 'top-right'
+    });
     return;
   }
 
   try {
     loading.value = true;
-    // Add your API call here to save the business information
-    console.log('Saving business data:', businessData);
-    // await api.saveBusinessInfo(businessData);
 
-    $q.notify({
-      type: 'positive',
-      color: 'black',
-      message: 'Business information saved successfully',
-      position: 'top-right'
-    });
-  } catch (error) {
-    console.error('Error saving business info:', error);
+    const businessInfo = {
+      businessName: businessData.businessName,
+      whatsappNumber: businessData.whatsappNumber,
+      locationName: businessData.locationName,
+      latitude: businessData.latitude,
+      longitude: businessData.longitude
+    };
+
+    // Make API call to save/update business information
+    const response = await api.post('/user/add-business-information', businessInfo,
+    );
+
+    if (response.data) {
+      $q.notify({
+        type: 'positive',
+        message: 'Business information saved successfully',
+        position: 'top-right'
+      });
+    }
+  } catch (err: unknown) {
+    console.error('Error saving business info:', err);
+    const error = err as { response?: { data?: { message?: string } } };
     $q.notify({
       type: 'negative',
-      message: 'Failed to save business information',
+      message: error.response?.data?.message || 'Failed to save business information',
       position: 'top-right'
     });
   } finally {
     loading.value = false;
   }
 };
+
+// Add function to fetch existing business info
+
+
+// Load existing business info when component mounts
+
 
 const { t } = useI18n();
 
