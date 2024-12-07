@@ -252,9 +252,19 @@ const getLocationCoordinates = (location: {
   return '';
 };
 
+// Add defineEmits near the top of the script setup section, after the imports
+const props = defineProps<{
+  reloadComponents?: () => void
+}>();
+
+const emit = defineEmits(['reloadComponents']);
+
+// Modify the callbacks.onSuccess to emit reloadComponents after successful update
 callbacks.onSuccess = (data) => {
   userStore.updateUser(data.user);
   loadUserData(); // Reload user data from the store
+  // Emit reloadComponents
+
   $q.notify({
     color: 'black',
     message: t('common.volunteeringUpdateSuccess'),
@@ -276,9 +286,10 @@ callbacks.onError = async (error: any) => {
 const handleSubmit = async () => {
   if (isFormValid.value) {
     try {
-      await validateAndSubmit(false); // This will trigger the API call
-      // Store update will happen in callbacks.onSuccess
-      window.location.reload();
+      await validateAndSubmit(false);
+      // Call both the prop function and emit the event
+      props.reloadComponents?.();
+      emit('reloadComponents');
 
     } catch (error) {
       console.error('Form submission error:', error);
@@ -288,7 +299,6 @@ const handleSubmit = async () => {
         icon: 'error',
         position: 'top-right',
       });
-
     }
   } else {
     $q.notify({

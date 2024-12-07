@@ -38,7 +38,7 @@
           <q-item-section>
             <q-item-label>{{
               $t('common.startAudioVideoRecordOnSos')
-              }}</q-item-label>
+            }}</q-item-label>
           </q-item-section>
           <q-item-section side>
             <q-toggle v-model="values.startAudioVideoRecordOnSos"
@@ -49,7 +49,7 @@
           <q-item-section>
             <q-item-label>{{
               $t('common.streamAudioVideoOnSos')
-              }}</q-item-label>
+            }}</q-item-label>
           </q-item-section>
           <q-item-section side>
             <q-toggle v-model="values.streamAudioVideoOnSos"
@@ -60,7 +60,7 @@
           <q-item-section>
             <q-item-label>{{
               $t('common.broadcastAudioOnSos')
-              }}</q-item-label>
+            }}</q-item-label>
           </q-item-section>
           <q-item-section side>
             <q-toggle v-model="values.broadcastAudioOnSos"
@@ -80,13 +80,9 @@ import { useI18n } from 'vue-i18n';
 import { useQuasar } from 'quasar';
 import { useUserStore } from 'src/stores/user-store';
 import { api } from 'src/boot/axios';
-import { useForm } from 'src/qnatk/composibles/use-form';
-import LanguageSelector from 'src/components/LanguageSelector.vue';
 import { Capacitor, Plugins } from '@capacitor/core';
 import { Geolocation } from '@capacitor/geolocation';
 import { Camera } from '@capacitor/camera';
-import EmergencyContactRequestsDialog from 'components/EmergencyContactRequestsDialog.vue';
-import SearchCity from 'src/components/SearchCity.vue';
 
 // Define interface for values
 interface SOSSettings {
@@ -94,11 +90,17 @@ interface SOSSettings {
   streamAudioVideoOnSos: boolean;
   broadcastAudioOnSos: boolean;
 }
+const props = defineProps<{
+  reloadComponents?: () => void
+}>();
 
+const emit = defineEmits(['reloadComponents']);
 // Define props and emits if needed
 defineOptions({
   name: 'ProfileAppPermission'
 });
+
+
 
 // Get composition API utilities
 const { t } = useI18n();
@@ -137,65 +139,7 @@ const permissions = ref([
   { name: 'common.camera', granted: false },
 ]);
 
-const requestPermission = async (permissionName: string) => {
-  try {
-    let result;
-    if (Capacitor.isNativePlatform()) {
-      switch (permissionName) {
-        case 'location':
-          result = await Geolocation.requestPermissions();
-          break;
-        case 'camera':
-          result = await Camera.requestPermissions();
-          break;
-        case 'microphone':
-          result = await Plugins.Permissions.requestPermissions({
-            permissions: ['microphone'],
-          });
-          break;
-      }
-    } else {
-      // Web API fallback
-      switch (permissionName) {
-        case 'location':
-          result = await navigator.permissions.query({ name: 'geolocation' });
-          console.log('Location permission result:', result);
-          break;
-        case 'camera':
-        case 'microphone':
-          result = await navigator.mediaDevices.getUserMedia({
-            video: permissionName === 'camera',
-            audio: permissionName === 'microphone',
-          });
-          console.log(
-            'Media (camera and microphone) permission result:',
-            result
-          );
-          break;
-      }
-    }
 
-    const permissionIndex = permissions.value.findIndex(
-      (p) => p.name === permissionName
-    );
-    if (permissionIndex !== -1) {
-      permissions.value[permissionIndex].granted = true;
-    }
-
-    $q.notify({
-      color: 'positive',
-      message: t('common.permissionGranted', { permission: t(permissionName) }),
-      icon: 'check',
-    });
-  } catch (error) {
-    console.error(`Error requesting ${permissionName} permission:`, error);
-    $q.notify({
-      color: 'negative',
-      message: t('common.permissionDenied', { permission: t(permissionName) }),
-      icon: 'error',
-    });
-  }
-};
 
 const checkPermissions = async () => {
   for (const permission of permissions.value) {
@@ -251,6 +195,9 @@ const handleSettingChange = async (setting: keyof SOSSettings) => {
       [setting]: values.value[setting],
       userId: userStore.user.id
     });
+
+    props.reloadComponents?.();
+    emit('reloadComponents');
 
     // Optional: Show success notification
     // $q.notify({

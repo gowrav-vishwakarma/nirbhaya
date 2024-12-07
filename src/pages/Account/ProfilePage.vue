@@ -180,13 +180,10 @@ import { useUserStore } from 'src/stores/user-store';
 import { api } from 'src/boot/axios';
 import { useForm } from 'src/qnatk/composibles/use-form';
 import LanguageSelector from 'src/components/LanguageSelector.vue';
-import { Capacitor, Plugins } from '@capacitor/core';
-import { Geolocation } from '@capacitor/geolocation';
-import { Camera } from '@capacitor/camera';
+
 import EmergencyContactRequestsDialog from 'components/EmergencyContactRequestsDialog.vue';
 import SearchCity from 'src/components/SearchCity.vue';
 import type { QSelectFilterFn } from 'quasar';
-import type { City } from 'src/types/city';
 
 const { t } = useI18n();
 const $q = useQuasar();

@@ -1,5 +1,5 @@
 <template>
-  <div class="profile-container">
+  <div class="profile-container" :key="reloadKey">
     <!-- Enhanced Profile Header -->
     <div class="profile-header">
       <div class="cover-image">
@@ -48,23 +48,23 @@
 
           <!-- Account Details -->
           <q-expansion-item v-model="expandedItems.profile" group="profile-tabs" v-ripple icon="person"
-            :label="$t('common.myProfile')" header-class="glass-effect">
+            :label="t('common.myProfile')" header-class="glass-effect">
             <q-card>
-              <ProfilePage />
+              <ProfilePage :reload-components="reloadComponents" />
             </q-card>
           </q-expansion-item>
 
           <!-- EmergencyContactPage -->
           <q-expansion-item v-if="userStore.user.name" v-model="expandedItems.emergencyContact" group="profile-tabs"
-            icon="mdi-human-greeting-proximity" :label="$t('common.emergencyContact')">
-            <EmergencyContactPage />
+            icon="mdi-human-greeting-proximity" :label="t('common.emergencyContact')">
+            <EmergencyContactPage :reload-components="reloadComponents" />
           </q-expansion-item>
 
           <!-- Volunteers Section -->
           <q-expansion-item v-if="userStore.user.name" v-model="expandedItems.volunteers" group="profile-tabs"
-            icon="volunteer_activism" :label="$t('common.beVolunteers')">
+            icon="volunteer_activism" :label="t('common.beVolunteers')">
             <q-card>
-              <VolunteeringPage />
+              <VolunteeringPage @reload-components="reloadComponents" />
             </q-card>
           </q-expansion-item>
 
@@ -72,26 +72,26 @@
 
           <!-- Community Impact -->
           <q-expansion-item v-if="userStore.user.name" v-model="expandedItems.community" group="profile-tabs"
-            icon="people" :label="$t('common.communityImpact')">
-            <CommunityImpactPage />
+            icon="people" :label="t('common.communityImpact')">
+            <CommunityImpactPage :reload-components="reloadComponents" />
           </q-expansion-item>
 
           <!-- Feedback Impact -->
           <q-expansion-item v-if="userStore.user.name" v-model="expandedItems.feedback" group="profile-tabs"
-            icon="fas fa-history" :label="$t('common.sosHistory')">
-            <SosHistoryPage />
+            icon="fas fa-history" :label="t('common.sosHistory')">
+            <SosHistoryPage :reload-components="reloadComponents" />
           </q-expansion-item>
 
           <!-- Feedback Impact -->
           <q-expansion-item v-if="userStore.user.name" v-model="expandedItems.settings" group="profile-tabs"
-            icon="mdi-cog" :label="$t('common.sosSetting')">
-            <ProfileAppPermission />
+            icon="mdi-cog" :label="t('common.sosSetting')">
+            <ProfileAppPermission :reload-components="reloadComponents" />
           </q-expansion-item>
 
           <!-- Feedback Impact -->
           <q-expansion-item v-if="userStore.user.name" v-model="expandedItems.business" group="business" icon="mdi-cog"
             label="Business">
-            <BusinessInfo />
+            <BusinessInfo :reload-components="reloadComponents" />
           </q-expansion-item>
 
           <!-- Feedback Impact -->
@@ -111,7 +111,7 @@
   </div>
 </template>
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, provide } from 'vue';
 import { useRouter } from 'vue-router';
 import { useQuasar } from 'quasar';
 import ProfilePage from './ProfilePage.vue';
@@ -133,24 +133,21 @@ const userStore = useUserStore();
 
 const router = useRouter();
 const $q = useQuasar();
+const reloadKey = ref(0);
+const reloadComponents = () => {
+  console.log('reloadKey......', reloadKey);
+
+  reloadKey.value++;
+};
 
 const logout = async () => {
   try {
     await api.post('/auth/logout');
     userStore.logout(); // This will clear both in-memory and persisted state
     router.push('/login');
-    // $q.notify({
-    //   color: 'positive',
-    //   message: t('common.logoutSuccess'),
-    //   icon: 'check',
-    // });
+
   } catch (error) {
     console.error('Error logging out', error);
-    $q.notify({
-      color: 'negative',
-      message: t('common.logoutError'),
-      icon: 'error',
-    });
   }
 };
 

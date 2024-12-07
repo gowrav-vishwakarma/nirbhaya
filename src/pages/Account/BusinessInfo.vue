@@ -59,6 +59,12 @@ const loading = ref(false);
 const isLoadingLocation = ref(false);
 const userStore = useUserStore();
 
+const props = defineProps<{
+  reloadComponents?: () => void
+}>();
+
+const emit = defineEmits(['reloadComponents']);
+
 interface BusinessData {
   businessName: string;
   whatsappNumber: number | null;
@@ -90,6 +96,8 @@ const businessData = reactive<BusinessData>({
   latitude: null,
   longitude: null
 });
+
+
 
 const validatePhoneNumber = (value: number | string) => {
   if (value) {
@@ -232,7 +240,8 @@ const handleSubmit = async () => {
     });
   } finally {
     loading.value = false;
-    window.location.reload();
+    props.reloadComponents?.();
+    emit('reloadComponents');
   }
 };
 
