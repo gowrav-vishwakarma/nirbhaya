@@ -2,7 +2,12 @@
   <q-page class="bg-grey-1" style="padding-top: env(safe-area-inset-top)">
     <div class="container q-pa-md" v-if="isUserPermitted">
       <!-- Header -->
-      <div class="row items-center justify-between q-pa-md">
+      <div style="padding-top: 5px; padding-left: 10px;">
+        <q-btn size="sm" flat class="back-button">
+          <i style="font-size: 14px;" class="fa-solid fa-arrow-left-long"></i>
+        </q-btn>
+      </div>
+      <div class="row items-center justify-between q-pa-md q-pt-none">
         <div>
           <h4 class="text-h5 text-weight-bold q-my-none text-primary" v-if="findUserData">
             {{ findUserData.name }}
@@ -168,17 +173,18 @@
                         : [imageCdn + post.mediaUrls]" :key="index" class="carousel-slide"
                         :class="{ active: currentIndex === index }" v-intersection="onCarouselImageIntersection(index)"
                         ref="carouselImages">
-                        <img :src="url" :alt="`Image ${index + 1}`" class="carousel-image" @click.stop />
+                        <q-img :src="url" :alt="`Image ${index + 1}`" class="carousel-image" @click.stop
+                          :fit="'contain'" />
                       </div>
                     </div>
 
                     <!-- Navigation Arrows -->
                     <!-- <button class="carousel-arrow prev" @click.stop="prevSlide" v-show="currentIndex > 0">
-                        <i class="material-icons">chevron_left</i>
-                      </button>
-                      <button class="carousel-arrow next" @click.stop="nextSlide" v-show="!isLastSlide">
-                        <i class="material-icons">chevron_right</i>
-                      </button> -->
+                      <i class="material-icons">chevron_left</i>
+                    </button>
+                    <button class="carousel-arrow next" @click.stop="nextSlide" v-show="!isLastSlide">
+                      <i class="material-icons">chevron_right</i>
+                    </button> -->
                   </div>
                 </template>
 
@@ -194,7 +200,7 @@
                         (Array.isArray(post.mediaUrls)
                           ? post.mediaUrls[0]
                           : post.mediaUrls)
-                        " :ratio="16 / 9" class="single-image" @click="showCarousel(post.id, 0)" />
+                        " class="single-image" :fit="'contain'" />
                     </template>
 
                     <!-- Two Images -->
@@ -1296,6 +1302,24 @@ const confirmDelete = (postId: number | string) => {
   height: 45px;
   text-align: left;
   justify-content: flex-start;
+  white-space: nowrap;
+  overflow: hidden;
+
+  .row {
+    flex-wrap: nowrap;
+    min-width: 0;
+
+    span {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+  }
+
+  .suggestion-btn {
+    flex-shrink: 0;
+    margin-left: 8px !important;
+  }
 }
 
 .media-collage {
@@ -1305,9 +1329,9 @@ const confirmDelete = (postId: number | string) => {
 }
 
 .single-image {
-  width: 100%;
-  aspect-ratio: 16/9;
-  object-fit: cover;
+  // width: 100%;
+  // aspect-ratio: 16/9;
+  // object-fit: cover;
 }
 
 .two-images-grid {
@@ -1404,7 +1428,8 @@ const confirmDelete = (postId: number | string) => {
   .single-image,
   .two-images-grid,
   .multi-images-grid {
-    height: 300px;
+    // height: 300px;
+    max-height: 60vh;
   }
 }
 
@@ -1542,7 +1567,7 @@ const confirmDelete = (postId: number | string) => {
 
 .carousel-slide {
   padding: 0;
-  height: 400px;
+  height: 60vh;
   background: #000;
 }
 
@@ -1564,7 +1589,7 @@ const confirmDelete = (postId: number | string) => {
 // Responsive adjustments
 @media (max-width: 600px) {
   .carousel-slide {
-    height: 300px;
+    height: 60vh;
   }
 }
 
@@ -1621,7 +1646,7 @@ const confirmDelete = (postId: number | string) => {
 
 .carousel-slide {
   padding: 0;
-  height: 400px;
+  height: 60vh;
   background: #000;
 }
 
@@ -1709,7 +1734,7 @@ const confirmDelete = (postId: number | string) => {
 // Responsive adjustments
 @media (max-width: 600px) {
   .carousel-slide {
-    height: 300px;
+    height: 60vh;
   }
 
   .carousel-view {
@@ -2073,6 +2098,145 @@ const confirmDelete = (postId: number | string) => {
     min-width: 60px;
     padding: 4px 8px;
   }
+}
+
+.engagement-section {
+  padding: 12px 16px;
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+  background: #ffffff;
+}
+
+.engagement-btn {
+  padding: 8px 12px;
+  border-radius: 20px;
+  min-width: 80px;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background: rgba(0, 0, 0, 0.05);
+    transform: translateY(-1px);
+  }
+
+  &.liked {
+    animation: likeAnimation 0.3s ease;
+  }
+}
+
+@keyframes likeAnimation {
+  0% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.2);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+.share-btn {
+  padding: 8px 16px;
+  border-radius: 20px;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background: rgba(0, 0, 0, 0.05);
+    transform: translateY(-1px);
+  }
+}
+
+.engagement-count {
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.comments-section {
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+  margin-top: 12px;
+  padding-top: 16px;
+}
+
+.comment-input-container {
+  background: #f8f9fa;
+  border-radius: 12px;
+  padding: 8px;
+}
+
+.comment-input {
+  :deep(.q-field__control) {
+    border-radius: 20px;
+    background: white;
+  }
+
+  :deep(.q-field__marginal) {
+    height: 40px;
+  }
+}
+
+.send-btn {
+  margin-left: 8px;
+  background: $primary;
+  color: white;
+
+  &:hover {
+    background: darken($primary, 5%);
+  }
+}
+
+.comment-bubble {
+  background: #f0f2f5;
+  padding: 8px 12px;
+  border-radius: 12px;
+  max-width: 100%;
+  word-wrap: break-word;
+}
+
+.comment-content {
+  font-size: 0.95rem;
+  line-height: 1.4;
+  margin-top: 2px;
+}
+
+.timestamp {
+  font-size: 0.75rem;
+  margin-top: 4px;
+  opacity: 0.7;
+}
+
+.comment-item {
+  padding: 4px 8px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: rgba(0, 0, 0, 0.02);
+  }
+}
+
+// Comment animations
+.comment-enter-active,
+.comment-leave-active {
+  transition: all 0.3s ease;
+}
+
+.comment-enter-from {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.comment-leave-to {
+  opacity: 0;
+  transform: translateX(-20px);
+}
+
+// Responsive adjustments
+@media (max-width: 600px) {
+  .engagement-btn {
+    min-width: 60px;
+    padding: 6px 8px;
+  }
 
   .engagement-count {
     font-size: 0.8rem;
@@ -2152,5 +2316,24 @@ const confirmDelete = (postId: number | string) => {
 .relative-position {
   position: relative;
   z-index: 2000;
+}
+
+.backbtn {
+  background-color: rgba(0, 0, 0, 0.05);
+  height: 5px !important;
+  width: 50px;
+  border-radius: 50px;
+  margin: 0px;
+}
+
+.back-button {
+  background-color: rgba(102, 100, 102, 0.459);
+  border-radius: 20px;
+  height: 15px !important;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: whitesmoke;
+  // margin-top: 5px
 }
 </style>

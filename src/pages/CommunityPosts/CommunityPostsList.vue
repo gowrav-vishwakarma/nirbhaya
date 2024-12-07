@@ -85,7 +85,8 @@
                     style="object-fit: cover" />
                 </q-avatar>
                 <div class="q-ml-md">
-                  <div class="text-weight-bold text-capitalize" style="font-size: 16px">
+                  <div class="text-weight-bold text-capitalize" style="font-size: 16px"
+                    @click="router.push(`/my-posts/${post.userId}`)">
                     {{
                       post.userName == 'SOS Bharat Community'
                         ? 'SOS Bharat Community'

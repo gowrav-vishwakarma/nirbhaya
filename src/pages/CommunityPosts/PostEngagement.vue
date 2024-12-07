@@ -41,7 +41,7 @@
         </p>
       </div>
 
-      <div class="flex items-center justify-center gap-2" style="width: 40%">
+      <!-- <div class="flex items-center justify-center gap-2" style="width: 40%">
         <q-btn @click="handleShare" flat round>
           <div class="flex items-center justify-center gap-2 px-3 py-2 cursor-pointer hover:bg-gray-100 rounded-lg">
             <div class="text-[#637588]" data-icon="PaperPlaneRight" data-size="24px" data-weight="regular">
@@ -57,7 +57,7 @@
         <p class="text-[#637588] text-[13px] font-bold leading-normal tracking-[0.015em]" style="padding-top: 10px">
           {{ post.sharesCount || '' }}
         </p>
-      </div>
+      </div> -->
     </div>
 
     <!-- Comments Dialog -->
