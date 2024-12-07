@@ -41,7 +41,7 @@
 
                 <q-item-label class="text-capitalize">{{
                   location.name ? location.name : 'Location'
-                  }}</q-item-label>
+                }}</q-item-label>
 
                 <q-item-label caption>Saved Location</q-item-label>
               </q-item-section>
@@ -164,7 +164,7 @@ const handleLocationSelect = async (locationType: 'current' | 'stored', storedLo
           isOpen.value = false;  // Close dialog after successful selection
         }
 
-      } catch (error: any) {
+      } catch (error) {
         console.error('Geolocation error:', error);
         throw error;
       }
@@ -186,7 +186,7 @@ const handleLocationSelect = async (locationType: 'current' | 'stored', storedLo
       isOpen.value = false;  // Close dialog after successful selection
     }
 
-  } catch (error: any) {
+  } catch (error) {
     console.error('Location selection failed:', error);
     $q.notify({
       type: 'negative',
