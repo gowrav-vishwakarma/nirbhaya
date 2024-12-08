@@ -64,4 +64,14 @@ export const communityPostService = {
   async sharePost(postId: string): Promise<void> {
     await api.post(`/posts/${postId}/share`);
   },
+
+  async getLikes(postId: number | string) {
+    try {
+      const response = await api.get(`/posts/${postId}/likes`);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching likes:', error);
+      throw error;
+    }
+  },
 };

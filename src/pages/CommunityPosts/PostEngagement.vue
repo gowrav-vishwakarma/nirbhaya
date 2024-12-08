@@ -30,8 +30,9 @@
           </div>
         </q-btn>
         <p
-          class="text-[#637588] text-[13px] font-bold leading-normal tracking-[0.015em]"
+          class="text-[#637588] text-[13px] font-bold leading-normal tracking-[0.015em] cursor-pointer"
           style="padding-top: 10px"
+          @click="showLikesList"
         >
           {{ post.likesCount }}
         </p>
@@ -125,11 +126,13 @@
         $emit('update:userInteractionRules', $event)
       "
     />
+
+    <LikesDialog v-model="showLikes" :post-id="post.id" ref="likesDialogRef" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue';
+import { ref, watch, nextTick } from 'vue';
 import { useQuasar } from 'quasar';
 import { useUserStore } from 'src/stores/user-store';
 import type { CommunityPost } from 'src/types/CommunityPost';
@@ -139,6 +142,7 @@ import { Share } from '@capacitor/share';
 import { Filesystem, Directory } from '@capacitor/filesystem';
 import Konva from 'konva';
 import { communityService } from 'src/services/communityService';
+import LikesDialog from './LikesDialog.vue';
 
 // Define a type that matches the actual post structure
 interface PostProps extends Omit<CommunityPost, 'liked'> {
@@ -428,6 +432,18 @@ const openWhatsApp = async () => {
       color: 'negative',
     });
   }
+};
+
+const showLikes = ref(false);
+const likesDialogRef = ref();
+
+const showLikesList = () => {
+  showLikes.value = true;
+  nextTick(() => {
+    if (likesDialogRef.value) {
+      likesDialogRef.value.loadLikes();
+    }
+  });
 };
 </script>
 

@@ -147,6 +147,12 @@ const routes: RouteRecordRaw[] = [
         name: 'CommunityPostOpen',
         meta: { requiresAuth: true },
       },
+      {
+        path: '/profile/:id',
+        name: 'UserProfile',
+        component: () => import('pages/CommunityPosts/MyPostsPage.vue'),
+        props: true,
+      },
     ],
   },
   {

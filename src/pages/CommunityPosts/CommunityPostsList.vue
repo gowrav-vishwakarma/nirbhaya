@@ -41,6 +41,7 @@
                 <img
                   style="height: 30px; width: 30px"
                   src="/locationIcon.png"
+                  alt="Location Icon"
                 />
               </q-avatar>
 
@@ -119,6 +120,7 @@
                         ? '/sos_logo_1080_1080.png'
                         : 'https://icons-for-free.com/iff/png/512/profile+profile+page+user+icon-1320186864367220794.png'
                     "
+                    :alt="post.userName + '\'s profile'"
                     style="object-fit: cover"
                   />
                 </q-avatar>
@@ -200,7 +202,7 @@
                   :key="getVideoUrl(post.id.toString(), post.videoUrl)"
                   :src="getVideoUrl(post.id.toString(), post.videoUrl)"
                   :id="`video-${post.id}`"
-                  frameborder="0"
+                  :title="`Video post by ${post.userName}`"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                   allowfullscreen
                   class="video-frame"
@@ -1371,6 +1373,7 @@ const handleLocationSelected = async (location: {
   height: 100%;
   border-radius: 0;
   object-fit: cover;
+  border: none;
 }
 
 /* Add this for better background contrast */

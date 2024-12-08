@@ -403,7 +403,7 @@
 import { ref, onMounted, watch, onUnmounted, computed, nextTick } from 'vue';
 import { useQuasar } from 'quasar';
 import { api } from 'src/boot/axios';
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
 import CreatePostDialog from 'src/components/Community/CreatePostDialog.vue';
 import { useUserStore } from 'src/stores/user-store';
 // import { communityPostService } from 'src/services/communityPostService';
@@ -1259,6 +1259,61 @@ const confirmDelete = (postId: number | string) => {
     }
   });
 };
+
+// Add route reference
+const route = useRoute();
+
+// Add this watcher after other refs and before onMounted
+watch(
+  () => route.params.id,
+  async (newId) => {
+    if (newId) {
+      // Reset page state
+      page.value = 1;
+      posts.value = [];
+      hasMore.value = true;
+      loading.value = true;
+
+      // Reload data with new user id
+      await loadPosts();
+      await getUserInteraction();
+    }
+  }
+);
+
+// Also update the onMounted hook to use route.params.id
+onMounted(async () => {
+  const dob = userStore.user?.dob;
+  if (dob) {
+    isUserPermitted.value = calculateAge(dob) >= 13;
+  } else {
+    isUserPermitted.value = false;
+  }
+
+  try {
+    const position = await new Promise<GeolocationPosition>(
+      (resolve, reject) => {
+        navigator.geolocation.getCurrentPosition(resolve, reject);
+      }
+    );
+
+    selectedLocation.value = {
+      type: 'current',
+      latitude: position.coords.latitude,
+      longitude: position.coords.longitude,
+      name: 'Current Location',
+      address: 'Current Location',
+    };
+  } catch (error) {
+    console.warn('Could not get initial location:', error);
+  }
+
+  // Initial data load
+  if (route.params.id) {
+    await loadPosts();
+    await getUserInteraction();
+  }
+});
 </script>
 <style scoped lang="scss">
 .container {
