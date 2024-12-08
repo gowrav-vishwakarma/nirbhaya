@@ -14,6 +14,12 @@
             v-if="findUserData"
           >
             {{ findUserData.name }}
+            <p
+              v-if="findUserData?.businessName"
+              class="text-grey-7 q-mt-none q-mb-none"
+            >
+              {{ findUserData.businessName }}
+            </p>
           </h4>
           <p class="text-grey-7 q-mt-sm">Stay connected with your community</p>
         </div>
