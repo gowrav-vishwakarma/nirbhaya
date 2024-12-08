@@ -74,9 +74,8 @@ const routes: RouteRecordRaw[] = [
         meta: { requiresAuth: true },
       },
       {
-        path: 'my-posts/:id?',
-        component: MyPostsPage,
-        name: 'my-posts',
+        path: '/my-posts/:id',
+        component: () => import('pages/CommunityPosts/MyPostsPage.vue'),
         props: true,
         meta: { requiresAuth: true },
       },

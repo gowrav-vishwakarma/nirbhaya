@@ -149,7 +149,7 @@ interface PostProps extends Omit<CommunityPost, 'liked'> {
 
 const props = defineProps<{
   post: PostProps;
-  userInteractionRules: {
+  userInteractionRules?: {
     dailyLikeLimit: number;
     dailyCommentLimit: number;
     dailyPostLimit: number;
@@ -182,8 +182,12 @@ const handleLike = async () => {
       return;
     }
 
-    // Check like limits
-    if (!props.post.wasLiked && !props.post.liked) {
+    // Check like limits only if userInteractionRules exists
+    if (
+      !props.post.wasLiked &&
+      !props.post.liked &&
+      props.userInteractionRules
+    ) {
       if (
         props.userInteractionRules.usedLikeCount >=
         props.userInteractionRules.dailyLikeLimit
@@ -379,8 +383,7 @@ const handleShare = async () => {
 
 // Add watch for comments dialog to update comment count
 watch(showComments, async (newValue) => {
-  if (newValue) {
-    // Check comment limits when opening comments
+  if (newValue && props.userInteractionRules) {
     if (
       props.userInteractionRules.usedCommentCount >=
       props.userInteractionRules.dailyCommentLimit
