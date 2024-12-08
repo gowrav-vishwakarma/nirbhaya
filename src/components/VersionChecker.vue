@@ -31,7 +31,12 @@ const checkVersion = async () => {
       minimumVersion,
       androidUpdateUrl,
       iosUpdateUrl,
+      skipUpdate,
     } = response.data;
+
+    if (skipUpdate) {
+      return;
+    }
 
     if (forceUpdate) {
       $q.dialog({
