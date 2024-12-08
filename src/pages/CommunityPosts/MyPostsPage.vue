@@ -2,11 +2,18 @@
   <q-page class="bg-grey-1" style="padding-top: env(safe-area-inset-top)">
     <div class="container q-pa-md" v-if="isUserPermitted">
       <!-- Header -->
-      <div style="padding-top: 5px; padding-left: 10px">
+      <div
+        class="row items-center"
+        style="padding-top: 5px; padding-left: 10px"
+      >
         <q-btn size="sm" flat class="back-button" @click="router.go(-1)">
           <i style="font-size: 14px" class="fa-solid fa-arrow-left-long"></i>
         </q-btn>
+        <span class="text-weight-bold text-primary q-ml-sm text-h4"
+          >Profile Page</span
+        >
       </div>
+      <hr style="border: 1px solid #e0e0e0; margin: 10px 0" />
       <div class="row items-center justify-between q-pa-md q-pt-none">
         <div>
           <h4
@@ -43,24 +50,6 @@
       >
         <q-card class="create-post-card q-pa-md">
           <div class="row items-center no-wrap">
-            <div class="relative-position">
-              <q-avatar
-                size="45px"
-                class="avatar cursor-pointer"
-                @click="showLocationDialog = true"
-              >
-                <img
-                  style="height: 30px; width: 30px"
-                  src="/locationIcon.png"
-                />
-              </q-avatar>
-
-              <LocationSelectionDialog
-                v-model="showLocationDialog"
-                :user-locations="userStore.user?.locations || []"
-                @location-selected="handleLocationSelected"
-              />
-            </div>
             <q-btn class="col post-input-btn" flat color="grey-7">
               <div class="row full-width items-center text-left">
                 <span class="text-grey-7" style="font-size: 0.8em"
@@ -421,7 +410,7 @@ import { useUserStore } from 'src/stores/user-store';
 import type { CommunityPost } from 'src/types/CommunityPost';
 import PostEngagement from 'src/pages/CommunityPosts/PostEngagement.vue';
 import { Dialog } from 'quasar';
-import LocationSelectionDialog from 'src/components/Location/LocationSelectionDialog.vue';
+
 const props = defineProps<{
   id: string;
 }>();
@@ -539,12 +528,6 @@ const formatDate = (date: string | null) => {
   }
 };
 
-// Add these new refs near the top of the script section
-const userLocation = ref({
-  latitude: null as number | null,
-  longitude: null as number | null,
-});
-
 // Update the loadPosts function
 const loadPosts = async (loadMore = false) => {
   if (isLoading.value || (!loadMore && !hasMore.value)) return;
@@ -552,15 +535,6 @@ const loadPosts = async (loadMore = false) => {
   try {
     isLoading.value = true;
 
-    // Use selectedLocation instead of getting current location
-    const locationParams =
-      selectedLocation.value.latitude && selectedLocation.value.longitude
-        ? {
-            latitude: selectedLocation.value.latitude,
-            longitude: selectedLocation.value.longitude,
-          }
-        : {}; // Empty object if no location selected
-    console.log('userId...........', userId);
     const response = await api.get('/posts/my-posts', {
       params: {
         status: 'active',
@@ -570,13 +544,12 @@ const loadPosts = async (loadMore = false) => {
             : props.id,
       },
     });
-    console.log('response.data...........', response.data.posts);
+
     if (response.data.user) {
       findUserData.value = response.data.user;
     }
     let postsData: Post[] = [];
     if (Array.isArray(response.data.posts)) {
-      console.log('response.data...........1111', response.data);
       postsData = response.data.posts;
     } else if (
       response.data.data.posts &&
@@ -585,21 +558,18 @@ const loadPosts = async (loadMore = false) => {
       postsData = response.data.data.posts;
     }
 
-    // Transform the posts data
     const transformedPosts = postsData.map((post) => ({
       ...post,
       wasLiked: post.wasLiked || post.liked || false,
       liked: post.wasLiked || post.liked || false,
     }));
 
-    // Update posts array based on whether we're loading more or not
     if (loadMore) {
       posts.value = [...posts.value, ...transformedPosts];
     } else {
       posts.value = transformedPosts;
     }
 
-    // Update pagination state
     hasMore.value = transformedPosts.length === limit.value;
     if (hasMore.value) {
       page.value++;
@@ -2422,59 +2392,6 @@ const confirmDelete = (postId: number | string) => {
   &:hover {
     transform: scale(1.05);
   }
-}
-
-.location-menu {
-  border-radius: 8px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-  background: white;
-  min-width: 200px;
-  z-index: 2000;
-
-  :deep(.q-list) {
-    padding: 8px 0;
-  }
-
-  :deep(.q-item) {
-    min-height: 48px;
-    padding: 8px 16px;
-
-    &:hover {
-      background: rgba(0, 0, 0, 0.03);
-    }
-
-    &.disabled {
-      opacity: 0.6;
-    }
-  }
-
-  :deep(.q-item__label) {
-    font-size: 14px;
-    font-weight: 500;
-  }
-
-  :deep(.q-item__label--caption) {
-    font-size: 12px;
-    color: rgba(0, 0, 0, 0.6);
-  }
-
-  :deep(.q-icon) {
-    font-size: 20px;
-  }
-}
-
-.avatar {
-  background-color: rgb(248, 240, 242);
-  transition: transform 0.2s ease;
-
-  &:hover {
-    transform: scale(1.05);
-  }
-}
-
-.relative-position {
-  position: relative;
-  z-index: 2000;
 }
 
 .backbtn {
