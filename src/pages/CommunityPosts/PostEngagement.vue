@@ -4,41 +4,96 @@
     <div class="flex flex-wrap justify-evenly gap-4 px-4 py-2 py-2 q-py-sm">
       <div class="flex items-start justify-start gap-2" style="width: 30%">
         <q-btn @click="handleLike" flat round style="margin-left: 20px">
-          <div class="flex items-center justify-center gap-2 px-3 py-2 cursor-pointer hover:bg-gray-100 rounded-lg">
-            <div :class="['heart-icon', { liked: post.wasLiked || post.liked }]">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor"
-                viewBox="0 0 256 256">
-                <path v-if="post.wasLiked || post.liked"
-                  d="M240,94c0,70-103.79,126.66-108.21,129a8,8,0,0,1-7.58,0C119.79,220.66,16,164,16,94A62.07,62.07,0,0,1,78,32c20.65,0,38.73,8.88,50,23.89C139.27,40.88,157.35,32,178,32A62.07,62.07,0,0,1,240,94Z">
-                </path>
-                <path v-else
-                  d="M178,32c-20.65,0-38.73,8.88-50,23.89C116.73,40.88,98.65,32,78,32A62.07,62.07,0,0,0,16,94c0,70,103.79,126.66,108.21,129a8,8,0,0,0,7.58,0C136.21,220.66,240,164,240,94A62.07,62.07,0,0,0,178,32ZM128,206.8C109.74,196.16,32,147.69,32,94A46.06,46.06,0,0,1,78,48c19.45,0,35.78,10.36,42.6,27a8,8,0,0,0,14.8,0c6.82-16.67,23.15-27,42.6-27a46.06,46.06,0,0,1,46,46C224,147.61,146.24,196.15,128,206.8Z">
-                </path>
+          <div
+            class="flex items-center justify-center gap-2 px-3 py-2 cursor-pointer hover:bg-gray-100 rounded-lg"
+          >
+            <div
+              :class="['heart-icon', { liked: post.wasLiked || post.liked }]"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24px"
+                height="24px"
+                fill="currentColor"
+                viewBox="0 0 256 256"
+              >
+                <path
+                  v-if="post.wasLiked || post.liked"
+                  d="M240,94c0,70-103.79,126.66-108.21,129a8,8,0,0,1-7.58,0C119.79,220.66,16,164,16,94A62.07,62.07,0,0,1,78,32c20.65,0,38.73,8.88,50,23.89C139.27,40.88,157.35,32,178,32A62.07,62.07,0,0,1,240,94Z"
+                ></path>
+                <path
+                  v-else
+                  d="M178,32c-20.65,0-38.73,8.88-50,23.89C116.73,40.88,98.65,32,78,32A62.07,62.07,0,0,0,16,94c0,70,103.79,126.66,108.21,129a8,8,0,0,0,7.58,0C136.21,220.66,240,164,240,94A62.07,62.07,0,0,0,178,32ZM128,206.8C109.74,196.16,32,147.69,32,94A46.06,46.06,0,0,1,78,48c19.45,0,35.78,10.36,42.6,27a8,8,0,0,0,14.8,0c6.82-16.67,23.15-27,42.6-27a46.06,46.06,0,0,1,46,46C224,147.61,146.24,196.15,128,206.8Z"
+                ></path>
               </svg>
             </div>
           </div>
         </q-btn>
-        <p class="text-[#637588] text-[13px] font-bold leading-normal tracking-[0.015em]" style="padding-top: 10px">
+        <p
+          class="text-[#637588] text-[13px] font-bold leading-normal tracking-[0.015em]"
+          style="padding-top: 10px"
+        >
           {{ post.likesCount }}
         </p>
       </div>
 
       <div class="flex items-center justify-center gap-2" style="width: 30%">
         <q-btn flat round @click="toggleComments">
-          <div class="flex items-center justify-center gap-2 px-3 py-2 cursor-pointer hover:bg-gray-100 rounded-lg">
-            <div class="text-[#637588]" data-icon="ChatTeardropText" data-size="24px" data-weight="regular">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor"
-                viewBox="0 0 256 256">
+          <div
+            class="flex items-center justify-center gap-2 px-3 py-2 cursor-pointer hover:bg-gray-100 rounded-lg"
+          >
+            <div
+              class="text-[#637588]"
+              data-icon="ChatTeardropText"
+              data-size="24px"
+              data-weight="regular"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24px"
+                height="24px"
+                fill="currentColor"
+                viewBox="0 0 256 256"
+              >
                 <path
-                  d="M168,112a8,8,0,0,1-8,8H96a8,8,0,0,1,0-16h64A8,8,0,0,1,168,112Zm-8,24H96a8,8,0,0,0,0,16h64a8,8,0,0,0,0-16Zm72-12A100.11,100.11,0,0,1,132,224H47.67A15.69,15.69,0,0,1,32,208.33V124a100,100,0,0,1,200,0Zm-16,0a84,84,0,0,0-168,0v84h84A84.09,84.09,0,0,0,216,124Z">
-                </path>
+                  d="M168,112a8,8,0,0,1-8,8H96a8,8,0,0,1,0-16h64A8,8,0,0,1,168,112Zm-8,24H96a8,8,0,0,0,0,16h64a8,8,0,0,0,0-16Zm72-12A100.11,100.11,0,0,1,132,224H47.67A15.69,15.69,0,0,1,32,208.33V124a100,100,0,0,1,200,0Zm-16,0a84,84,0,0,0-168,0v84h84A84.09,84.09,0,0,0,216,124Z"
+                ></path>
               </svg>
             </div>
           </div>
         </q-btn>
-        <p class="text-[#637588] text-[13px] font-bold leading-normal tracking-[0.015em]" style="padding-top: 10px">
+        <p
+          class="text-[#637588] text-[13px] font-bold leading-normal tracking-[0.015em]"
+          style="padding-top: 10px"
+        >
           {{ post.commentsCount || '' }}
         </p>
+      </div>
+
+      <div
+        v-if="post.isBusinessPost"
+        class="flex items-center justify-end gap-2"
+        style="width: 30%"
+      >
+        <q-btn flat round @click="openWhatsApp">
+          <div
+            class="flex items-center justify-center gap-2 px-3 py-2 cursor-pointer hover:bg-gray-100 rounded-lg"
+          >
+            <div class="text-[#25D366]">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24px"
+                height="24px"
+                fill="currentColor"
+                viewBox="0 0 256 256"
+              >
+                <path
+                  d="M187.58,144.84l-32-16a8,8,0,0,0-8,.5l-14.69,9.8a40.55,40.55,0,0,1-16-16l9.8-14.69a8,8,0,0,0,.5-8l-16-32A8,8,0,0,0,104,64a40,40,0,0,0-40,40,88.1,88.1,0,0,0,88,88,40,40,0,0,0,40-40A8,8,0,0,0,187.58,144.84ZM152,176a72.08,72.08,0,0,1-72-72A24,24,0,0,1,99.29,80.46l11.48,23L101,118.12a8,8,0,0,0-.73,7.51,56.47,56.47,0,0,0,30.15,30.15A8,8,0,0,0,138,155l14.71-9.8,23,11.48A24,24,0,0,1,152,176ZM128,24A104,104,0,0,0,36.18,176.88L24.83,210.93a16,16,0,0,0,20.24,20.24l34.05-11.35A104,104,0,1,0,128,24Zm0,192a87.87,87.87,0,0,1-44.06-11.81,8,8,0,0,0-6.54-.67L40,216,52.47,178.6a8,8,0,0,0-.67-6.54A88,88,0,1,1,128,216Z"
+                />
+              </svg>
+            </div>
+          </div>
+        </q-btn>
       </div>
 
       <!-- <div class="flex items-center justify-center gap-2" style="width: 40%">
@@ -61,10 +116,15 @@
     </div>
 
     <!-- Comments Dialog -->
-    <CommentsDialog v-model="showComments" :post="post" :userInteractionRules="userInteractionRules"
-      @update:post="handlePostUpdate" @update:userInteractionRules="
+    <CommentsDialog
+      v-model="showComments"
+      :post="post"
+      :userInteractionRules="userInteractionRules"
+      @update:post="handlePostUpdate"
+      @update:userInteractionRules="
         $emit('update:userInteractionRules', $event)
-        " />
+      "
+    />
   </div>
 </template>
 
@@ -78,6 +138,7 @@ import CommentsDialog from './CommentsDialog.vue';
 import { Share } from '@capacitor/share';
 import { Filesystem, Directory } from '@capacitor/filesystem';
 import Konva from 'konva';
+import { communityService } from 'src/services/communityService';
 
 // Define a type that matches the actual post structure
 interface PostProps extends Omit<CommunityPost, 'liked'> {
@@ -180,7 +241,7 @@ const imageToBase64WithKonva = (imageUrl: string): Promise<string> => {
       const stage = new Konva.Stage({
         container: container,
         width: image.width,
-        height: image.height
+        height: image.height,
       });
 
       // Create layer and add image
@@ -188,7 +249,7 @@ const imageToBase64WithKonva = (imageUrl: string): Promise<string> => {
       const konvaImage = new Konva.Image({
         image: image,
         width: image.width,
-        height: image.height
+        height: image.height,
       });
 
       layer.add(konvaImage);
@@ -197,7 +258,7 @@ const imageToBase64WithKonva = (imageUrl: string): Promise<string> => {
       // Convert to base64
       const dataUrl = stage.toDataURL({
         mimeType: 'image/png',
-        quality: 1
+        quality: 1,
       });
 
       // Clean up
@@ -225,7 +286,7 @@ const handleShare = async () => {
       await Share.share({
         title: shareTitle,
         text: shareText,
-        url: `https://www.youtube.com/embed/${props.post.videoUrl}`
+        url: `https://www.youtube.com/embed/${props.post.videoUrl}`,
       });
     }
     // For posts with media
@@ -246,13 +307,13 @@ const handleShare = async () => {
           path: fileName,
           data: base64Data,
           directory: Directory.Cache,
-          recursive: true
+          recursive: true,
         });
 
         // Get the actual file path
         const fileInfo = await Filesystem.getUri({
           directory: Directory.Cache,
-          path: fileName
+          path: fileName,
         });
 
         console.log('File path:', fileInfo.uri);
@@ -267,19 +328,18 @@ const handleShare = async () => {
           title: shareTitle,
           text: shareText,
           files: [filePath], // Use the formatted file path
-          dialogTitle: 'Share Image'
+          dialogTitle: 'Share Image',
         });
 
         // Clean up - delete the temporary file
         try {
           await Filesystem.deleteFile({
             path: fileName,
-            directory: Directory.Cache
+            directory: Directory.Cache,
           });
         } catch (cleanupError) {
           console.warn('Error cleaning up temp file:', cleanupError);
         }
-
       } catch (fileError) {
         console.error('File share error:', fileError);
 
@@ -304,16 +364,15 @@ const handleShare = async () => {
     await communityPostService.sharePost(props.post.id.toString());
     const updatedPost = {
       ...props.post,
-      sharesCount: (props.post.sharesCount || 0) + 1
+      sharesCount: (props.post.sharesCount || 0) + 1,
     };
     emit('update:post', updatedPost);
-
   } catch (error) {
     console.error('Error sharing post:', error);
     $q.notify({
       message: 'Share not supported',
       color: 'black',
-      position: 'top-right'
+      position: 'top-right',
     });
   }
 };
@@ -336,6 +395,37 @@ watch(showComments, async (newValue) => {
     }
   }
 });
+
+const openWhatsApp = async () => {
+  try {
+    if (!props.post.id) return;
+
+    const response = await communityService.getBusinessWhatsApp(
+      props.post.id.toString()
+    );
+    const whatsappNumber = response.whatsappNumber;
+
+    if (!whatsappNumber) {
+      $q.notify({
+        message: 'WhatsApp number not available',
+        color: 'warning',
+      });
+      return;
+    }
+
+    const text = `Hi, I'm interested in your post: ${props.post.title}`;
+    const encodedText = encodeURIComponent(text);
+    const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodedText}`;
+
+    window.open(whatsappUrl, '_blank');
+  } catch (error) {
+    console.error('Error getting WhatsApp number:', error);
+    $q.notify({
+      message: 'Unable to connect via WhatsApp',
+      color: 'negative',
+    });
+  }
+};
 </script>
 
 <style lang="scss" scoped>
