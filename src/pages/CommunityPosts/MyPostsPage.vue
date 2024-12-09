@@ -241,16 +241,16 @@
             </q-card-section>
           </q-card>
         </div>
-      </div>
 
-      <!-- Loading indicator for infinite scroll -->
-      <div v-if="isLoading" class="col-12 flex justify-center q-pa-md">
-        <q-spinner-dots color="primary" size="40" />
-      </div>
+        <!-- Add loading indicator for infinite scroll -->
+        <div v-if="isLoading" class="col-12 flex justify-center q-pa-md">
+          <q-spinner-dots color="primary" size="40" />
+        </div>
 
-      <!-- No more posts message -->
-      <div v-if="!hasMore && posts.length > 0" class="col-12 text-center q-pa-md text-grey-7">
-        No more posts to load
+        <!-- No more posts message -->
+        <div v-if="!hasMore && posts.length > 0" class="col-12 text-center q-pa-md text-grey-7">
+          No more posts to load
+        </div>
       </div>
     </div>
     <div v-else class="q-pt-lg q-px-md">
@@ -291,7 +291,18 @@ interface Post extends Omit<CommunityPost, 'liked'> {
   wasLiked: boolean;
   liked: boolean;
 }
-const findUserData = ref(null);
+
+// Add this interface near the top with other interfaces
+interface UserData {
+  id: number;
+  name: string;
+  businessName?: string;
+  // Add other user properties as needed
+}
+
+// Update the findUserData ref with proper typing
+const findUserData = ref<UserData | null>(null);
+
 // Add this interface after the Post interface
 interface UserInteractionLimits {
   dailyLikeLimit: number;
@@ -405,23 +416,20 @@ const loadPosts = async (loadMore = false) => {
     const response = await api.get('/posts/my-posts', {
       params: {
         status: 'active',
-        userId:
-          Number(props.id) === userStore.user?.id
-            ? userStore.user?.id
-            : props.id,
+        userId: Number(props.id) === userStore.user?.id ? userStore.user?.id : props.id,
+        page: page.value,
+        limit: limit.value
       },
     });
 
     if (response.data.user) {
       findUserData.value = response.data.user;
     }
+
     let postsData: Post[] = [];
     if (Array.isArray(response.data.posts)) {
       postsData = response.data.posts;
-    } else if (
-      response.data.data.posts &&
-      Array.isArray(response.data.data.posts)
-    ) {
+    } else if (response.data.data.posts && Array.isArray(response.data.data.posts)) {
       postsData = response.data.data.posts;
     }
 
@@ -437,10 +445,12 @@ const loadPosts = async (loadMore = false) => {
       posts.value = transformedPosts;
     }
 
+    // Update pagination state
     hasMore.value = transformedPosts.length === limit.value;
     if (hasMore.value) {
       page.value++;
     }
+
   } catch (error) {
     console.error('Error loading posts:', error);
     $q.notify({
@@ -675,9 +685,12 @@ const showCreatePostDialog = ref(false);
 
 // Add this method to handle successful post creation
 const handlePostCreated = async () => {
+  // Reset pagination
+  page.value = 1;
+  hasMore.value = true;
+
   await loadPosts();
   showCreatePostDialog.value = false;
-  // Refresh interaction rules after post creation
   await updateInteractionRules();
 };
 
@@ -971,7 +984,7 @@ const updatePost = async (updatedPost: Post) => {
 
 // Add these new refs for pagination
 const page = ref(1);
-const limit = ref(5);
+const limit = ref(3);
 const hasMore = ref(true);
 const isLoading = ref(false);
 
@@ -982,7 +995,7 @@ const observeLastPost = () => {
   const observer = new IntersectionObserver(
     async ([entry]) => {
       if (entry?.isIntersecting && hasMore.value && !isLoading.value) {
-        // await loadPosts(true);
+        await loadPosts(true);
       }
     },
     {
