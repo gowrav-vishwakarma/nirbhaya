@@ -624,23 +624,23 @@ onMounted(async () => {
   }
 
   // Get initial location
-  try {
-    const position = await new Promise<GeolocationPosition>(
-      (resolve, reject) => {
-        navigator.geolocation.getCurrentPosition(resolve, reject);
-      }
-    );
+  // try {
+  //   const position = await new Promise<GeolocationPosition>(
+  //     (resolve, reject) => {
+  //       navigator.geolocation.getCurrentPosition(resolve, reject);
+  //     }
+  //   );
 
-    selectedLocation.value = {
-      type: 'current',
-      latitude: position.coords.latitude,
-      longitude: position.coords.longitude,
-      name: 'Current Location',
-      address: 'Current Location',
-    };
-  } catch (error) {
-    console.warn('Could not get initial location:', error);
-  }
+  //   selectedLocation.value = {
+  //     type: 'current',
+  //     latitude: position.coords.latitude,
+  //     longitude: position.coords.longitude,
+  //     name: 'Current Location',
+  //     address: 'Current Location',
+  //   };
+  // } catch (error) {
+  //   console.warn('Could not get initial location:', error);
+  // }
 
   // Load initial posts
   await loadPosts();
@@ -1168,23 +1168,23 @@ onMounted(async () => {
     isUserPermitted.value = false;
   }
 
-  try {
-    const position = await new Promise<GeolocationPosition>(
-      (resolve, reject) => {
-        navigator.geolocation.getCurrentPosition(resolve, reject);
-      }
-    );
+  // try {
+  // const position = await new Promise<GeolocationPosition>(
+  //   (resolve, reject) => {
+  //     navigator.geolocation.getCurrentPosition(resolve, reject);
+  //   }
+  // );
 
-    selectedLocation.value = {
-      type: 'current',
-      latitude: position.coords.latitude,
-      longitude: position.coords.longitude,
-      name: 'Current Location',
-      address: 'Current Location',
-    };
-  } catch (error) {
-    console.warn('Could not get initial location:', error);
-  }
+  // selectedLocation.value = {
+  //   type: 'current',
+  //   latitude: position.coords.latitude,
+  //   longitude: position.coords.longitude,
+  //   name: 'Current Location',
+  //   address: 'Current Location',
+  // };
+  // } catch (error) {
+  //   console.warn('Could not get initial location:', error);
+  // }
 
   // Initial data load
   if (route.params.id) {
