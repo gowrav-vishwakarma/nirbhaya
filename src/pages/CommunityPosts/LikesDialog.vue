@@ -50,7 +50,7 @@
           </div>
 
           <!-- Loading more indicator -->
-          <div v-if="isLoading" class="text-center q-pa-md">
+          <div v-if="isLoadingMore" class="text-center q-pa-md">
             <q-spinner color="primary" size="2em" />
             <div class="q-mt-sm">Loading more likes...</div>
           </div>
@@ -66,7 +66,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, nextTick } from 'vue';
 import { useDialogPluginComponent, useQuasar } from 'quasar';
 import { communityPostService } from 'src/services/communityPostService';
 import { useRouter } from 'vue-router';
@@ -95,9 +95,10 @@ const likes = ref<Array<{
 }>>([]);
 const isLoading = ref(false);
 const page = ref(1);
-const pageSize = 7;
+const pageSize = ref(7);
 const hasMoreLikes = ref(true);
 const totalPages = ref(0);
+const isLoadingMore = ref(false);
 
 // Touch handling
 const touchStartY = ref(0);
@@ -148,29 +149,24 @@ const handleTouchEnd = () => {
 const loadMoreLikes = async () => {
   if (isLoading.value || !hasMoreLikes.value) return;
 
-  isLoading.value = true;
+  isLoadingMore.value = true;
   try {
     const response = await communityPostService.getLikes(props.postId, {
       page: page.value,
-      pageSize: pageSize
+      pageSize: pageSize.value
     });
 
     const { likes: likesData, totalPages: total } = response.data;
-    console.log('Received likes data:', likesData);
     totalPages.value = total;
 
     // Only update if we got data
     if (likesData && likesData.length > 0) {
-      likes.value = [...likes.value, ...likesData];
+      // Add new likes at the beginning of the array
+      likes.value = [...likesData, ...likes.value];
       page.value++;
-      console.log('Updated likes:', likes.value.length);
     }
 
-    // Check if we've reached the last page
     hasMoreLikes.value = page.value <= totalPages.value;
-    if (!hasMoreLikes.value) {
-      console.log('No more likes to load');
-    }
 
   } catch (error) {
     console.error('Error loading likes:', error);
@@ -179,7 +175,7 @@ const loadMoreLikes = async () => {
       color: 'negative',
     });
   } finally {
-    isLoading.value = false;
+    isLoadingMore.value = false;
   }
 };
 
@@ -188,6 +184,7 @@ const loadLikes = async () => {
   hasMoreLikes.value = true;
   totalPages.value = 0;
   likes.value = [];
+  isInitialLoad.value = true;
   await loadMoreLikes();
 };
 
@@ -230,23 +227,30 @@ const openUserProfile = (userId: string | number) => {
   }
 };
 
-const onScroll = (event: Event) => {
-  const element = event.target as HTMLElement;
-  const scrollBottom = element.scrollTop + element.clientHeight;
-  const threshold = element.scrollHeight - 50;
+const onScroll = async (event: Event) => {
+  const target = event.target as HTMLElement;
+  const topOffset = 100; // pixels from top to trigger load
 
-  if (scrollBottom >= threshold && !isLoading.value && hasMoreLikes.value) {
-    console.log('Loading more likes...', {
-      page: page.value,
-      totalPages: totalPages.value,
-      hasMore: hasMoreLikes.value
+  if (!hasMoreLikes.value || isLoadingMore.value) return;
+
+  // Load more when scrolling to top
+  if (target.scrollTop < topOffset) {
+    const oldScrollHeight = target.scrollHeight;
+    await loadMoreLikes();
+
+    // Maintain scroll position after loading more likes
+    nextTick(() => {
+      if (likesListRef.value) {
+        const newScrollHeight = likesListRef.value.scrollHeight;
+        likesListRef.value.scrollTop = newScrollHeight - oldScrollHeight;
+      }
     });
-    loadMoreLikes();
   }
 };
 
 // Add these refs for scroll management
 const likesListRef = ref<HTMLElement | null>(null);
+const isInitialLoad = ref(true);
 
 defineExpose({
   loadLikes,
@@ -258,12 +262,13 @@ defineExpose({
   width: 100%;
   max-width: 600px;
   border-radius: 16px 16px 0 0;
-  max-height: 80vh;
+  max-height: 90vh;
   display: flex;
   flex-direction: column;
   position: relative;
   overscroll-behavior: contain;
   touch-action: pan-y;
+  height: auto;
 
   &::before {
     content: '';
@@ -292,6 +297,7 @@ defineExpose({
   overscroll-behavior-y: contain;
   position: relative;
   scroll-behavior: smooth;
+  height: calc(90vh - 150px);
 }
 
 .like-item {
