@@ -85,7 +85,7 @@
                 xmlns="http://www.w3.org/2000/svg"
                 width="24px"
                 height="24px"
-                fill="currentColor"
+                fill="#25d366"
                 viewBox="0 0 256 256"
               >
                 <path
