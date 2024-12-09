@@ -15,11 +15,12 @@
         <div>
           <h4 class="text-h5 text-weight-bold q-my-none text-primary" v-if="findUserData">
             {{ findUserData.name }}
-            <p v-if="findUserData?.businessName" class="text-grey-7 q-mt-none q-mb-none">
+            <p style="font-size: 15px" v-if="findUserData?.businessName" class="text-grey-7 q-mt-none q-mb-none">
+              <span style="font-size: 12px; font-weight: 400">Business Name</span>
               {{ findUserData.businessName }}
             </p>
           </h4>
-          <p class="text-grey-7 q-mt-sm">Stay connected with your community</p>
+          <p class="text-grey-7 q-mt-none">Stay connected with your community</p>
         </div>
         <!-- <div class="text-right">
             <q-btn color="primary" class="" @click="goToCommunityPage" style="border-radius: 9px">
@@ -633,7 +634,7 @@ onMounted(async () => {
 
   // Load initial posts
   await loadPosts();
-  await getUserInteraction();
+  // await getUserInteraction();
 });
 
 // Clean up on component unmount
@@ -1128,22 +1129,22 @@ const confirmDelete = (postId: number | string) => {
 const route = useRoute();
 
 // Add this watcher after other refs and before onMounted
-watch(
-  () => route.params.id,
-  async (newId) => {
-    if (newId) {
-      // Reset page state
-      page.value = 1;
-      posts.value = [];
-      hasMore.value = true;
-      loading.value = true;
+// watch(
+//   () => route.params.id,
+//   async (newId) => {
+//     if (newId) {
+//       // Reset page state
+//       page.value = 1;
+//       posts.value = [];
+//       hasMore.value = true;
+//       loading.value = true;
 
-      // Reload data with new user id
-      await loadPosts();
-      await getUserInteraction();
-    }
-  }
-);
+//       // Reload data with new user id
+//       await loadPosts();
+//       await getUserInteraction();
+//     }
+//   }
+// );
 
 // Also update the onMounted hook to use route.params.id
 onMounted(async () => {
