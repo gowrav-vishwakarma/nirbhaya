@@ -1,7 +1,7 @@
 <template>
-  <q-dialog ref="dialogRef" v-model="dialogModel" position="bottom" persistent :maximized="false"
-    transition-show="slide-up" transition-hide="slide-down" @hide="onDialogHide" @touchstart="handleTouchStart"
-    @touchmove="handleTouchMove" @touchend="handleTouchEnd">
+  <q-dialog style="padding-bottom: env(safe-area-inset-bottom);" ref="dialogRef" v-model="dialogModel" position="bottom"
+    persistent :maximized="false" transition-show="slide-up" transition-hide="slide-down" @hide="onDialogHide"
+    @touchstart="handleTouchStart" @touchmove="handleTouchMove" @touchend="handleTouchEnd">
     <q-card class="column dialog-card" :style="{ '--swipe-progress': swipeProgress }" @touchstart="handleTouchStart"
       @touchmove="handleTouchMove" @touchend="handleTouchEnd">
       <!-- Swipe indicator -->
@@ -60,7 +60,7 @@
               <div class="comment-actions row items-center q-gutter-x-md q-mt-xs">
                 <span class="text-grey-6 text-caption">{{
                   formatDate(comment.createdAt)
-                }}</span>
+                  }}</span>
               </div>
             </div>
             <q-btn flat round dense size="sm" :ripple="false"

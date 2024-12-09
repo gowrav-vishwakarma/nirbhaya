@@ -1,7 +1,7 @@
 <template>
-  <q-dialog ref="dialogRef" v-model="dialogModel" position="bottom" persistent :maximized="false"
-    transition-show="slide-up" transition-hide="slide-down" @hide="onDialogHide" @touchstart="handleTouchStart"
-    @touchmove="handleTouchMove" @touchend="handleTouchEnd">
+  <q-dialog style="padding-bottom: env(safe-area-inset-bottom);" ref="dialogRef" v-model="dialogModel" position="bottom"
+    persistent :maximized="false" transition-show="slide-up" transition-hide="slide-down" @hide="onDialogHide"
+    @touchstart="handleTouchStart" @touchmove="handleTouchMove" @touchend="handleTouchEnd">
     <q-card class="column dialog-card" :style="{ '--swipe-progress': swipeProgress }">
       <!-- Swipe indicator -->
       <div class="swipe-indicator"></div>

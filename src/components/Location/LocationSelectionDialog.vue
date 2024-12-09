@@ -1,7 +1,8 @@
 <template>
-  <q-dialog v-model="isOpen" position="top" @hide="$emit('update:modelValue', false)" @touchstart="handleTouchStart"
-    @touchmove.prevent="handleTouchMove" @touchend="handleTouchEnd" @click="checkSwipeToClose" persistent
-    :maximized="false" transition-show="slide-down" transition-hide="slide-up">
+  <q-dialog v-model="isOpen" position="top" style="padding-top: env(safe-area-inset-top)"
+    @hide="$emit('update:modelValue', false)" @touchstart="handleTouchStart" @touchmove.prevent="handleTouchMove"
+    @touchend="handleTouchEnd" @click="checkSwipeToClose" persistent :maximized="false" transition-show="slide-down"
+    transition-hide="slide-up">
     <q-card class="dialog-card" :style="{ '--swipe-progress': swipeProgress }" @touchstart="handleTouchStart"
       @touchmove="handleTouchMove" @touchend="handleTouchEnd" @click="checkSwipeToClose">
       <q-card-section class="row items-center q-pb-none">
