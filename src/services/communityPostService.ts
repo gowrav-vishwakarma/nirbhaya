@@ -15,6 +15,11 @@ interface PostsResponse {
   totalPages: number;
 }
 
+interface PaginationParams {
+  page: number;
+  pageSize: number;
+}
+
 export const communityPostService = {
   async getPosts(filters: PostFilters): Promise<PostsResponse> {
     const response = await api.get('posts/community-posts', {
@@ -63,5 +68,14 @@ export const communityPostService = {
 
   async sharePost(postId: string): Promise<void> {
     await api.post(`/posts/${postId}/share`);
+  },
+
+  async getLikes(postId: number | string, params?: PaginationParams) {
+    return api.get(`/posts/${postId}/likes`, {
+      params: {
+        page: params?.page,
+        limit: params?.pageSize, // Note: backend uses 'limit' while frontend sends 'pageSize'
+      },
+    });
   },
 };
