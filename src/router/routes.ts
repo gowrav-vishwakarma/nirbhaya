@@ -7,7 +7,9 @@ import CreateReelPage from 'pages/CreateReelPage.vue';
 import NewsPage from 'pages/CommunityFeeds/NewsPage.vue';
 import CommunityFeedback from 'pages/Sos/SosRating.vue';
 import ShareCartificatePage from 'pages/Cartificate/ShareCartificatePage.vue';
-
+import CommunityPostsList from 'pages/CommunityPosts/CommunityPostsList.vue';
+import Feed from 'pages/CommunityFeeds/CommunityFeedsPage.vue';
+import MyPostsPage from 'pages/CommunityPosts/MyPostsPage.vue';
 const routes: RouteRecordRaw[] = [
   {
     path: '/',
@@ -72,6 +74,12 @@ const routes: RouteRecordRaw[] = [
         meta: { requiresAuth: true },
       },
       {
+        path: '/my-posts/:id',
+        component: () => import('pages/CommunityPosts/MyPostsPage.vue'),
+        props: true,
+        meta: { requiresAuth: true },
+      },
+      {
         path: 'all-news',
         name: 'news',
         component: NewsPage,
@@ -122,6 +130,29 @@ const routes: RouteRecordRaw[] = [
         name: 'TncPage',
         component: () => import('pages/Sos/TncPage.vue'),
       },
+      {
+        path: '/comunity-post',
+        name: 'post',
+        component: CommunityPostsList,
+      },
+      {
+        path: '/feed',
+        name: 'feed',
+        component: Feed,
+      },
+      {
+        path: '/community-post/:id',
+        component: () =>
+          import('pages/CommunityPosts/CommunityPostOpenRoute.vue'),
+        name: 'CommunityPostOpen',
+        meta: { requiresAuth: true },
+      },
+      {
+        path: '/profile/:id',
+        name: 'UserProfile',
+        component: () => import('pages/CommunityPosts/MyPostsPage.vue'),
+        props: true,
+      },
     ],
   },
   {
@@ -133,11 +164,11 @@ const routes: RouteRecordRaw[] = [
     component: VolunteersNearByPage,
     meta: { requiresAuth: true },
   },
-  {
-    path: '/sos-events-map',
-    component: () => import('layouts/MainLayout.vue'),
-    children: [{ path: '', component: SOSEventsMapPage }],
-  },
+  // {
+  //   path: '/sos-events-map',
+  //   component: () => import('layouts/MainLayout.vue'),
+  //   children: [{ path: '', component: SOSEventsMapPage }],
+  // },
 ];
 
 export default routes;

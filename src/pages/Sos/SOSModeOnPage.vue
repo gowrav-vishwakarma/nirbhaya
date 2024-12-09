@@ -1,5 +1,5 @@
 <template>
-  <q-page class="sos-page q-pa-md">
+  <q-page :class="['sos-page q-pa-md', { 'platform-ios': Platform.is.ios }]">
     <!-- Loader overlay -->
     <div v-if="leavingSos" class="loader-overlay">
       <q-spinner-dots color="white" size="60" class="q-mb-md" />
@@ -187,8 +187,8 @@
             <q-item-label>{{
               currentLocationName || $t('common.gettingLocation')
               }}</q-item-label>
-            <q-item-label caption v-if="currentLocation.latitude && currentLocation.longitude">
-              {{ $t('common.coordinates') }}:
+            <q-item-label caption v-if="currentLocation.latitude != null && currentLocation.longitude != null">
+              {{ t('common.coordinates') }}:
               {{ currentLocation.latitude.toFixed(6) }},
               {{ currentLocation.longitude.toFixed(6) }}
             </q-item-label>
@@ -235,6 +235,7 @@
 import { ref, onMounted, onUnmounted, watch, computed, reactive } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useI18n } from 'vue-i18n';
+import { Platform } from 'quasar';
 import {
   Geolocation,
   Position,
@@ -253,6 +254,8 @@ import AudioControls from './SosAudioControls.vue';
 import { Filesystem, Directory } from '@capacitor/filesystem';
 import SosRating from './SosRating.vue';
 import SosButtonNearby from 'pages/Dashboard/components/SosButtonNearby.vue'
+import { Plugins } from '@capacitor/core';
+const { SMS } = Plugins;
 
 const router = useRouter();
 const route = useRoute();
@@ -266,16 +269,16 @@ const STREAM_SAVE = process.env.STREAM_SAVE;
 
 const countdownDuration = 10; // seconds
 const timeLeft = ref(countdownDuration);
-let countdownInterval: number | null = null;
+let countdownInterval: ReturnType<typeof setInterval> | null = null;
 const sosSent = ref(false);
 const isResolvingManually = ref(false);
 const notifiedPersons = ref(0);
 const acceptedPersons = ref(0);
 
-const createdSosId = ref(parseInt(route.query.sosEventId) || 0);
+const createdSosId = ref(route.query.sosEventId ? parseInt(String(route.query.sosEventId)) : 0);
 const contactsOnly = ref(route.query.contactsOnly === 'true');
 
-const currentLocation = ref({ latitude: null, longitude: null });
+const currentLocation = ref<Location>({ latitude: null, longitude: null });
 const currentLocationName = ref('');
 let watchId: string | null = null;
 
@@ -355,7 +358,7 @@ const logMessage = (message: string) => {
 const recordingIntervals = ref([5000, 10000, 20000, 30000]); // in milliseconds
 const currentIntervalIndex = ref(0);
 const recordingStartTime = ref(0);
-const nextUploadTimeout = ref<number | null>(null);
+const nextUploadTimeout = ref<ReturnType<typeof setTimeout> | null>(null);
 const accumulatedChunks = ref<Blob[]>([]);
 const entireRecording = ref<Blob[]>([]);
 
@@ -555,7 +558,7 @@ const cancelSOS = async () => {
 };
 
 const activateSOSPermissions = async () => {
-  const requiredPermissions = ['location', 'camera'];
+  const requiredPermissions: PermissionType[] = ['common.location', 'common.camera'];
   for (const permissionName of requiredPermissions) {
     const permission = permissions.value.find((p) => p.name === permissionName);
     if (permission && !permission.granted) {
@@ -567,11 +570,10 @@ const activateSOSPermissions = async () => {
 };
 
 const updateSOSData = async (data: {
-  location?: { latitude: number | null; longitude: number | null };
+  location?: Location;
   status?: string;
   threat?: string;
   confirm?: boolean;
-
 }) => {
   try {
     if (data.confirm || !sosSent.value) {
@@ -584,8 +586,11 @@ const updateSOSData = async (data: {
     }
 
     // Always update all available values
-    if (currentLocation.value.longitude && currentLocation.value.latitude) {
-      values.value.location = currentLocation.value;
+    if (currentLocation.value.latitude && currentLocation.value.longitude) {
+      values.value.location = {
+        latitude: currentLocation.value.latitude,
+        longitude: currentLocation.value.longitude
+      };
       locationSentToServer.value = true; // Set this to true when data is successfully sent
     }
     if (data.status) values.value.status = data.status;
@@ -739,50 +744,32 @@ const startLocationWatching = async () => {
   }
 };
 
-const handleLocationUpdate: WatchPositionCallback = (
-  position: Position | null,
-  err?: any
-) => {
+const handleLocationUpdate: WatchPositionCallback = (position: Position | null, err?: any) => {
   if (err) {
     logMessage('Error in location update: ' + err);
     console.error('Error in location update:', err);
-    locationStatus.value = 'error'; // Set status to error when there's a location error
+    locationStatus.value = 'error';
     currentLocationName.value = t('common.locationError');
     return;
   }
 
-  logMessage('Location updated: ' + JSON.stringify(position, null, 2));
-
   if (position) {
-    const newLocation = {
+    const newLocation: Location = {
       latitude: position.coords.latitude,
       longitude: position.coords.longitude,
     };
 
-    // Check if the location has changed significantly (e.g., more than 10 meters)
-    if (
-      currentLocation.value.latitude !== null &&
-      currentLocation.value.longitude !== null
-    ) {
-      const distance = calculateDistance(currentLocation.value, newLocation);
-      significantChange.value = distance > 10; // 10 meters threshold
-    } else {
-      significantChange.value = true;
-    }
-
     currentLocation.value = newLocation;
-    currentLocationName.value = `Lat: ${newLocation.latitude.toFixed(
-      4
-    )}, Lon: ${newLocation.longitude.toFixed(4)}`;
+    currentLocationName.value = `Lat: ${newLocation.latitude?.toFixed(4)}, Lon: ${newLocation.longitude?.toFixed(4)}`;
     isLocationReceived.value = true;
-    locationStatus.value = 'success'; // Set status to success when location is received
+    locationStatus.value = 'success';
 
     throttledUpdateSOS();
   }
 };
 
-const calculateDistance = (loc1, loc2) => {
-  const R = 6371; // Radius of the earth in kilometers
+const calculateDistance = (loc1: LocationWithCoords, loc2: LocationWithCoords): number => {
+  const R = 6371;
   const dLat = (loc2.latitude - loc1.latitude) * (Math.PI / 180);
   const dLon = (loc2.longitude - loc1.longitude) * (Math.PI / 180);
   const a =
@@ -1112,6 +1099,11 @@ const updateNearByAlso = () => {
 .sos-page {
   background: linear-gradient(135deg, $primary, darken($primary, 20%));
   min-height: 100vh;
+
+  // Add iOS specific padding
+  .platform-ios & {
+    padding-top: 50px !important;
+  }
 }
 
 .sos-card {

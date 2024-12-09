@@ -15,7 +15,7 @@
                 <q-icon :name="$t('common.icons.help')" size="xs" class="q-ml-sm">
                   <q-tooltip>{{
                     $t('common.notificationLocationsHelp')
-                    }}</q-tooltip>
+                  }}</q-tooltip>
                 </q-icon>
               </div>
               <q-list bordered separator>
@@ -36,7 +36,7 @@
                         :disable="!values.availableForCommunity">
                         <q-tooltip>{{
                           $t('common.useCurrentLocation')
-                          }}</q-tooltip>
+                        }}</q-tooltip>
                       </q-btn>
                       <q-btn flat color="negative" :icon="$t('common.icons.delete')"
                         @click="removeNotificationLocation(index)" :disable="!values.availableForCommunity" />
@@ -68,16 +68,16 @@
                     <q-item-section>
                       <q-item-label>{{
                         $t('common.availableForCommunity')
-                        }}</q-item-label>
+                      }}</q-item-label>
                       <q-item-label caption>{{
                         $t('common.availableForCommunityDescription')
-                        }}</q-item-label>
+                      }}</q-item-label>
                     </q-item-section>
                     <q-item-section side>
                       <q-toggle v-model="values.availableForCommunity" color="primary" />
                     </q-item-section>
                   </q-item>
-                  <q-item tag="label" v-ripple>
+                  <!-- <q-item tag="label" v-ripple>
                     <q-item-section>
                       <q-item-label>{{
                         $t('common.availableForPaidProfessionalService')
@@ -91,7 +91,7 @@
                     <q-item-section side>
                       <q-toggle v-model="values.availableForPaidProfessionalService" color="primary" />
                     </q-item-section>
-                  </q-item>
+                  </q-item> -->
                 </q-list>
               </q-card-section>
             </q-card>
@@ -111,7 +111,7 @@
 </template>
 
 <script lang="ts" setup>
-import { onMounted, watch, ref, computed } from 'vue';
+import { onMounted, ref, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useQuasar } from 'quasar';
 import { Capacitor } from '@capacitor/core';
@@ -123,6 +123,19 @@ import { useForm } from 'src/qnatk/composibles/use-form';
 const { t } = useI18n();
 const $q = useQuasar();
 const userStore = useUserStore();
+
+// Create a ref for $t to make it available in the template
+const $t = (key: string) => t(key);
+
+// Add this interface near the top of the script section
+interface UserLocation {
+  name: string;
+  location: {
+    type: 'Point';
+    coordinates: [number | null, number | null];
+  };
+  isBusinessLocation?: boolean;
+}
 
 const { values, isLoading, validateAndSubmit, callbacks } = useForm(
   api,
@@ -137,7 +150,10 @@ const locationLoading = ref<boolean[]>([]);
 
 const loadUserData = () => {
   const userData = userStore.user;
-  values.value.locations = userData.locations || [];
+  // Filter out business locations and create a deep copy
+  values.value.locations = JSON.parse(JSON.stringify(
+    (userData.locations || []).filter((loc: UserLocation) => !loc.isBusinessLocation)
+  ));
   values.value.availableForCommunity = userData.availableForCommunity || false;
   values.value.availableForPaidProfessionalService =
     userData.availableForPaidProfessionalService || false;
@@ -148,13 +164,14 @@ onMounted(loadUserData);
 
 const addNotificationLocation = () => {
   if (values.value.locations.length < 10) {
-    values.value.locations.push({
+    const newLocation = {
       name: '',
       location: {
         type: 'Point',
         coordinates: [null, null],
       },
-    });
+    };
+    values.value.locations.push(newLocation);
     locationLoading.value.push(false);
   }
 };
@@ -178,9 +195,11 @@ const updateLocationCoordinates = async (index: number) => {
     ];
 
     $q.notify({
-      color: 'positive',
+      color: 'black',
       message: t('common.locationUpdated'),
       icon: 'check',
+      position: 'top-right',
+
     });
   } catch (error) {
     console.error('Error getting location', error);
@@ -188,6 +207,7 @@ const updateLocationCoordinates = async (index: number) => {
       color: 'negative',
       message: t('common.locationError'),
       icon: 'error',
+      position: 'top-right',
     });
   } finally {
     locationLoading.value[index] = false;
@@ -232,48 +252,60 @@ const getLocationCoordinates = (location: {
   return '';
 };
 
+// Add defineEmits near the top of the script setup section, after the imports
+const props = defineProps<{
+  reloadComponents?: () => void
+}>();
+
+const emit = defineEmits(['reloadComponents']);
+
+// Modify the callbacks.onSuccess to emit reloadComponents after successful update
 callbacks.onSuccess = (data) => {
   userStore.updateUser(data.user);
   loadUserData(); // Reload user data from the store
+  // Emit reloadComponents
+
   $q.notify({
-    color: 'positive',
+    color: 'black',
     message: t('common.volunteeringUpdateSuccess'),
     icon: 'check',
+    position: 'top-right',
   });
 };
 
-// Watch for changes in the userStore and update local values
-watch(
-  () => userStore.user,
-  (newUserData) => {
-    values.value.locations = newUserData.locations || [];
-    values.value.availableForCommunity =
-      newUserData.availableForCommunity || false;
-    locationLoading.value = new Array(values.value.locations.length).fill(
-      false
-    );
-  },
-  { deep: true }
-);
-
-callbacks.onError = (error) => {
+callbacks.onError = async (error: any) => {
   console.error('Error updating volunteering info', error);
   $q.notify({
     color: 'negative',
     message: t('common.volunteeringUpdateError'),
     icon: 'error',
+    position: 'top-right',
   });
 };
 
-// Modify the validateAndSubmit call to prevent form reset
-const handleSubmit = () => {
+const handleSubmit = async () => {
   if (isFormValid.value) {
-    validateAndSubmit(false); // Pass false to prevent form reset
+    try {
+      await validateAndSubmit(false);
+      // Call both the prop function and emit the event
+      props.reloadComponents?.();
+      emit('reloadComponents');
+
+    } catch (error) {
+      console.error('Form submission error:', error);
+      $q.notify({
+        color: 'negative',
+        message: t('common.pleaseSelectAllLocations'),
+        icon: 'error',
+        position: 'top-right',
+      });
+    }
   } else {
     $q.notify({
       color: 'negative',
       message: t('common.pleaseSelectAllLocations'),
       icon: 'error',
+      position: 'top-right',
     });
   }
 };
@@ -283,6 +315,21 @@ const openGoogleMaps = (coordinates: [number, number]) => {
   const url = `https://www.google.com/maps/search/?api=1&query=${latitude},${longitude}`;
   window.open(url, '_blank');
 };
+
+// Update defineExpose to include all needed template properties
+defineExpose({
+  $t,
+  values,
+  isLoading,
+  locationLoading,
+  isLocationValid,
+  getLocationCoordinates,
+  updateLocationCoordinates,
+  removeNotificationLocation,
+  openGoogleMaps,
+  handleSubmit,
+  isFormValid
+});
 </script>
 
 <style lang="scss" scoped>

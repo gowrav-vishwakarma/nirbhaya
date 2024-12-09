@@ -27,10 +27,10 @@ export interface User {
   token: string;
   isVerified: boolean;
   city: string;
-  availableForCommunity: boolean; // Changed from liveSosEventChecking
+  availableForCommunity: boolean;
   emergencyContacts: EmergencyContact[];
   locations: UserLocation[];
-  availableForPaidProfessionalService: boolean; // Added new field
+  availableForPaidProfessionalService: boolean;
   hasJoinedCommunity: boolean;
   startAudioVideoRecordOnSos: boolean;
   streamAudioVideoOnSos: boolean;
@@ -41,6 +41,11 @@ export interface User {
   dob: Date;
   pincode: string;
   profession: string;
+  isAmbassador: boolean;
+  avatar?: string;
+  canCreatePost: boolean;
+  businessName: string;
+  whatsappNumber: string;
 }
 
 interface NewsPreferences {
@@ -58,10 +63,10 @@ const defaultUser: User = {
   token: '',
   isVerified: false,
   city: '',
-  availableForCommunity: false, // Changed from liveSosEventChecking
+  availableForCommunity: false,
   emergencyContacts: [],
   locations: [],
-  availableForPaidProfessionalService: false, // Added new field
+  availableForPaidProfessionalService: false,
   hasJoinedCommunity: false,
   startAudioVideoRecordOnSos: false,
   streamAudioVideoOnSos: false,
@@ -72,6 +77,10 @@ const defaultUser: User = {
   dob: new Date(),
   pincode: '',
   profession: '',
+  isAmbassador: false,
+  canCreatePost: false,
+  businessName: '',
+  whatsappNumber: '',
 };
 
 export const useUserStore = defineStore('userStore', {

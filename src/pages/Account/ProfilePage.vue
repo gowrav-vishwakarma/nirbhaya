@@ -180,20 +180,19 @@ import { useUserStore } from 'src/stores/user-store';
 import { api } from 'src/boot/axios';
 import { useForm } from 'src/qnatk/composibles/use-form';
 import LanguageSelector from 'src/components/LanguageSelector.vue';
-import { Capacitor, Plugins } from '@capacitor/core';
-import { Geolocation } from '@capacitor/geolocation';
-import { Camera } from '@capacitor/camera';
-import EmergencyContactRequestsDialog from 'components/EmergencyContactRequestsDialog.vue';
 import SearchCity from 'src/components/SearchCity.vue';
 import type { QSelectFilterFn } from 'quasar';
-import type { City } from 'src/types/city';
 
 const { t } = useI18n();
 const $q = useQuasar();
 const userStore = useUserStore();
 
 // const STREAM_SAVE = computed(() => process.env.STREAM_SAVE);
+const props = defineProps<{
+  reloadComponents?: () => void
+}>();
 
+const emit = defineEmits(['reloadComponents']);
 const userTypeOptions = ['Girl', 'Child', 'Elder Woman', 'Elder Man', 'Youth'];
 
 const originalStateOptions = [
@@ -238,9 +237,9 @@ const originalStateOptions = [
 
 const stateOptions = ref([...originalStateOptions]);
 
-const isNavigatorMediaSupported = computed(() => {
-  return !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
-});
+// const isNavigatorMediaSupported = computed(() => {
+//   return !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
+// });
 
 const professionOptions = [
   { label: t('common.hospital'), value: 'hospital' },
@@ -252,6 +251,24 @@ const professionOptions = [
   { label: t('common.nurse'), value: 'nurse' },
   { label: t('common.tech'), value: 'tech' },
   { label: t('common.student'), value: 'student' },
+  { label: t('common.freelancer'), value: 'freelancer' },
+  { label: t('common.onlineSeller'), value: 'onlineSeller' },
+  { label: t('common.handicraftMaker'), value: 'handicraftMaker' },
+  { label: t('common.tailor'), value: 'tailor' },
+  { label: t('common.beautician'), value: 'beautician' },
+  { label: t('common.foodSeller'), value: 'foodSeller' },
+  { label: t('common.artsMediaDesigner'), value: 'artsMediaDesigner' },
+  { label: t('common.skilledTradesWorker'), value: 'skilledTradesWorker' },
+  { label: t('common.shopOwner'), value: 'shopOwner' },
+  { label: t('common.techITProfessional'), value: 'techITProfessional' },
+  { label: t('common.healthcareMedicalWorker'), value: 'healthcareMedicalWorker' },
+  { label: t('common.socialWorker'), value: 'socialWorker' },
+  { label: t('common.privateSectorEmployee'), value: 'privateSectorEmployee' },
+  { label: t('common.governmentEmployee'), value: 'governmentEmployee' },
+  { label: t('common.businessOwner'), value: 'businessOwner' },
+  { label: t('common.housewife'), value: 'housewife' },
+  { label: t('common.retired'), value: 'retired' },
+  { label: t('common.unemployed'), value: 'unemployed' },
   { label: t('common.other'), value: 'other' },
 ];
 
@@ -262,6 +279,12 @@ interface EmergencyContact {
   isAppUser: boolean;
   priority: number;
   consentGiven: boolean;
+}
+interface City {
+  officename: string;
+  statename: string;
+  pincode: string;
+  city?: string;
 }
 
 interface FormValues {
@@ -299,7 +322,7 @@ const { values, errors, isLoading, validateAndSubmit, callbacks } = useForm<Form
     referredBy: '',
   }
 );
-callbacks.beforeSubmit = (data: FormValues) => {
+callbacks.beforeSubmit = (data) => {
   console.log('data before processing...', data);
   const processedData = {
     ...data,
@@ -380,24 +403,6 @@ onMounted(() => {
   // checkPermissions();
 });
 
-const addEmergencyContact = () => {
-  if (values.value.emergencyContacts.length < 3) {
-    values.value.emergencyContacts.push({
-      contactName: '',
-      contactPhone: '',
-      relationship: '',
-      isAppUser: false,
-      priority: 0,
-      consentGiven: false,
-    });
-  }
-};
-
-const removeEmergencyContact = (index: number) => {
-  values.value.emergencyContacts.splice(index, 1);
-};
-
-
 
 const hasEmergencyContacts = computed(
   () => values.value.emergencyContacts.length > 0
@@ -429,30 +434,9 @@ const isFormValid = computed(() => {
   );
 });
 
-const validatePhoneNumber = async (phoneNumber: string, index: number): Promise<void> => {
-  try {
-    const response = await api.post('auth/validate-phone', { phoneNumber });
-    if (!response.data.isValid) {
-      errors.value[`emergencyContact${index}`] = [t('phoneNumberNotInSystem')];
-    } else {
-      delete errors.value[`emergencyContact${index}`];
-    }
-  } catch (error) {
-    console.error('Error validating phone number:', error);
-    errors.value[`emergencyContact${index}`] = [t('phoneValidationError')];
-  }
-};
+
 
 const handleSubmit = async () => {
-  // Validate phone numbers only if emergency contacts are present
-  // if (values.value.emergencyContacts.length > 0) {
-  //   for (let i = 0; i < values.value.emergencyContacts.length; i++) {
-  //     await validatePhoneNumber(
-  //       values.value.emergencyContacts[i].contactPhone,
-  //       i
-  //     );
-  //   }
-  // }
 
   if (isFormValid.value || values.value.emergencyContacts.length === 0) {
     validateAndSubmit(false);
@@ -461,6 +445,7 @@ const handleSubmit = async () => {
       color: 'negative',
       message: t('common.pleaseFixErrors'),
       icon: 'error',
+      position: 'top-right',
     });
   }
 };
@@ -479,10 +464,14 @@ callbacks.onSuccess = (data) => {
   loadUserData(); // Reload user data from the store
 
   $q.notify({
-    color: 'positive',
+    color: 'black',
     message: t('common.profileUpdateSuccess'),
     icon: 'check',
+    position: 'top-right',
   });
+
+  props.reloadComponents?.();
+  emit('reloadComponents');
 };
 
 callbacks.onError = async (error: any): Promise<void> => {
@@ -491,23 +480,14 @@ callbacks.onError = async (error: any): Promise<void> => {
     color: 'negative',
     message: t('common.profileUpdateError'),
     icon: 'error',
+    position: 'top-right',
   });
 };
 
-const openEmergencyContactRequests = () => {
-  $q.dialog({
-    component: EmergencyContactRequestsDialog,
-  });
-};
+
 
 // Add a reactive reference to track the last checked referral ID
 const lastCheckedReferralId = ref('');
-
-const dateOptions = (date: string) => {
-  const today = new Date();
-  const selectedDate = new Date(date);
-  return selectedDate <= today;
-};
 
 // Type-safe city selection handler
 const handleCitySelection = (selectedCity: City | null) => {

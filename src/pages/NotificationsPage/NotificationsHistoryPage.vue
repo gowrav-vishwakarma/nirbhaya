@@ -38,7 +38,7 @@
                         {{ $t('common.threat') }}:
                         <strong>{{
                           $t(notification.threat || 'Emergency Alert')
-                          }}</strong>
+                        }}</strong>
                       </div>
                     </q-card-section>
                   </q-card>
@@ -203,7 +203,7 @@ const formatRelativeTime = (dateString: string) => {
         const diffInDays = Math.floor(diffInHours / 24);
         if (diffInDays < 30) {
           const remainingHours = diffInHours % 24;
-          relativeTime = `${diffInDays} 'days And' ${remainingHours} hours Ago`;
+          relativeTime = `${diffInDays} days And ${remainingHours} hours Ago`;
         } else {
           const diffInMonths = Math.floor(diffInDays / 30);
           if (diffInMonths < 12) {

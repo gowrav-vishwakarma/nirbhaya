@@ -1,5 +1,6 @@
 <template>
   <q-page class="certificate-page">
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
     <div class="container">
       <!-- Certificate Preview -->
       <div ref="stageContainer" class="canvas-container">
@@ -9,9 +10,13 @@
 
       <!-- Controls -->
       <div class="controls q-mt-md">
-        <div class="row q-gutter-sm">
-          <q-btn color="primary" icon="download" label="Download" @click="downloadCertificate" />
-          <q-btn color="secondary" icon="share" label="Share" @click="shareCertificate" />
+        <div class=" flex justify-center">
+          <q-btn color="primary" style="margin: auto; width: 100%; border-radius: 10px !important;"
+            @click="downloadCertificate">
+            <i style="font-size: 14px; font-weight: 900;" class="fas fa-long-arrow-alt-down"></i>
+            <span style="font-size: 12px; font-weight: 900; margin-left: 10px; ">Download</span>
+          </q-btn>
+          <!-- <q-btn color="secondary" icon="share" label="Share" @click="shareCertificate" /> -->
         </div>
       </div>
     </div>
@@ -92,12 +97,12 @@ const initStage = () => {
       x: viewportWidth / 2,
       y: viewportHeight * 0.55, // Adjusted position
       fontSize: viewportWidth * 0.045, // Font size scaled to viewport width
-      fontFamily: 'Playfair Display, serif', // More elegant font
-      fill: '#2c3e50', // Darker, richer color
+      fontFamily: 'Pacifico', // Updated font family to Pacifico
+      fill: 'black', // Darker, richer color
       align: 'center',
       width: viewportWidth * 0.8,
       offsetX: viewportWidth * 0.4,
-      fontStyle: 'bold',
+      // fontStyle: 'bold',
       shadowColor: 'rgba(0,0,0,0.1)',
       shadowBlur: 2,
       shadowOffset: { x: 1, y: 1 },
@@ -132,11 +137,11 @@ const initStage = () => {
       x: 0, y: viewportHeight * 0.13, // Position relative to viewport height
       fontSize: viewportWidth * 0.025, // Font size scaled to viewport width
       fontFamily: 'Montserrat, sans-serif',
-      fill: '#34495e',
+      fill: 'black',
       align: 'center',
       width: viewportWidth * 0.4,
       offsetX: viewportWidth * 0.2,
-      fontStyle: 'bold',
+      // fontStyle: 'bold',
       letterSpacing: 1,
     })
 
@@ -191,14 +196,14 @@ const downloadCertificate = () => {
         word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
       ).join(' '),
       x: 600,
-      y: 860 * 0.55, // Adjusted position
-      fontSize: 48, // Larger font size
-      fontFamily: 'Playfair Display, serif',
-      fill: '#2c3e50',
+      y: 860 * 0.53, // Adjusted position
+      fontSize: 60, // Larger font size
+      fontFamily: 'Pacifico', // Updated font family to Pacifico
+      fill: 'black',
       align: 'center',
       width: 960,
       offsetX: 480,
-      fontStyle: 'bold',
+      // fontStyle: 'bold',
       shadowColor: 'rgba(0,0,0,0.1)',
       shadowBlur: 2,
       shadowOffset: { x: 1, y: 1 },
@@ -233,11 +238,11 @@ const downloadCertificate = () => {
       y: 110,
       fontSize: 32,
       fontFamily: 'Montserrat, sans-serif',
-      fill: '#34495e',
+      fill: 'black',
       align: 'center',
       width: 400,
       offsetX: 200,
-      fontStyle: 'bold',
+      // fontStyle: 'bold',
       letterSpacing: 2,
     })
 
@@ -258,7 +263,7 @@ const downloadCertificate = () => {
 
     // Create download link
     const link = document.createElement('a')
-    link.download = `nirbhaya-certificate-${userName.value}.jpg`
+    link.download = `Sos-Bharat-certificate-${userName.value}.jpg`
     link.href = dataURL
     document.body.appendChild(link)
     link.click()
@@ -267,10 +272,10 @@ const downloadCertificate = () => {
     // Clean up
     tempStage.destroy()
 
-    $q.notify({
-      message: 'Certificate downloaded successfully!',
-      color: 'positive'
-    })
+    // $q.notify({
+    //   message: 'Certificate downloaded successfully!',
+    //   color: 'positive'
+    // })
   }
 }
 
@@ -289,10 +294,10 @@ const shareCertificate = async () => {
     } else {
       // Fallback for browsers that don't support file sharing
       downloadCertificate()
-      $q.notify({
-        message: 'Sharing not supported on this device. Certificate downloaded instead.',
-        color: 'warning'
-      })
+      // $q.notify({
+      //   message: 'Sharing not supported on this device. Certificate downloaded instead.',
+      //   color: 'warning'
+      // })
     }
   } catch (error) {
     console.error('Error sharing:', error)
@@ -328,16 +333,18 @@ watch(referralId, (newId) => {
 })
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Montserrat:wght@400;700&display=swap');
 
 .certificate-page {
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 100vh;
+  min-height: 60vh;
   background: #f5f5f5;
   padding: 1px;
+  background: linear-gradient(135deg, $primary, darken($primary, 20%));
+
 }
 
 .container {
@@ -366,9 +373,10 @@ watch(referralId, (newId) => {
 
 .controls {
   width: 100%;
-  max-width: 400px;
   /* margin: 20px auto; */
-  /* padding: 0 16px; */
+  padding-left: 16px;
+  padding-right: 16px;
+  margin-bottom: 20px;
 }
 
 /* Mobile specific adjustments */

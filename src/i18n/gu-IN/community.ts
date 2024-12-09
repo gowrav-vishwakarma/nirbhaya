@@ -78,4 +78,14 @@ export default {
   suggestionAddFailed: 'સૂચન ઉમેરવામાં નિષ્ફળ',
   suggestionUpdateFailed: 'સૂચન અપડેટ કરવામાં નિષ્ફળ',
   noSuggestions: 'તમે હજુ સુધી કોઈ સૂચન આપ્યું નથી',
+
+  CommunityImpact: {
+    title: 'સમુદાયનો પ્રભાવ',
+    activeVolunteers: 'સક્રિય સ્વયંસેવકો',
+    activeLocations: 'સક્રિય સ્થળો',
+    successRate: 'સફળતા દર',
+    responseTime: 'સરેરાશ પ્રતિસાદ સમય',
+    totalHelped: 'અમે મળીને મદદ કરી',
+    activeMember: 'સક્રિય વપરાશકર્તા',
+  },
 };

@@ -27,16 +27,17 @@
           <q-list bordered separator>
             <q-item v-for="(contact, index) in values.emergencyContacts" :key="index">
               <q-item-section>
-                <q-input v-model="contact.contactName" :label="t('common.name')" dense outlined class="q-mb-sm" :rules="[
-                  (val) => !!val || t('common.contactNameRequired'),
-                ]" />
-                <q-input v-model="contact.contactPhone" :label="t('common.mobileNumber')" dense outlined class="q-mb-sm"
-                  type="tel" mask="##########" fill-mask :rules="[
+                <q-input v-model="contact.contactName" :disable="contact.consentGiven" :label="t('common.name')" dense
+                  outlined class="q-mb-sm" :rules="contact.touched ? [
+                    (val) => !!val || t('common.contactNameRequired'),
+                  ] : []" @blur="contact.touched = true" />
+                <q-input v-model="contact.contactPhone" :disable="contact.consentGiven"
+                  :label="t('common.mobileNumber')" dense outlined class="q-mb-sm" type="tel" mask="##########"
+                  fill-mask :rules="contact.touched ? [
                     (val) => !!val || t('common.contactNumberRequired'),
                     (val) => val.length === 10 || t('common.invalidPhoneNumberLength'),
                     (val) => /^[0-9]+$/.test(val) || t('common.onlyNumbersAllowed')
-                  ]" @blur="validatePhoneNumber(contact.contactPhone, index)"
-                  :error="!!errors[`emergencyContact${index}`]"
+                  ] : []" @blur="handlePhoneBlur(contact, index)" :error="!!errors[`emergencyContact${index}`]"
                   :error-message="errors[`emergencyContact${index}`]?.join('; ')" />
                 <q-chip class="q-ma-none" :color="contact.consentGiven ? 'positive' : 'secondary'" text-color="white"
                   :icon="contact.consentGiven ? 'check_circle' : 'warning'" size="sm"
@@ -91,8 +92,13 @@ interface EmergencyContact {
   isAppUser: boolean;
   priority: number;
   consentGiven: boolean;
+  touched?: boolean;
 }
-const dd = ref(false)
+const props = defineProps<{
+  reloadComponents?: () => void
+}>();
+
+const emit = defineEmits(['reloadComponents']);
 
 // Define interface for form values
 interface FormValues {
@@ -149,6 +155,7 @@ const addEmergencyContact = () => {
     isAppUser: false,
     priority: 0,
     consentGiven: false,
+    touched: false,
   });
 };
 
@@ -178,6 +185,7 @@ const removeEmergencyContact = async (index: number) => {
       color: 'negative',
       message: t('common.emergencyContactDeleteError'),
       icon: 'error',
+      position: 'top-right',
     });
   }
 };
@@ -188,15 +196,35 @@ const hasEmergencyContacts = computed(
 
 const isFormValid = computed(() => {
   const hasValidContacts = values.value.emergencyContacts.length > 0;
-  const allContactsHaveData = values.value.emergencyContacts.every(
+
+  // Check if there are any non-empty contacts
+  const hasNonEmptyContacts = values.value.emergencyContacts.some(
     (contact: EmergencyContact) =>
-      contact.contactName?.trim() &&
-      contact.contactPhone?.trim() &&
-      contact.contactPhone.length === 10
+      contact.contactName?.trim() || contact.contactPhone?.trim()
   );
+
+  // Validate all non-empty contacts
+  const allContactsHaveData = values.value.emergencyContacts.every(
+    (contact: EmergencyContact) => {
+      // If the contact has any data, require both fields
+      if (contact.contactName?.trim() || contact.contactPhone?.trim()) {
+        return contact.contactName?.trim() &&
+          contact.contactPhone?.trim() &&
+          contact.contactPhone.length === 10;
+      }
+      // Empty contacts are considered valid (they'll be filtered out on submit)
+      return true;
+    }
+  );
+
   const noErrors = Object.keys(errors.value).length === 0;
 
-  return hasValidContacts && allContactsHaveData && noErrors;
+  // Form is valid if:
+  // 1. There is at least one contact
+  // 2. At least one contact has data
+  // 3. All contacts with any data are completely filled
+  // 4. There are no validation errors
+  return hasValidContacts && hasNonEmptyContacts && allContactsHaveData && noErrors;
 });
 
 const validatePhoneNumber = async (phoneNumber: string, index: number): Promise<boolean> => {
@@ -223,31 +251,43 @@ const validatePhoneNumber = async (phoneNumber: string, index: number): Promise<
   }
 };
 
+const handlePhoneBlur = async (contact: EmergencyContact, index: number) => {
+  contact.touched = true;
+  if (contact.contactPhone) {
+    await validatePhoneNumber(contact.contactPhone, index);
+  }
+};
+
 const handleSubmit = async () => {
   try {
+    // Mark all contacts as touched before submission
+    values.value.emergencyContacts.forEach((contact: EmergencyContact) => {
+      contact.touched = true;
+    });
+
     // Clear any existing errors
     errors.value = {};
 
-    // Validate all phone numbers if there are emergency contacts
+    // Filter out empty contacts before submission
+    values.value.emergencyContacts = values.value.emergencyContacts.filter(
+      (contact: EmergencyContact) => contact.contactName?.trim() || contact.contactPhone?.trim()
+    );
+
+    // Rest of the validation logic...
     if (values.value.emergencyContacts.length > 0) {
-      const validationPromises = values.value.emergencyContacts.map((contact: EmergencyContact, index: number) =>
-        validatePhoneNumber(contact.contactPhone, index)
+      const validationPromises = values.value.emergencyContacts.map(
+        (contact: EmergencyContact, index: number) =>
+          validatePhoneNumber(contact.contactPhone, index)
       );
 
       const validationResults = await Promise.all(validationPromises);
 
-      // Check if any validation failed
       if (validationResults.includes(false)) {
-        $q.notify({
-          color: 'negative',
-          message: t('common.pleaseFixErrors'),
-          icon: 'error',
-        });
+
         return;
       }
     }
 
-    // If we reach here, all validations passed
     await validateAndSubmit(false);
 
   } catch (error) {
@@ -256,6 +296,7 @@ const handleSubmit = async () => {
       color: 'negative',
       message: t('common.unexpectedError'),
       icon: 'error',
+      position: 'top-right',
     });
   }
 };
@@ -268,11 +309,14 @@ callbacks.onSuccess = (data) => {
   });
 
   loadUserData(); // Reload user data
+  props.reloadComponents?.();
+  emit('reloadComponents');
 
   $q.notify({
-    color: 'positive',
-    message: t('common.emergencyContactsUpdateSuccess'),
+    color: 'black',
+    message: 'Emergency Contacts Updated Successfully',
     icon: 'check',
+    position: 'top-right',
   });
 };
 

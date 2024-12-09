@@ -50,14 +50,14 @@
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<true/>
   <key>NSCameraUsageDescription</key>
-  <string>Allow access to your camera to record videos during SOS events. Videos will be saved locally on your device and optionally uploaded to the server if enabled by you. You have the option to turn this feature on or off in the app settings.</string>
+  <string>Allow access to your camera to record videos during SOS events. Videos will be saved locally on your device and optionally uploaded to the server if enabled by you. You have the option to turn this feature on or off in the app settings and to add photos in your community posts</string>
   <key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-	<string>Allow location access to send your current location to your emergency contacts, locate nearby volunteers, find nearby SOS events, and enable location-based features like volunteer assistance during emergencies while using the app.</string>
+	<string>Allow location access to send your current location to your emergency contacts, locate nearby volunteers, find nearby SOS events, and enable location-based features like volunteer assistance during emergencies while using the app, filter location based community posts </string>
 	<key>NSLocationWhenInUseUsageDescription</key>
   <string>Allow location access to send your current location to your emergency contacts, locate nearby volunteers, find nearby SOS events, and enable location-based features like volunteer assistance during emergencies while using the app.</string>
 	<key>NSMicrophoneUsageDescription</key>
   <string>Allow access to your microphone to broadcast audio during your SOS event, either to your emergency contacts or nearby volunteers (depending on your choice), to verify the authenticity of the event and provide assistance.</string>
   <key>NSPhotoLibraryUsageDescription</key>
-  <string>Allow access to your photo library to save recorded audio and video from your SOS events, and to set or update your profile picture.</string>
+  <string>Allow access to your photo library to save recorded audio and video from your SOS events, and to set or update your profile picture, to let you add photos in your community posts</string>
 </dict>
 </plist>

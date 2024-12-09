@@ -1,14 +1,22 @@
 <template>
-  <q-page padding>
+  <q-page padding style="padding-top: env(safe-area-inset-top)">
     <div class="row q-col-gutter-md">
       <!-- Compact Filter Button -->
       <div class="col-12">
-        <div class="row items-center justify-between q-mb-md q-ma-none">
-          <div class="text-h6 q-pl-sm" style="color: white; font-weight: 900">
+        <div class="row items-center justify-between q-ma-none">
+          <div class="text-h6 q-pl-sm q-py-md" style="color: white; font-weight: 900">
             Bulletin Feed
+            <div class="text-caption text-white-6">
+              AI summaries and translations may be inaccurate. Check source.
+            </div>
           </div>
-          <q-btn flat color="text-white" class="q-px-md" @click="showFilters = true">
-          </q-btn>
+          <!-- <q-btn
+            flat
+            color="text-white"
+            class="q-px-md"
+            @click="showFilters = true"
+          >
+          </q-btn> -->
         </div>
       </div>
 
@@ -63,13 +71,11 @@
 
         <!-- Load More Button -->
         <div class="row justify-center q-mt-md">
-          <!-- <q-btn v-if="hasMoreNews" color="primary" :loading="loading && news.length > 0" label="Load More"
-            @click="loadMore">
-            <template v-slot:loading>
-              <q-spinner-dots />
-            </template>
-          </q-btn> -->
-          <q-btn v-if="hasMoreNews" color="primary" :loading="loading" label="Load More" @click="loadMore" />
+          <div ref="scrollTarget" style="height: 20px; width: 100%; text-align: center">
+            <!-- <q-inner-loading :showing="loading && news.length > 0"> -->
+            <q-spinner-dots :showing="loading && news.length > 0" size="40px" color="white" />
+            <!-- </q-inner-loading> -->
+          </div>
         </div>
       </div>
     </div>
@@ -87,7 +93,7 @@
     <q-dialog v-model="showFilters" position="right">
       <q-card style="min-width: 350px; max-width: 95vw">
         <q-card-section class="row items-center">
-          <div class="text-h6">Filter News</div>
+          <div class="text-h6">Filter Bulletin</div>
           <q-space />
           <q-btn icon="close" flat round dense v-close-popup />
         </q-card-section>
@@ -123,15 +129,31 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed, onUnmounted } from 'vue';
 import { useUserStore } from 'stores/user-store';
 import { api } from 'src/boot/axios';
 
+interface NewsItem {
+  id: string;
+  title: string;
+  content: string;
+  mediaUrls?: string[];
+  categories: string[];
+  isIndianNews: boolean;
+  source?: string;
+  translations?: Array<{
+    languageCode: string;
+    title: string;
+    content: string;
+  }>;
+  defaultLanguage: string;
+}
+
 const userStore = useUserStore();
-const news = ref([]);
+const news = ref<NewsItem[]>([]);
 const loading = ref(false);
 const page = ref(1);
-const pageSize = 12;
+const pageSize = 6;
 const hasMoreNews = ref(true);
 
 const selectedLanguage = ref(userStore.newsPreferences.language || 'en');
@@ -159,6 +181,7 @@ const newsCategories = [
   { label: 'Lifestyle', value: 'lifestyle' },
   { label: 'Education', value: 'education' },
   { label: 'Politics', value: 'politics' },
+  { label: 'Startup', value: 'startup' },
 ];
 
 const newsTypeOptions = [
@@ -229,6 +252,8 @@ async function fetchNews(reset = false) {
 
   try {
     loading.value = true;
+    isScrolling.value = true;
+
     const response = await api.get('/news/user-news', {
       params: {
         page: page.value,
@@ -254,6 +279,7 @@ async function fetchNews(reset = false) {
     console.error('Error fetching news:', error);
   } finally {
     loading.value = false;
+    isScrolling.value = false;
   }
 }
 
@@ -269,7 +295,11 @@ function onCategoriesChange(value: string[] | null) {
   fetchNews(true);
 }
 
-function onNewsTypeChange(value: staring) {
+// Add a type for the news types
+type NewsType = 'all' | 'indian' | 'international';
+
+// Update the onNewsTypeChange function with the correct type
+function onNewsTypeChange(value: NewsType) {
   selectedNewsType.value = value;
   userStore.setNewsPreferences({ newsType: value });
   fetchNews(true);
@@ -302,8 +332,42 @@ function openSource(url: string) {
   window.open(formattedUrl, '_blank', 'noopener,noreferrer');
 }
 
+const scrollTarget = ref<HTMLElement | null>(null);
+const isScrolling = ref(false);
+
+function setupInfiniteScroll() {
+  const options = {
+    root: null,
+    rootMargin: '0px',
+    threshold: 0.5,
+  };
+
+  const observer = new IntersectionObserver(([entry]) => {
+    if (
+      entry.isIntersecting &&
+      !loading.value &&
+      hasMoreNews.value &&
+      !isScrolling.value
+    ) {
+      loadMore();
+    }
+  }, options);
+
+  if (scrollTarget.value) {
+    observer.observe(scrollTarget.value);
+  }
+
+  return () => {
+    if (scrollTarget.value) {
+      observer.unobserve(scrollTarget.value);
+    }
+  };
+}
+
 onMounted(() => {
   fetchNews();
+  const cleanup = setupInfiniteScroll();
+  onUnmounted(cleanup);
 });
 </script>
 
