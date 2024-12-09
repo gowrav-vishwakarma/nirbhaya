@@ -16,7 +16,7 @@
       </div>
 
       <!-- Likes List -->
-      <div class="likes-list q-px-md custom-scroll"
+      <div ref="likesListRef" class="likes-list q-px-md custom-scroll"
         style="flex: 1; overflow-y: auto; max-height: 60vh; -webkit-overflow-scrolling: touch;" @scroll="onScroll">
         <!-- Initial loading state -->
         <div v-if="isLoading && !likes.length" class="text-center q-pa-md">
@@ -245,6 +245,9 @@ const onScroll = (event: Event) => {
   }
 };
 
+// Add these refs for scroll management
+const likesListRef = ref<HTMLElement | null>(null);
+
 defineExpose({
   loadLikes,
 });
@@ -260,6 +263,7 @@ defineExpose({
   flex-direction: column;
   position: relative;
   overscroll-behavior: contain;
+  touch-action: pan-y;
 
   &::before {
     content: '';
@@ -284,6 +288,7 @@ defineExpose({
   min-height: 200px;
   max-height: 60vh;
   -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
   overscroll-behavior-y: contain;
   position: relative;
   scroll-behavior: smooth;
@@ -340,5 +345,9 @@ defineExpose({
   to {
     transform: rotate(360deg);
   }
+}
+
+:deep(body) {
+  overscroll-behavior-y: contain;
 }
 </style>
