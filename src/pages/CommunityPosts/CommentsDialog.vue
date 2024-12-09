@@ -1,24 +1,9 @@
 <template>
-  <q-dialog
-    ref="dialogRef"
-    v-model="dialogModel"
-    position="bottom"
-    persistent
-    :maximized="false"
-    transition-show="slide-up"
-    transition-hide="slide-down"
-    @hide="onDialogHide"
-    @touchstart="handleTouchStart"
-    @touchmove="handleTouchMove"
-    @touchend="handleTouchEnd"
-  >
-    <q-card
-      class="column dialog-card"
-      :style="{ '--swipe-progress': swipeProgress }"
-      @touchstart="handleTouchStart"
-      @touchmove="handleTouchMove"
-      @touchend="handleTouchEnd"
-    >
+  <q-dialog ref="dialogRef" v-model="dialogModel" position="bottom" persistent :maximized="false"
+    transition-show="slide-up" transition-hide="slide-down" @hide="onDialogHide" @touchstart="handleTouchStart"
+    @touchmove="handleTouchMove" @touchend="handleTouchEnd">
+    <q-card class="column dialog-card" :style="{ '--swipe-progress': swipeProgress }" @touchstart="handleTouchStart"
+      @touchmove="handleTouchMove" @touchend="handleTouchEnd">
       <!-- Swipe indicator -->
       <div class="swipe-indicator"></div>
 
@@ -32,50 +17,34 @@
       </div>
 
       <!-- Comments List -->
-      <div
-        class="comments-list q-px-md custom-scroll"
-        style="flex: 1; overflow-y: auto"
-      >
+      <div ref="commentsListRef" class="comments-list q-px-md custom-scroll" style="flex: 1; overflow-y: auto"
+        @scroll="handleScroll">
+        <!-- Loading indicator at top for older comments -->
+        <div v-if="isLoadingMore" class="text-center q-pa-md">
+          <q-spinner color="primary" size="2em" />
+          <div class="q-mt-sm">Loading older comments...</div>
+        </div>
+
         <div v-if="isLoading" class="text-center q-pa-md">
           <q-spinner color="primary" size="2em" />
           <div class="q-mt-sm">Loading comments...</div>
         </div>
 
-        <div
-          v-else-if="!props.post?.comments?.length"
-          class="text-grey text-center q-pa-md"
-        >
+        <div v-else-if="!props.post?.comments?.length" class="text-grey text-center q-pa-md">
           No comments yet. Be the first to comment!
         </div>
 
-        <div
-          v-else
-          v-for="comment in props.post.comments"
-          :key="comment.id"
-          class="comment-item q-py-md"
-        >
+        <div v-else v-for="comment in props.post.comments" :key="comment.id" class="comment-item q-py-md">
           <div class="row no-wrap">
-            <q-avatar
-              size="32px"
-              class="q-mr-sm cursor-pointer"
-              @click="openUserProfile(comment.user.id)"
-            >
-              <img
-                :src="
-                  comment.user.id == 1
-                    ? '/sos_logo_1080_1080.png'
-                    : 'https://icons-for-free.com/iff/png/512/profile+profile+page+user+icon-1320186864367220794.png'
-                "
-                :alt="comment.user.name + '\'s profile'"
-                style="object-fit: cover"
-              />
+            <q-avatar size="32px" class="q-mr-sm cursor-pointer" @click="openUserProfile(comment.user.id)">
+              <img :src="String(comment.user.id) === '1'
+                ? '/sos_logo_1080_1080.png'
+                : 'https://icons-for-free.com/iff/png/512/profile+profile+page+user+icon-1320186864367220794.png'
+                " :alt="comment.user.name + '\'s profile'" style="object-fit: cover" />
             </q-avatar>
             <div class="col">
               <div class="comment-content">
-                <span
-                  class="username text-capitalize cursor-pointer"
-                  @click="openUserProfile(comment.user.id)"
-                >
+                <span class="username text-capitalize cursor-pointer" @click="openUserProfile(comment.user.id)">
                   {{ comment.user.name }}
                 </span>
                 <span class="text-grey-6 text-caption">
@@ -88,27 +57,16 @@
                 <br />
                 <span class="comment-text">{{ comment.content }}</span>
               </div>
-              <div
-                class="comment-actions row items-center q-gutter-x-md q-mt-xs"
-              >
+              <div class="comment-actions row items-center q-gutter-x-md q-mt-xs">
                 <span class="text-grey-6 text-caption">{{
                   formatDate(comment.createdAt)
                 }}</span>
               </div>
             </div>
-            <q-btn
-              flat
-              round
-              dense
-              size="sm"
-              :ripple="false"
-              v-if="Number(comment.user.id) == Number(userStore.user.id)"
-              @click="
+            <q-btn flat round dense size="sm" :ripple="false"
+              v-if="Number(comment.user.id) == Number(userStore.user.id)" @click="
                 deleteComment(comment.id, comment.user.id, comment.postId)
-              "
-              icon="delete"
-              color="red"
-            >
+                " icon="delete" color="red">
               <!-- <q-menu style="margin-top: -20px;">
                     <q-item clickable v-ripple>
                       <q-item-section>
@@ -126,53 +84,23 @@
       <div class="comment-input-section q-px-md">
         <div class="row items-center">
           <q-avatar size="32px" class="q-mr-sm">
-            <img
-              :src="
-                userStore.user.id == 1
-                  ? '/sos_logo_1080_1080.png'
-                  : 'https://icons-for-free.com/iff/png/512/profile+profile+page+user+icon-1320186864367220794.png'
-              "
-              :alt="userStore.user.name + '\'s profile'"
-              style="object-fit: cover"
-            />
+            <img :src="userStore.user.id == 1
+              ? '/sos_logo_1080_1080.png'
+              : 'https://icons-for-free.com/iff/png/512/profile+profile+page+user+icon-1320186864367220794.png'
+              " :alt="userStore.user.name + '\'s profile'" style="object-fit: cover" />
           </q-avatar>
-          <q-input
-            v-model="newComment"
-            class="col comment-input"
-            placeholder="Add a comment..."
-            maxlength="500"
-            dense
-            borderless
-            autogrow
-            @keyup.enter="addComment"
-          >
+          <q-input v-model="newComment" class="col comment-input" placeholder="Add a comment..." maxlength="500" dense
+            borderless autogrow @keyup.enter="addComment">
             <template v-slot:after>
-              <q-btn
-                color="primary"
-                flat
-                round
-                @click="addComment"
-                :disable="!newComment.trim()"
-              >
+              <q-btn color="primary" flat round @click="addComment" :disable="!newComment.trim()">
                 <div
-                  class="flex items-center justify-center gap-2 px-3 py-2 cursor-pointer hover:bg-gray-100 rounded-lg"
-                >
-                  <div
-                    class="text-[#637588]"
-                    data-icon="PaperPlaneRight"
-                    data-size="24px"
-                    data-weight="regular"
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="24px"
-                      height="24px"
-                      fill="currentColor"
-                      viewBox="0 0 256 256"
-                    >
+                  class="flex items-center justify-center gap-2 px-3 py-2 cursor-pointer hover:bg-gray-100 rounded-lg">
+                  <div class="text-[#637588]" data-icon="PaperPlaneRight" data-size="24px" data-weight="regular">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor"
+                      viewBox="0 0 256 256">
                       <path
-                        d="M223.87,114l-168-95.89A16,16,0,0,0,32.93,37.32l31,90.47a.42.42,0,0,0,0,.1.3.3,0,0,0,0,.1l-31,90.67A16,16,0,0,0,48,240a16.14,16.14,0,0,0,7.92-2.1l167.91-96.05a16,16,0,0,0,.05-27.89ZM48,224l0-.09L78.14,136H136a8,8,0,0,0,0-16H78.22L48.06,32.12,48,32l168,95.83Z"
-                      ></path>
+                        d="M223.87,114l-168-95.89A16,16,0,0,0,32.93,37.32l31,90.47a.42.42,0,0,0,0,.1.3.3,0,0,0,0,.1l-31,90.67A16,16,0,0,0,48,240a16.14,16.14,0,0,0,7.92-2.1l167.91-96.05a16,16,0,0,0,.05-27.89ZM48,224l0-.09L78.14,136H136a8,8,0,0,0,0-16H78.22L48.06,32.12,48,32l168,95.83Z">
+                      </path>
                     </svg>
                   </div>
                 </div>
@@ -186,7 +114,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue';
+import { ref, computed, watch, nextTick } from 'vue';
 import { useQuasar, useDialogPluginComponent } from 'quasar';
 import { useUserStore } from 'src/stores/user-store';
 import type { CommunityPost } from 'src/types/CommunityPost';
@@ -245,7 +173,7 @@ const deleteComment = async (
     // Update the post by filtering out the deleted comment
     const updatedPost = {
       ...props.post,
-      comments: props.post.comments.filter(
+      comments: (props.post.comments || []).filter(
         (comment) => comment.id !== commentId
       ),
       commentsCount: (props.post.commentsCount || 0) - 1,
@@ -307,15 +235,53 @@ const dialogModel = computed({
   set: (value) => emit('update:modelValue', value),
 });
 
-const loadComments = async () => {
-  isLoading.value = true;
+const page = ref(1);
+const pageSize = ref(10);
+const hasMoreComments = ref(true);
+const isLoadingMore = ref(false);
+
+// Add these refs for scroll management
+const commentsListRef = ref<HTMLElement | null>(null);
+const isInitialLoad = ref(true);
+
+const loadComments = async (loadMore = false) => {
+  if (!loadMore) {
+    isLoading.value = true;
+    page.value = 1;
+    isInitialLoad.value = true;
+  } else {
+    isLoadingMore.value = true;
+  }
+
   try {
-    const comments = await commentService.getComments(String(props.post.id));
+    const comments = await commentService.getComments(
+      String(props.post.id),
+      page.value,
+      pageSize.value
+    );
+
+    // Reverse the comments array to show latest at bottom
+    const reversedComments = [...comments].reverse();
+
     const updatedPost = {
       ...props.post,
-      comments: comments,
+      comments: loadMore
+        ? [...reversedComments, ...(props.post.comments || [])]
+        : reversedComments,
     };
+
     emit('update:post', updatedPost);
+
+    hasMoreComments.value = comments.length === pageSize.value;
+    if (loadMore) {
+      page.value++;
+    }
+
+    // Scroll to bottom on initial load
+    if (isInitialLoad.value) {
+      isInitialLoad.value = false;
+      scrollToBottom();
+    }
   } catch (error: any) {
     console.error('Error loading comments:', error);
     $q.notify({
@@ -324,6 +290,38 @@ const loadComments = async () => {
     });
   } finally {
     isLoading.value = false;
+    isLoadingMore.value = false;
+  }
+};
+
+// Add a scroll to bottom helper function
+const scrollToBottom = () => {
+  nextTick(() => {
+    if (commentsListRef.value) {
+      commentsListRef.value.scrollTop = commentsListRef.value.scrollHeight;
+    }
+  });
+};
+
+// Update the handleScroll function for reverse scrolling
+const handleScroll = async (event: Event) => {
+  const target = event.target as HTMLElement;
+  const topOffset = 100; // pixels from top to trigger load
+
+  if (!hasMoreComments.value || isLoadingMore.value) return;
+
+  // Load more when scrolling to top
+  if (target.scrollTop < topOffset) {
+    const oldScrollHeight = target.scrollHeight;
+    await loadComments(true);
+
+    // Maintain scroll position after loading more comments
+    nextTick(() => {
+      if (commentsListRef.value) {
+        const newScrollHeight = commentsListRef.value.scrollHeight;
+        commentsListRef.value.scrollTop = newScrollHeight - oldScrollHeight;
+      }
+    });
   }
 };
 
@@ -362,7 +360,6 @@ const addComment = async () => {
       commentData
     );
 
-    // Create new comment with proper structure
     const newCommentData = {
       ...response,
       user: {
@@ -373,7 +370,7 @@ const addComment = async () => {
       },
     };
 
-    // Update the post with the new comment and increment comment count
+    // Add new comment at the end (bottom)
     const updatedPost = {
       ...props.post,
       comments: [...(props.post.comments || []), newCommentData],
@@ -382,6 +379,9 @@ const addComment = async () => {
 
     emit('update:post', updatedPost);
     newComment.value = '';
+
+    // Scroll to bottom to show new comment
+    scrollToBottom();
   } catch (error: any) {
     console.error('Error adding comment:', error);
     $q.notify({

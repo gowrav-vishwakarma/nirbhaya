@@ -9,8 +9,13 @@ export const commentService = {
     return response.data;
   },
 
-  async getComments(postId: string) {
-    const response = await api.get(`posts/${postId}/comments`);
+  async getComments(postId: string, page = 1, pageSize = 10) {
+    const response = await api.get(`/posts/${postId}/comments`, {
+      params: {
+        page,
+        pageSize,
+      },
+    });
     return response.data;
   },
 
