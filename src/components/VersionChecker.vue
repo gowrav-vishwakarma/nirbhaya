@@ -38,7 +38,7 @@ const checkVersion = async () => {
       return;
     }
 
-    if (forceUpdate) {
+    if (forceUpdate && version !== latestVersion) {
       $q.dialog({
         title: 'Update Required',
         message:

@@ -69,7 +69,23 @@
             v-if="businessData.latitude && businessData.longitude"
             class="coordinates-display q-mt-xs"
           >
-            <div class="text-subtitle2">Current Location:</div>
+            <div class="row items-center justify-between">
+              <div class="text-subtitle2">Current Location:</div>
+              <q-btn
+                flat
+                dense
+                round
+                icon="map"
+                @click="
+                  openGoogleMaps(
+                    businessData.latitude!,
+                    businessData.longitude!
+                  )
+                "
+              >
+                <q-tooltip>View on Map</q-tooltip>
+              </q-btn>
+            </div>
             <div class="text-caption">
               Latitude: {{ businessData.latitude.toFixed(6) }}
             </div>
@@ -406,6 +422,11 @@ const removeBusinessInfo = async () => {
   } finally {
     loading.value = false;
   }
+};
+
+const openGoogleMaps = (latitude: number, longitude: number) => {
+  const url = `https://www.google.com/maps/search/?api=1&query=${latitude},${longitude}`;
+  window.open(url, '_blank');
 };
 </script>
 
