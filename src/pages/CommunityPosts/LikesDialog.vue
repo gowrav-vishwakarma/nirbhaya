@@ -1,7 +1,6 @@
 <template>
   <q-dialog style="padding-bottom: env(safe-area-inset-bottom);" ref="dialogRef" v-model="dialogModel" position="bottom"
-    persistent :maximized="false" transition-show="slide-up" transition-hide="slide-down" @hide="onDialogHide"
-    @touchstart="handleTouchStart" @touchmove="handleTouchMove" @touchend="handleTouchEnd">
+    persistent :maximized="false" transition-show="slide-up" transition-hide="slide-down" @hide="onDialogHide">
     <q-card class="column dialog-card" :style="{ '--swipe-progress': swipeProgress }">
       <!-- Swipe indicator -->
       <div class="swipe-indicator"></div>
@@ -17,7 +16,7 @@
 
       <!-- Likes List -->
       <div ref="likesListRef" class="likes-list q-px-md custom-scroll"
-        style="flex: 1; overflow-y: auto; max-height: 60vh; -webkit-overflow-scrolling: touch;" @scroll="onScroll">
+        style="flex: 1; overflow-y: auto; max-height: 60vh; -webkit-overflow-scrolling: touch;" @scroll="handleScroll">
         <!-- Initial loading state -->
         <div v-if="isLoading && !likes.length" class="text-center q-pa-md">
           <q-spinner color="primary" size="2em" />
@@ -49,7 +48,7 @@
             </div>
           </div>
 
-          <!-- Loading more indicator -->
+          <!-- Loading more indicator at bottom -->
           <div v-if="isLoadingMore" class="text-center q-pa-md">
             <q-spinner color="primary" size="2em" />
             <div class="q-mt-sm">Loading more likes...</div>
@@ -101,55 +100,22 @@ const totalPages = ref(0);
 const isLoadingMore = ref(false);
 
 // Touch handling
-const touchStartY = ref(0);
-const touchEndY = ref(0);
-const minSwipeDistance = 100;
 const swipeProgress = ref(0);
-const isSwipingDown = ref(false);
 
 const dialogModel = computed({
   get: () => props.modelValue,
   set: (value) => emit('update:modelValue', value),
 });
 
-const handleTouchStart = (event: TouchEvent) => {
-  touchStartY.value = event.touches[0].clientY;
-  isSwipingDown.value = false;
-};
-
-const handleTouchMove = (event: TouchEvent) => {
-  const likesList = document.querySelector('.likes-list');
-  const currentY = event.touches[0].clientY;
-
-  if (likesList && likesList.scrollTop <= 0) {
-    const deltaY = currentY - touchStartY.value;
-    if (deltaY > 0) {
-      isSwipingDown.value = true;
-      touchEndY.value = currentY;
-      const progress = Math.min(Math.max(deltaY / minSwipeDistance, 0), 1);
-      swipeProgress.value = progress;
-      event.preventDefault();
-    }
+const loadMoreLikes = async (loadMore = false) => {
+  if (!loadMore) {
+    isLoading.value = true;
+    page.value = 1;
+    isInitialLoad.value = true;
+  } else {
+    isLoadingMore.value = true;
   }
-};
 
-const handleTouchEnd = () => {
-  const swipeDistance = touchEndY.value - touchStartY.value;
-  if (
-    isSwipingDown.value &&
-    swipeDistance > minSwipeDistance &&
-    dialogRef.value
-  ) {
-    dialogRef.value.hide();
-  }
-  swipeProgress.value = 0;
-  isSwipingDown.value = false;
-};
-
-const loadMoreLikes = async () => {
-  if (isLoading.value || !hasMoreLikes.value) return;
-
-  isLoadingMore.value = true;
   try {
     const response = await communityPostService.getLikes(props.postId, {
       page: page.value,
@@ -159,10 +125,11 @@ const loadMoreLikes = async () => {
     const { likes: likesData, totalPages: total } = response.data;
     totalPages.value = total;
 
-    // Only update if we got data
+    // Simply append new likes to existing ones for loadMore
     if (likesData && likesData.length > 0) {
-      // Add new likes at the beginning of the array
-      likes.value = [...likesData, ...likes.value];
+      likes.value = loadMore
+        ? [...likes.value, ...likesData]  // Append to end for loading more
+        : likesData;                      // Replace all for initial load
       page.value++;
     }
 
@@ -175,16 +142,25 @@ const loadMoreLikes = async () => {
       color: 'negative',
     });
   } finally {
+    isLoading.value = false;
     isLoadingMore.value = false;
   }
 };
 
+const handleScroll = async (event: Event) => {
+  const target = event.target as HTMLElement;
+  const scrollBottom = target.scrollTop + target.clientHeight;
+  const threshold = target.scrollHeight - 50; // 50px from bottom
+
+  if (!hasMoreLikes.value || isLoadingMore.value) return;
+
+  // Load more when scrolling to bottom
+  if (scrollBottom >= threshold) {
+    await loadMoreLikes(true);
+  }
+};
+
 const loadLikes = async () => {
-  page.value = 1;
-  hasMoreLikes.value = true;
-  totalPages.value = 0;
-  likes.value = [];
-  isInitialLoad.value = true;
   await loadMoreLikes();
 };
 
@@ -227,27 +203,6 @@ const openUserProfile = (userId: string | number) => {
   }
 };
 
-const onScroll = async (event: Event) => {
-  const target = event.target as HTMLElement;
-  const topOffset = 100; // pixels from top to trigger load
-
-  if (!hasMoreLikes.value || isLoadingMore.value) return;
-
-  // Load more when scrolling to top
-  if (target.scrollTop < topOffset) {
-    const oldScrollHeight = target.scrollHeight;
-    await loadMoreLikes();
-
-    // Maintain scroll position after loading more likes
-    nextTick(() => {
-      if (likesListRef.value) {
-        const newScrollHeight = likesListRef.value.scrollHeight;
-        likesListRef.value.scrollTop = newScrollHeight - oldScrollHeight;
-      }
-    });
-  }
-};
-
 // Add these refs for scroll management
 const likesListRef = ref<HTMLElement | null>(null);
 const isInitialLoad = ref(true);
@@ -269,6 +224,7 @@ defineExpose({
   overscroll-behavior: contain;
   touch-action: pan-y;
   height: auto;
+  -webkit-overflow-scrolling: touch;
 
   &::before {
     content: '';
@@ -290,14 +246,12 @@ defineExpose({
   overflow-y: auto;
   background: white;
   padding-bottom: env(safe-area-inset-bottom);
-  min-height: 200px;
-  max-height: 60vh;
+  height: calc(90vh - 150px);
   -webkit-overflow-scrolling: touch;
   touch-action: pan-y;
   overscroll-behavior-y: contain;
   position: relative;
   scroll-behavior: smooth;
-  height: calc(90vh - 150px);
 }
 
 .like-item {
