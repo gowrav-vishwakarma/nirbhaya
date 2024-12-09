@@ -94,7 +94,7 @@ const likes = ref<Array<{
 }>>([]);
 const isLoading = ref(false);
 const page = ref(1);
-const pageSize = ref(7);
+const pageSize = ref(10);
 const hasMoreLikes = ref(true);
 const totalPages = ref(0);
 const isLoadingMore = ref(false);
