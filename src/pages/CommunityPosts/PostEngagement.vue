@@ -378,7 +378,7 @@ const openWhatsApp = async () => {
 
     const text = `Hi, I'm interested in your post: ${props.post.title}`;
     const encodedText = encodeURIComponent(text);
-    const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodedText}`;
+    const whatsappUrl = `https://wa.me/+91${whatsappNumber}?text=${encodedText}`;
 
     window.open(whatsappUrl, '_blank');
   } catch (error) {
