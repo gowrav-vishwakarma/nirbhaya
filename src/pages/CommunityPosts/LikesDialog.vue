@@ -16,8 +16,8 @@
       </div>
 
       <!-- Likes List -->
-      <div class="likes-list q-px-md custom-scroll" style="flex: 1; overflow-y: auto; max-height: 60vh;"
-        @scroll="onScroll">
+      <div class="likes-list q-px-md custom-scroll"
+        style="flex: 1; overflow-y: auto; max-height: 60vh; -webkit-overflow-scrolling: touch;" @scroll="onScroll">
         <!-- Initial loading state -->
         <div v-if="isLoading && !likes.length" class="text-center q-pa-md">
           <q-spinner color="primary" size="2em" />
@@ -259,7 +259,6 @@ defineExpose({
   display: flex;
   flex-direction: column;
   position: relative;
-  touch-action: pan-y;
   overscroll-behavior: contain;
 
   &::before {
@@ -285,7 +284,6 @@ defineExpose({
   min-height: 200px;
   max-height: 60vh;
   -webkit-overflow-scrolling: touch;
-  touch-action: pan-y;
   overscroll-behavior-y: contain;
   position: relative;
   scroll-behavior: smooth;
