@@ -3,20 +3,20 @@
     <div class="row q-col-gutter-md">
       <!-- Compact Filter Button -->
       <div class="col-12">
-        <div class="row items-center justify-between q-mb-md q-ma-none">
+        <div class="row items-center justify-between q-ma-none">
           <div class="text-h6 q-pl-sm" style="color: white; font-weight: 900">
             Bulletin Feed
             <div class="text-caption text-white-6">
               AI summaries and translations may be inaccurate. Check source.
             </div>
           </div>
-          <q-btn
+          <!-- <q-btn
             flat
             color="text-white"
             class="q-px-md"
             @click="showFilters = true"
           >
-          </q-btn>
+          </q-btn> -->
         </div>
       </div>
 

@@ -223,8 +223,8 @@
                       :key="index"
                       class="dot"
                       :class="{ active: activeDotIndex === index - 1 }"
-                      @click.stop="goToSlide(index - 1)"
                     ></button>
+                    <!-- @click.stop="goToSlide(index - 1)" -->
                   </div>
 
                   <!-- Image Counter -->
@@ -909,6 +909,7 @@ const activeDotIndex = computed(() => {
 });
 
 // Update the slide navigation methods
+/*
 const goToSlide = (index: number) => {
   if (isTransitioning.value) return;
   isTransitioning.value = true;
@@ -925,6 +926,7 @@ const goToSlide = (index: number) => {
     isTransitioning.value = false;
   }, 300);
 };
+*/
 
 const prevSlide = () => {
   if (isTransitioning.value) return;
