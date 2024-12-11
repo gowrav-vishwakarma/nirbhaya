@@ -344,6 +344,7 @@ const isHeaderHide = computed(() => {
     hiddenPaths.includes(path) ||
     /^\/news\/\d+$/.test(path) ||
     /^\/my-posts\/\d+$/.test(path) ||
+    /^\/sos-bharat-community-post\/\d+$/.test(path) ||
     (!$q.platform.is.ios && path === '/comunity-post')
   );
 });
