@@ -1,5 +1,5 @@
 <template>
-  <q-page class="bg-grey-1" style="padding-top: env(safe-area-inset-top)">
+  <q-page class="bg-grey-1" style="padding-top: env(safe-area-inset-top);padding-bottom: env(safe-area-inset-bottom);">
     <div class="container q-pa-md">
       <!-- Add Suggestion Button -->
       <!-- <div class="suggestion-button-container q-mb-md">
@@ -208,36 +208,35 @@
       </div>
     </div>
     <!-- Login Dialog -->
-    <q-dialog v-model="showLoginDialog" persistent>
-      <q-card style="min-width: 350px; border-radius: 12px">
+    <q-dialog position="bottom" v-model="showLoginDialog" persistent>
+      <q-card class="dialof-bg" style="min-width: 350px; border-radius: 12px 12px 0 0">
         <!-- <q-btn style="position: absolute; top: 5px; right: 5px;" icon="close" flat round dense v-close-popup /> -->
-        <div style="justify-content: center; display: flex; margin-top: 10px;">
+        <div class="q-mb-none" style="justify-content: center; display: flex; padding: 0px !important;">
           <img src="/sos_logo_1080_1080.png" style="width: 80px; height: 80px;" />
         </div>
-        <q-card-section class="row items-center q-pb-none">
+        <q-card-section class="row items-center q-pb-none q-mt-none" style="padding-top: 0px !important;">
           <div class="text-h6">Join Our SOS Bharat Community</div>
           <q-space />
         </q-card-section>
 
-        <q-card-section class="q-pt-sm">
+        <q-card-section class="q-pt-xs">
           <p class="text-body1">Create an account or login to:</p>
-          <ul class="q-mt-sm">
+          <ul class="q-mt-xs" style="margin-top: -10px; margin-left: -15px">
             <li>Your safety is our top priority</li>
             <li>View unlimited Posts / News</li>
             <li>Interact with the community</li>
             <li>Share your own stories</li>
             <li>Engage with the community</li>
-            <li>Make meaningful connections</li>
           </ul>
         </q-card-section>
 
-        <q-card-actions align="right" class="q-pa-md" style="margin-top: -10px;">
-          <q-btn flat color="grey-7" v-close-popup>
+        <q-card-actions align="right" class="q-pa-md flex" style="margin-top: -10px;">
+          <q-btn class="guest-btn" style="width: 50%; border-radius: 40px;" flat color="grey-7" v-close-popup>
             <span style="font-weight: 700; font-size: 14px;">
-              Continue as Guest
+              Skip
             </span>
           </q-btn>
-          <q-btn unelevated color="primary" @click="() => {
+          <q-btn style="width: 45%; border-radius: 10px;" unelevated color="primary" @click="() => {
             showLoginDialog = false;
             router.push('/login');
           }">
@@ -2089,5 +2088,17 @@ watch(
   background-color: rgba(208, 10, 79, 0.877);
   border-radius: 10px;
   color: white;
+}
+
+.dialof-bg {
+  background-color: #636262d3;
+  color: white !important;
+
+}
+
+.guest-btn {
+  background-color: #bbb6b6b4;
+  color: white !important;
+  border-radius: 10px !important;
 }
 </style>
