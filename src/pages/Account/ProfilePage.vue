@@ -20,14 +20,14 @@
                   readonly disable />
               </div>
               <div class="col-12 col-sm-6 q-py-none">
-                <q-input class="q-pb-md" outlined dense v-model="values.dob" :label="$t('common.dob')" mask="date"
-                  :rules="['date']">
+                <q-input @keydown.prevent class="q-pb-md" outlined dense v-model="values.dob" :label="$t('common.dob')"
+                  mask="date" :rules="['date']">
                   <template v-slot:append>
                     <q-icon name="event" class="cursor-pointer">
                       <q-popup-proxy cover transition-show="scale" transition-hide="scale">
                         <q-date v-model="values.dob">
                           <div class="row items-center justify-end">
-                            <q-btn v-close-popup label="Close" color="primary" flat />
+                            <q-btn v-close-popup label="ok" color="primary" flat />
                           </div>
                         </q-date>
                       </q-popup-proxy>
