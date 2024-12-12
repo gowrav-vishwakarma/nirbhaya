@@ -36,61 +36,54 @@
               <LocationSelectionDialog v-model="showLocationDialog" :user-locations="userStore.user?.locations || []"
                 @location-selected="handleLocationSelected" />
             </div>
-            <q-btn class="col post-input-btn" flat color="grey-7">
-              <div class="row full-width items-center text-left">
-                <span class="text-grey-7" style="font-size: 0.8em">What's Post on your mind?</span>
-                <q-space />
-                <q-btn color="primary" class="q-ml-sm suggestion-btn" @click="createPost">
-                  <span style="
-                      font-size: 20px;
-                      font-weight: 800;
-                      padding-right: 5px;
-                    ">
-                    +
-                  </span>
-                  <span class="text-capitalize" style="font-weight: 800; padding-top: 1px">
-                    Create
-                  </span>
-                </q-btn>
-              </div>
-            </q-btn>
-          </div>
-        </q-card>
-        <div>
-    <q-input
-    v-model="searchQuery"
-    dense
-    color="grey-7"
-    placeholder="What's on your mind?"
-    class="bg-white text-grey-7 rounded q-pl-sm"
-    rounded
-    >
-      <!-- Button inside input box -->
-      <template #append>
-       
-        <q-btn v-if="searchQuery" color="primary" class="q-ml-sm suggestion-btn" @click="performSearch">
-                 <q-icon  name="search"/>
-                  <span class="text-capitalize" style="font-weight: 800; padding-top: 1px">
+            <q-input
+              v-model="searchQuery"
+              class="col post-input-btn"
+              dense
+              placeholder="What's on your mind?"
+              bg-color="grey-2"
+              rounded
+              borderless
+              style="border-radius: 20px; padding: 0 8px;"
+            >
+              <template #append>
+                <q-btn 
+                  v-if="searchQuery" 
+                  color="primary" 
+                  class="search-btn" 
+                  style="margin-top: 5px;"
+
+                  @click="performSearch"
+                  unelevated
+                  rounded
+                >
+                  <q-icon name="search" class="q-mr-xs"/>
+                  <span class="text-capitalize" style="font-size: 14px; font-weight: 800;">
                     Search
                   </span>
                 </q-btn>
-        <q-btn @click="createPost" v-else color="primary" class="q-ml-sm suggestion-btn" >
-                  <span style="
-                      font-size: 20px;
-                      font-weight: 800;
-                      padding-right: 5px;
-                    ">
+                <q-btn 
+                  v-else 
+                  color="primary" 
+                  class="create-btn" 
+                  style="margin-top: 5px;"
+                  @click="createPost"
+                  unelevated
+                  rounded
+                >
+                  <span style="font-size: 20px; font-weight: 800;" class="q-mr-xs">
                     +
                   </span>
-                  <span class="text-capitalize" style="font-weight: 800; padding-top: 1px">
+                  <span class="text-capitalize" style="font-size: 14px; font-weight: 800;">
                     Create
                   </span>
                 </q-btn>
-      </template>
-    </q-input>
-  
-        </div>
+              </template>
+            </q-input>
+          </div>
+        </q-card>
       </div>
+
       <!-- Loading State -->
       <div v-if="loading" class="row justify-center q-pa-md">
         <q-spinner-dots color="primary" size="40" />
