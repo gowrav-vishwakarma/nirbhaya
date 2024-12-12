@@ -92,7 +92,13 @@
                 Read
               </span>
             </div>
-
+            <span
+              style="font-size: 10px; margin: 3px; cursor: pointer"
+              @click="router.push('deeplink')"
+              class="text-capitalize text-primary"
+            >
+              deeplink
+            </span>
             <q-btn
               :label="otpSent ? t('common.login') : t('common.sendOTP')"
               type="submit"

@@ -1,0 +1,18 @@
+{
+  "applinks": {
+    "apps": [],
+    "details": [
+      {
+        "appID": "6T6W79QU9K.com.xavoc.shoutout",
+        "paths": [
+          "*"
+        ]
+      }
+    ]
+  },
+  "webcredentials": {
+    "apps": [
+      "6T6W79QU9K.com.xavoc.shoutout"
+    ]
+  }
+}

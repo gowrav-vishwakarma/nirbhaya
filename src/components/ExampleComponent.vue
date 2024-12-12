@@ -1,12 +1,12 @@
 <template>
   <div>
-    <p>{{ title }}</p>
+    <p>DeepLink</p>
     <ul>
-      <li v-for="todo in todos" :key="todo.id" @click="increment">
+      <!-- <li v-for="todo in todos" :key="todo.id" @click="increment">
         {{ todo.id }} - {{ todo.content }}
-      </li>
+      </li> -->
     </ul>
-    <p>Count: {{ todoCount }} / {{ meta.totalCount }}</p>
+    <p></p>
     <p>Active: {{ active ? 'yes' : 'no' }}</p>
     <p>Clicks on todos: {{ clickCount }}</p>
   </div>
@@ -14,13 +14,13 @@
 
 <script setup lang="ts">
 import { computed, ref } from 'vue';
-import { Todo, Meta } from './models';
+// import { Todo, Meta } from './models';
 
 interface Props {
-  title: string;
+  // title: string;
   todos?: Todo[];
-  meta: Meta;
-  active: boolean;
+  // meta: Meta;
+  active?: boolean;
 }
 const props = withDefaults(defineProps<Props>(), {
   todos: () => [],
@@ -33,5 +33,4 @@ function increment() {
 }
 
 const todoCount = computed(() => props.todos.length);
-
 </script>

@@ -29,6 +29,14 @@ const publicRoutes: RouteRecordRaw[] = [
     path: 'sos-bharat-community-post/:postId',
     component: () => import('pages/CommunityPosts/CommunityPostOpenRoute.vue'),
   },
+  {
+    path: 'deeplink',
+    component: () => import('components/ExampleComponent.vue'),
+  },
+  {
+    path: 'deeplink/:id',
+    component: () => import('components/ExampleComponent.vue'),
+  },
   // Add more public routes here
 ];
 

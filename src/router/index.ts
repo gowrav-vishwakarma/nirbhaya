@@ -8,6 +8,7 @@ import {
 
 import routes from './routes';
 import { useMediaPermissions } from 'src/composables/useMediaPermissions';
+import { setupDeepLinks } from '../services/deepLinkHandler'; // Import the setupDeepLinks function
 
 /*
  * If not building with SSR mode, you can
@@ -34,6 +35,9 @@ export default route(function (/* { store, ssrContext } */) {
     // quasar.conf.js -> build -> publicPath
     history: createHistory(process.env.VUE_ROUTER_BASE),
   });
+
+  // Call setupDeepLinks with the router instance
+  setupDeepLinks(Router); // Integrate deep link handling
 
   // Add navigation guard
   Router.beforeEach(async (to, from, next) => {

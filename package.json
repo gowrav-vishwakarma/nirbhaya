@@ -15,6 +15,7 @@
     "build": "quasar build"
   },
   "dependencies": {
+    "@capacitor/app": "^6.0.2",
     "@capacitor/camera": "^6.0.0",
     "@capacitor/core": "^6.2.0",
     "@capacitor/device": "^6.0.0",

@@ -1,0 +1,14 @@
+[
+  {
+    "relation": [
+      "delegate_permission/common.handle_all_urls"
+    ],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.xavoc.shoutout",
+      "sha256_cert_fingerprints": [
+        "81:C6:06:F2:6B:2D:57:30:80:8A:89:7E:D5:97:48:C6:CB:F9:E9:BB:DE:83:93:3B:88:CB:6C:B3:E6:75:5F:B4"
+      ]
+    }
+  }
+]
