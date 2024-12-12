@@ -56,8 +56,41 @@
             </q-btn>
           </div>
         </q-card>
+        <div>
+    <q-input
+    v-model="searchQuery"
+    dense
+    color="grey-7"
+    placeholder="What's on your mind?"
+    class="bg-white text-grey-7 rounded q-pl-sm"
+    rounded
+    >
+      <!-- Button inside input box -->
+      <template #append>
+       
+        <q-btn v-if="searchQuery" color="primary" class="q-ml-sm suggestion-btn" @click="performSearch">
+                 <q-icon  name="search"/>
+                  <span class="text-capitalize" style="font-weight: 800; padding-top: 1px">
+                    Search
+                  </span>
+                </q-btn>
+        <q-btn @click="createPost" v-else color="primary" class="q-ml-sm suggestion-btn" >
+                  <span style="
+                      font-size: 20px;
+                      font-weight: 800;
+                      padding-right: 5px;
+                    ">
+                    +
+                  </span>
+                  <span class="text-capitalize" style="font-weight: 800; padding-top: 1px">
+                    Create
+                  </span>
+                </q-btn>
+      </template>
+    </q-input>
+  
+        </div>
       </div>
-
       <!-- Loading State -->
       <div v-if="loading" class="row justify-center q-pa-md">
         <q-spinner-dots color="primary" size="40" />
@@ -90,8 +123,8 @@
                     @click="router.push(`/my-posts/${post.userId}`)">
                     {{
                       post.userName == 'SOS Bharat Community'
-                        ? 'SOS Bharat Community'
-                        : post.userName
+                    ? 'SOS Bharat Community'
+                    : post.userName
                     }}
                   </div>
                   <div class="text-caption text-grey-7">
@@ -109,16 +142,16 @@
               </div>
               <div class="text-body1 post-description">
                 {{
-                  showFullDescription[post.id.toString()]
-                    ? post.description
-                    : truncateText(post.description, 15)
+                showFullDescription[post.id.toString()]
+                ? post.description
+                : truncateText(post.description, 15)
                 }}
                 <span v-if="post.description.split(' ').length > 10" @click="toggleDescription(post.id)"
                   class="read-more-link">
                   {{
-                    showFullDescription[post.id.toString()]
-                      ? 'Read Less'
-                      : 'Read More'
+                  showFullDescription[post.id.toString()]
+                  ? 'Read Less'
+                  : 'Read More'
                   }}
                 </span>
               </div>
@@ -322,6 +355,9 @@ const videoVisibility = ref<Record<string, boolean>>({});
 // Add loading state
 const loading = ref(true);
 
+const searchQuery = ref<string>("");
+
+
 // Add a ref to track the currently playing video
 const currentlyPlayingVideo = ref<string | null>(null);
 const isUserPermitted = ref(false);
@@ -334,6 +370,15 @@ const isUserPermitted = ref(false);
 // });
 
 const router = useRouter();
+
+
+// Function to handle search
+const performSearch = () => {
+  console.log("Searching for:", searchQuery.value);
+  // Add your search logic here
+};
+
+
 
 // Update the formatDate helper function
 const formatDate = (date: string | null) => {
@@ -2314,4 +2359,12 @@ const handleLocationSelected = async (location: {
   position: relative;
   z-index: 2000;
 }
+.post-input-box {
+  position: relative;
+}
+.post-input-box {
+  border-radius: 8px; /* Optional for rounded corners */
+  outline: none; /* Removes focus outline */
+}
+
 </style>
