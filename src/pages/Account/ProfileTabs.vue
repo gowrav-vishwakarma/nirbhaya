@@ -109,18 +109,18 @@
       </div>
       <div class="text-center text-subtitle1 versiontextcolor text-weight-thin" style="font-weight: 600">
         <span style="font-size: 13px">App version : </span>
-        <span style="font-size: 13px">{{ version }}</span>
+        <span style="font-size: 13px">{{ appVersion }}</span>
       </div>
     </div>
   </div>
 </template>
 <script setup lang="ts">
-import { ref, provide } from 'vue';
+import { ref, provide, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useQuasar } from 'quasar';
 import ProfilePage from './ProfilePage.vue';
 import VolunteeringPage from './VolunteeringPage.vue';
-import { version } from 'src/../package.json';
+import { version, iosVersion, androidVersion } from 'src/../package.json';
 // import SosRating from '../Sos/SosRating.vue';
 // import YourRatingPage from '../Sos/YourRatingPage.vue';
 import SosHistoryPage from '../Sos/SosHistoryPage.vue';
@@ -144,6 +144,13 @@ const reloadComponents = () => {
   reloadKey.value++;
 };
 
+const appVersion = computed(() => {
+  return $q.platform.is.ios
+    ? iosVersion
+    : $q.platform.is.android
+    ? androidVersion
+    : version;
+});
 const logout = async () => {
   try {
     await api.post('/auth/logout');
