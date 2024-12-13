@@ -1,10 +1,5 @@
 <template>
-  <q-dialog
-    v-model="isOpen"
-    maximized
-    transition-show="slide-up"
-    transition-hide="slide-down"
-  >
+  <q-dialog v-model="isOpen" maximized transition-show="slide-up" transition-hide="slide-down">
     <q-card class="column">
       <q-card-section class="row items-center q-pb-none">
         <div class="text-h6">Create Post</div>
@@ -21,81 +16,39 @@
           </q-avatar>
           <div class="q-ml-md">
             <div class="text-weight-bold">SOS Bharat Community</div>
-            <q-btn
-              dense
-              flat
-              size="sm"
-              icon="fas fa-globe-americas"
-              label="Public"
-            />
+            <q-btn dense flat size="sm" icon="fas fa-globe-americas" label="Public" />
           </div>
         </div>
 
-        <q-input
-          v-model="form.title"
-          label="Title"
-          class="q-mb-md"
-          maxlength="50"
-          :rules="[
-            (val) => val.length <= 50 || 'Title cannot exceed 50 characters',
-          ]"
-        >
+        <q-input v-model="form.title" label="Title" class="q-mb-md" maxlength="50" :rules="[
+          (val) => val.length <= 50 || 'Title cannot exceed 50 characters',
+        ]">
           <template v-slot:hint> {{ titleCharCount }}/50 characters </template>
         </q-input>
 
-        <q-input
-          outlined
-          v-model="form.description"
-          type="textarea"
-          label="Description"
-          placeholder="What do you want to share?"
-          autogrow
-          class="text-h6"
-          borderless
-          maxlength="1000"
-          :rules="[
+        <q-input outlined v-model="form.description" type="textarea" label="Description"
+          placeholder="What do you want to share?" autogrow class="text-h6" borderless maxlength="1000" :rules="[
             (val) =>
               val.length <= 1000 || 'Description cannot exceed 1000 characters',
-          ]"
-        >
+          ]">
           <template v-slot:hint>
             {{ descriptionCharCount }}/1000 characters
           </template>
         </q-input>
 
         <!-- Tags Input -->
-        <q-input
-          v-model="tagInput"
-          label="Add tags (press Enter to add)"
-          @keyup.enter="addTag"
-          class="q-mt-md"
-          :disable="!canAddMoreTags"
-          :hint="
-            canAddMoreTags ? 'Add up to 5 tags' : 'Maximum tags limit reached'
-          "
-        >
+        <q-input v-model="tagInput" label="Add tags (press Enter to add)" @keyup.enter="addTag" class="q-mt-md"
+          :disable="!canAddMoreTags" :hint="canAddMoreTags ? 'Add up to 5 tags' : 'Maximum tags limit reached'
+            ">
           <template v-slot:append>
-            <q-btn
-              round
-              dense
-              flat
-              icon="add"
-              @click="addTag"
-              :disable="!canAddMoreTags"
-            />
+            <q-btn round dense flat icon="add" @click="addTag" :disable="!canAddMoreTags" />
           </template>
         </q-input>
 
         <!-- Tags Display -->
         <div class="q-mt-sm row q-gutter-xs">
-          <q-chip
-            v-for="tag in form.tags"
-            :key="tag"
-            removable
-            @remove="removeTag(tag)"
-            color="primary"
-            text-color="white"
-          >
+          <q-chip v-for="tag in form.tags" :key="tag" removable @remove="removeTag(tag)" color="primary"
+            text-color="white">
             #{{ tag }}
           </q-chip>
           <div v-if="form.tags.length === 0" class="text-grey-6">
@@ -104,34 +57,20 @@
         </div>
 
         <div class="q-mt-md">
-          <q-select
-            v-model="selectedLocationId"
-            :options="savedLocations"
-            option-value="id"
-            option-label="name"
-            label="Select Location (to primarily display this post)"
-            emit-value
-            map-options
-            class="q-mb-md"
-            :loading="isLoadingLocations"
-            :disable="isLoadingLocations"
-          >
+          <q-select v-model="selectedLocationId" :options="savedLocations" option-value="id" option-label="name"
+            label="Select Location (to primarily display this post)" emit-value map-options class="q-mb-md"
+            :loading="isLoadingLocations" :disable="isLoadingLocations">
             <template v-slot:prepend>
               <q-icon name="location_on" />
             </template>
             <template v-slot:option="scope">
               <q-item v-bind="scope.itemProps">
                 <q-item-section>
-                  <q-item-label
-                    >{{ scope.opt.name ? scope.opt.name : 'Your Saved Location'
+                  <q-item-label>{{ scope.opt.name ? scope.opt.name : 'Your Saved Location'
                     }}{{
                       scope.opt.isBusinessLocation ? ' (Business)' : ''
-                    }}</q-item-label
-                  >
-                  <q-item-label
-                    caption
-                    v-if="scope.opt.id !== 0 || !isLoadingLocations"
-                  >
+                    }}</q-item-label>
+                  <q-item-label caption v-if="scope.opt.id !== 0 || !isLoadingLocations">
                     {{ scope.opt.location.coordinates.join(', ') }}
                   </q-item-label>
                   <q-item-label caption v-else>
@@ -142,23 +81,12 @@
             </template>
           </q-select>
 
-          <q-checkbox
-            v-model="isBusinessPost"
-            label="Business Post"
-            :disable="!hasBusinessLocation"
-            class="q-mb-md"
-          />
+          <q-checkbox v-model="isBusinessPost" label="Business Post" v-if="hasBusinessLocation" class="q-mb-md" />
         </div>
 
         <div class="row q-mt-lg">
-          <q-btn
-            flat
-            color="primary"
-            class="full-width"
-            @click="handleMediaUpload"
-            :loading="isProcessingImages"
-            :disable="isProcessingImages || !canAddMoreImages"
-          >
+          <q-btn flat color="primary" class="full-width" @click="handleMediaUpload" :loading="isProcessingImages"
+            :disable="isProcessingImages || !canAddMoreImages">
             <div class="row items-center">
               <q-icon name="far fa-image" size="24px" class="q-mr-sm" />
               {{
@@ -172,33 +100,16 @@
 
         <!-- Image Preview Section -->
         <div v-if="previewUrls.length > 0" class="row q-mt-md q-gutter-x-sm">
-          <div
-            v-for="(url, index) in previewUrls"
-            :key="index"
-            :class="{
-              'col-6': previewUrls.length <= 2,
-              'col-4': previewUrls.length === 3,
-              'col-3': previewUrls.length === 4,
-            }"
-            class="relative-position"
-            :style="{
-              'max-width': previewUrls.length === 1 ? '300px' : 'none',
-            }"
-          >
-            <q-img
-              :src="url"
-              class="rounded-borders"
-              style="aspect-ratio: 1; object-fit: cover"
-            >
+          <div v-for="(url, index) in previewUrls" :key="index" :class="{
+            'col-6': previewUrls.length <= 2,
+            'col-4': previewUrls.length === 3,
+            'col-3': previewUrls.length === 4,
+          }" class="relative-position" :style="{
+            'max-width': previewUrls.length === 1 ? '300px' : 'none',
+          }">
+            <q-img :src="url" class="rounded-borders" style="aspect-ratio: 1; object-fit: cover">
               <div class="absolute-top-right q-pa-xs">
-                <q-btn
-                  round
-                  dense
-                  color="grey-7"
-                  icon="close"
-                  size="sm"
-                  @click="removeImage(index)"
-                />
+                <q-btn round dense color="grey-7" icon="close" size="sm" @click="removeImage(index)" />
               </div>
             </q-img>
           </div>
@@ -208,25 +119,16 @@
       <q-separator />
 
       <q-card-actions align="right" class="q-pa-md">
-        <q-btn
-          unelevated
-          color="primary"
-          :disable="!isValid || isSubmitting"
-          @click="submitPost"
-          class="full-width"
-          :loading="isSubmitting"
-        >
+        <q-btn unelevated color="primary" :disable="!isValid || isSubmitting" @click="submitPost" class="full-width"
+          :loading="isSubmitting">
           <span style="font-size: 14px; font-weight: 800">
             {{ isSubmitting ? 'Posting...' : 'Post' }}
           </span>
           <template v-slot:loading>
             <q-spinner />
           </template>
-          <i
-            v-if="!isSubmitting"
-            class="fas fa-long-arrow-alt-right"
-            style="font-size: 17px; font-weight: 900; margin-left: 5px"
-          ></i>
+          <i v-if="!isSubmitting" class="fas fa-long-arrow-alt-right"
+            style="font-size: 17px; font-weight: 900; margin-left: 5px"></i>
         </q-btn>
       </q-card-actions>
     </q-card>

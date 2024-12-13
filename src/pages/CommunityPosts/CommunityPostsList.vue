@@ -36,24 +36,50 @@
               <LocationSelectionDialog v-model="showLocationDialog" :user-locations="userStore.user?.locations || []"
                 @location-selected="handleLocationSelected" />
             </div>
-            <q-btn class="col post-input-btn" flat color="grey-7">
-              <div class="row full-width items-center text-left">
-                <span class="text-grey-7" style="font-size: 0.8em">What's Post on your mind?</span>
-                <q-space />
-                <q-btn color="primary" class="q-ml-sm suggestion-btn" @click="createPost">
-                  <span style="
-                      font-size: 20px;
-                      font-weight: 800;
-                      padding-right: 5px;
-                    ">
+            <q-input
+              v-model="searchQuery"
+              class="col post-input-btn"
+              dense
+              placeholder="What's on your mind?"
+              bg-color="grey-2"
+              rounded
+              borderless
+              style="border-radius: 20px; padding: 0 8px;"
+            >
+              <template #append>
+                <q-btn 
+                  v-if="searchQuery" 
+                  color="primary" 
+                  class="search-btn" 
+                  style="margin-top: 5px;"
+
+                  @click="performSearch"
+                  unelevated
+                  rounded
+                >
+                  <q-icon name="search" class="q-mr-xs"/>
+                  <span class="text-capitalize" style="font-size: 14px; font-weight: 800;">
+                    Search
+                  </span>
+                </q-btn>
+                <q-btn 
+                  v-else 
+                  color="primary" 
+                  class="create-btn" 
+                  style="margin-top: 5px;"
+                  @click="createPost"
+                  unelevated
+                  rounded
+                >
+                  <span style="font-size: 20px; font-weight: 800;" class="q-mr-xs">
                     +
                   </span>
-                  <span class="text-capitalize" style="font-weight: 800; padding-top: 1px">
+                  <span class="text-capitalize" style="font-size: 14px; font-weight: 800;">
                     Create
                   </span>
                 </q-btn>
-              </div>
-            </q-btn>
+              </template>
+            </q-input>
           </div>
         </q-card>
       </div>
@@ -90,8 +116,8 @@
                     @click="router.push(`/my-posts/${post.userId}`)">
                     {{
                       post.userName == 'SOS Bharat Community'
-                        ? 'SOS Bharat Community'
-                        : post.userName
+                    ? 'SOS Bharat Community'
+                    : post.userName
                     }}
                   </div>
                   <div class="text-caption text-grey-7">
@@ -109,16 +135,16 @@
               </div>
               <div class="text-body1 post-description">
                 {{
-                  showFullDescription[post.id.toString()]
-                    ? post.description
-                    : truncateText(post.description, 15)
+                showFullDescription[post.id.toString()]
+                ? post.description
+                : truncateText(post.description, 15)
                 }}
                 <span v-if="post.description.split(' ').length > 10" @click="toggleDescription(post.id)"
                   class="read-more-link">
                   {{
-                    showFullDescription[post.id.toString()]
-                      ? 'Read Less'
-                      : 'Read More'
+                  showFullDescription[post.id.toString()]
+                  ? 'Read Less'
+                  : 'Read More'
                   }}
                 </span>
               </div>
@@ -322,6 +348,9 @@ const videoVisibility = ref<Record<string, boolean>>({});
 // Add loading state
 const loading = ref(true);
 
+const searchQuery = ref<string>("");
+
+
 // Add a ref to track the currently playing video
 const currentlyPlayingVideo = ref<string | null>(null);
 const isUserPermitted = ref(false);
@@ -334,6 +363,15 @@ const isUserPermitted = ref(false);
 // });
 
 const router = useRouter();
+
+
+// Function to handle search
+const performSearch = () => {
+  console.log("Searching for:", searchQuery.value);
+  // Add your search logic here
+};
+
+
 
 // Update the formatDate helper function
 const formatDate = (date: string | null) => {
@@ -2314,4 +2352,12 @@ const handleLocationSelected = async (location: {
   position: relative;
   z-index: 2000;
 }
+.post-input-box {
+  position: relative;
+}
+.post-input-box {
+  border-radius: 8px; /* Optional for rounded corners */
+  outline: none; /* Removes focus outline */
+}
+
 </style>

@@ -141,7 +141,7 @@
         style="font-weight: 600"
       >
         <span style="font-size: 13px">App version : </span>
-        <span style="font-size: 13px">{{ version }}</span>
+        <span style="font-size: 13px">{{ appVersion }}</span>
       </div>
     </div>
   </q-page>
@@ -158,7 +158,7 @@ import { Notify } from 'quasar';
 import LanguageSelector from 'src/components/LanguageSelector.vue';
 import { Device } from '@capacitor/device';
 import { useI18n } from 'vue-i18n';
-import { version } from 'src/../package.json';
+import { version, iosVersion, androidVersion } from 'src/../package.json';
 
 const { t } = useI18n();
 const $q = useQuasar();
@@ -168,6 +168,15 @@ const otpSent = ref(false);
 const acceptedTerms = ref(false);
 const countdown = ref(0);
 const countdownTimer = ref<number | null>(null);
+
+// Define appVersion
+const appVersion = computed(() => {
+  return $q.platform.is.ios
+    ? iosVersion
+    : $q.platform.is.android
+    ? androidVersion
+    : version;
+});
 
 const isIosNotSafari = computed(() => {
   return (
