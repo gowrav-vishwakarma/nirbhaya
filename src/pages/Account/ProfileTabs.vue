@@ -4,7 +4,7 @@
     <div class="profile-header">
       <div class="cover-image">
         <img src="https://img.freepik.com/premium-vector/line-drawing-children-holding-hands_904506-140.jpg?w=826"
-          alt="Cover" class="cover-img" />
+          alt="Cover" class="cover-img"/>
         <div class="overlay"></div>
         <!-- <q-btn round flat color="dark" icon="edit" size="sm" class="edit-cover-btn" @click="handleCoverUpload" /> -->
       </div>
@@ -12,7 +12,25 @@
         <div class="profile-main">
           <div class="profile-image-container">
             <div class="profile-image">
-              <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS59s6qBOFlkS5LN4Z0U3G71nCWWg3SuHGVMw&s" />
+           
+            <img :src="'https://xavoc-technocrats-pvt-ltd.blr1.cdn.digitaloceanspaces.com/' + userStore.user.profileImage"   />
+              <div style="margin-left:138px; margin-top: -175px;">
+          <q-btn
+            round
+            size="sm"
+            style="background-color: rgba(0, 0, 0, 0.2)"
+            @click="openFileSelector"
+             :loading="isProcessingImages"
+          >
+            <q-icon class="text-white" name="edit"></q-icon>
+          </q-btn>
+          <input
+            ref="fileInput"
+            type="file"
+            style="display: none"
+            @change="handleFileChange"
+          />
+        </div>
               <div class="online-status"></div>
             </div>
             <q-btn v-if="$q.screen.lg || $q.screen.xl || $q.screen.md" flat
@@ -131,10 +149,13 @@ import BusinessInfo from './BusinessInfo.vue';
 import { useUserStore } from 'src/stores/user-store';
 import { api } from 'src/boot/axios';
 import { useI18n } from 'vue-i18n';
+import { useUserForm } from 'src/composables/use-user-form';
+const fileInput = ref<HTMLInputElement | null>(null);
+const isProcessingImages = ref(false)
+
 
 const { t } = useI18n();
 const userStore = useUserStore();
-
 const router = useRouter();
 const $q = useQuasar();
 const reloadKey = ref(0);
@@ -142,6 +163,131 @@ const reloadComponents = () => {
   console.log('reloadKey......', reloadKey);
 
   reloadKey.value++;
+};
+
+const {values,validateAndSubmit,callbacks} = useUserForm('qnatk/User/actionExecuteWithFiles/profileChange/true',{
+  url:null,
+  userId:userStore.user.id,
+  referralId:userStore.user.referralId
+})
+
+callbacks.onSuccess = (data) => {
+  console.log('data..........', data);
+  // imageUrl.value = data.data.url;
+  userStore.updateUser({
+    profileImage: data.profileImage,
+  });
+};
+
+const openFileSelector = () => {
+  if (fileInput.value) {
+    fileInput.value.click();
+  }
+};
+
+const handleFileChange = async(event: Event) => {
+  isProcessingImages.value = true;
+  const file = (event.target as HTMLInputElement).files?.[0];
+  if (file) {
+    try {
+      if (!file.type.match(/^image\/(jpeg|png|gif|webp|heic|heif)$/)) {
+        $q.notify({
+          color: 'negative',
+          message: 'Only image files are allowed',
+          icon: 'error',
+          position: 'top-right'
+        });
+        isProcessingImages.value = false;
+        return;
+      }
+      const resizedBlob = await resizeImage(file);
+      const resizedFile = new File([resizedBlob], file.name, {
+        type: file.type,
+      });
+      values.value.url = resizedFile;
+      await validateAndSubmit();
+    } catch (error) {
+      $q.notify({
+        color: 'negative',
+        message: 'Error processing images',
+        icon: 'error',
+      });
+    } finally {
+      isProcessingImages.value = false;
+    }
+  }
+};
+
+const resizeImage = (file: File): Promise<Blob> => {
+  return new Promise<Blob>((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let width = img.width;
+        let height = img.height;
+
+        // Calculate aspect ratio
+        const aspectRatio = width / height;
+
+        // Target size is 1MB (1048576 bytes)
+        const MAX_SIZE = 1048576;
+
+        // Start with maximum dimensions while maintaining aspect ratio
+        const MAX_WIDTH = 1920;
+        const MAX_HEIGHT = 1080;
+
+        if (width > MAX_WIDTH) {
+          width = MAX_WIDTH;
+          height = width / aspectRatio;
+        }
+
+        if (height > MAX_HEIGHT) {
+          height = MAX_HEIGHT;
+          width = height * aspectRatio;
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+
+        const ctx = canvas.getContext('2d')!;
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = 'high';
+        ctx.drawImage(img, 0, 0, width, height);
+
+        // Start with quality 0.7 and adjust if needed
+        let quality = 0.7;
+        const compressImage = (q: number) => {
+          canvas.toBlob(
+            (blob) => {
+              if (!blob) {
+                reject(new Error('Failed to create blob'));
+                return;
+              }
+
+              // If the blob is still too large and quality can be reduced
+              if (blob.size > MAX_SIZE && q > 0.1) {
+                // Reduce quality by 0.1 and try again
+                compressImage(q - 0.1);
+              } else {
+                resolve(blob);
+              }
+            },
+            'image/jpeg',
+            q
+          );
+        };
+
+        compressImage(quality);
+      };
+
+      img.onerror = () => reject(new Error('Failed to load image'));
+      img.src = e.target?.result as string;
+    };
+    reader.onerror = () => reject(new Error('Failed to read file'));
+    reader.readAsDataURL(file);
+  });
 };
 
 const logout = async () => {
