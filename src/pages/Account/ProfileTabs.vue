@@ -13,7 +13,8 @@
           <div class="profile-image-container">
             <div class="profile-image">
            
-            <img :src="'https://xavoc-technocrats-pvt-ltd.blr1.cdn.digitaloceanspaces.com/' + userStore.user.profileImage"   />
+            <img :src="'https://xavoc-technocrats-pvt-ltd.blr1.cdn.digitaloceanspaces.com/' + userStore.user.profileImage" v-if="userStore.user.profileImage"/>
+            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS59s6qBOFlkS5LN4Z0U3G71nCWWg3SuHGVMw&s" v-else/>
               <div style="margin-left:138px; margin-top: -175px;">
           <q-btn
             round
@@ -265,7 +266,7 @@ const resizeImage = (file: File): Promise<Blob> => {
                 reject(new Error('Failed to create blob'));
                 return;
               }
-
+              console.log(`Compressed image size: ${blob.size} bytes`);
               // If the blob is still too large and quality can be reduced
               if (blob.size > MAX_SIZE && q > 0.1) {
                 // Reduce quality by 0.1 and try again
