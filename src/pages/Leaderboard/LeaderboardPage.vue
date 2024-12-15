@@ -187,7 +187,7 @@
             class="leaderboard-list q-mt-md"
           >
             <q-list separator>
-              <div v-for="(item, index) in leaderboardData" :key="index">
+              <div v-for="item in rankedLeaderboardData" :key="item.id">
                 <q-item
                   clickable
                   :class="{ 'bg-yellow-1': item.isCurrentUser }"
@@ -196,9 +196,9 @@
                   <q-item-section avatar>
                     <div
                       class="text-weight-bold"
-                      :class="getRankClass(index + 1)"
+                      :class="getRankClass(item.rank)"
                     >
-                      #{{ index + 1 }}
+                      #{{ item.rank }}
                     </div>
                   </q-item-section>
                   <q-item-section>
@@ -383,6 +383,7 @@ interface LeaderboardEntry {
   isCurrentUser: boolean;
   scoreBreakdown?: ScoreBreakdown;
   showBreakdown: boolean;
+  rank?: number;
 }
 
 const loading = ref(false);
@@ -463,6 +464,27 @@ watch(selectedTab, () => {
 
 const currentUserScore = computed(() => {
   return leaderboardData.value.find((entry) => entry.isCurrentUser);
+});
+
+const rankedLeaderboardData = computed(() => {
+  // First sort the data by score in descending order
+  const sortedData = [...leaderboardData.value].sort(
+    (a, b) => b.score - a.score
+  );
+
+  let currentRank = 1;
+  let previousScore = null;
+
+  return sortedData.map((entry) => {
+    if (previousScore !== null && entry.score !== previousScore) {
+      currentRank++;
+    }
+    previousScore = entry.score;
+    return {
+      ...entry,
+      rank: currentRank,
+    };
+  });
 });
 </script>
 
