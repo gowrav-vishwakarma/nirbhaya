@@ -373,7 +373,7 @@ const fetchLeaderboard = async () => {
       ? {
           scope: 'location',
           coordinates: selectedTab.value.split(',').map(Number),
-          radius: 5,
+          radius: 5000,
         }
       : {
           scope: 'administrative',
