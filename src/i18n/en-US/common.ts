@@ -397,7 +397,7 @@ export default {
   you: 'You',
   country: 'Country',
   noVolunteeringLocations: 'No volunteering locations found',
-  yourScore: 'Your Score Breakdown',
+  yourScore: 'Your Score',
   totalScore: 'Total Score',
   referrals: 'Referrals',
   referralLocations: 'Referral Locations',
