@@ -57,6 +57,31 @@
                     </q-item-label>
                   </q-item-section>
                 </q-item>
+
+                <q-item>
+                  <q-item-section>
+                    <q-item-label>{{
+                      $t('common.volunteerLocations')
+                    }}</q-item-label>
+                    <q-item-label caption>
+                      <span class="text-weight-medium">
+                        {{
+                          currentUserScore?.scoreBreakdown?.volunteerLocations
+                            ?.count || 0
+                        }}
+                      </span>
+                      {{ $t('common.locationsVolunteering') }}
+                      <br />
+                      <span class="text-primary">
+                        +{{
+                          currentUserScore?.scoreBreakdown?.volunteerLocations
+                            ?.score || 0
+                        }}
+                        {{ $t('common.points') }}
+                      </span>
+                    </q-item-label>
+                  </q-item-section>
+                </q-item>
               </q-list>
             </div>
 
@@ -242,6 +267,27 @@
                       <q-item>
                         <q-item-section>
                           <q-item-label>{{
+                            $t('common.volunteerLocations')
+                          }}</q-item-label>
+                          <q-item-label caption>
+                            <span class="text-weight-medium">
+                              {{ item.scoreBreakdown.volunteerLocations.count }}
+                            </span>
+                            {{ $t('common.locationsVolunteering') }}
+                            <br />
+                            <span class="text-primary">
+                              +{{
+                                item.scoreBreakdown.volunteerLocations.score
+                              }}
+                              {{ $t('common.points') }}
+                            </span>
+                          </q-item-label>
+                        </q-item-section>
+                      </q-item>
+
+                      <q-item>
+                        <q-item-section>
+                          <q-item-label>{{
                             $t('common.yourActivity')
                           }}</q-item-label>
                           <q-item-label caption>
@@ -313,6 +359,10 @@ interface ScoreBreakdown {
     score: number;
   };
   referralLocations: {
+    count: number;
+    score: number;
+  };
+  volunteerLocations: {
     count: number;
     score: number;
   };
