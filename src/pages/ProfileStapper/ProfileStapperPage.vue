@@ -6,17 +6,25 @@
     </div> -->
 
     <!-- Stepper Header -->
-     <h6 style="margin:0px; font-weight: 700;" class="q-mx-sm text-primary">Profile Details</h6>
+     <h6 style="margin:0px; font-weight: 800;" class="q-mx-sm text-primary">Profile Details</h6>
     <div class="stepper-header q-px-sm" style="margin:0px;padding: 0px;" >
       <div class="step-item" :class="{ 'active': currentStep === 1 }">
         <!-- <div class="step-number">1</div> -->
         <div class="step-label" 
              @click="openProfileDialog" 
-             :class="{ 'active-label': currentStep === 1, 'inactive-label': currentStep !== 1 }">
+             :class="{
+               'active-label': currentStep === 1,
+               'completed-label': completedSteps.includes(1),
+               'inactive-label': currentStep !== 1 && !completedSteps.includes(1)
+             }">
           Profile Details
         </div>
         <div class="step-label" 
-             :class="{ 'active': currentStep === 1, 'inactive': currentStep !== 1 }" 
+             :class="{
+               'active': currentStep === 1,
+               'completed': completedSteps.includes(1),
+               'inactive': currentStep !== 1 && !completedSteps.includes(1)
+             }" 
              style="width: 100px; height: 4px; margin: auto; border-radius: 20px; margin-top: 3px;">
         </div>
       </div>
@@ -83,6 +91,7 @@ import EmergencyContactsStep from './steps/EmergencyContactsStep.vue'
 const profileDialog = ref(false)
 const contactsDialog = ref(false)
 const currentStep = ref(1)
+const completedSteps = ref<number[]>([])
 
 const userData = reactive({
   fullName: '',
@@ -101,6 +110,7 @@ const openProfileDialog = () => {
   contactsDialog.value = false
   currentStep.value = 1
   profileDialog.value = true
+  completedSteps.value = completedSteps.value.filter(step => step !== 1)
 }
 
 const openContactsDialog = () => {
@@ -115,6 +125,9 @@ const handleNextStep = () => {
     contactsDialog.value = true
   }, 300)
   currentStep.value = 2
+  if (!completedSteps.value.includes(1)) {
+    completedSteps.value.push(1)
+  }
 }
 
 const handlePreviousStep = () => {
@@ -123,6 +136,7 @@ const handlePreviousStep = () => {
     profileDialog.value = true
   }, 300)
   currentStep.value = 1
+  completedSteps.value = completedSteps.value.filter(step => step !== 1)
 }
 
 const handleProfileUpdate = (data: any) => {
@@ -320,6 +334,15 @@ const handleSubmit = async () => {
 
 .step-label.inactive {
   background-color:  rgba(212, 206, 206, 0.858); /* Color for inactive lower div */
+}
+
+.completed-label {
+  color: rgba(212, 206, 206, 0.858); /* Gray color for completed step label */
+  font-weight: 700;
+}
+
+.step-label.completed {
+  background-color: #f9387bd5; /* Pink color for completed step line */
 }
 
 </style>

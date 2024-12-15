@@ -495,9 +495,10 @@ onMounted(() => {
 }
 
 .scrollable-inputs {
+  
   flex: 1;
   overflow-y: auto;
-  padding-bottom: 80px;
+  padding-bottom: 10px;
 }
 
 .custom-input {
