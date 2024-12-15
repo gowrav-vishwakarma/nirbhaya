@@ -198,7 +198,7 @@
                 <q-item
                   clickable
                   :class="{ 'bg-yellow-1': item.isCurrentUser }"
-                  @click="item.showBreakdown = !item.showBreakdown"
+                  @click="toggleBreakdown(item.id)"
                 >
                   <q-item-section avatar>
                     <div
@@ -487,12 +487,24 @@ const rankedLeaderboardData = computed(() => {
       currentRank++;
     }
     previousScore = entry.score;
+
+    // Find the original entry to get its showBreakdown state
+    const originalEntry = leaderboardData.value.find((e) => e.id === entry.id);
+
     return {
       ...entry,
       rank: currentRank,
+      showBreakdown: originalEntry?.showBreakdown || false,
     };
   });
 });
+
+const toggleBreakdown = (itemId: string) => {
+  const item = leaderboardData.value.find((e) => e.id === itemId);
+  if (item) {
+    item.showBreakdown = !item.showBreakdown;
+  }
+};
 </script>
 
 <style lang="scss" scoped>

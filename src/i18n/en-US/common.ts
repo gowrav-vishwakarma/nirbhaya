@@ -83,7 +83,7 @@ export default {
   sosSetting: 'SOS Setting',
   name: 'Name',
   city: 'City',
-  state:'State',
+  state: 'State',
   userType: 'User Type',
   dob: 'Date Of Birth',
   emergencyContacts: 'Emergency Contacts',
@@ -413,4 +413,6 @@ export default {
   totalDaysActive: 'total days active by referrals',
   clickToShowDetails: 'Click to show details',
   clickToHideDetails: 'Click to hide details',
+  locationTooClose:
+    'Location must be at least 500 meters away from other locations',
 };
