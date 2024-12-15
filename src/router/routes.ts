@@ -153,6 +153,12 @@ const routes: RouteRecordRaw[] = [
         component: () => import('pages/CommunityPosts/MyPostsPage.vue'),
         props: true,
       },
+      {
+        path: '/stapper',
+        name: 'stapper  ',
+        component: () => import('pages/ProfileStapper/ProfileStapperPage.vue'),
+        props: true,
+      },
     ],
   },
   {
