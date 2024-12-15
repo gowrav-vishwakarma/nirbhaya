@@ -433,6 +433,7 @@ const hasEmergencyContacts = computed(() => contacts.value.length > 0)
   flex-direction: column;
   height: 100%;
   position: relative;
+  background-color: white;
 }
 
 .scrollable-inputs {

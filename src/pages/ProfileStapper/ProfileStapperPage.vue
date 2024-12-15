@@ -1,95 +1,84 @@
 <template>
   <div class="profile-stepper">
-    <!-- Back Button Container -->
-    <!-- <div class="back-button-container" style=" margin:0px;padding: 0px;" >
-      <q-btn flat  icon="arrow_back" size="sm" class="btn-cless"  />
-    </div> -->
-
     <!-- Stepper Header -->
-     <h6 style="margin:0px; font-weight: 800;" class="q-mx-sm text-primary">Profile Details</h6>
-    <div class="stepper-header q-px-sm" style="margin:0px;padding: 0px;" >
-      <div class="step-item" :class="{ 'active': currentStep === 1 }">
-        <!-- <div class="step-number">1</div> -->
-        <div class="step-label" 
-             @click="openProfileDialog" 
-             :class="{
-               'active-label': currentStep === 1,
-               'completed-label': completedSteps.includes(1),
-               'inactive-label': currentStep !== 1 && !completedSteps.includes(1)
-             }">
-          Profile Details
-        </div>
-        <div class="step-label" 
-             :class="{
-               'active': currentStep === 1,
-               'completed': completedSteps.includes(1),
-               'inactive': currentStep !== 1 && !completedSteps.includes(1)
-             }" 
-             style="width: 100px; height: 4px; margin: auto; border-radius: 20px; margin-top: 3px;">
-        </div>
-      </div>
-      <!-- <div class="step-connector"></div> -->
-      <div class="step-item" :class="{ 'active': currentStep === 2 }">
-        <!-- <div class="step-number">2</div> -->
-        <div class="step-label" 
-             @click="openContactsDialog" 
-             :class="{ 'active-label': currentStep === 2, 'inactive-label': currentStep !== 2 }">
-          Emergency Cont.
-        </div>
-        <div class="step-label" 
-             :class="{ 'active': currentStep === 2, 'inactive': currentStep !== 2 }" 
-             style="width: 100px; height: 4px; margin: auto; border-radius: 20px; margin-top: 3px;">
-        </div>
-      </div>
+     <div style="padding: 20px; height: 20vh;">
+       <h6 style="margin:0px; font-weight: 800;" class="q-mx-sm text-primary">Profile Details</h6>
+       <div class="stepper-header q-px-sm" style="margin:0px;padding: 0px;">
+         <div class="step-item" :class="{ 'active': currentStep === 1 }">
+           <div class="step-label" 
+                @click="() => setCurrentStep(1)" 
+                :class="{
+                  'active-label': currentStep === 1,
+                  'completed-label': completedSteps.includes(1),
+                  'inactive-label': currentStep !== 1 && !completedSteps.includes(1)
+                }">
+             Profile Details
+           </div>
+           <div class="step-label" 
+                :class="{
+                  'active': currentStep === 1,
+                  'completed': completedSteps.includes(1),
+                  'inactive': currentStep !== 1 && !completedSteps.includes(1)
+                }" 
+                style="width: 100px; height: 4px; margin: auto; border-radius: 20px; margin-top: 3px;">
+           </div>
+         </div>
+   
+         <div class="step-item" :class="{ 'active': currentStep === 2 }">
+           <div class="step-label" 
+                @click="() => setCurrentStep(2)" 
+                :class="{ 'active-label': currentStep === 2, 'inactive-label': currentStep !== 2 }">
+             Emergency Cont.
+           </div>
+           <div class="step-label" 
+                :class="{ 'active': currentStep === 2, 'inactive': currentStep !== 2 }" 
+                style="width: 100px; height: 4px; margin: auto; border-radius: 20px; margin-top: 3px;">
+           </div>
+         </div>
+   
+         <div class="step-item" :class="{ 'active': currentStep === 3 }">
+           <div class="step-label" 
+                @click="() => setCurrentStep(3)" 
+                :class="{ 'active-label': currentStep === 3, 'inactive-label': currentStep !== 3 }">
+             Volunteer
+           </div>
+           <div class="step-label" 
+                :class="{ 'active': currentStep === 3, 'inactive': currentStep !== 3 }" 
+                style="width: 100px; height: 4px; margin: auto; border-radius: 20px; margin-top: 3px;">
+           </div>
+         </div>
+       </div>
+     </div>
 
-      <!-- <div class="step-connector"></div> -->
-      <div class="step-item" :class="{ 'active': currentStep === 3 }">
-        <!-- <div class="step-number">2</div> -->
-        <div class="step-label" 
-             @click="openContactsDialog" 
-             :class="{ 'active-label': currentStep === 3, 'inactive-label': currentStep !== 3 }">
-          Volunteer
-        </div>
-        <div class="step-label" 
-             :class="{ 'active': currentStep === 3, 'inactive': currentStep !== 3 }" 
-             style="width: 100px; height: 4px; margin: auto; border-radius: 20px; margin-top: 3px;">
-        </div>
-      </div>
-    </div>  
+    <!-- Content Section -->
+    <div class="bottom-dialog" style=" border-radius: 20px 20px 0 0 !important;">
+      <ProfileDetailsStep 
+        v-if="currentStep === 1"
+        :userData="userData"
+        @update-profile="handleProfileUpdate"
+        @next-step="handleNextStep"
+      />    
 
-    <!-- Dialog for Profile Details -->
-    <q-dialog v-model="profileDialog" position="bottom" persistent class="transparent-backdrop" style="border-radius: 30px !important;">
-      <q-card class="bottom-dialog" style="border-radius: 20px 20px 0 0 !important;">
-        <ProfileDetailsStep 
-          :userData="userData"
-          @update-profile="handleProfileUpdate"
-          @next-step="handleNextStep"
-        />    
-      </q-card>
-    </q-dialog>
-    <!-- Dialog for Emergency Contacts -->
-    <q-dialog v-model="contactsDialog" persistent position="bottom" class="transparent-backdrop">
-      <q-card class="bottom-dialog" style="border-radius: 20px 20px 0 0 !important;">
-        <!-- <q-card-section class="dialog-content"> -->
-          <EmergencyContactsStep 
-            :contacts="emergencyContacts"
-            @update-contacts="handleContactsUpdate"
-            @previous-step="handlePreviousStep"
-            @submit="handleSubmit"
-          />
-        <!-- </q-card-section> -->
-      </q-card>
-    </q-dialog>
+      <EmergencyContactsStep 
+        v-if="currentStep === 2"
+        :contacts="emergencyContacts"
+        @update-contacts="handleContactsUpdate"
+        @previous-step="handlePreviousStep"
+        @submit="handleSubmit"
+      />
+
+      <div v-if="currentStep === 3">
+        Volunteer Content Here
+      </div>
+    </div>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive } from 'vue'
 import ProfileDetailsStep from './steps/ProfileDetailsStep.vue'
 import EmergencyContactsStep from './steps/EmergencyContactsStep.vue'
 
-const profileDialog = ref(false)
-const contactsDialog = ref(false)
 const currentStep = ref(1)
 const completedSteps = ref<number[]>([])
 
@@ -102,39 +91,21 @@ const userData = reactive({
 })
 const emergencyContacts = ref([])
 
-onMounted(() => {
-  profileDialog.value = true
-})
-
-const openProfileDialog = () => {
-  contactsDialog.value = false
-  currentStep.value = 1
-  profileDialog.value = true
-  completedSteps.value = completedSteps.value.filter(step => step !== 1)
-}
-
-const openContactsDialog = () => {
-  profileDialog.value = false
-  currentStep.value = 2
-  contactsDialog.value = true
+const setCurrentStep = (step: number) => {
+  if (step === 1) {
+    completedSteps.value = completedSteps.value.filter(s => s !== 1)
+  }
+  currentStep.value = step
 }
 
 const handleNextStep = () => {
-  profileDialog.value = false
-  setTimeout(() => {
-    contactsDialog.value = true
-  }, 300)
-  currentStep.value = 2
   if (!completedSteps.value.includes(1)) {
     completedSteps.value.push(1)
   }
+  currentStep.value = 2
 }
 
 const handlePreviousStep = () => {
-  contactsDialog.value = false
-  setTimeout(() => {
-    profileDialog.value = true
-  }, 300)
   currentStep.value = 1
   completedSteps.value = completedSteps.value.filter(step => step !== 1)
 }
@@ -153,7 +124,6 @@ const handleSubmit = async () => {
       profile: userData,
       emergencyContacts: emergencyContacts.value
     })
-    contactsDialog.value = false
   } catch (error) {
     console.error('Error submitting data:', error)
   }
@@ -164,10 +134,16 @@ const handleSubmit = async () => {
 .profile-stepper {
   max-width: 800px;
   margin: 0 auto;
-  padding: 20px;
   background-color: #f8f8f8;
-  min-height: 100vh;
-  /* padding-top: 140px; */
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
 }
 
 .back-button-container {
@@ -248,14 +224,14 @@ const handleSubmit = async () => {
 /* Dialog styles */
 .bottom-dialog {
   width: 100%;
-  height: 80vh !important;
+  flex: 1;
   border-radius: 20px 20px 0 0;
   position: relative;
   z-index: 2500;
   display: flex;
   flex-direction: column;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-
+  box-shadow: 0 12px 12px rgba(0,0,0,0.1);
+  overflow: hidden;
 }
 
 .dialog-header {
@@ -267,7 +243,7 @@ const handleSubmit = async () => {
 }
 
 .dialog-content {
-  height: 100%;
+  flex: 1;
   overflow-y: auto;
   padding: 20px;
 }
@@ -284,11 +260,7 @@ const handleSubmit = async () => {
   }
   
   .bottom-dialog {
-    height: 80vh !important;
-  }
-  
-  .dialog-content {
-    height: 80vh !important;
+    border-radius: 20px 20px 0 0 !important;
   }
 }
 

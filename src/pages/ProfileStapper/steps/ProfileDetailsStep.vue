@@ -489,9 +489,7 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   height: 100%;
-  position: relative;
   background-color: white;
-
 }
 
 .scrollable-inputs {
