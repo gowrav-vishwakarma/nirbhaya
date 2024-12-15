@@ -158,23 +158,30 @@
             indicator-color="primary"
             align="justify"
             narrow-indicator
+            inline-label
+            outside-arrows
+            mobile-arrows
+            swipeable
           >
             <q-tab
               v-if="userStore.user.city"
               :name="'city'"
               :label="userStore.user.city"
+              class="q-px-md"
             />
             <q-tab
               v-if="userStore.user.state"
               :name="'state'"
               :label="userStore.user.state"
+              class="q-px-md"
             />
-            <q-tab name="country" label="India" />
+            <q-tab name="country" label="India" class="q-px-md" />
             <q-tab
               v-for="location in volunteeringLocations"
               :key="location.value.join(',')"
               :name="location.value.join(',')"
               :label="location.label"
+              class="q-px-md"
             />
           </q-tabs>
 
@@ -510,10 +517,44 @@ const rankedLeaderboardData = computed(() => {
 
 :deep(.q-tabs) {
   overflow-x: auto;
+
+  .q-tabs__content {
+    padding: 0 8px;
+  }
+
+  &:before {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 20px;
+    background: linear-gradient(to left, white 0%, transparent 100%);
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  &:after {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 20px;
+    background: linear-gradient(to right, white 0%, transparent 100%);
+    pointer-events: none;
+    z-index: 1;
+  }
 }
 
 :deep(.q-tab) {
-  min-width: 100px;
+  min-width: 120px;
+  padding: 0;
+}
+
+:deep(.q-tab__label) {
+  width: 100%;
+  text-align: center;
 }
 
 .score-breakdown-card {
