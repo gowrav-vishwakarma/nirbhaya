@@ -3,55 +3,112 @@
     <h5 class="text-h5 q-mb-md q-px-md q-mt-md q-ma-none">Profile Details</h5>
     <div class="scrollable-inputs q-px-md">
       <q-form @submit="handleSubmit" class="q-gutter-md">
-        <q-input
-          v-model="form.fullName"
-          label="Full Name"
-          :rules="[val => !!val || 'Name is required']"
-          outlined
-        />
-        
-        <q-input  
-          v-model="form.email"
-          label="Email"
-          type="email"
-          :rules="[
-            val => !!val || 'Email is required',
-            val => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val) || 'Invalid email format'
-          ]"
-          outlined
-        />
+        <div class="custom-input">
+          <label>Full Name</label>
+          <q-input
+            v-model="form.fullName"
+            :rules="[val => !!val || 'Name is required']"
+            filled
+            class="custom-radius"
+            bg-color="pink-1"
+            dense
+            hide-bottom-space
+          />
+        </div>
 
-        <q-input
-          v-model="form.phone"
-          label="Phone Number"
-          :rules="[val => !!val || 'Phone number is required']"
-          outlined
-        />
+        <div class="custom-input">
+          <label>Mobile Number</label>
+          <q-input
+            v-model="form.phone"
+            :rules="[val => !!val || 'Phone number is required']"
+            filled
+            class="custom-radius"
+            bg-color="pink-1"
+            dense
+            hide-bottom-space
+          />
+        </div>
 
-        <q-input
-          v-model="form.address"
-          label="Address"
-          type="textarea"
-          outlined
-        />
+        <div class="custom-input">
+          <label>Date of Birth</label>
+          <q-input
+            v-model="form.dob"
+            type="date"
+            filled
+            class="custom-radius"
+            bg-color="pink-1"
+            dense
+          />
+        </div>
 
-        <q-select
-          v-model="form.bloodGroup"
-          :options="bloodGroups"
-          label="Blood Group"
-          outlined
-        />
+        <div class="custom-input">
+          <label>State</label>
+          <q-input
+            v-model="form.state"
+            filled
+            class="custom-radius"
+            bg-color="pink-1"
+            dense
+          />
+        </div>
+
+        <div class="custom-input">
+          <label>City</label>
+          <q-input
+            v-model="form.city"
+            filled
+            class="custom-radius"
+            bg-color="pink-1"
+            dense
+          />
+        </div>
+
+        <div class="custom-input">
+          <label>User Type</label>
+          <q-select
+            v-model="form.userType"
+            :options="userTypes"
+            filled
+            class="custom-radius"
+            bg-color="pink-1"
+            dense
+          />
+        </div>
+
+        <div class="custom-input">
+          <label>Profession</label>
+          <q-input
+            v-model="form.profession"
+            filled
+            class="custom-radius"
+            bg-color="pink-1"
+            dense
+          />
+        </div>
+
+        <div class="custom-input">
+          <label>Referred By</label>
+          <q-input
+            v-model="form.referredBy"
+            filled
+            class="custom-radius"
+            bg-color="pink-1"
+            dense
+          />
+        </div>
       </q-form>
     </div>
-    <div class="q-px-md" style="background-color: white; height: 80px; width: 100%; position: relative;">
+    <div class="q-px-md button-container">
       <q-btn
         label="Next"
         type="submit"
         color="primary"
         class="next-button"
         @click="handleSubmit"
-        style="width: 90%; position: absolute; bottom: 20px;"
-      />
+       
+      >
+      <i class="fa-solid fa-arrow-right-long q-ml-sm"></i>
+    </q-btn>
     </div>
   </div>
 </template>
@@ -60,40 +117,76 @@
 .profile-details-step {
   display: flex;
   flex-direction: column;
-  height: 100%; /* Set height to 100% of the parent */
-  position: relative; /* Add relative positioning to the parent */
+  height: 100%;
+  position: relative;
 }
-  
+
 .scrollable-inputs {
-  flex: 1; /* Take up remaining space */
-  overflow-y: auto; /* Allow scrolling */
-  padding-bottom: 60px; /* Add padding to prevent inputs from being hidden behind the button */
+  flex: 1;
+  overflow-y: auto;
+  padding-bottom: 80px;
 }
 
-/* Custom scrollbar styles */
-.scrollable-inputs::-webkit-scrollbar {
-  width: 3px; /* Width of the scrollbar */
+.custom-input {
+  margin-bottom: 20px;
 }
 
-.scrollable-inputs::-webkit-scrollbar-track {
-  background: #f1f1f1; /* Background of the scrollbar track */
+.custom-input label {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 0.9rem;
+  color: #666;
 }
 
-.scrollable-inputs::-webkit-scrollbar-thumb {
-  background: #888; /* Color of the scrollbar thumb */
-  border-radius: 10px; /* Rounded corners for the thumb */
-}
-
-.scrollable-inputs::-webkit-scrollbar-thumb:hover {
-  background: #555; /* Color of the thumb on hover */
+.button-container {
+  background-color: white;
+  height: 60px  ;
+  width: 100%;
+  position: absolute;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .next-button {
-  width: 80vw; /* 80% of the viewport width */
-  position: absolute; /* Change to absolute */
-  bottom: 20px; /* Set 20px from the bottom */
-  left: 50%; /* Center the button horizontally */
-  transform: translateX(-50%); /* Adjust for centering */
+  width: 90%;
+  border-radius: 10px;
+}
+
+/* Scrollbar styles */
+.scrollable-inputs::-webkit-scrollbar {
+  width: 3px;
+}
+
+.scrollable-inputs::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.scrollable-inputs::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 10px;
+}
+
+.scrollable-inputs::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* Add this new style for custom border radius */
+:deep(.custom-radius) .q-field__control {
+  border-radius: 10px !important;
+  height: 45px;
+}
+
+:deep(.custom-radius) .q-field__marginal {
+  height: 56px;
+  border-radius: 20px;
+}
+
+/* Optional: If you want to style the inner input area as well */
+:deep(.custom-radius) .q-field__native,
+:deep(.custom-radius) .q-field__input {
+  border-radius: 20px;
 }
 </style>
 
@@ -103,10 +196,13 @@ import { defineProps, defineEmits, reactive } from 'vue'
 const props = defineProps<{
   userData: {
     fullName: string;
-    email: string;
     phone: string;
-    address: string;  
-    bloodGroup: string | null;
+    dob: string;
+    state: string;
+    city: string;
+    userType: string;
+    profession: string;
+    referredBy: string;
   }
 }>()
 
@@ -114,13 +210,16 @@ const emit = defineEmits(['update-profile', 'next-step'])
 
 const form = reactive({
   fullName: props.userData.fullName || '',
-  email: props.userData.email || '',
   phone: props.userData.phone || '',
-  address: props.userData.address || '',
-  bloodGroup: props.userData.bloodGroup || null
+  dob: props.userData.dob || '',
+  state: props.userData.state || '',
+  city: props.userData.city || '',
+  userType: props.userData.userType || '',
+  profession: props.userData.profession || '',
+  referredBy: props.userData.referredBy || ''
 })
 
-const bloodGroups = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-']
+const userTypes = ['Student', 'Professional', 'Homemaker', 'Other']
 
 const handleSubmit = () => {
   emit('update-profile', { ...form })
