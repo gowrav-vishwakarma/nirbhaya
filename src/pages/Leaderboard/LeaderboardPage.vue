@@ -1,18 +1,15 @@
 <template>
   <q-page class="leaderboard-page">
     <div class="leaderboard-content">
-      <q-card
-        v-if="currentUserScore?.scoreBreakdown"
-        flat
-        class="q-mb-md score-breakdown-card"
-      >
-        <q-card-section>
+      <q-card flat class="q-mb-md score-breakdown-card">
+        <q-card-section class="relative-position">
           <div class="text-h6 text-weight-bold q-mb-md">
             {{ $t('common.yourScore') }}
             <span class="text-primary text-h5 q-ml-sm">
-              {{ currentUserScore.scoreBreakdown.totalScore }}
+              {{ currentUserScore?.scoreBreakdown?.totalScore || 0 }}
             </span>
           </div>
+
           <div class="row q-col-gutter-md">
             <div class="col-12 col-sm-6">
               <q-list dense>
@@ -21,12 +18,15 @@
                     <q-item-label>{{ $t('common.referrals') }}</q-item-label>
                     <q-item-label caption>
                       <span class="text-weight-medium">{{
-                        currentUserScore.scoreBreakdown.referrals.count
+                        currentUserScore?.scoreBreakdown?.referrals?.count || 0
                       }}</span>
                       {{ $t('common.peopleReferred') }}
                       <br />
                       <span class="text-primary">
-                        +{{ currentUserScore.scoreBreakdown.referrals.score }}
+                        +{{
+                          currentUserScore?.scoreBreakdown?.referrals?.score ||
+                          0
+                        }}
                         {{ $t('common.points') }}
                       </span>
                     </q-item-label>
@@ -41,16 +41,16 @@
                     <q-item-label caption>
                       <span class="text-weight-medium">
                         {{
-                          currentUserScore.scoreBreakdown.referralLocations
-                            .count
+                          currentUserScore?.scoreBreakdown?.referralLocations
+                            ?.count || 0
                         }}
                       </span>
                       {{ $t('common.locationsAdded') }}
                       <br />
                       <span class="text-primary">
                         +{{
-                          currentUserScore.scoreBreakdown.referralLocations
-                            .score
+                          currentUserScore?.scoreBreakdown?.referralLocations
+                            ?.score || 0
                         }}
                         {{ $t('common.points') }}
                       </span>
@@ -68,15 +68,16 @@
                     <q-item-label caption>
                       <span class="text-weight-medium">
                         {{
-                          currentUserScore.scoreBreakdown.selfActivity
-                            .daysActive
+                          currentUserScore?.scoreBreakdown?.selfActivity
+                            ?.daysActive || 0
                         }}
                       </span>
                       {{ $t('common.daysActive') }}
                       <br />
                       <span class="text-primary">
                         +{{
-                          currentUserScore.scoreBreakdown.selfActivity.score
+                          currentUserScore?.scoreBreakdown?.selfActivity
+                            ?.score || 0
                         }}
                         {{ $t('common.points') }}
                       </span>
@@ -92,16 +93,16 @@
                     <q-item-label caption>
                       <span class="text-weight-medium">
                         {{
-                          currentUserScore.scoreBreakdown.referralsActivity
-                            .totalDaysActive
+                          currentUserScore?.scoreBreakdown?.referralsActivity
+                            ?.totalDaysActive || 0
                         }}
                       </span>
                       {{ $t('common.totalDaysActive') }}
                       <br />
                       <span class="text-primary">
                         +{{
-                          currentUserScore.scoreBreakdown.referralsActivity
-                            .score
+                          currentUserScore?.scoreBreakdown?.referralsActivity
+                            ?.score || 0
                         }}
                         {{ $t('common.points') }}
                       </span>
@@ -110,6 +111,10 @@
                 </q-item>
               </q-list>
             </div>
+          </div>
+
+          <div v-if="loading" class="loader-overlay">
+            <q-spinner color="primary" size="2em" />
           </div>
         </q-card-section>
       </q-card>
@@ -452,5 +457,22 @@ const currentUserScore = computed(() => {
   .q-item {
     min-height: 40px;
   }
+}
+
+.loader-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+}
+
+.relative-position {
+  position: relative;
 }
 </style>
