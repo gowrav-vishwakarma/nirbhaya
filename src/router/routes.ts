@@ -10,6 +10,7 @@ import ShareCartificatePage from 'pages/Cartificate/ShareCartificatePage.vue';
 import CommunityPostsList from 'pages/CommunityPosts/CommunityPostsList.vue';
 import Feed from 'pages/CommunityFeeds/CommunityFeedsPage.vue';
 import MyPostsPage from 'pages/CommunityPosts/MyPostsPage.vue';
+import LeaderboardPage from 'pages/Leaderboard/LeaderboardPage.vue';
 const routes: RouteRecordRaw[] = [
   {
     path: '/',
@@ -158,6 +159,12 @@ const routes: RouteRecordRaw[] = [
         name: 'stapper  ',
         component: () => import('pages/ProfileStapper/ProfileStapperPage.vue'),
         props: true,
+        meta: { requiresAuth: true },
+      },
+      {
+        path: 'leaderboard',
+        component: LeaderboardPage,
+        meta: { requiresAuth: true },
       },
     ],
   },
