@@ -49,7 +49,7 @@
     </div>  
 
     <!-- Dialog for Profile Details -->
-    <q-dialog v-model="profileDialog" position="bottom" class="transparent-backdrop" style="border-radius: 30px !important;">
+    <q-dialog v-model="profileDialog" position="bottom" persistent class="transparent-backdrop" style="border-radius: 30px !important;">
       <q-card class="bottom-dialog" style="border-radius: 20px 20px 0 0 !important;">
         <ProfileDetailsStep 
           :userData="userData"
@@ -59,7 +59,7 @@
       </q-card>
     </q-dialog>
     <!-- Dialog for Emergency Contacts -->
-    <q-dialog v-model="contactsDialog" position="bottom" class="transparent-backdrop">
+    <q-dialog v-model="contactsDialog" persistent position="bottom" class="transparent-backdrop">
       <q-card class="bottom-dialog">
         <q-card-section class="dialog-content">
           <EmergencyContactsStep 

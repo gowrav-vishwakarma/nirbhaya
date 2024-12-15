@@ -83,6 +83,7 @@ export default {
   sosSetting: 'SOS Setting',
   name: 'Name',
   city: 'City',
+  state:'State',
   userType: 'User Type',
   dob: 'Date Of Birth',
   emergencyContacts: 'Emergency Contacts',
