@@ -50,14 +50,20 @@
 
         <div class="custom-input">
           <label>{{ t('common.state') }}</label>
-          <q-input
+          <q-select
             v-model="values.state"
-            :error="!!errors.state"
-            :error-message="errors.state?.join('; ')"
+            :options="stateOptions"
             filled
             class="custom-radius"
             bg-color="pink-1"
             dense
+            clearable
+            use-input
+            input-debounce="0"
+            @filter="filterStates"
+            :error="!!errors.state"
+            :error-message="errors.state?.join('; ')"
+            @update:model-value="handleStateChange"
             hide-bottom-space
           />
         </div>
@@ -80,26 +86,31 @@
           <q-select
             v-model="values.userType"
             :options="userTypes"
-            :error="!!errors.userType"
-            :error-message="errors.userType?.join('; ')"
             filled
             class="custom-radius"
             bg-color="pink-1"
             dense
+            :error="!!errors.userType"
+            :error-message="errors.userType?.join('; ')"
             hide-bottom-space
           />
         </div>
 
         <div class="custom-input">
           <label>{{ t('common.profession') }}</label>
-          <q-input
+          <q-select
             v-model="values.profession"
-            :error="!!errors.profession"
-            :error-message="errors.profession?.join('; ')"
+            :options="professionOptions"
             filled
             class="custom-radius"
             bg-color="pink-1"
             dense
+            :error="!!errors.profession"
+            :error-message="errors.profession?.join('; ')"
+            map-options
+            emit-value
+            option-value="value"
+            option-label="label"
             hide-bottom-space
           />
         </div>
@@ -108,12 +119,12 @@
           <label>{{ t('common.referredBy') }}</label>
           <q-input
             v-model="values.referredBy"
-            :error="!!errors.referredBy"
-            :error-message="errors.referredBy?.join('; ')"
             filled
             class="custom-radius"
             bg-color="pink-1"
             dense
+            :error="!!errors.referredBy"
+            :error-message="errors.referredBy?.join('; ')"
             hide-bottom-space
           />
         </div>
@@ -136,12 +147,13 @@
 </template>
 
 <script lang="ts" setup>
-import { onMounted, computed } from 'vue'
+import { onMounted, computed, ref, watch, nextTick } from 'vue'
 import { useQuasar } from 'quasar'
 import { useI18n } from 'vue-i18n'
 import { api } from 'src/boot/axios'
 import { useForm } from 'src/qnatk/composibles/use-form'
 import SearchCity from 'src/components/SearchCity.vue'
+import type { QSelectFilterFn } from 'quasar'
 
 const $q = useQuasar()
 const { t } = useI18n()
@@ -171,7 +183,79 @@ const props = defineProps<{
 
 const emit = defineEmits(['update-profile', 'next-step'])
 
-const userTypes = ['Student', 'Professional', 'Homemaker', 'Other']
+const originalStateOptions = [
+  'Andhra Pradesh',
+  'Arunachal Pradesh',
+  'Telangana',
+  'Assam',
+  'Bihar',
+  'Uttar Pradesh',
+  'Gujarat',
+  'Goa',
+  'Haryana',
+  'Himachal Pradesh',
+  'Jammu and Kashmir',
+  'Madhya Pradesh',
+  'Karnataka',
+  'Kerala',
+  'Maharashtra',
+  'Chattisgarh',
+  'Delhi',
+  'Daman and Diu',
+  'Dadra and Nagar Hav.',
+  'Manipur',
+  'Megalaya',
+  'Mizoram',
+  'Nagaland',
+  'Odisha',
+  'Punjab',
+  'Rajasthan',
+  'Sikkim',
+  'Tamil Nadu',
+  'Tripura',
+  'Jharkhand',
+  'Uttarakhand',
+  'BIJAPUR(KAR)',
+  'Lakshadweep',
+  'Chandigarh',
+  'Pondicherry',
+  'Andaman and Nico.In.',
+  'West Bengal'
+];
+
+const stateOptions = ref([...originalStateOptions]);
+const userTypes = ['Girl', 'Child', 'Elder Woman', 'Elder Man', 'Youth'];
+
+const professionOptions = [
+  { label: t('common.hospital'), value: 'hospital' },
+  { label: t('common.doctorGeneral'), value: 'doctorGeneral' },
+  { label: t('common.doctorEmergency'), value: 'doctorEmergency' },
+  { label: t('common.mechanic2Wheeler'), value: 'mechanic2Wheeler' },
+  { label: t('common.mechanic4Wheeler'), value: 'mechanic4Wheeler' },
+  { label: t('common.mechanicBoth'), value: 'mechanicBoth' },
+  { label: t('common.nurse'), value: 'nurse' },
+  { label: t('common.tech'), value: 'tech' },
+  { label: t('common.student'), value: 'student' },
+  { label: t('common.freelancer'), value: 'freelancer' },
+  { label: t('common.onlineSeller'), value: 'onlineSeller' },
+  { label: t('common.handicraftMaker'), value: 'handicraftMaker' },
+  { label: t('common.tailor'), value: 'tailor' },
+  { label: t('common.beautician'), value: 'beautician' },
+  { label: t('common.foodSeller'), value: 'foodSeller' },
+  { label: t('common.artsMediaDesigner'), value: 'artsMediaDesigner' },
+  { label: t('common.skilledTradesWorker'), value: 'skilledTradesWorker' },
+  { label: t('common.shopOwner'), value: 'shopOwner' },
+  { label: t('common.techITProfessional'), value: 'techITProfessional' },
+  { label: t('common.healthcareMedicalWorker'), value: 'healthcareMedicalWorker' },
+  { label: t('common.socialWorker'), value: 'socialWorker' },
+  { label: t('common.privateSectorEmployee'), value: 'privateSectorEmployee' },
+  { label: t('common.governmentEmployee'), value: 'governmentEmployee' },
+  { label: t('common.businessOwner'), value: 'businessOwner' },
+  { label: t('common.housewife'), value: 'housewife' },
+  { label: t('common.retired'), value: 'retired' },
+  { label: t('common.unemployed'), value: 'unemployed' },
+  { label: t('common.other'), value: 'other' },
+];
 
 const { values, errors, isLoading, validateAndSubmit, callbacks } = useForm<FormValues>(
   api,
@@ -253,18 +337,82 @@ callbacks.onError = (error: any) => {
   })
 }
 
+const filterStates: QSelectFilterFn = (val: string, update: (fn: () => void) => void) => {
+  if (val === '') {
+    update(() => {
+      stateOptions.value = originalStateOptions;
+    });
+    return;
+  }
+
+  update(() => {
+    const needle = val.toLowerCase();
+    stateOptions.value = originalStateOptions.filter(
+      (state) => state.toLowerCase().indexOf(needle) > -1
+    );
+  });
+};
+
+const handleStateChange = (newState: string | null) => {
+  if (!newState) {
+    values.value.state = '';
+    values.value.city = null;
+    values.value.pincode = '';
+    errors.value.state = ['State Required'];
+    errors.value.city = ['City Required'];
+  } else {
+    values.value.state = newState;
+    values.value.city = null;
+    values.value.pincode = '';
+    delete errors.value.state;
+    errors.value.city = ['City Required'];
+    nextTick(() => {
+      values.value.city = null;
+    });
+  }
+};
+
 const handleCitySelection = (selectedCity: City | null) => {
   if (!selectedCity) {
-    values.value.city = null
-    values.value.pincode = ''
-    errors.value.city = ['City Required']
+    values.value.city = null;
+    values.value.pincode = '';
+    errors.value.city = ['City Required'];
   } else {
-    values.value.state = selectedCity.statename
-    values.value.pincode = selectedCity.pincode
-    values.value.city = selectedCity
-    delete errors.value.city
+    values.value.state = selectedCity.statename;
+    values.value.pincode = selectedCity.pincode;
+    values.value.city = selectedCity;
+    delete errors.value.city;
   }
-}
+};
+
+const lastCheckedReferralId = ref('');
+
+watch(
+  () => values.value.referredBy,
+  async (newValue) => {
+    if (!newValue) {
+      delete errors.value.referredBy;
+      return;
+    }
+
+    if (newValue === lastCheckedReferralId.value) {
+      return;
+    }
+
+    try {
+      const response = await api.get(`/user/validate-referral/${newValue}`);
+      if (!response.data.exists) {
+        errors.value.referredBy = [t('referralIdNotFound')];
+      } else {
+        delete errors.value.referredBy;
+        lastCheckedReferralId.value = newValue;
+      }
+    } catch (error) {
+      console.error('Error validating referral ID:', error);
+      errors.value.referredBy = [t('referralIdValidationFailed')];
+    }
+  }
+);
 
 onMounted(() => {
   // Initialize city object if data exists
