@@ -130,12 +130,6 @@
             narrow-indicator
           >
             <q-tab
-              v-for="location in volunteeringLocations"
-              :key="location.value.join(',')"
-              :name="location.value.join(',')"
-              :label="location.label"
-            />
-            <q-tab
               v-if="userStore.user.city"
               :name="'city'"
               :label="userStore.user.city"
@@ -146,6 +140,12 @@
               :label="userStore.user.state"
             />
             <q-tab name="country" label="India" />
+            <q-tab
+              v-for="location in volunteeringLocations"
+              :key="location.value.join(',')"
+              :name="location.value.join(',')"
+              :label="location.label"
+            />
           </q-tabs>
 
           <div v-if="loading" class="text-center q-pa-md">
@@ -346,12 +346,12 @@ const volunteeringLocations = computed(() => {
 
 // Set initial tab based on available options
 onMounted(() => {
-  if (volunteeringLocations.value.length > 0) {
-    selectedTab.value = volunteeringLocations.value[0].value.join(',');
-  } else if (userStore.user.city) {
+  if (userStore.user.city) {
     selectedTab.value = 'city';
   } else if (userStore.user.state) {
     selectedTab.value = 'state';
+  } else if (volunteeringLocations.value.length > 0) {
+    selectedTab.value = volunteeringLocations.value[0].value.join(',');
   } else {
     selectedTab.value = 'country';
   }
