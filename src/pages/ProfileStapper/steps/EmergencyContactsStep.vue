@@ -50,6 +50,8 @@
             <q-btn
               label="Cancel"
               color="black"
+              style="border-radius: 10px !important;"
+
               class="full-width custom-radius"
               @click="clearInputFields"
             />
@@ -58,12 +60,14 @@
             <q-btn
               label="Add"
               color="primary"
+              style="border-radius: 10px !important;"
               class="full-width custom-radius"
               @click="addNewContact"
             />
           </div>
         </div>
       </div>
+      <q-separator v-if="showInputFields" class="q-mt-md" />
 
       <div class="contact-cards q-mt-md" v-if="hasEmergencyContacts">
         <q-card v-for="(contact, index) in contacts" :key="index" flat bordered class="contact-card q-mb-sm">
@@ -82,6 +86,8 @@
                 class="remove-btn"
                 flat
                 label="Remove"
+                style="border-radius: 10px !important;"
+
                 @click="confirmRemoveContact(index)"
               />
             </div>
@@ -497,7 +503,7 @@ const hasEmergencyContacts = computed(() => contacts.value.length > 0)
   align-items: center;
 }
     .remove-btn{
-      background-color:#c01c55;
+      background-color:black;
       align-self: flex-end;
       border-radius: 10px;
       margin-left: 10px;

@@ -6,7 +6,8 @@
     </div> -->
 
     <!-- Stepper Header -->
-    <div class="stepper-header" style="margin:0px;padding: 0px;" >
+     <h6 style="margin:0px; font-weight: 700;" class="q-mx-sm text-primary">Profile Details</h6>
+    <div class="stepper-header q-px-sm" style="margin:0px;padding: 0px;" >
       <div class="step-item" :class="{ 'active': currentStep === 1 }">
         <!-- <div class="step-number">1</div> -->
         <div class="step-label" 
@@ -16,7 +17,7 @@
         </div>
         <div class="step-label" 
              :class="{ 'active': currentStep === 1, 'inactive': currentStep !== 1 }" 
-             style="width: 100px; height: 3px; margin: auto; border-radius: 10px;">
+             style="width: 100px; height: 4px; margin: auto; border-radius: 20px; margin-top: 3px;">
         </div>
       </div>
       <!-- <div class="step-connector"></div> -->
@@ -29,7 +30,7 @@
         </div>
         <div class="step-label" 
              :class="{ 'active': currentStep === 2, 'inactive': currentStep !== 2 }" 
-             style="width: 100px; height: 3px; margin: auto; border-radius: 10px;">
+             style="width: 100px; height: 4px; margin: auto; border-radius: 20px; margin-top: 3px;">
         </div>
       </div>
 
@@ -43,7 +44,7 @@
         </div>
         <div class="step-label" 
              :class="{ 'active': currentStep === 3, 'inactive': currentStep !== 3 }" 
-             style="width: 100px; height: 3px; margin: auto; border-radius: 10px;">
+             style="width: 100px; height: 4px; margin: auto; border-radius: 20px; margin-top: 3px;">
         </div>
       </div>
     </div>  
@@ -150,9 +151,9 @@ const handleSubmit = async () => {
   max-width: 800px;
   margin: 0 auto;
   padding: 20px;
-  background-color: #f8f2f2;
+  background-color: #f8f8f8;
   min-height: 100vh;
-  padding-top: 140px;
+  /* padding-top: 140px; */
 }
 
 .back-button-container {
@@ -162,32 +163,29 @@ const handleSubmit = async () => {
   transform: translateX(-50%);
   width: 100%;
   max-width: 800px;
-  background-color: #f8f2f200;
+  background-color: #f8f8f8;
   z-index: 3002;
   }
 .btn-cless{
   height: 25px;   
   width: 50px;
   border-radius: 20px;
-  font-weight: 900;
-  /* background-color: #aca5a585; */
+  font-weight: 800;
+  background-color: #f8f8f8;
   color: #db1b5d;
   margin: 10px;
 }
 
 .stepper-header {
-  position: fixed;
-  top: 20px;
-  left: 50%;
-  transform: translateX(-50%);
   width: 100%;
   max-width: 800px;
-  background-color: #f8f2f2;
+  background-color: #f8f8f8;
   z-index: 3001;
-  padding: 20px;
+  /* padding: 20px; */
   display: flex;
   align-items: center;
-  justify-content: space-evenly;
+  margin-top: 10px !important;
+  justify-content: space-between;
 }
 
 .step-item {
@@ -211,7 +209,8 @@ const handleSubmit = async () => {
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  background-color: #eee;
+  /* background-color: #fbf8f8; */
+  background-color:  rgba(212, 206, 206, 0.858);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -226,7 +225,7 @@ const handleSubmit = async () => {
 
 .step-connector {
   width: 100px;
-  height: 2px;
+  height: 3px;
   background-color: #eee;
   margin: 0 16px;
   margin-bottom: 32px;
@@ -235,7 +234,7 @@ const handleSubmit = async () => {
 /* Dialog styles */
 .bottom-dialog {
   width: 100%;
-  height: 85vh !important;
+  height: 80vh !important;
   border-radius: 20px 20px 0 0;
   position: relative;
   z-index: 2500;
@@ -261,21 +260,17 @@ const handleSubmit = async () => {
 
 /* Responsive adjustments */
 @media (max-width: 600px) {
-  .profile-stepper {
-    padding-top: 120px;
-  }
-  
   .back-button-container {
     padding: 15px;
   }
 
   .stepper-header {
-    top: 40px;
+    top: 30px;
     padding: 15px;
   }
   
   .bottom-dialog {
-    height: 85vh !important;
+    height: 80vh !important;
   }
   
   .dialog-content {
@@ -307,24 +302,24 @@ const handleSubmit = async () => {
 }
 
 .active-label {
-  color:  #db1b5d; /* Color for active step label */
-  font-weight: 800;
+  color:  #f9387bd5;/* Color for active step label */
+  font-weight: 700;
 
 }
 
 .inactive-label { 
-  color: gray; /* Color for inactive step label */
-  font-weight: 800;
+  color: rgba(212, 206, 206, 0.858); /* Color for inactive step label */
+  font-weight: 700;
 
 }
 
 .step-label.active {
-  background-color:  #db1b5d; /* Color for active lower div */
-  font-weight: 800;
+  background-color:  #f9387bd5; /* Color for active lower div */
+  font-weight: 700;
 }
 
 .step-label.inactive {
-  background-color: gray; /* Color for inactive lower div */
+  background-color:  rgba(212, 206, 206, 0.858); /* Color for inactive lower div */
 }
 
 </style>

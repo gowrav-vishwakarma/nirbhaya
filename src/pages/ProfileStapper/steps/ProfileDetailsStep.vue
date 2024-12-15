@@ -132,7 +132,7 @@
     <div class="q-px-md q-px-md q-py-sm text-center" style="border:none !important;" >
       <q-btn
         :label="t('common.next')"
-        type="submit"
+        type="submit" 
         color="primary"
         class="next-button q-mt-xs"
         :disable="!isFormValid"
