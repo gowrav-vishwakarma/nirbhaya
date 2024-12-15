@@ -1,15 +1,15 @@
 <template>
   <div class="profile-details-step">
-    <h5 class="text-h5 q-mb-md q-px-md q-mt-md q-ma-none">Profile Details</h5>
+    <h5 class="text-h6 q-mb-md q-px-md q-mt-md q-ma-none">Profile Details</h5>
     <div class="scrollable-inputs q-px-md">
       <q-form @submit.prevent="handleSubmit" class="q-gutter-md">
         <div class="custom-input">
           <label>{{ t('common.name') }}</label>
           <q-input
-            v-model="values.fullName"
+            v-model="values.name"
             :rules="[val => !!val || t('common.nameRequired')]"
-            :error="!!errors.fullName"
-            :error-message="errors.fullName?.join('; ')"
+            :error="!!errors.name"
+            :error-message="errors.name?.join('; ')"
             filled
             class="custom-radius"
             bg-color="pink-1"
@@ -21,14 +21,13 @@
         <div class="custom-input">
           <label>{{ t('common.mobileNumber') }}</label>
           <q-input
-            v-model="values.phone"
-            :rules="[val => !!val || t('common.phoneRequired')]"
-            :error="!!errors.phone"
-            :error-message="errors.phone?.join('; ')"
+            v-model="values.phoneNumber"
             filled
             class="custom-radius"
             bg-color="pink-1"
             dense
+            disable
+            readonly
             hide-bottom-space
           />
         </div>
@@ -130,16 +129,20 @@
         </div>
       </q-form>
     </div>
-    <div class="q-px-md button-container">
+    <div class="q-px-md q-px-md q-py-sm text-center" style="border:none !important;" >
       <q-btn
         :label="t('common.next')"
         type="submit"
         color="primary"
-        class="next-button"
+        class="next-button q-mt-xs"
         :disable="!isFormValid"
         :loading="isLoading"
-        @click="handleSubmit" 
+        @click="handleSubmit"
+        style="border-radius: 10px !important; height: 40px;"
       >
+        <template v-slot:loading>
+          <q-spinner-dots />
+        </template>
         <i class="fa-solid fa-arrow-right-long q-ml-sm"></i>
       </q-btn>
     </div>
@@ -153,21 +156,23 @@ import { useI18n } from 'vue-i18n'
 import { api } from 'src/boot/axios'
 import { useForm } from 'src/qnatk/composibles/use-form'
 import SearchCity from 'src/components/SearchCity.vue'
+import { useUserStore } from 'src/stores/user-store'
 import type { QSelectFilterFn } from 'quasar'
 
 const $q = useQuasar()
 const { t } = useI18n()
+const userStore = useUserStore()
 
 interface City {
   officename: string
-  statename: string
+  statename: string 
   pincode: string
   city?: string
 }
 
 interface FormValues {
-  fullName: string
-  phone: string
+  name: string
+  phoneNumber: string
   dob: string
   state: string
   city: City | null
@@ -259,31 +264,36 @@ const professionOptions = [
 
 const { values, errors, isLoading, validateAndSubmit, callbacks } = useForm<FormValues>(
   api,
-  'user/profile-details-update',
+  'user/user-profile-update',
   {
-    fullName: props.userData.fullName || '',
-    phone: props.userData.phone || '',
-    dob: props.userData.dob || '',
-    state: props.userData.state || '',
+    name: '',
+    phoneNumber: '',
     city: null,
-    userType: props.userData.userType || '',
-    profession: props.userData.profession || '',
-    referredBy: props.userData.referredBy || '',
-    pincode: ''
+    state: '',
+    dob: '',
+    userType: '',
+    profession: '',
+    pincode: '',
+    emergencyContacts: [],
+    startAudioVideoRecordOnSos: false,
+    streamAudioVideoOnSos: false,
+    broadcastAudioOnSos: false,
+    referredBy: '',
   }
 )
 
 const isFormValid = computed(() => {
   return (
-    !!values.value.fullName &&
-    !!values.value.phone &&
+    !!values.value.name &&
+    !!values.value.phoneNumber &&
     !!values.value.dob &&
     !!values.value.state &&
     !!values.value.city &&
     !!values.value.userType &&
+    !!values.value.profession &&
     Object.keys(errors.value).length === 0
-  )
-})
+  );
+});
 
 callbacks.beforeSubmit = (data) => {
   const processedData = {
@@ -291,51 +301,83 @@ callbacks.beforeSubmit = (data) => {
     dob: data.dob || '',
     state: data.state || '',
     pincode: data.pincode || ''
-  }
+  };
 
   if (data.city && typeof data.city === 'object') {
-    const cityData = data.city as City
-    processedData.state = cityData.statename
-    processedData.pincode = cityData.pincode
-    processedData.city = cityData.officename
+    const cityData = data.city as City;
+    processedData.state = cityData.statename;
+    processedData.pincode = cityData.pincode;
+    processedData.city = cityData.officename;
   }
 
-  return processedData
-}
+  return processedData;
+};
 
 const handleSubmit = async () => {
   if (isFormValid.value) {
-    await validateAndSubmit(false)
-    emit('update-profile', { ...values.value })
-    emit('next-step')
+    try {
+      await validateAndSubmit(false);
+    } catch (error) {
+      console.error('Error in form submission:', error);
+      $q.notify({
+        color: 'negative',
+        message: t('common.profileUpdateError'),
+        icon: 'error',
+        position: 'top-right',
+      });
+    }
   } else {
     $q.notify({
       color: 'negative',
       message: t('common.pleaseFixErrors'),
       icon: 'error',
       position: 'top-right',
-    })
+    });
   }
-}
+};
 
-callbacks.onSuccess = () => {
+callbacks.onSuccess = (data) => {
+  // Update the user store with the new data
+  const updatedUserData = {
+    ...userStore.user, // Keep existing user data
+    ...data.user, // Update with new data from API
+    // Ensure specific fields are updated
+    name: values.value.name,
+    phoneNumber: values.value.phoneNumber,
+    dob: values.value.dob,
+    state: values.value.state,
+    city: values.value.city?.officename || '',
+    pincode: values.value.pincode,
+    userType: values.value.userType,
+    profession: values.value.profession,
+    referredBy: values.value.referredBy
+  };
+
+  // Update the store
+  userStore.updateUser(updatedUserData);
+
+  // Show success notification
   $q.notify({
     color: 'positive',
     message: t('common.profileUpdateSuccess'),
     icon: 'check',
     position: 'top-right',
-  })
-}
+  });
+
+  // Emit events for parent components
+  emit('update-profile', { ...values.value });
+  emit('next-step');
+};
 
 callbacks.onError = (error: any) => {
-  console.error('Error updating profile details:', error)
+  console.error('Error updating profile details:', error);
   $q.notify({
     color: 'negative',
     message: t('common.profileUpdateError'),
     icon: 'error',
     position: 'top-right',
-  })
-}
+  });
+};
 
 const filterStates: QSelectFilterFn = (val: string, update: (fn: () => void) => void) => {
   if (val === '') {
@@ -414,16 +456,32 @@ watch(
   }
 );
 
-onMounted(() => {
-  // Initialize city object if data exists
-  if (props.userData.city && props.userData.state) {
-    values.value.city = {
-      officename: props.userData.city.officename,
-      statename: props.userData.state,
-      pincode: props.userData.pincode,
+const loadUserData = async () => {
+  const userData = userStore.user;
+
+  if (userData) {
+    // Set initial values
+    values.value = {
+      ...userData
+    };
+
+    // Create city object if city data exists
+    if (userData.city && userData.state && userData.pincode) {
+      values.value.city = {
+        officename: userData.city,
+        statename: userData.state,
+        pincode: userData.pincode
+      };
     }
+
+    // Set referral ID for validation
+    lastCheckedReferralId.value = values.value.referredBy;
   }
-})
+};
+
+onMounted(() => {
+  loadUserData();
+});
 </script>
 
 <style scoped>
@@ -432,6 +490,8 @@ onMounted(() => {
   flex-direction: column;
   height: 100%;
   position: relative;
+  background-color: white;
+
 }
 
 .scrollable-inputs {
@@ -451,8 +511,8 @@ onMounted(() => {
   color: #666;
 }
 
-.button-container {
-  background-color: white;
+.button-container-main {
+  background-color:white;
   height: 60px  ;
   width: 100%;
   position: absolute;

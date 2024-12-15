@@ -1,9 +1,9 @@
 <template>
   <div class="profile-stepper">
     <!-- Back Button Container -->
-    <div class="back-button-container" style=" margin:0px;padding: 0px;" >
+    <!-- <div class="back-button-container" style=" margin:0px;padding: 0px;" >
       <q-btn flat  icon="arrow_back" size="sm" class="btn-cless"  />
-    </div>
+    </div> -->
 
     <!-- Stepper Header -->
     <div class="stepper-header" style="margin:0px;padding: 0px;" >
@@ -60,15 +60,15 @@
     </q-dialog>
     <!-- Dialog for Emergency Contacts -->
     <q-dialog v-model="contactsDialog" persistent position="bottom" class="transparent-backdrop">
-      <q-card class="bottom-dialog">
-        <q-card-section class="dialog-content">
+      <q-card class="bottom-dialog" style="border-radius: 20px 20px 0 0 !important;">
+        <!-- <q-card-section class="dialog-content"> -->
           <EmergencyContactsStep 
             :contacts="emergencyContacts"
             @update-contacts="handleContactsUpdate"
             @previous-step="handlePreviousStep"
             @submit="handleSubmit"
           />
-        </q-card-section>
+        <!-- </q-card-section> -->
       </q-card>
     </q-dialog>
   </div>
