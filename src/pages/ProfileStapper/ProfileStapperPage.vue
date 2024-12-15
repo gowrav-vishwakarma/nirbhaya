@@ -1,28 +1,61 @@
 <template>
   <div class="profile-stepper">
+    <!-- Back Button Container -->
+    <div class="back-button-container" style=" margin:0px;padding: 0px;" >
+      <q-btn flat  icon="arrow_back" size="sm" class="btn-cless"  />
+    </div>
+
     <!-- Stepper Header -->
-    <div class="stepper-header q-mb-lg">
+    <div class="stepper-header" style="margin:0px;padding: 0px;" >
       <div class="step-item" :class="{ 'active': currentStep === 1 }">
-        <div class="step-number">1</div>
-        <div class="step-label" @click="openProfileDialog">Profile Details</div>
+        <!-- <div class="step-number">1</div> -->
+        <div class="step-label" 
+             @click="openProfileDialog" 
+             :class="{ 'active-label': currentStep === 1, 'inactive-label': currentStep !== 1 }">
+          Profile Details
+        </div>
+        <div class="step-label" 
+             :class="{ 'active': currentStep === 1, 'inactive': currentStep !== 1 }" 
+             style="width: 100px; height: 3px; margin: auto; border-radius: 10px;">
+        </div>
       </div>
-      <div class="step-connector"></div>
+      <!-- <div class="step-connector"></div> -->
       <div class="step-item" :class="{ 'active': currentStep === 2 }">
-        <div class="step-number">2</div>
-        <div class="step-label" @click="openContactsDialog">Emergency Contacts</div>
+        <!-- <div class="step-number">2</div> -->
+        <div class="step-label" 
+             @click="openContactsDialog" 
+             :class="{ 'active-label': currentStep === 2, 'inactive-label': currentStep !== 2 }">
+          Emergency Cont.
+        </div>
+        <div class="step-label" 
+             :class="{ 'active': currentStep === 2, 'inactive': currentStep !== 2 }" 
+             style="width: 100px; height: 3px; margin: auto; border-radius: 10px;">
+        </div>
+      </div>
+
+      <!-- <div class="step-connector"></div> -->
+      <div class="step-item" :class="{ 'active': currentStep === 3 }">
+        <!-- <div class="step-number">2</div> -->
+        <div class="step-label" 
+             @click="openContactsDialog" 
+             :class="{ 'active-label': currentStep === 3, 'inactive-label': currentStep !== 3 }">
+          Volunteer
+        </div>
+        <div class="step-label" 
+             :class="{ 'active': currentStep === 3, 'inactive': currentStep !== 3 }" 
+             style="width: 100px; height: 3px; margin: auto; border-radius: 10px;">
+        </div>
       </div>
     </div>  
 
     <!-- Dialog for Profile Details -->
     <q-dialog v-model="profileDialog" position="bottom" class="transparent-backdrop" style="border-radius: 30px !important;">
       <q-card class="bottom-dialog" style="border-radius: 20px 20px 0 0 !important;">
-        <!-- <q-card-section class="dialog-content"> -->
-          <ProfileDetailsStep 
-            :userData="userData"
-            @update-profile="handleProfileUpdate"
-            @next-step="handleNextStep"
-          />    
-        <!-- </q-card-section> -->
+        <ProfileDetailsStep 
+          :userData="userData"
+          @update-profile="handleProfileUpdate"
+          @next-step="handleNextStep"
+        />    
       </q-card>
     </q-dialog>
     <!-- Dialog for Emergency Contacts -->
@@ -118,26 +151,43 @@ const handleSubmit = async () => {
   margin: 0 auto;
   padding: 20px;
   background-color: #f8f2f2;
-  position: relative;
   min-height: 100vh;
-  padding-top: 100px;
+  padding-top: 140px;
+}
+
+.back-button-container {
+  position: absolute;
+  top:    0px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 800px;
+  background-color: #f8f2f200;
+  z-index: 3002;
+  }
+.btn-cless{
+  height: 25px;   
+  width: 50px;
+  border-radius: 20px;
+  font-weight: 900;
+  /* background-color: #aca5a585; */
+  color: #db1b5d;
+  margin: 10px;
 }
 
 .stepper-header {
-  display: flex;
-  align-items: center;
-  justify-content: center;
   position: fixed;
-  top: 0;
+  top: 20px;
   left: 50%;
   transform: translateX(-50%);
-  background: white;
-  z-index: 3000;
-  padding: 20px;
   width: 100%;
   max-width: 800px;
   background-color: #f8f2f2;
-
+  z-index: 3001;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-evenly;
 }
 
 .step-item {
@@ -212,10 +262,15 @@ const handleSubmit = async () => {
 /* Responsive adjustments */
 @media (max-width: 600px) {
   .profile-stepper {
-    padding-top: 80px;
+    padding-top: 120px;
   }
   
+  .back-button-container {
+    padding: 15px;
+  }
+
   .stepper-header {
+    top: 40px;
     padding: 15px;
   }
   
@@ -249,6 +304,27 @@ const handleSubmit = async () => {
 
 :deep(.q-dialog__inner) {
   max-height: 75vh !important;
+}
+
+.active-label {
+  color:  #db1b5d; /* Color for active step label */
+  font-weight: 800;
+
+}
+
+.inactive-label { 
+  color: gray; /* Color for inactive step label */
+  font-weight: 800;
+
+}
+
+.step-label.active {
+  background-color:  #db1b5d; /* Color for active lower div */
+  font-weight: 800;
+}
+
+.step-label.inactive {
+  background-color: gray; /* Color for inactive lower div */
 }
 
 </style>
