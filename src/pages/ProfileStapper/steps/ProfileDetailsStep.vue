@@ -358,7 +358,7 @@ callbacks.onSuccess = (data) => {
 
   // Show success notification
   $q.notify({
-    color: 'positive',
+    color: 'black',
     message: t('common.profileUpdateSuccess'),
     icon: 'check',
     position: 'top-right',
@@ -377,6 +377,7 @@ callbacks.onError = (error: any) => {
     icon: 'error',
     position: 'top-right',
   });
+  return error
 };
 
 const filterStates: QSelectFilterFn = (val: string, update: (fn: () => void) => void) => {

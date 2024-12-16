@@ -152,10 +152,12 @@ import { useQuasar } from 'quasar'
 import { Geolocation } from '@capacitor/geolocation'
 import { useUserStore } from 'src/stores/user-store'
 import { api } from 'src/boot/axios'
+import { useRouter } from 'vue-router';
 
 const { t } = useI18n()
 const $q = useQuasar()
 const userStore = useUserStore()
+const router=useRouter()
 
 interface Location {
   name: string
@@ -339,11 +341,13 @@ const saveAndContinue = async () => {
     const validLocations = locations.value.filter(isLocationValid)
     
     const response = await api.post('user/user-profile-update', {
+        ...userStore.user,
       locations: validLocations
     })
     
     userStore.updateUser(response.data.user)
-    emit('next-step')
+    router.push('/')
+    // emit('next-step')
   } catch (error) {
     console.error('Error saving locations:', error)
     $q.notify({
@@ -434,7 +438,8 @@ const addNewLocation = async () => {
     $q.notify({
       color: 'negative',
       message: t('common.pleaseSelectLocation'),
-      icon: 'error'
+      icon: 'error',
+      position:'top-right'
     })
     return
   }

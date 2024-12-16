@@ -185,7 +185,8 @@ const validatePhoneNumber = async (phoneNumber: string): Promise<boolean> => {
       $q.notify({
         color: 'negative',
         message: 'You cannot add your own number as emergency contact',
-        icon: 'error'
+        icon: 'error',
+        position:'top-right'
       })
       return false
     }
@@ -195,7 +196,8 @@ const validatePhoneNumber = async (phoneNumber: string): Promise<boolean> => {
       $q.notify({
         color: 'negative',
         message: 'Phone number is not registered in the system',
-        icon: 'error'
+        icon: 'error',
+        position:'top-right'
       })
       return false
     }
@@ -216,7 +218,9 @@ const addNewContact = async () => {
       $q.notify({
         color: 'negative',
         message: t('common.phoneNumberAlreadyExists'),
-        icon: 'error'
+        icon: 'error',
+        position:'top-right'
+
       })
       return
     }
@@ -258,9 +262,11 @@ const addNewContact = async () => {
       // Clear input and show success message
       clearInputFields()
       $q.notify({
-        color: 'positive',
+        color: 'Black',
         message: t('common.emergencyContactAdded'),
-        icon: 'check'
+        icon: 'check',
+        position:'top-right'
+
       })
 
       // Reload contacts data
@@ -270,14 +276,18 @@ const addNewContact = async () => {
       $q.notify({
         color: 'negative',
         message: t('common.errorAddingContact'),
-        icon: 'error'
+        icon: 'error',
+        position:'top-right'
+
       })
     }
   } else {
     $q.notify({
       color: 'negative',
       message: t('common.fillRequiredFields'),
-      icon: 'error'
+      icon: 'error',
+      position:'top-right'
+
     })
   }
 }
@@ -315,9 +325,11 @@ const confirmRemoveContact = async (index: number) => {
       })
 
       $q.notify({
-        color: 'positive',
+        color: 'black',
         message: t('common.contactDeletedSuccessfully'),
-        icon: 'check'
+        icon: 'check',
+        position:'top-right'
+
       })
 
       // Reload contacts data
@@ -328,7 +340,10 @@ const confirmRemoveContact = async (index: number) => {
     $q.notify({
       color: 'negative',
       message: t('common.errorDeletingContact'),
-      icon: 'error'
+      icon: 'error',
+
+      position:'top-right'
+
     })
   }
 }
@@ -341,7 +356,9 @@ const handleSubmit = async () => {
       $q.notify({
         color: 'negative',
         message: t('common.fillRequiredFields'),
-        icon: 'error'
+        icon: 'error',
+        position:'top-right'
+
       })
       return
     }
@@ -372,11 +389,13 @@ const handleSubmit = async () => {
     emit('update-contacts', contacts.value)
     emit('submit')
 
-    $q.notify({
-      color: 'positive',
-      message: t('common.emergencyContactsUpdated'),
-      icon: 'check'
-    })
+    // $q.notify({
+    //   color: 'black',
+    //   message: t('common.emergencyContactsUpdated'),
+    //   icon: 'check',
+    //   position:'top-right'
+
+    // })
     
     // Navigate to volunteer page
     emit('next-step')
