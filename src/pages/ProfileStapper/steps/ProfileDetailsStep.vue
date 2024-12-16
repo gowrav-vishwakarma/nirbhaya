@@ -131,6 +131,80 @@
           >
           </q-input>
         </div>
+
+        <div class="custom-input">
+          <q-checkbox
+            v-model="values.showBusinessInfo"
+            :label="t('common.addBusinessInfo')"
+          />
+        </div>
+
+        <template v-if="values.showBusinessInfo && values.businessInfo">
+          <div class="custom-input">
+            <label>{{ t('common.businessName') }}</label>
+            <q-input
+              v-model="values.businessInfo.businessName"
+              :rules="[val => !!val || t('common.businessNameRequired')]"
+              filled
+              class="custom-radius"
+              bg-color="pink-1"
+              dense
+              hide-bottom-space
+            />
+          </div>
+
+          <div class="custom-input">
+            <label>{{ t('common.whatsappNumber') }}</label>
+            <q-input
+              v-model="values.businessInfo.whatsappNumber"
+              type="number"
+              :rules="[
+                val => !!val || t('common.whatsappRequired'),
+                val => String(val).length === 10 || t('common.phoneLength')
+              ]"
+              filled
+              class="custom-radius"
+              bg-color="pink-1"
+              dense
+              hide-bottom-space
+              prefix="+91"
+            />
+          </div>
+
+          <div class="custom-input">
+            <label>{{ t('common.businessLocation') }}</label>
+            <q-input
+              v-model="values.businessInfo.locationName"
+              :rules="[val => !!val || t('common.locationRequired')]"
+              filled
+              class="custom-radius"
+              bg-color="pink-1"
+              dense
+              hide-bottom-space
+            />
+          </div>
+
+          <div class="custom-input">
+            <q-btn
+              :loading="isLoadingLocation"
+              @click="getCurrentLocation"
+              icon="my_location"
+              color="primary"
+              flat
+              class="full-width"
+            >
+              {{ t('common.getCurrentLocation') }}
+            </q-btn>
+
+            <div v-if="values.businessInfo.latitude && values.businessInfo.longitude" 
+                 class="location-display q-mt-sm">
+              <div class="text-caption">
+                Lat: {{ values.businessInfo.latitude.toFixed(6) }}
+                Lng: {{ values.businessInfo.longitude.toFixed(6) }}
+              </div>
+            </div>
+          </div>
+        </template>
       </q-form>
     </div>
     <div class="q-px-md q-px-md q-py-sm text-center" style="border:none !important;" >
@@ -162,7 +236,8 @@ import { useForm } from 'src/qnatk/composibles/use-form'
 import SearchCity from 'src/components/SearchCity.vue'
 import { useUserStore } from 'src/stores/user-store'
 import type { QSelectFilterFn } from 'quasar'
-
+import { Geolocation } from '@capacitor/geolocation'
+    
 const $q = useQuasar()
 const { t } = useI18n()
 const userStore = useUserStore()
@@ -172,6 +247,14 @@ interface City {
   statename: string 
   pincode: string
   city?: string
+}
+
+interface BusinessInfo {
+  businessName: string;
+  whatsappNumber: string | number;
+  locationName: string;
+  latitude: number;
+  longitude: number;
 }
 
 interface FormValues {
@@ -184,6 +267,8 @@ interface FormValues {
   profession: string
   referredBy: string
   pincode: string
+  showBusinessInfo: boolean
+  businessInfo: BusinessInfo | null
 }
 
 // const props = defineProps<{
@@ -287,11 +372,13 @@ const { values, errors, isLoading, validateAndSubmit, callbacks } = useForm<Form
     streamAudioVideoOnSos: false,
     broadcastAudioOnSos: false,
     referredBy: '',
+    showBusinessInfo: false,
+    businessInfo: null
   }
 )
 
 const isFormValid = computed(() => {
-  return (
+  const baseValidation = (
     !!values.value.name &&
     !!values.value.phoneNumber &&
     !!values.value.dob &&
@@ -301,6 +388,19 @@ const isFormValid = computed(() => {
     !!values.value.profession &&
     Object.keys(errors.value).length === 0
   );
+
+  // Add business info validation if enabled
+  if (values.value.showBusinessInfo && values.value.businessInfo) {
+    return baseValidation && 
+      !!values.value.businessInfo.businessName &&
+      !!values.value.businessInfo.whatsappNumber &&
+      String(values.value.businessInfo.whatsappNumber).length === 10 &&
+      !!values.value.businessInfo.locationName &&
+      !!values.value.businessInfo.latitude &&
+      !!values.value.businessInfo.longitude;
+  }
+
+  return baseValidation;
 });
 
 callbacks.beforeSubmit = (data) => {
@@ -324,7 +424,13 @@ callbacks.beforeSubmit = (data) => {
 const handleSubmit = async () => {
   if (isFormValid.value) {
     try {
+      // First submit profile data
       await validateAndSubmit(false);
+      
+      // Then submit business info if enabled
+      if (values.value.showBusinessInfo && values.value.businessInfo) {
+        await handleBusinessInfoSubmit();
+      }
     } catch (error) {
       console.error('Error in form submission:', error);
       $q.notify({
@@ -336,7 +442,7 @@ const handleSubmit = async () => {
     }
   } else {
     $q.notify({
-      color: 'negative',
+      color: 'negative', 
       message: t('common.pleaseFixErrors'),
       icon: 'error',
       position: 'top-right',
@@ -353,7 +459,7 @@ callbacks.onSuccess = (data) => {
     name: values.value.name,
     phoneNumber: values.value.phoneNumber,
     dob: values.value.dob,
-    state: values.value.state,
+    state: values.value.state,  
     city: values.value.city?.officename || '',
     pincode: values.value.pincode,
     userType: values.value.userType,
@@ -508,8 +614,131 @@ const loadUserData = async () => {
 
     // Set referral ID for validation
     lastCheckedReferralId.value = values.value.referredBy;
+
+    // Load business info if exists
+    if (userData.businessName) {
+      values.value.showBusinessInfo = true;
+      values.value.businessInfo = {
+        businessName: userData.businessName,
+        whatsappNumber: userData.whatsappNumber || '',
+        locationName: '',
+        latitude: 0,
+        longitude: 0
+      };
+
+      // Get business location from locations array
+      const businessLocation = userData.locations?.find(loc => loc.isBusinessLocation);
+      if (businessLocation) {
+        values.value.businessInfo.locationName = businessLocation.name;
+        values.value.businessInfo.longitude = businessLocation.location.coordinates[0];
+        values.value.businessInfo.latitude = businessLocation.location.coordinates[1];
+      }
+    }
   }
 };
+
+const handleBusinessInfoSubmit = async () => {
+  if (!values.value.businessInfo) return;
+
+  try {
+    const response = await api.post('/user/add-business-information', values.value.businessInfo);
+    
+    // Update store with business info
+    userStore.updateUser({
+      ...userStore.user,
+      businessName: values.value.businessInfo.businessName,
+      whatsappNumber: values.value.businessInfo.whatsappNumber.toString(),
+      locations: [
+        ...(userStore.user?.locations || []).filter(loc => !loc.isBusinessLocation),
+        {
+          name: values.value.businessInfo.locationName,
+          location: {
+            type: 'Point',
+            coordinates: [values.value.businessInfo.longitude, values.value.businessInfo.latitude]
+          },
+          isBusinessLocation: true
+        }
+      ]
+    });
+
+    return response;
+  } catch (error) {
+    console.error('Error updating business info:', error);
+    throw error;
+  }
+};
+
+const isLoadingLocation = ref(false);
+
+const getCurrentLocation = async () => {
+  try {
+    isLoadingLocation.value = true;
+
+    // Request location permissions first
+    const permissionStatus = await Geolocation.checkPermissions();
+    if (permissionStatus.location !== 'granted') {
+      await Geolocation.requestPermissions();
+    }
+
+    // Get current position
+    const position = await Geolocation.getCurrentPosition({
+      enableHighAccuracy: true,
+      timeout: 10000,
+    });
+
+    if (position && values.value.businessInfo) {
+      values.value.businessInfo.latitude = position.coords.latitude;
+      values.value.businessInfo.longitude = position.coords.longitude;
+
+      // Optional: Show success notification
+      $q.notify({
+        type: 'positive',
+        color: 'black',
+        message: t('common.locationCaptured'),
+        position: 'top-right',
+      });
+    }
+  } catch (error) {
+    console.error('Location error:', error);
+    let errorMessage = '';
+
+    // Handle specific error cases
+    if (error.code === 1) {
+      errorMessage = t('common.locationPermissionDenied');
+    } else if (error.code === 2) {
+      errorMessage = t('common.locationUnavailable');
+    } else if (error.code === 3) {
+      errorMessage = t('common.locationTimeout');
+    } else {
+      errorMessage = t('common.locationError');
+    }
+
+    $q.notify({
+      type: 'negative',
+      message: errorMessage,
+      position: 'top-right',
+    });
+  } finally {
+    isLoadingLocation.value = false;
+  }
+};
+
+// Add this watch to initialize businessInfo when checkbox is checked
+watch(
+  () => values.value.showBusinessInfo,
+  (newValue) => {
+    if (newValue && !values.value.businessInfo) {
+      // Initialize businessInfo when checkbox is checked
+      values.value.businessInfo = {
+        businessName: '',
+        whatsappNumber: '',
+        locationName: '',
+        latitude: 0,
+        longitude: 0
+      };
+    }
+  }
+);
 
 onMounted(() => {
   loadUserData();
@@ -591,6 +820,13 @@ onMounted(() => {
 :deep(.custom-radius) .q-field__native,
 :deep(.custom-radius) .q-field__input {
   border-radius: 20px;
+}
+
+.location-display {
+  background: #f5f5f5;
+  padding: 8px;
+  border-radius: 4px;
+  text-align: center;
 }
 </style>
 
