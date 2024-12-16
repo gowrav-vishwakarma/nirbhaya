@@ -155,8 +155,8 @@ const routes: RouteRecordRaw[] = [
         props: true,
       },
       {
-        path: '/stapper',
-        name: 'stapper',
+        path: '/profile',
+        name: 'profile',
         component: () => import('pages/ProfileStapper/ProfileStapperPage.vue'),
         props: true,
         meta: { requiresAuth: true },

@@ -333,7 +333,7 @@ const isHeaderHide = computed(() => {
     '/sos-mode',
     '/my-posts',
     '/news',
-    '/stapper'
+    '/profile'
   ];
 
   // If on iOS and path is /comunity-post, don't hide the header
@@ -352,7 +352,7 @@ const isHeaderHide = computed(() => {
 
 const isFooterHide = computed(() => {
   const currentPath = router.currentRoute.value.path;
-  return ['/create-reel', '/stapper'].includes(currentPath);
+  return ['/create-reel', '/profile'].includes(currentPath);
 });
 
 const isIOSCommunityRoute = computed(() => {

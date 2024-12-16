@@ -265,7 +265,7 @@ callbacks.onSuccess = async (userData) => {
     if (userData.name) {
       router.push('/sos');
     } else {
-      router.push('/account');
+      router.push('/profile');
     }
   }
   isLoading.value = false;
