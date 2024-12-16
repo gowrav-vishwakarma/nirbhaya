@@ -185,11 +185,16 @@
                 {{ post.title }}
               </div>
               <div class="text-body1 post-description">
-                {{
-                  showFullDescription[post.id.toString()]
-                    ? post.description
-                    : truncateText(post.description, 15)
-                }}
+                <div
+                  v-html="
+                    makeLinksClickable(
+                      showFullDescription[post.id.toString()]
+                        ? post.description
+                        : truncateText(post.description, 15),
+                      post.priority
+                    )
+                  "
+                ></div>
                 <span
                   v-if="post.description.split(' ').length > 10"
                   @click="toggleDescription(post.id)"
@@ -460,6 +465,7 @@ interface Post extends Omit<CommunityPost, 'liked'> {
     y: number; // latitude
   };
   showLocation?: boolean;
+  priority?: string; // Add this line
 }
 
 // Add this interface near the top with other interfaces
@@ -1410,6 +1416,33 @@ const formatDistance = (distance: number | undefined) => {
     return `${distance.toFixed(1)}km away`;
   }
 };
+
+// Add this new function in the script section after other functions
+const makeLinksClickable = (text: string, priority?: string) => {
+  if (!text) return '';
+
+  // URL regex pattern
+  const urlPattern =
+    /(https?:\/\/[^\s]+)|(www\.[^\s]+)|([a-zA-Z0-9._-]+\.[a-zA-Z]{2,6}(\/[^\s]*)?)/g;
+
+  // For low priority posts, just return the text
+  if (!priority || priority === 'low') {
+    return text;
+  }
+
+  // For other priorities, make links clickable
+  const htmlContent = text.replace(urlPattern, (url) => {
+    let href = url;
+    if (url.startsWith('www.')) {
+      href = 'https://' + url;
+    } else if (!url.startsWith('http')) {
+      href = 'https://' + url;
+    }
+    return `<a href="${href}" target="_blank" rel="noopener noreferrer" class="post-link">${url}</a>`;
+  });
+
+  return htmlContent;
+};
 </script>
 <style scoped lang="scss">
 .container {
@@ -1446,6 +1479,22 @@ const formatDistance = (distance: number | undefined) => {
   font-size: 1rem;
   letter-spacing: 0.015em;
   margin-top: -10px;
+
+  .post-link {
+    color: #2563eb;
+    text-decoration: none;
+    word-break: break-word;
+    transition: all 0.2s ease;
+
+    &:hover {
+      color: #1d4ed8;
+      text-decoration: underline;
+    }
+
+    &:visited {
+      color: #7c3aed;
+    }
+  }
 }
 
 .hashtags-container {
