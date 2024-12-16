@@ -185,17 +185,6 @@
           </div>
 
           <div class="custom-input">
-            <q-btn
-              :loading="isLoadingLocation"
-              @click="getCurrentLocation"
-              icon="my_location"
-              color="primary"
-              flat
-              class="full-width"
-            >
-              {{ t('common.getCurrentLocation') }}
-            </q-btn>
-
             <div v-if="values.businessInfo.latitude && values.businessInfo.longitude" 
                  class="location-display q-mt-sm">
               <div class="text-caption">
@@ -203,6 +192,17 @@
                 Lng: {{ values.businessInfo.longitude.toFixed(6) }}
               </div>
             </div>
+            <q-btn
+              :loading="isLoadingLocation"
+              @click="getCurrentLocation"
+              icon="my_location"
+              color="primary"
+              class="bg-pink-1 full-width q-mt-md"
+              flat
+            >
+              {{ t('common.getCurrentLocation') }}
+            </q-btn>
+
           </div>
         </template>
       </q-form>
