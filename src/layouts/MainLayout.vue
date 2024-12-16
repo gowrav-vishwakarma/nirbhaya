@@ -132,7 +132,7 @@ import { useRouter } from 'vue-router';
 import { useQuasar, QVueGlobals } from 'quasar';
 import { useBackgroundNotifications } from 'src/composables/useBackgroundNotifications';
 import { useUserStore } from 'src/stores/user-store';
-import { ref, onMounted, onUnmounted, computed, watch, nextTick } from 'vue';
+import { ref, onMounted, onUnmounted, computed, watch, nextTick, onBeforeMount } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useMediaPermissions } from 'src/composables/useMediaPermissions';
 import { api } from 'src/boot/axios';
@@ -177,6 +177,26 @@ const isAppOpenedToday = () => {
   return true; // App was already opened today
 };
 
+const checkEmergencyContactsAndLocation = () => {
+  try {
+    if (!userStore.isLoggedIn) return;
+    
+    // First check emergency contacts
+    if (!userStore.user.emergencyContacts || userStore.user.emergencyContacts.length === 0) {
+      router.push({ name: 'profile', query: { stap: '2' }});
+      return;
+    }
+    
+    // If emergency contacts exist but location is missing, go to step 3
+    if (!userStore.user.locations || userStore.user.locations.length === 0) {
+      router.push({ name: 'profile', query: { stap: '3' }});
+      return;
+    }
+  } catch (error) {
+    console.error('Failed to check user details:', error);
+  }
+};
+
 const checkFirstTimeOpen = async () => {
   const isSOSAppOpened = localStorage.getItem('isSOSAppOpened');
   if (!isSOSAppOpened) {
@@ -196,6 +216,11 @@ const checkFirstTimeOpen = async () => {
   }
 };
 
+// Add beforeMount hook
+onBeforeMount(() => {
+  checkEmergencyContactsAndLocation();
+});
+
 // Register all lifecycle hooks first
 onMounted(() => {
   window.addEventListener('scroll', handleScroll);
@@ -203,7 +228,7 @@ onMounted(() => {
   checkFirstTimeOpen();
 
   if ($q.platform.is.capacitor || $q.platform.is.nativeMobile) {
-    StatusBar.setBackgroundColor({ color: '#db1b5d' }); // Change color code according to your theme
+    StatusBar.setBackgroundColor({ color: '#db1b5d' });
   }
 
   // Initial route check
