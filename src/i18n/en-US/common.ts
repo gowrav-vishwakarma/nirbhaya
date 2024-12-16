@@ -572,4 +572,17 @@ export default {
   confirmBusinessInfoDelete: 'Are you sure you want to delete your business information? This action cannot be undone.',
   businessInfoDeleteConfirm: 'Yes, Delete',
   businessInfoDeleteCancel: 'No, Keep',
+
+  // Business related translations
+  businessSettings: 'Business Settings',
+  businessName: 'Business Name',
+  whatsappNumber: 'WhatsApp Number',
+  locationName: 'Location Name',
+  useCurrentLocation: 'Use Current Location',
+  coordinates: 'Coordinates',
+  locationUpdated: 'Location updated successfully',
+  locationError: 'Failed to get location. Please try again.',
+  businessInformation: 'Business Information',
+  addBusinessInformation: 'Add Business Information',
+  businessLocationHelp: 'Add your business information to promote your business.',
 };
