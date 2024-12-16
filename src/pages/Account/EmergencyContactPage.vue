@@ -51,10 +51,8 @@
               <label>{{ t('common.mobileNumber') }}</label>
               <q-input
                 v-model="newContact.contactPhone"
-                :rules="[
-                  val => !!val || t('common.phoneRequired'),
-                  val => val.length === 10 || t('common.invalidPhoneNumberLength')
-                ]"
+                :error="!!errors[`emergencyContact${newContactErrorIndex}`]"
+                :error-message="errors[`emergencyContact${newContactErrorIndex}`]"
                 filled
                 class="custom-radius"
                 bg-color="pink-1"
@@ -62,6 +60,7 @@
                 type="tel"
                 mask="##########"
                 hide-bottom-space
+                @blur="() => handlePhoneBlur(newContact, newContactErrorIndex)"
               />
             </div>
 
@@ -82,7 +81,12 @@
                   style="border-radius: 10px !important;"
                   class="full-width custom-radius"
                   @click="addEmergencyContact"
-                />
+                  :loading="isAddingContact"
+                >
+                  <template v-slot:loading>
+                    <q-spinner/>
+                  </template>
+                </q-btn>
               </div>
             </div>
           </div>
@@ -217,6 +221,8 @@ const clearInputFields = () => {
   showInputFields.value = false
 }
 
+const isAddingContact = ref(false);
+
 const addEmergencyContact = async () => {
   if (newContact.value.contactName && newContact.value.contactPhone) {
     const isDuplicate = values.value.emergencyContacts.some(
@@ -240,6 +246,8 @@ const addEmergencyContact = async () => {
     }
 
     try {
+      isAddingContact.value = true; // Start loading
+
       // Add new contact to the list
       values.value.emergencyContacts.push({ 
         contactName: newContact.value.contactName,
@@ -260,7 +268,6 @@ const addEmergencyContact = async () => {
       // Reload updated data
       await loadUserData()
 
-     
     } catch (error) {
       console.error('Error adding emergency contact:', error)
       $q.notify({
@@ -269,6 +276,8 @@ const addEmergencyContact = async () => {
         icon: 'error',
         position: 'top-right'
       })
+    } finally {
+      isAddingContact.value = false; // Stop loading
     }
   } else {
     $q.notify({
@@ -321,12 +330,6 @@ const removeEmergencyContact = async (index: number) => {
       await loadUserData();
 
       // Show success notification
-      $q.notify({
-        color: 'positive',
-        message: t('common.contactDeletedSuccess'),
-        icon: 'check',
-        position: 'top-right',
-      });
 
     } catch (error) {
       console.error('Error deleting emergency contact:', error);
@@ -381,14 +384,14 @@ const validatePhoneNumber = async (phoneNumber: string, index: number): Promise<
   try {
     // First check if the number is user's own number
     if (phoneNumber === userStore.user.phoneNumber) {
-      errors.value[`emergencyContact${index}`] = [t('common.cantAddOwnNumber')];
+      errors.value[`emergencyContact${index}`] = t('common.cantAddOwnNumber');
       return false;
     }
 
-    // Rest of the existing validation
+    // Validate phone number with API
     const response = await api.post('auth/validate-phone', { phoneNumber });
     if (!response.data.isValid) {
-      errors.value[`emergencyContact${index}`] = [t('common.phoneNumberNotInSystem')];
+      errors.value[`emergencyContact${index}`] = t('common.userNotRegisteredInApp');
       return false;
     } else {
       delete errors.value[`emergencyContact${index}`];
@@ -396,13 +399,12 @@ const validatePhoneNumber = async (phoneNumber: string, index: number): Promise<
     }
   } catch (error) {
     console.error('Error validating phone number:', error);
-    errors.value[`emergencyContact${index}`] = [t('common.phoneValidationError')];
+    errors.value[`emergencyContact${index}`] = t('common.phoneValidationError');
     return false;
   }
 };
 
-const handlePhoneBlur = async (contact: EmergencyContact, index: number) => {
-  contact.touched = true;
+const handlePhoneBlur = async (contact: EmergencyContact | typeof newContact.value, index: number) => {
   if (contact.contactPhone) {
     await validatePhoneNumber(contact.contactPhone, index);
   }
@@ -484,6 +486,10 @@ const openEmergencyContactRequests = () => {
     component: EmergencyContactRequestsDialog,
   });
 };
+
+const newContactErrorIndex = computed(() => {
+  return values.value?.emergencyContacts?.length || 0;
+});
 </script>
 
 <style lang="scss" scoped>

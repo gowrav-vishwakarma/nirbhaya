@@ -585,4 +585,6 @@ export default {
   businessInformation: 'Business Information',
   addBusinessInformation: 'Add Business Information',
   businessLocationHelp: 'Add your business information to promote your business.',
+
+  userNotRegisteredInApp: 'This phone number is not registered in the app',
 };
