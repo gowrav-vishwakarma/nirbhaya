@@ -39,7 +39,7 @@
             <q-avatar size="32px" class="q-mr-sm cursor-pointer" @click="openUserProfile(comment.user.id)">
               <img :src="String(comment.user.id) === '1'
                 ? '/sos_logo_1080_1080.png'
-                : 'https://icons-for-free.com/iff/png/512/profile+profile+page+user+icon-1320186864367220794.png'
+                : '/profile.png'
                 " :alt="comment.user.name + '\'s profile'" style="object-fit: cover" />
             </q-avatar>
             <div class="col">
@@ -86,7 +86,7 @@
           <q-avatar size="32px" class="q-mr-sm">
             <img :src="userStore.user.id == 1
               ? '/sos_logo_1080_1080.png'
-              : 'https://icons-for-free.com/iff/png/512/profile+profile+page+user+icon-1320186864367220794.png'
+              : '/profile.png'
               " :alt="userStore.user.name + '\'s profile'" style="object-fit: cover" />
           </q-avatar>
           <q-input v-model="newComment" class="col comment-input" placeholder="Add a comment..." maxlength="500" dense
