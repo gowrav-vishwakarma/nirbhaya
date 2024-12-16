@@ -281,39 +281,63 @@ const addEmergencyContact = async () => {
 }
 
 const removeEmergencyContact = async (index: number) => {
-  try {
-    const contactToDelete = values.value.emergencyContacts[index];
-    const userId = userStore.user.id;
+  // Add confirmation dialog
+  $q.dialog({
+    title: t('common.confirm'),
+    message: t('common.confirmDeleteContact'),
+    cancel: true,
+    persistent: true,
+    ok: {
+      label: t('common.delete'),
+      color: 'black'
+    },
+    cancel: {
+      label: t('common.cancel'),
+      color: 'grey'
+    }
+  }).onOk(async () => {
+    try {
+      const contactToDelete = values.value.emergencyContacts[index];
+      const userId = userStore.user.id;
 
-    // Call API to delete the contact
-    await api.post('/user/emergency-contact', {
-      userId: userId,
-      contactPhone: contactToDelete.contactPhone
-    });
+      // Call API to delete the contact
+      await api.post('/user/emergency-contact', {
+        userId: userId,
+        contactPhone: contactToDelete.contactPhone
+      });
 
-    // Remove from local state
-    values.value.emergencyContacts.splice(index, 1);
+      // Remove from local state
+      values.value.emergencyContacts.splice(index, 1);
 
-    // Save changes immediately
-    await validateAndSubmit(false);
+      // Save changes immediately
+      await validateAndSubmit(false);
 
-    // Update store and reload data
-    userStore.updateUser({
-      ...userStore.user,
-      emergencyContacts: values.value.emergencyContacts
-    });
+      // Update store and reload data
+      userStore.updateUser({
+        ...userStore.user,
+        emergencyContacts: values.value.emergencyContacts
+      });
 
-    await loadUserData();
+      await loadUserData();
 
-  } catch (error) {
-    console.error('Error deleting emergency contact:', error);
-    $q.notify({
-      color: 'negative',
-      message: t('common.emergencyContactDeleteError'),
-      icon: 'error',
-      position: 'top-right',
-    });
-  }
+      // Show success notification
+      $q.notify({
+        color: 'positive',
+        message: t('common.contactDeletedSuccess'),
+        icon: 'check',
+        position: 'top-right',
+      });
+
+    } catch (error) {
+      console.error('Error deleting emergency contact:', error);
+      $q.notify({
+        color: 'negative',
+        message: t('common.emergencyContactDeleteError'),
+        icon: 'error',
+        position: 'top-right',
+      });
+    }
+  });
 };
 
 const hasEmergencyContacts = computed(

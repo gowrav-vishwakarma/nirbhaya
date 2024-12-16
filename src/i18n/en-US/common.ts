@@ -417,4 +417,8 @@ export default {
     'Location must be at least 500 meters away from other locations',
   viewLeaderboard: 'View Leaderboard',
   viewSOSEventsMap: 'View SOS Events Map',
+  confirm: 'Confirm',
+  confirmDeleteContact: 'Are you sure you want to delete this emergency contact?',
+  delete: 'Remove',
+  contactDeletedSuccess: 'Emergency contact deleted successfully'
 };
