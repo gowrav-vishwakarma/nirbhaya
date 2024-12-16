@@ -74,6 +74,7 @@
               borderless
               clearable
               style="border-radius: 20px; padding: 0 8px"
+              @keyup.enter="performSearch"
             >
               <template #append>
                 <q-btn
