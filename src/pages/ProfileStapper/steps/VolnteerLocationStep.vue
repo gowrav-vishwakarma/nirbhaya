@@ -4,11 +4,11 @@
     <p class="q-px-md q-ma-none q-mb-sm">{{ t('common.notificationLocationsHelp') }}</p>
 
     <q-card flat bordered class="q-mb-md">
-              <q-card-section>
+              <!-- <q-card-section>
                 <div class="text-subtitle1 text-weight-bold q-mb-sm">
                   {{ $t('common.availabilitySettings') }}
                 </div>
-              </q-card-section>
+              </q-card-section> -->
             </q-card>
     <div class="scrollable-inputs q-px-md">
       <q-btn
@@ -177,6 +177,7 @@ interface Location {
     type: 'Point'
     coordinates: [number | null, number | null]
   }
+  isBusinessLocation?: boolean
 }
 
 const locations = ref<Location[]>([])
@@ -312,8 +313,18 @@ const updateLocationCoordinates = async (index: number) => {
 
 const removeLocation = async (index: number) => {
   try {
-    const updatedLocations = [...locations.value]
-    updatedLocations.splice(index, 1)
+    // Get existing business locations
+    const existingBusinessLocations = userStore.user?.locations?.filter(loc => loc.isBusinessLocation) || []
+    
+    // Create updated locations array without the removed location
+    const updatedNonBusinessLocations = [...locations.value]
+    updatedNonBusinessLocations.splice(index, 1)
+    
+    // Combine with business locations
+    const updatedLocations = [
+      ...existingBusinessLocations,
+      ...updatedNonBusinessLocations
+    ]
     
     const response = await api.post('user/user-profile-update', {
       locations: updatedLocations
@@ -352,19 +363,25 @@ const saveAndContinue = async () => {
   }
 
   try {
-    isLoading.value=true
-    const validLocations = locations.value.filter(isLocationValid)
+    isLoading.value = true
+    
+    // Get existing business locations
+    const existingBusinessLocations = userStore.user?.locations?.filter(loc => loc.isBusinessLocation) || []
+    
+    // Combine with valid non-business locations
+    const validLocations = [
+      ...existingBusinessLocations,
+      ...locations.value.filter(isLocationValid)
+    ]
     
     const response = await api.post('user/user-profile-update', {
-        ...userStore.user,
+      ...userStore.user,
       locations: validLocations
     })
     
     userStore.updateUser(response.data.user)
-    isLoading.value=false
+    isLoading.value = false
     router.push('/account')
-
-    // emit('next-step')
   } catch (error) {
     console.error('Error saving locations:', error)
     $q.notify({
@@ -382,7 +399,10 @@ const emit = defineEmits(['prev-step', 'next-step', 'location-updated'])
 // Initialize locations from user store
 const initializeLocations = () => {
   const userLocations = userStore.user?.locations || []
-  locations.value = JSON.parse(JSON.stringify(userLocations))
+  // Filter out business locations for display
+  locations.value = JSON.parse(JSON.stringify(
+    userLocations.filter(loc => !loc.isBusinessLocation)
+  ))
   locationLoading.value = new Array(locations.value.length).fill(false)
 }
 
@@ -464,13 +484,21 @@ const addNewLocation = async () => {
   isAddingLocation.value = true
 
   try {
-    const updatedLocations = [...locations.value, newLocation.value]
+    // Get existing business locations
+    const existingBusinessLocations = userStore.user?.locations?.filter(loc => loc.isBusinessLocation) || []
+    
+    // Combine business locations with current locations and new location
+    const updatedLocations = [
+      ...existingBusinessLocations,
+      ...locations.value,
+      { ...newLocation.value, isBusinessLocation: false }
+    ]
     
     const response = await api.post('user/user-profile-update', {
       locations: updatedLocations
     })
     
-    locations.value.push({ ...newLocation.value })
+    locations.value.push({ ...newLocation.value, isBusinessLocation: false })
     locationLoading.value.push(false)
     userStore.updateUser(response.data.user)
     

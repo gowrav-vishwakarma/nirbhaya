@@ -249,6 +249,15 @@ interface City {
   city?: string
 }
 
+interface UserLocation {
+  name: string;
+  location: {
+    type: "Point";
+    coordinates: [number, number];
+  };
+  isBusinessLocation?: boolean;
+}
+
 interface BusinessInfo {
   businessName: string;
   whatsappNumber: string | number;
@@ -425,12 +434,52 @@ const handleSubmit = async () => {
   if (isFormValid.value) {
     try {
       // First submit profile data
-      await validateAndSubmit(false);
       
-      // Then submit business info if enabled
+      // Then handle business info if enabled
       if (values.value.showBusinessInfo && values.value.businessInfo) {
-        await handleBusinessInfoSubmit();
+        // First update the user store with business info
+        const updatedLocations: UserLocation[] = [
+          ...(userStore.user?.locations || []).filter(
+            (loc: UserLocation) => !loc.isBusinessLocation
+          ),
+          {
+            name: values.value.businessInfo.locationName,
+            location: {
+              type: 'Point',
+              coordinates: [values.value.businessInfo.longitude, values.value.businessInfo.latitude]
+            },
+            isBusinessLocation: true
+          }
+        ];
+
+        // Update store first
+        userStore.updateUser({
+          ...userStore.user,
+          businessName: values.value.businessInfo.businessName,
+          whatsappNumber: values.value.businessInfo.whatsappNumber.toString(),
+          locations: updatedLocations
+        });
+
+
+
+        // Then make the API call
+        await api.post('/user/add-business-information', values.value.businessInfo);
+        await validateAndSubmit(false);
+
       }
+
+      // Show success notification
+      $q.notify({
+        color: 'black',
+        message: t('common.profileUpdateSuccess'),
+        icon: 'check',
+        position: 'top-right',
+      });
+
+      // Emit events
+      emit('update-profile', { ...values.value });
+      emit('next-step');
+
     } catch (error) {
       console.error('Error in form submission:', error);
       $q.notify({
@@ -471,12 +520,12 @@ callbacks.onSuccess = (data) => {
   userStore.updateUser(updatedUserData);
 
   // Show success notification
-  $q.notify({
-    color: 'black',
-    message: t('common.profileUpdateSuccess'),
-    icon: 'check',
-    position: 'top-right',
-  });
+  // $q.notify({
+  //   color: 'black',
+  //   message: t('common.profileUpdateSuccess'),
+  //   icon: 'check',
+  //   position: 'top-right',
+  // });
 
   // Emit events for parent components
   emit('update-profile', { ...values.value });
@@ -627,44 +676,15 @@ const loadUserData = async () => {
       };
 
       // Get business location from locations array
-      const businessLocation = userData.locations?.find(loc => loc.isBusinessLocation);
+      const businessLocation = userData.locations?.find(
+        (loc: UserLocation) => loc.isBusinessLocation
+      );
       if (businessLocation) {
         values.value.businessInfo.locationName = businessLocation.name;
         values.value.businessInfo.longitude = businessLocation.location.coordinates[0];
         values.value.businessInfo.latitude = businessLocation.location.coordinates[1];
       }
     }
-  }
-};
-
-const handleBusinessInfoSubmit = async () => {
-  if (!values.value.businessInfo) return;
-
-  try {
-    const response = await api.post('/user/add-business-information', values.value.businessInfo);
-    
-    // Update store with business info
-    userStore.updateUser({
-      ...userStore.user,
-      businessName: values.value.businessInfo.businessName,
-      whatsappNumber: values.value.businessInfo.whatsappNumber.toString(),
-      locations: [
-        ...(userStore.user?.locations || []).filter(loc => !loc.isBusinessLocation),
-        {
-          name: values.value.businessInfo.locationName,
-          location: {
-            type: 'Point',
-            coordinates: [values.value.businessInfo.longitude, values.value.businessInfo.latitude]
-          },
-          isBusinessLocation: true
-        }
-      ]
-    });
-
-    return response;
-  } catch (error) {
-    console.error('Error updating business info:', error);
-    throw error;
   }
 };
 
@@ -692,13 +712,13 @@ const getCurrentLocation = async () => {
 
       // Optional: Show success notification
       $q.notify({
-        type: 'positive',
+        type: 'black',
         color: 'black',
         message: t('common.locationCaptured'),
         position: 'top-right',
       });
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error('Location error:', error);
     let errorMessage = '';
 
