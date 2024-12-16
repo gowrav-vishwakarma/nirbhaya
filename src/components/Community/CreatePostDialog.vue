@@ -141,15 +141,14 @@
           />
 
           <q-checkbox
-            v-model="form.showLocation"
-            label="Show location on post"
-            class="q-mb-md"
-          />
-
-          <q-checkbox
             v-model="isBusinessPost"
             label="Business Post"
             v-if="hasBusinessLocation"
+            class="q-mb-md"
+          />
+          <q-checkbox
+            v-model="form.showLocation"
+            label="Show location on post"
             class="q-mb-md"
           />
         </div>
@@ -274,7 +273,7 @@ const form = ref({
     type: 'Point',
     coordinates: [0, 0],
   },
-  showLocation: true,
+  showLocation: false,
 });
 
 const tagInput = ref('');
@@ -601,7 +600,7 @@ watch(
           type: 'Point',
           coordinates: [0, 0],
         },
-        showLocation: true,
+        showLocation: false,
       };
 
       // Reset files and previews
@@ -725,6 +724,7 @@ watch(
       );
       if (businessLocation) {
         selectedLocationId.value = businessLocation.id;
+        form.value.showLocation = true;
       }
     } else {
       // Find first non-business location
