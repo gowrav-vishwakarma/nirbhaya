@@ -145,7 +145,7 @@ const { t } = useI18n()
 interface Contact {
   name: string
   phone: string
-  relationship: string | null
+  relationship: string | undefined
   avatar?: string
   consentGiven?: boolean
 }
@@ -154,7 +154,7 @@ const props = defineProps<{
   contacts: Contact[]
 }>()
 
-const emit = defineEmits(['update-contacts', 'previous-step', 'submit'])
+const emit = defineEmits(['update-contacts', 'previous-step', 'submit', 'next-step'])
 const $q = useQuasar()
 const userStore = useUserStore()
 
@@ -166,14 +166,14 @@ const isLoading = ref(false)
 interface NewContact {
   name: string
   phone: string
-  relationship: string | null
+  relationship: string | undefined
   avatar?: string
 }
 
 const newContact = ref<NewContact>({ 
   name: '', 
   phone: '', 
-  relationship: null,
+  relationship: undefined,
   avatar: ''
 })
 
@@ -283,7 +283,7 @@ const addNewContact = async () => {
 }
 
 const clearInputFields = () => {
-  newContact.value = { name: '', phone: '', relationship: null, avatar: '' }
+  newContact.value = { name: '', phone: '', relationship: undefined, avatar: '' }
   showInputFields.value = false
 }
 
@@ -350,7 +350,7 @@ const handleSubmit = async () => {
       emergencyContacts: contacts.value.map(contact => ({
         contactName: contact.name,
         contactPhone: contact.phone,
-        relationship: contact.relationship,
+        relationship: contact.relationship || undefined,
         isAppUser: true,
         priority: 0,
         consentGiven: contact.consentGiven || false
@@ -362,7 +362,7 @@ const handleSubmit = async () => {
       emergencyContacts: contacts.value.map(contact => ({
         contactName: contact.name,
         contactPhone: contact.phone,
-        relationship: contact.relationship,
+        relationship: contact.relationship || undefined,
         isAppUser: true,
         priority: 0,
         consentGiven: contact.consentGiven || false
@@ -377,6 +377,10 @@ const handleSubmit = async () => {
       message: t('common.emergencyContactsUpdated'),
       icon: 'check'
     })
+    
+    // Navigate to volunteer page
+    emit('next-step')
+
   } catch (error) {
     console.error('Error updating emergency contacts:', error)
     $q.notify({

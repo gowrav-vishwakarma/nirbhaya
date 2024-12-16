@@ -64,20 +64,31 @@
         :contacts="emergencyContacts"
         @update-contacts="handleContactsUpdate"
         @previous-step="handlePreviousStep"
-        @submit="handleSubmit"
+        @next-step="handleNextStep"
       />
 
-      <div v-if="currentStep === 3">
-        Volunteer Content Here
-      </div>
+      <VolunteerLocationStep
+        v-if="currentStep === 3"
+        @location-updated="handleLocationUpdate"
+        @prev-step="handlePreviousStep"
+        @next-step="handleSubmit"
+      />
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
 import { ref, reactive } from 'vue'
+import { useQuasar } from 'quasar'
+import { useI18n } from 'vue-i18n'
+import { useRouter } from 'vue-router'
 import ProfileDetailsStep from './steps/ProfileDetailsStep.vue'
 import EmergencyContactsStep from './steps/EmergencyContactsStep.vue'
+import VolunteerLocationStep from './steps/VolnteerLocationStep.vue'
+
+const $q = useQuasar()
+const { t } = useI18n()
+const router = useRouter()
 
 const currentStep = ref(1)
 const completedSteps = ref<number[]>([])
@@ -91,6 +102,12 @@ const userData = reactive({
 })
 const emergencyContacts = ref([])
 
+const volunteerLocation = ref({
+  name: '',
+  latitude: null,
+  longitude: null
+})
+
 const setCurrentStep = (step: number) => {
   if (step === 1) {
     completedSteps.value = completedSteps.value.filter(s => s !== 1)
@@ -99,15 +116,25 @@ const setCurrentStep = (step: number) => {
 }
 
 const handleNextStep = () => {
-  if (!completedSteps.value.includes(1)) {
-    completedSteps.value.push(1)
+  if (currentStep.value === 1) {
+    if (!completedSteps.value.includes(1)) {
+      completedSteps.value.push(1)
+    }
+    currentStep.value = 2
+  } else if (currentStep.value === 2) {
+    currentStep.value = 3
+  } else if (currentStep.value === 3) {
+    router.push('/volunteer')
   }
-  currentStep.value = 2
 }
 
 const handlePreviousStep = () => {
-  currentStep.value = 1
-  completedSteps.value = completedSteps.value.filter(step => step !== 1)
+  if (currentStep.value === 2) {
+    currentStep.value = 1
+    completedSteps.value = completedSteps.value.filter(step => step !== 1)
+  } else if (currentStep.value === 3) {
+    currentStep.value = 2
+  }
 }
 
 const handleProfileUpdate = (data: any) => {
@@ -118,14 +145,36 @@ const handleContactsUpdate = (contacts: Array<any>) => {
   emergencyContacts.value = contacts
 }
 
+const handleLocationUpdate = (locationData: any) => {
+  volunteerLocation.value = locationData
+}
+
 const handleSubmit = async () => {
   try {
-    console.log('Submitting data:', {
+    const submitData = {
       profile: userData,
-      emergencyContacts: emergencyContacts.value
+      emergencyContacts: emergencyContacts.value,
+      volunteerLocation: volunteerLocation.value
+    }
+
+    console.log('Submitting data:', submitData)
+
+    await api.post('user/complete-profile', submitData)
+
+    $q.notify({
+      color: 'positive',
+      message: t('common.profileCompleted'),
+      icon: 'check'
     })
+
+    router.push('/dashboard')
   } catch (error) {
     console.error('Error submitting data:', error)
+    $q.notify({
+      color: 'negative',
+      message: t('common.errorSavingProfile'),
+      icon: 'error'
+    })
   }
 }
 </script>
@@ -232,6 +281,7 @@ const handleSubmit = async () => {
   flex-direction: column;
   box-shadow: 0 12px 12px rgba(0,0,0,0.1);
   overflow: hidden;
+  transition: all 0.3s ease;
 }
 
 .dialog-header {
@@ -315,6 +365,26 @@ const handleSubmit = async () => {
 
 .step-label.completed {
   background-color: #f9387bd5; /* Pink color for completed step line */
+}
+
+.step-item:last-child .step-label.active {
+  color: #f9387bd5;
+  font-weight: 700;
+}
+
+.step-item:last-child .step-label.completed {
+  background-color: #f9387bd5;
+}
+
+/* Add animation for step transitions */
+.step-enter-active,
+.step-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.step-enter-from,
+.step-leave-to {
+  opacity: 0;
 }
 
 </style>
