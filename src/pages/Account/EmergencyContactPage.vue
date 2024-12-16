@@ -1,5 +1,5 @@
 <template>
-  <q-page>
+  <q-page class="q-pa-xs">
     <q-card flat class="emergency-contacts-card">
       <q-card-section>
         <h5 class="text-h6 q-mb-sm q-ma-none">Emergency Contacts</h5>
@@ -496,7 +496,7 @@ const openEmergencyContactRequests = () => {
 
 .scrollable-inputs {
   overflow-y: auto;
-  padding-bottom: 20px;
+  padding-bottom: 16px;
 }
 
 .custom-input {
@@ -558,5 +558,14 @@ const openEmergencyContactRequests = () => {
 
 .scrollable-inputs::-webkit-scrollbar-thumb:hover {
   background: #555;
+}
+
+.q-page {
+  min-height: unset !important;
+  padding-bottom: 16px;
+}
+
+:deep(.q-page) {
+  min-height: unset !important;
 }
 </style>
