@@ -1,5 +1,5 @@
 <template>
-  <div class="profile-stepper">
+  <div class="profile-stepper" style="padding-top: env(safe-area-inset-top);padding-bottom: env(safe-area-inset-bottom);">
     <div v-if='isShowBackButton' class="q-ma-none q-pa-none">
       <q-btn flat color="primary" style="border-radius:20px" to="/account">
         <q-icon name="mdi-keyboard-backspace"></q-icon>

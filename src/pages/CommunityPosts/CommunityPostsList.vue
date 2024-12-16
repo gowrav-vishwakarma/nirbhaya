@@ -1,5 +1,5 @@
 <template>
-  <q-page class="bg-grey-1" style="padding-top: env(safe-area-inset-top)">
+  <q-page class="bg-grey-1" style="padding-top: env(safe-area-inset-top);padding-bottom: env(safe-area-inset-bottom);">
     <div class="container q-pa-md" v-if="isUserPermitted">
       <!-- Add Suggestion Button -->
       <!-- <div class="suggestion-button-container q-mb-md">
