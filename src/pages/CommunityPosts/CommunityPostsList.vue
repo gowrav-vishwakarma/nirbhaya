@@ -1325,9 +1325,9 @@ const openInGoogleMaps = async (post: Post) => {
   if (post.location?.x && post.location?.y) {
     try {
       // Get current location
-      const position = await Geolocation.getCurrentPosition({
-        enableHighAccuracy: true,
-      });
+      // const position = await Geolocation.getCurrentPosition({
+      //   enableHighAccuracy: true,
+      // });
 
       // Create Google Maps directions URL with current location as start point
       const url = `https://www.google.com/maps/dir/?api=1&destination=${post.location.y},${post.location.x}&travelmode=driving`;
