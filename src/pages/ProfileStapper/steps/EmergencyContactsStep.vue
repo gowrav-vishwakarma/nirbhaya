@@ -73,6 +73,7 @@
         <q-card v-for="(contact, index) in contacts" :key="index" flat bordered class="contact-card q-mb-sm">
           <q-card-section class="row items-center" style="  width: 100%;" >
             <div class="col-auto">
+              <!-- {{contact}} -->
               <q-avatar>
                 <img src='/profile.png' alt='/profile.png' />
               </q-avatar>
@@ -80,10 +81,11 @@
             <div class="col">
               <div class="text-subtitle2">{{ contact.name }}</div>
               <div class="text-caption">{{ contact.phone }}</div>
+              <div>Approval Status: ({{ contact.consentGiven?'Approve':'Pending' }})</div>
             </div>
             <div class="col-auto q-ml-auto">
               <q-btn
-                class="remove-btn"
+                class="remove-btn"  
                 flat
                 label="Remove"
                 style="border-radius: 10px !important;"
@@ -299,7 +301,7 @@ const clearInputFields = () => {
 
 const confirmRemoveContact = async (index: number) => {
   try {
-    if (confirm(t('common.confirmDeleteContact'))) {
+    // if (confirm(t('common.confirmDeleteContact'))) {
       const contactToDelete = contacts.value[index]
       
       // Delete from API
@@ -334,7 +336,7 @@ const confirmRemoveContact = async (index: number) => {
 
       // Reload contacts data
       await loadContactsData()
-    }
+    // }
   } catch (error) {
     console.error('Error deleting emergency contact:', error)
     $q.notify({
