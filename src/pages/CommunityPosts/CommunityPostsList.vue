@@ -1330,7 +1330,7 @@ const openInGoogleMaps = async (post: Post) => {
       });
 
       // Create Google Maps directions URL with current location as start point
-      const url = `https://www.google.com/maps/dir/?api=1&origin=${position.coords.latitude},${position.coords.longitude}&destination=${post.location.y},${post.location.x}&travelmode=driving`;
+      const url = `https://www.google.com/maps/dir/?api=1&destination=${post.location.y},${post.location.x}&travelmode=driving`;
 
       window.open(url, '_blank');
     } catch (error) {
