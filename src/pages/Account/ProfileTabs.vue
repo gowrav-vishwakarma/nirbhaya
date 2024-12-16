@@ -67,20 +67,21 @@
 
           <!-- Account Details -->
           <q-expansion-item v-model="expandedItems.profile" group="profile-tabs" v-ripple icon="person"
-            :label="t('common.myProfile')" header-class="glass-effect">
+            :label="t('common.myProfile')" header-class="glass-effect" 
+             >
             <q-card>
               <ProfilePage :reload-components="reloadComponents" />
             </q-card>
           </q-expansion-item>
 
           <!-- EmergencyContactPage -->
-          <q-expansion-item v-if="userStore.user.name" v-model="expandedItems.emergencyContact" group="profile-tabs"
+          <q-expansion-item  v-if="userStore.user.name" v-model="expandedItems.emergencyContact" group="profile-tabs"
             icon="mdi-human-greeting-proximity" :label="t('common.emergencyContact')">
             <EmergencyContactPage :reload-components="reloadComponents" />
           </q-expansion-item>
 
           <!-- Volunteers Section -->
-          <q-expansion-item v-if="userStore.user.name" v-model="expandedItems.volunteers" group="profile-tabs"
+          <q-expansion-item  v-if="userStore.user.name" v-model="expandedItems.volunteers" group="profile-tabs"
             icon="volunteer_activism" :label="t('common.beVolunteers')">
             <q-card>
               <VolunteeringPage @reload-components="reloadComponents" />
@@ -218,6 +219,11 @@ const handleFileChange = async(event: Event) => {
     }
   }
 };
+
+const goToStapper=(stap:number)=>{
+  console.log('stap....',stap);
+  router.push({ name: 'stapper', query: { stap: stap }})
+}
 
 const resizeImage = (file: File): Promise<Blob> => {
   return new Promise<Blob>((resolve, reject) => {

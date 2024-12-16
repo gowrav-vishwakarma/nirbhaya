@@ -3,6 +3,13 @@
     <h5 class="text-h6 q-mb-sm q-px-md q-mt-md q-ma-none">{{ t('common.volunteeringSettings') }}</h5>
     <p class="q-px-md q-ma-none q-mb-sm">{{ t('common.notificationLocationsHelp') }}</p>
 
+    <q-card flat bordered class="q-mb-md">
+              <q-card-section>
+                <div class="text-subtitle1 text-weight-bold q-mb-sm">
+                  {{ $t('common.availabilitySettings') }}
+                </div>
+              </q-card-section>
+            </q-card>
     <div class="scrollable-inputs q-px-md">
       <q-btn
         v-if="locations.length < 10"
@@ -62,6 +69,7 @@
               class="full-width custom-radius"
               @click="addNewLocation"
               :disabled="!isNewLocationValid"
+              :loading="isAddingLocation"
             />
           </div>
         </div>
@@ -112,7 +120,7 @@
       </div>
 
       <p v-if="!hasLocations" class="text-negative q-mt-sm">
-        {{ t('common.noLocationsAdded') }}
+        No location Added
       </p>
     </div>
 
@@ -134,9 +142,13 @@
             color="primary"
             class="full-width custom-radius"
             :disabled="!isFormValid"
+            :loading="isLoading"
             @click="saveAndContinue"
             style="border-radius: 10px !important; height: 40px;"
           >
+          <template v-slot:loading>
+              <q-spinner-dots />
+            </template>
             <i class="fa-solid fa-arrow-right-long q-ml-sm"></i>
           </q-btn>
         </div>
@@ -170,6 +182,7 @@ interface Location {
 const locations = ref<Location[]>([])
 const locationLoading = ref<boolean[]>([])
 const showInputFields = ref(false)
+const isLoading=ref(false)
 const newLocation = ref<Location>({
   name: '',
   location: {
@@ -178,6 +191,7 @@ const newLocation = ref<Location>({
   }
 })
 const newLocationLoading = ref(false)
+const isAddingLocation = ref(false)
 
 // Computed properties
 const hasLocations = computed(() => locations.value.length > 0)
@@ -338,6 +352,7 @@ const saveAndContinue = async () => {
   }
 
   try {
+    isLoading.value=true
     const validLocations = locations.value.filter(isLocationValid)
     
     const response = await api.post('user/user-profile-update', {
@@ -346,7 +361,9 @@ const saveAndContinue = async () => {
     })
     
     userStore.updateUser(response.data.user)
-    router.push('/')
+    isLoading.value=false
+    router.push('/account')
+
     // emit('next-step')
   } catch (error) {
     console.error('Error saving locations:', error)
@@ -444,6 +461,8 @@ const addNewLocation = async () => {
     return
   }
 
+  isAddingLocation.value = true
+
   try {
     const updatedLocations = [...locations.value, newLocation.value]
     
@@ -469,6 +488,8 @@ const addNewLocation = async () => {
       message: t('common.errorAddingLocation'),
       icon: 'error'
     })
+  } finally {
+    isAddingLocation.value = false
   }
 }
 

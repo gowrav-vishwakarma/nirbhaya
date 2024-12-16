@@ -180,7 +180,7 @@ import { useUserStore } from 'src/stores/user-store';
 import { api } from 'src/boot/axios';
 import { useForm } from 'src/qnatk/composibles/use-form';
 import LanguageSelector from 'src/components/LanguageSelector.vue';
-import SearchCity from 'src/components/SearchCity.vue';
+import SearchCity from 'src/components/SearchTwoCity.vue';
 import type { QSelectFilterFn } from 'quasar';
 
 const { t } = useI18n();

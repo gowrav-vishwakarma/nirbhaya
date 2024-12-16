@@ -1,12 +1,16 @@
 <template>
   <div class="profile-stepper">
+    <div v-if='isShowBackButton' class="q-ma-none q-pa-none">
+      <q-btn flat color="primary" style="border-radius:20px" to="/account">
+        <q-icon name="mdi-keyboard-backspace"></q-icon>
+      </q-btn>
+    </div>
     <!-- Stepper Header -->
-     <div style="padding: 20px; height: 20vh;">
+     <div :style="{padding: '20px', height: '20v', marginTop:isShowBackButton?'-20px':'0px'}">
        <h6 style="margin:0px; font-weight: 800;" class="q-mx-sm text-primary">Profile Details</h6>
        <div class="stepper-header q-px-sm" style="margin:0px;padding: 0px;">
          <div class="step-item" :class="{ 'active': currentStep === 1 }">
            <div class="step-label" 
-                @click="() => setCurrentStep(1)" 
                 :class="{
                   'active-label': currentStep === 1,
                   'completed-label': completedSteps.includes(1),
@@ -26,7 +30,6 @@
    
          <div class="step-item" :class="{ 'active': currentStep === 2 }">
            <div class="step-label" 
-                @click="() => setCurrentStep(2)" 
                 :class="{
                   'active-label': currentStep === 2,
                   'completed-label': completedSteps.includes(2),
@@ -46,7 +49,6 @@
    
          <div class="step-item" :class="{ 'active': currentStep === 3 }">
            <div class="step-label" 
-                @click="() => setCurrentStep(3)" 
                 :class="{
                   'active-label': currentStep === 3,
                   'completed-label': completedSteps.includes(3),
@@ -94,10 +96,10 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, reactive, watch } from 'vue'
+import { ref, reactive, watch, onMounted } from 'vue'
 import { useQuasar } from 'quasar'
 import { useI18n } from 'vue-i18n'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import ProfileDetailsStep from './steps/ProfileDetailsStep.vue'
 import EmergencyContactsStep from './steps/EmergencyContactsStep.vue'
 import VolunteerLocationStep from './steps/VolnteerLocationStep.vue'
@@ -105,6 +107,7 @@ import VolunteerLocationStep from './steps/VolnteerLocationStep.vue'
 const $q = useQuasar()
 const { t } = useI18n()
 const router = useRouter()
+const route = useRoute()
 
 const currentStep = ref(1)
 const completedSteps = ref<number[]>([])
@@ -216,6 +219,18 @@ watch([userData, emergencyContacts, volunteerLocation], ([newUserData, newContac
     if (!completedSteps.value.includes(3)) {
       completedSteps.value.push(3)
     }
+  }
+})
+
+const isShowBackButton=ref(false)
+
+onMounted(() => {
+  const stepFromQuery = Number(route.query.stap)
+  console.log('stepFromQuery....',route.query);
+  
+  if (stepFromQuery && stepFromQuery >= 1 && stepFromQuery <= 3) {
+ isShowBackButton.value=true
+    currentStep.value = stepFromQuery
   }
 })
 </script>

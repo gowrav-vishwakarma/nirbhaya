@@ -156,7 +156,7 @@ const routes: RouteRecordRaw[] = [
       },
       {
         path: '/stapper',
-        name: 'stapper  ',
+        name: 'stapper',
         component: () => import('pages/ProfileStapper/ProfileStapperPage.vue'),
         props: true,
         meta: { requiresAuth: true },

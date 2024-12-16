@@ -124,8 +124,12 @@
             dense
             :error="!!errors.referredBy"
             :error-message="errors.referredBy?.join('; ')"
+            :loading="isLoading"
             hide-bottom-space
-          />
+            clearable
+            :disable="isReferralIdStored"
+          >
+          </q-input>
         </div>
       </q-form>
     </div>
@@ -182,9 +186,9 @@ interface FormValues {
   pincode: string
 }
 
-const props = defineProps<{
-  userData: FormValues
-}>()
+// const props = defineProps<{
+//   userData: FormValues
+// }>()
 
 const emit = defineEmits(['update-profile', 'next-step'])
 
@@ -261,6 +265,10 @@ const professionOptions = [
   { label: t('common.unemployed'), value: 'unemployed' },
   { label: t('common.other'), value: 'other' },
 ];
+
+const isReferralIdStored = computed(() => {
+  return !!userStore.user.referredBy;
+});
 
 const { values, errors, isLoading, validateAndSubmit, callbacks } = useForm<FormValues>(
   api,
@@ -430,29 +438,52 @@ const handleCitySelection = (selectedCity: City | null) => {
 
 const lastCheckedReferralId = ref('');
 
+// Replace the debounce utility with properly typed version
+type DebouncedFunction<T extends (...args: any[]) => any> = (...args: Parameters<T>) => void;
+
+const debounce = <T extends (...args: any[]) => any>(
+  fn: T,
+  delay: number
+): DebouncedFunction<T> => {
+  let timeoutId: ReturnType<typeof setTimeout>;
+  return (...args: Parameters<T>) => {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => fn(...args), delay);
+  };
+};
+
+// Replace the validateReferralId implementation
+const validateReferralId = debounce(async (value: string) => {
+  if (!value || value.length < 3) {
+    delete errors.value.referredBy;
+    return;
+  }
+
+  try {
+    isLoading.value = true;
+    const response = await api.get(`/user/validate-referral/${value}`);
+    if (!response.data.exists) {
+      errors.value.referredBy = [t('common.referralIdNotFound')];
+    } else {
+      delete errors.value.referredBy;
+      lastCheckedReferralId.value = value;
+    }
+  } catch (error) {
+    console.error('Error validating referral ID:', error);
+    errors.value.referredBy = [t('common.referralIdValidationFailed')];
+  } finally {
+    isLoading.value = false;
+  }
+}, 500);
+
+// Update the watch function
 watch(
   () => values.value.referredBy,
-  async (newValue) => {
-    if (!newValue) {
+  (newValue: string) => {
+    if (newValue) {
+      validateReferralId(newValue);
+    } else {
       delete errors.value.referredBy;
-      return;
-    }
-
-    if (newValue === lastCheckedReferralId.value) {
-      return;
-    }
-
-    try {
-      const response = await api.get(`/user/validate-referral/${newValue}`);
-      if (!response.data.exists) {
-        errors.value.referredBy = [t('referralIdNotFound')];
-      } else {
-        delete errors.value.referredBy;
-        lastCheckedReferralId.value = newValue;
-      }
-    } catch (error) {
-      console.error('Error validating referral ID:', error);
-      errors.value.referredBy = [t('referralIdValidationFailed')];
     }
   }
 );
