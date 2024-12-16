@@ -183,12 +183,13 @@ const handleSubmit = async () => {
 
     console.log('Submitting data:', submitData)
 
-    await api.post('user/complete-profile', submitData)
+    // await api.post('user/complete-profile', submitData)
 
     $q.notify({
-      color: 'positive',
+      color: 'black',
       message: t('common.profileCompleted'),
-      icon: 'check'
+      icon: 'check',
+      position:'top-right'
     })
 
     router.push('/dashboard')
@@ -197,7 +198,9 @@ const handleSubmit = async () => {
     $q.notify({
       color: 'negative',
       message: t('common.errorSavingProfile'),
-      icon: 'error'
+      icon: 'error',
+      position:'top-right'
+
     })
   }
 }
