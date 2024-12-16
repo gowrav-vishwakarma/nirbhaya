@@ -58,13 +58,14 @@
               />
             </div>
             <q-input
-              v-model="searchQuery"
+              v-model.trim="searchQuery"
               class="col post-input-btn"
               dense
               placeholder="What's on your mind?"
               bg-color="grey-2"
               rounded
               borderless
+              clearable
               style="border-radius: 20px; padding: 0 8px"
             >
               <template #append>
@@ -523,8 +524,12 @@ const router = useRouter();
 
 // Function to handle search
 const performSearch = () => {
-  console.log('Searching for:', searchQuery.value);
-  // Add your search logic here
+  // Reset pagination
+  page.value = 1;
+  posts.value = [];
+  hasMore.value = true;
+  // Load posts with search query
+  loadPosts(false);
 };
 
 // Update the formatDate helper function
@@ -590,7 +595,7 @@ const userLocation = ref({
 });
 
 // Update the loadPosts function
-const loadPosts = async (loadMore = false) => {
+const loadPosts = async (loadMore = false, search = '') => {
   if (isLoading.value || (!loadMore && !hasMore.value)) return;
 
   try {
@@ -608,6 +613,8 @@ const loadPosts = async (loadMore = false) => {
     const response = await api.get('/posts/community-posts', {
       params: {
         status: 'active',
+        prompt: searchQuery.value && searchQuery.value.length > 0 ? searchQuery.value : '',
+        isSearch:searchQuery.value &&  searchQuery.value.length > 0 ? true : false,
         userId: userStore.user?.id || null,
         page: page.value,
         limit: limit.value,
@@ -616,10 +623,14 @@ const loadPosts = async (loadMore = false) => {
     });
 
     let postsData: Post[] = [];
-    if (Array.isArray(response.data)) {
-      postsData = response.data;
-    } else if (response.data.data && Array.isArray(response.data.data)) {
-      postsData = response.data.data;
+    
+    // Add null checks and proper type handling
+    if (response?.data) {
+      if (Array.isArray(response.data)) {
+        postsData = response.data;
+      } else if (response.data.data && Array.isArray(response.data.data)) {
+        postsData = response.data.data;
+      }
     }
 
     // Transform the posts data
@@ -1357,6 +1368,18 @@ const formatDistance = (distance: number) => {
     return `${distance.toFixed(1)}km away`;
   }
 };
+
+// Add this watch after other watch statements
+watch(searchQuery, (newValue) => {
+  if (!newValue) {
+    // Reset pagination
+    page.value = 1;
+    posts.value = [];
+    hasMore.value = true;
+    // Load posts without search query
+    loadPosts(false);
+  }
+});
 </script>
 <style scoped lang="scss">
 .container {
