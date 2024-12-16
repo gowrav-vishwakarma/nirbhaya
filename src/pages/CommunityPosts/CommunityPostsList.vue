@@ -165,9 +165,26 @@
                         : post.userName
                     }}
                   </div>
-                  <div class="text-caption text-grey-7">
+                  <div class="text-caption text-grey-7 row items-center">
                     <q-icon name="schedule" size="xs" class="q-mr-xs" />
-                    {{ formatDate(post.createdAt) }}
+                    <span>{{ formatDate(post.createdAt) }}</span>
+
+                    <!-- Add location icon and distance if available -->
+                    <template v-if="post.location">
+                      <q-separator vertical spaced="sm" class="q-mx-sm" />
+                      <q-icon
+                        name="place"
+                        size="xs"
+                        class="q-mr-xs cursor-pointer"
+                        @click="openInGoogleMaps(post)"
+                      />
+                      <span
+                        class="cursor-pointer"
+                        @click="openInGoogleMaps(post)"
+                      >
+                        {{ formatDistance(post.distance) }}
+                      </span>
+                    </template>
                   </div>
                 </div>
               </div>
@@ -446,6 +463,12 @@ interface Post extends Omit<CommunityPost, 'liked'> {
   userName: string;
   wasLiked: boolean;
   liked: boolean;
+  distance?: number;
+  location?: {
+    x: number; // longitude
+    y: number; // latitude
+  };
+  showLocation?: boolean;
 }
 
 // Add this interface after the Post interface
@@ -1294,6 +1317,44 @@ const handleLocationSelected = async (location: {
     });
   } finally {
     loading.value = false;
+  }
+};
+
+// Update the openInGoogleMaps function
+const openInGoogleMaps = async (post: Post) => {
+  if (post.location?.x && post.location?.y) {
+    try {
+      // Get current location
+      const position = await Geolocation.getCurrentPosition({
+        enableHighAccuracy: true,
+      });
+
+      // Create Google Maps directions URL with current location as start point
+      const url = `https://www.google.com/maps/dir/?api=1&origin=${position.coords.latitude},${position.coords.longitude}&destination=${post.location.y},${post.location.x}&travelmode=driving`;
+
+      window.open(url, '_blank');
+    } catch (error) {
+      // Fallback to simple location view if can't get current position
+      const url = `https://www.google.com/maps?q=${post.location.y},${post.location.x}`;
+      window.open(url, '_blank');
+
+      console.error('Error getting current location:', error);
+    }
+  } else {
+    const url = `https://www.google.com/maps?q=${post.location.y},${post.location.x}`;
+    window.open(url, '_blank');
+  }
+};
+
+// Add this helper function to format distance
+const formatDistance = (distance: number) => {
+  if (distance < 1) {
+    // Convert to meters
+    const meters = Math.round(distance * 1000);
+    return `${meters}m away`;
+  } else {
+    // Round to 1 decimal place for kilometers
+    return `${distance.toFixed(1)}km away`;
   }
 };
 </script>
