@@ -671,6 +671,11 @@ const submitPost = async () => {
     );
     formData.append('isBusinessPost', String(isBusinessPost.value));
 
+    // Add whatsappNumber if it's a business post
+    if (isBusinessPost.value && userStore.user?.whatsappNumber) {
+      formData.append('whatsappNumber', userStore.user.whatsappNumber);
+    }
+
     // Append each file
     selectedFiles.value.forEach((file, index) => {
       formData.append(`media_${index}`, file);

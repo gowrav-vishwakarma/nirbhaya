@@ -154,7 +154,7 @@
                     style="object-fit: cover"
                   />
                 </q-avatar>
-                <div class="q-ml-md"> 
+                <div class="q-ml-md">
                   <div
                     class="text-weight-bold text-capitalize"
                     style="font-size: 16px"
@@ -470,6 +470,7 @@ interface Post extends Omit<CommunityPost, 'liked'> {
     y: number; // latitude
   };
   showLocation?: boolean;
+  whatsappNumber?: string; // Add this field
 }
 
 // Add this interface after the Post interface
@@ -613,8 +614,12 @@ const loadPosts = async (loadMore = false, search = '') => {
     const response = await api.get('/posts/community-posts', {
       params: {
         status: 'active',
-        prompt: searchQuery.value && searchQuery.value.length > 0 ? searchQuery.value : '',
-        isSearch:searchQuery.value &&  searchQuery.value.length > 0 ? true : false,
+        prompt:
+          searchQuery.value && searchQuery.value.length > 0
+            ? searchQuery.value
+            : '',
+        isSearch:
+          searchQuery.value && searchQuery.value.length > 0 ? true : false,
         userId: userStore.user?.id || null,
         page: page.value,
         limit: limit.value,
@@ -623,7 +628,7 @@ const loadPosts = async (loadMore = false, search = '') => {
     });
 
     let postsData: Post[] = [];
-    
+
     // Add null checks and proper type handling
     if (response?.data) {
       if (Array.isArray(response.data)) {
