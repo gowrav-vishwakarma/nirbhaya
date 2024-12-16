@@ -147,13 +147,13 @@
                     :src="
                       post.userId == 1
                         ? '/sos_logo_1080_1080.png'
-                        : 'https://icons-for-free.com/iff/png/512/profile+profile+page+user+icon-1320186864367220794.png'
+                        : '/profile.png'
                     "
                     :alt="post.userName + '\'s profile'"
                     style="object-fit: cover"
                   />
                 </q-avatar>
-                <div class="q-ml-md">
+                <div class="q-ml-md"> 
                   <div
                     class="text-weight-bold text-capitalize"
                     style="font-size: 16px"
