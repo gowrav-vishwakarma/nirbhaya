@@ -1,5 +1,10 @@
 <template>
-  <q-dialog v-model="isOpen" maximized transition-show="slide-up" transition-hide="slide-down">
+  <q-dialog
+    v-model="isOpen"
+    maximized
+    transition-show="slide-up"
+    transition-hide="slide-down"
+  >
     <q-card class="column">
       <q-card-section class="row items-center q-pb-none">
         <div class="text-h6">Create Post</div>
@@ -16,39 +21,81 @@
           </q-avatar>
           <div class="q-ml-md">
             <div class="text-weight-bold">SOS Bharat Community</div>
-            <q-btn dense flat size="sm" icon="fas fa-globe-americas" label="Public" />
+            <q-btn
+              dense
+              flat
+              size="sm"
+              icon="fas fa-globe-americas"
+              label="Public"
+            />
           </div>
         </div>
 
-        <q-input v-model="form.title" label="Title" class="q-mb-md" maxlength="50" :rules="[
-          (val) => val.length <= 50 || 'Title cannot exceed 50 characters',
-        ]">
+        <q-input
+          v-model="form.title"
+          label="Title"
+          class="q-mb-md"
+          maxlength="50"
+          :rules="[
+            (val) => val.length <= 50 || 'Title cannot exceed 50 characters',
+          ]"
+        >
           <template v-slot:hint> {{ titleCharCount }}/50 characters </template>
         </q-input>
 
-        <q-input outlined v-model="form.description" type="textarea" label="Description"
-          placeholder="What do you want to share?" autogrow class="text-h6" borderless maxlength="1000" :rules="[
+        <q-input
+          outlined
+          v-model="form.description"
+          type="textarea"
+          label="Description"
+          placeholder="What do you want to share?"
+          autogrow
+          class="text-h6"
+          borderless
+          maxlength="1000"
+          :rules="[
             (val) =>
               val.length <= 1000 || 'Description cannot exceed 1000 characters',
-          ]">
+          ]"
+        >
           <template v-slot:hint>
             {{ descriptionCharCount }}/1000 characters
           </template>
         </q-input>
 
         <!-- Tags Input -->
-        <q-input v-model="tagInput" label="Add tags (press Enter to add)" @keyup.enter="addTag" class="q-mt-md"
-          :disable="!canAddMoreTags" :hint="canAddMoreTags ? 'Add up to 5 tags' : 'Maximum tags limit reached'
-            ">
+        <q-input
+          v-model="tagInput"
+          label="Add tags (press Enter to add)"
+          @keyup.enter="addTag"
+          class="q-mt-md"
+          :disable="!canAddMoreTags"
+          :hint="
+            canAddMoreTags ? 'Add up to 5 tags' : 'Maximum tags limit reached'
+          "
+        >
           <template v-slot:append>
-            <q-btn round dense flat icon="add" @click="addTag" :disable="!canAddMoreTags" />
+            <q-btn
+              round
+              dense
+              flat
+              icon="add"
+              @click="addTag"
+              :disable="!canAddMoreTags"
+            />
           </template>
         </q-input>
 
         <!-- Tags Display -->
         <div class="q-mt-sm row q-gutter-xs">
-          <q-chip v-for="tag in form.tags" :key="tag" removable @remove="removeTag(tag)" color="primary"
-            text-color="white">
+          <q-chip
+            v-for="tag in form.tags"
+            :key="tag"
+            removable
+            @remove="removeTag(tag)"
+            color="primary"
+            text-color="white"
+          >
             #{{ tag }}
           </q-chip>
           <div v-if="form.tags.length === 0" class="text-grey-6">
@@ -57,36 +104,65 @@
         </div>
 
         <div class="q-mt-md">
-          <q-select v-model="selectedLocationId" :options="savedLocations" option-value="id" option-label="name"
-            label="Select Location (to primarily display this post)" emit-value map-options class="q-mb-md"
-            :loading="isLoadingLocations" :disable="isLoadingLocations">
+          <q-select
+            v-model="selectedLocationId"
+            :options="[
+              ...savedLocations,
+              { id: -1, name: 'Select on Map', location: null },
+            ]"
+            option-value="id"
+            option-label="name"
+            label="Select Location (to primarily display this post)"
+            emit-value
+            map-options
+            class="q-mb-md"
+            :loading="isLoadingLocations"
+            :disable="isLoadingLocations"
+          >
             <template v-slot:prepend>
               <q-icon name="location_on" />
             </template>
             <template v-slot:option="scope">
               <q-item v-bind="scope.itemProps">
                 <q-item-section>
-                  <q-item-label>{{ scope.opt.name ? scope.opt.name : 'Your Saved Location'
-                    }}{{
-                      scope.opt.isBusinessLocation ? ' (Business)' : ''
-                    }}</q-item-label>
-                  <q-item-label caption v-if="scope.opt.id !== 0 || !isLoadingLocations">
+                  <q-item-label>{{ scope.opt.name }}</q-item-label>
+                  <q-item-label caption v-if="scope.opt.location">
                     {{ scope.opt.location.coordinates.join(', ') }}
-                  </q-item-label>
-                  <q-item-label caption v-else>
-                    Fetching location...
                   </q-item-label>
                 </q-item-section>
               </q-item>
             </template>
           </q-select>
 
-          <q-checkbox v-model="isBusinessPost" label="Business Post" v-if="hasBusinessLocation" class="q-mb-md" />
+          <LocationSelectorDialog
+            v-model="showLocationSelector"
+            :zoom="17"
+            @location-selected="handleLocationSelected"
+          />
+
+          <q-checkbox
+            v-model="form.showLocation"
+            label="Show location on post"
+            class="q-mb-md"
+          />
+
+          <q-checkbox
+            v-model="isBusinessPost"
+            label="Business Post"
+            v-if="hasBusinessLocation"
+            class="q-mb-md"
+          />
         </div>
 
         <div class="row q-mt-lg">
-          <q-btn flat color="primary" class="full-width" @click="handleMediaUpload" :loading="isProcessingImages"
-            :disable="isProcessingImages || !canAddMoreImages">
+          <q-btn
+            flat
+            color="primary"
+            class="full-width"
+            @click="handleMediaUpload"
+            :loading="isProcessingImages"
+            :disable="isProcessingImages || !canAddMoreImages"
+          >
             <div class="row items-center">
               <q-icon name="far fa-image" size="24px" class="q-mr-sm" />
               {{
@@ -100,16 +176,33 @@
 
         <!-- Image Preview Section -->
         <div v-if="previewUrls.length > 0" class="row q-mt-md q-gutter-x-sm">
-          <div v-for="(url, index) in previewUrls" :key="index" :class="{
-            'col-6': previewUrls.length <= 2,
-            'col-4': previewUrls.length === 3,
-            'col-3': previewUrls.length === 4,
-          }" class="relative-position" :style="{
-            'max-width': previewUrls.length === 1 ? '300px' : 'none',
-          }">
-            <q-img :src="url" class="rounded-borders" style="aspect-ratio: 1; object-fit: cover">
+          <div
+            v-for="(url, index) in previewUrls"
+            :key="index"
+            :class="{
+              'col-6': previewUrls.length <= 2,
+              'col-4': previewUrls.length === 3,
+              'col-3': previewUrls.length === 4,
+            }"
+            class="relative-position"
+            :style="{
+              'max-width': previewUrls.length === 1 ? '300px' : 'none',
+            }"
+          >
+            <q-img
+              :src="url"
+              class="rounded-borders"
+              style="aspect-ratio: 1; object-fit: cover"
+            >
               <div class="absolute-top-right q-pa-xs">
-                <q-btn round dense color="grey-7" icon="close" size="sm" @click="removeImage(index)" />
+                <q-btn
+                  round
+                  dense
+                  color="grey-7"
+                  icon="close"
+                  size="sm"
+                  @click="removeImage(index)"
+                />
               </div>
             </q-img>
           </div>
@@ -119,16 +212,25 @@
       <q-separator />
 
       <q-card-actions align="right" class="q-pa-md">
-        <q-btn unelevated color="primary" :disable="!isValid || isSubmitting" @click="submitPost" class="full-width"
-          :loading="isSubmitting">
+        <q-btn
+          unelevated
+          color="primary"
+          :disable="!isValid || isSubmitting"
+          @click="submitPost"
+          class="full-width"
+          :loading="isSubmitting"
+        >
           <span style="font-size: 14px; font-weight: 800">
             {{ isSubmitting ? 'Posting...' : 'Post' }}
           </span>
           <template v-slot:loading>
             <q-spinner />
           </template>
-          <i v-if="!isSubmitting" class="fas fa-long-arrow-alt-right"
-            style="font-size: 17px; font-weight: 900; margin-left: 5px"></i>
+          <i
+            v-if="!isSubmitting"
+            class="fas fa-long-arrow-alt-right"
+            style="font-size: 17px; font-weight: 900; margin-left: 5px"
+          ></i>
         </q-btn>
       </q-card-actions>
     </q-card>
@@ -141,6 +243,7 @@ import { api } from 'src/boot/axios';
 import { useQuasar } from 'quasar';
 import { useUserStore } from 'src/stores/user-store';
 import { Geolocation } from '@capacitor/geolocation';
+import LocationSelectorDialog from '../Location/LocationSelectorDialog.vue';
 
 const userStore = useUserStore();
 
@@ -171,6 +274,7 @@ const form = ref({
     type: 'Point',
     coordinates: [0, 0],
   },
+  showLocation: true,
 });
 
 const tagInput = ref('');
@@ -400,6 +504,9 @@ const isLoadingLocations = ref(true);
 const loadSavedLocations = async () => {
   isLoadingLocations.value = true;
   try {
+    // Reset saved locations
+    savedLocations.value = [];
+
     // Add current location as first option with placeholder coordinates
     savedLocations.value = [
       {
@@ -413,6 +520,7 @@ const loadSavedLocations = async () => {
         isBusinessLocation: false,
       },
     ];
+
     // Add user's saved locations
     if (userStore.user?.locations) {
       const userLocations = userStore.user.locations.map((loc) => ({
@@ -477,13 +585,41 @@ const getCurrentLocation = async () => {
   }
 };
 
-// Update the watch section to load saved locations when dialog opens
+// Add a watch for dialog open state
 watch(
   () => isOpen.value,
-  (newValue) => {
+  async (newValue) => {
     if (newValue) {
-      loadSavedLocations();
-      getCurrentLocation();
+      // Reset form when dialog opens
+      form.value = {
+        title: '',
+        description: '',
+        mediaUrls: [],
+        videoUrl: '',
+        tags: [],
+        location: {
+          type: 'Point',
+          coordinates: [0, 0],
+        },
+        showLocation: true,
+      };
+
+      // Reset files and previews
+      selectedFiles.value = [];
+      previewUrls.value.forEach((url) => URL.revokeObjectURL(url));
+      previewUrls.value = [];
+
+      // Reset location selection
+      selectedLocationId.value = null;
+
+      // Load locations and set current location
+      await loadSavedLocations();
+      await getCurrentLocation();
+
+      // Set to current location by default
+      if (savedLocations.value.length > 0) {
+        selectedLocationId.value = 0; // Current location has id 0
+      }
     }
   }
 );
@@ -492,6 +628,11 @@ watch(
 watch(
   () => selectedLocationId.value,
   (newValue) => {
+    if (newValue === -1) {
+      showLocationSelector.value = true;
+      return;
+    }
+
     const selectedLocation = savedLocations.value.find(
       (loc) => loc.id === newValue
     );
@@ -520,6 +661,7 @@ const submitPost = async () => {
     formData.append('postType', 'community');
     formData.append('status', 'active');
     formData.append('location', JSON.stringify(form.value.location));
+    formData.append('showLocation', String(form.value.showLocation));
     formData.append('tags', JSON.stringify(form.value.tags));
     formData.append('userId', String(userStore.user?.id || ''));
     formData.append(
@@ -552,6 +694,7 @@ const submitPost = async () => {
         type: 'Point',
         coordinates: [0, 0],
       },
+      showLocation: true,
     };
     selectedFiles.value = [];
     previewUrls.value.forEach((url) => URL.revokeObjectURL(url));
@@ -594,6 +737,26 @@ watch(
     }
   }
 );
+
+const showLocationSelector = ref(false);
+
+const handleLocationSelected = (location: {
+  type: string;
+  coordinates: number[];
+}) => {
+  // Add the selected location to saved locations
+  const newLocation = {
+    id: Date.now(), // Generate a unique ID
+    name: 'Custom Location',
+    location: location,
+    timestamp: null,
+    isBusinessLocation: false,
+  };
+
+  savedLocations.value = [...savedLocations.value, newLocation];
+  selectedLocationId.value = newLocation.id;
+  form.value.location = location;
+};
 </script>
 
 <style scoped>
