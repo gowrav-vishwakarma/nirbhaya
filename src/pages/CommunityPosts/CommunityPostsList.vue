@@ -212,7 +212,8 @@
                     makeLinksClickable(
                       showFullDescription[post.id.toString()]
                         ? post.description
-                        : truncateText(post.description, 15)
+                        : truncateText(post.description, 15),
+                      post.priority
                     )
                   "
                 ></div>
@@ -1436,29 +1437,30 @@ const getLocationDisplayName = computed(() => {
   return selectedLocation.value.name;
 });
 
-// Update the createMarkup function
-const makeLinksClickable = (text: string) => {
+// Update the makeLinksClickable function to handle priority
+const makeLinksClickable = (text: string, priority?: string) => {
   if (!text) return '';
 
   // URL regex pattern
   const urlPattern =
     /(https?:\/\/[^\s]+)|(www\.[^\s]+)|([a-zA-Z0-9._-]+\.[a-zA-Z]{2,6}(\/[^\s]*)?)/g;
 
-  // Replace URLs with anchor tags
+  // For low priority posts, just return the text
+  if (!priority || priority === 'low') {
+    return text;
+  }
+
+  // For other priorities, make links clickable
   const htmlContent = text.replace(urlPattern, (url) => {
     let href = url;
-    // Add https:// if the URL starts with www.
     if (url.startsWith('www.')) {
       href = 'https://' + url;
-    }
-    // Add https:// if the URL doesn't have a protocol
-    else if (!url.startsWith('http')) {
+    } else if (!url.startsWith('http')) {
       href = 'https://' + url;
     }
     return `<a href="${href}" target="_blank" rel="noopener noreferrer" class="post-link">${url}</a>`;
   });
 
-  // Add read more/less link if needed
   return htmlContent;
 };
 
