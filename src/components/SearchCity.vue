@@ -1,7 +1,8 @@
 <template>
-  <q-select v-model="selectedCity" :label="t('common.city')" outlined dense :error="!!error" :error-message="error"
+  <q-select v-model="selectedCity"  outlined dense :error="!!error" :error-message="error"
     clearable use-input input-debounce="0" :options="cityOptions" @filter="filterCities" behavior="menu"
-    @update:model-value="updateCity" :option-label="formatCityLabel" :disable="disabled" menu-style="max-height: 60vh">
+    @update:model-value="updateCity" :option-label="formatCityLabel" :disable="disabled" menu-style="max-height: 60vh"
+    filled class="custom-radius" bg-color="pink-1" hide-bottom-space>
     <template v-slot:no-option>
       <q-item>
         <q-item-section class="text-grey"> Search City </q-item-section>
@@ -124,3 +125,21 @@ const formatCityLabel = (city) => {
   return `${capitalizedOfficename}, ${city.statename}`;
 };
 </script>
+
+<style scoped>
+/* Add custom styling to match profile inputs */
+:deep(.custom-radius) .q-field__control {
+  border-radius: 10px !important;
+  height: 45px;
+}
+
+:deep(.custom-radius) .q-field__marginal {
+  height: 56px;
+  border-radius: 20px;
+}
+
+:deep(.custom-radius) .q-field__native,
+:deep(.custom-radius) .q-field__input {
+  border-radius: 20px;
+}
+</style>

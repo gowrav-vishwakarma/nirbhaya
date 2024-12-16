@@ -27,11 +27,19 @@
          <div class="step-item" :class="{ 'active': currentStep === 2 }">
            <div class="step-label" 
                 @click="() => setCurrentStep(2)" 
-                :class="{ 'active-label': currentStep === 2, 'inactive-label': currentStep !== 2 }">
+                :class="{
+                  'active-label': currentStep === 2,
+                  'completed-label': completedSteps.includes(2),
+                  'inactive-label': currentStep !== 2 && !completedSteps.includes(2)
+                }">
              Emergency Cont.
            </div>
            <div class="step-label" 
-                :class="{ 'active': currentStep === 2, 'inactive': currentStep !== 2 }" 
+                :class="{
+                  'active': currentStep === 2,
+                  'completed': completedSteps.includes(2),
+                  'inactive': currentStep !== 2 && !completedSteps.includes(2)
+                }" 
                 style="width: 100px; height: 4px; margin: auto; border-radius: 20px; margin-top: 3px;">
            </div>
          </div>
@@ -39,11 +47,19 @@
          <div class="step-item" :class="{ 'active': currentStep === 3 }">
            <div class="step-label" 
                 @click="() => setCurrentStep(3)" 
-                :class="{ 'active-label': currentStep === 3, 'inactive-label': currentStep !== 3 }">
+                :class="{
+                  'active-label': currentStep === 3,
+                  'completed-label': completedSteps.includes(3),
+                  'inactive-label': currentStep !== 3 && !completedSteps.includes(3)
+                }">
              Volunteer
            </div>
            <div class="step-label" 
-                :class="{ 'active': currentStep === 3, 'inactive': currentStep !== 3 }" 
+                :class="{
+                  'active': currentStep === 3,
+                  'completed': completedSteps.includes(3),
+                  'inactive': currentStep !== 3 && !completedSteps.includes(3)
+                }" 
                 style="width: 100px; height: 4px; margin: auto; border-radius: 20px; margin-top: 3px;">
            </div>
          </div>
@@ -78,7 +94,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, reactive } from 'vue'
+import { ref, reactive, watch } from 'vue'
 import { useQuasar } from 'quasar'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
@@ -109,10 +125,10 @@ const volunteerLocation = ref({
 })
 
 const setCurrentStep = (step: number) => {
-  if (step === 1) {
-    completedSteps.value = completedSteps.value.filter(s => s !== 1)
+  const maxAllowedStep = Math.max(...completedSteps.value, 1) + 1
+  if (step <= maxAllowedStep) {
+    currentStep.value = step
   }
-  currentStep.value = step
 }
 
 const handleNextStep = () => {
@@ -122,8 +138,14 @@ const handleNextStep = () => {
     }
     currentStep.value = 2
   } else if (currentStep.value === 2) {
+    if (!completedSteps.value.includes(2)) {
+      completedSteps.value.push(2)
+    }
     currentStep.value = 3
   } else if (currentStep.value === 3) {
+    if (!completedSteps.value.includes(3)) {
+      completedSteps.value.push(3)
+    }
     router.push('/volunteer')
   }
 }
@@ -131,7 +153,6 @@ const handleNextStep = () => {
 const handlePreviousStep = () => {
   if (currentStep.value === 2) {
     currentStep.value = 1
-    completedSteps.value = completedSteps.value.filter(step => step !== 1)
   } else if (currentStep.value === 3) {
     currentStep.value = 2
   }
@@ -177,6 +198,26 @@ const handleSubmit = async () => {
     })
   }
 }
+
+watch([userData, emergencyContacts, volunteerLocation], ([newUserData, newContacts, newLocation]) => {
+  if (Object.values(newUserData).every(value => !!value)) {
+    if (!completedSteps.value.includes(1)) {
+      completedSteps.value.push(1)
+    }
+  }
+
+  if (newContacts.length > 0) {
+    if (!completedSteps.value.includes(2)) {
+      completedSteps.value.push(2)
+    }
+  }
+
+  if (newLocation.latitude && newLocation.longitude) {
+    if (!completedSteps.value.includes(3)) {
+      completedSteps.value.push(3)
+    }
+  }
+})
 </script>
 
 <style>
@@ -359,12 +400,12 @@ const handleSubmit = async () => {
 }
 
 .completed-label {
-  color: rgba(212, 206, 206, 0.858); /* Gray color for completed step label */
+  color: #f9387bd5 !important; /* Use your theme color for completed steps */
   font-weight: 700;
 }
 
 .step-label.completed {
-  background-color: #f9387bd5; /* Pink color for completed step line */
+  background-color: #f9387bd5 !important; /* Use your theme color for completed steps */
 }
 
 .step-item:last-child .step-label.active {
@@ -385,6 +426,11 @@ const handleSubmit = async () => {
 .step-enter-from,
 .step-leave-to {
   opacity: 0;
+}
+
+/* Add transition for smooth state changes */
+.step-label {
+  transition: all 0.3s ease;
 }
 
 </style>
