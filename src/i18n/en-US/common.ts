@@ -415,4 +415,6 @@ export default {
   clickToHideDetails: 'Click to hide details',
   locationTooClose:
     'Location must be at least 500 meters away from other locations',
+  viewLeaderboard: 'View Leaderboard',
+  viewSOSEventsMap: 'View SOS Events Map',
 };
