@@ -9,29 +9,6 @@
 
       <q-separator class="q-my-md" />
 
-      <q-card-section class="q-pt-none">
-        <q-input
-          v-model="coordinatesInput"
-          label="Enter coordinates (latitude longitude)"
-          placeholder="e.g. 20.5937 78.9629 or 20.5937, 78.9629"
-          @keyup.enter="() => handleCoordinatesInput('enter')"
-          @blur="() => handleCoordinatesInput('blur')"
-          :error="!!coordinatesError"
-          :error-message="coordinatesError"
-          :loading="isProcessingCoordinates"
-        >
-          <template v-slot:append>
-            <q-btn
-              round
-              dense
-              flat
-              icon="place"
-              @click="() => handleCoordinatesInput('button')"
-            />
-          </template>
-        </q-input>
-      </q-card-section>
-
       <q-card-section class="col q-pt-none">
         <div class="map-container" ref="mapContainer">
           <q-inner-loading :showing="isLoading">
@@ -39,15 +16,30 @@
           </q-inner-loading>
         </div>
 
-        <div class="map-controls q-gutter-sm">
-          <q-btn icon="add" round color="primary" @click="zoomIn" />
-          <q-btn icon="remove" round color="primary" @click="zoomOut" />
-          <q-btn
-            icon="my_location"
-            round
-            color="primary"
-            @click="centerOnUserLocation"
-          />
+        <div class="map-controls">
+          <div class="q-gutter-sm">
+            <q-btn icon="add" round color="primary" @click="zoomIn" />
+            <q-btn icon="remove" round color="primary" @click="zoomOut" />
+            <q-btn
+              icon="my_location"
+              round
+              color="primary"
+              @click="centerOnUserLocation"
+            />
+
+            <!-- <q-btn
+              icon="search"
+              round
+              color="primary"
+              @click="showSearchDialog = true"
+            /> -->
+            <q-btn
+              icon="edit_location"
+              round
+              color="primary"
+              @click="showCoordinatesDialog = true"
+            />
+          </div>
         </div>
       </q-card-section>
 
@@ -66,6 +58,86 @@
       </q-card-section>
     </q-card>
   </q-dialog>
+
+  <q-dialog v-model="showSearchDialog" position="top">
+    <q-card style="width: 90vw; max-width: 500px">
+      <q-card-section>
+        <div class="text-h6">Search Location</div>
+      </q-card-section>
+
+      <q-card-section class="q-pt-none">
+        <q-input
+          v-model="searchQuery"
+          label="Search location"
+          placeholder="Enter city, location, pin code"
+          @update:model-value="searchLocation"
+          :loading="isSearching"
+          autofocus
+        >
+          <template v-slot:append>
+            <q-icon name="search" />
+          </template>
+        </q-input>
+
+        <q-list
+          v-if="searchResults.length"
+          bordered
+          class="rounded-borders q-mt-sm"
+        >
+          <q-item
+            v-for="result in searchResults"
+            :key="`${result.place_id}-${result.osm_id}`"
+            clickable
+            v-ripple
+            @click="selectSearchResult(result)"
+          >
+            <q-item-section>
+              <q-item-label>{{ result.display_name }}</q-item-label>
+            </q-item-section>
+          </q-item>
+        </q-list>
+      </q-card-section>
+
+      <q-card-actions align="right">
+        <q-btn flat label="Close" color="primary" v-close-popup />
+      </q-card-actions>
+    </q-card>
+  </q-dialog>
+
+  <q-dialog v-model="showCoordinatesDialog" position="top">
+    <q-card style="width: 90vw; max-width: 500px">
+      <q-card-section>
+        <div class="text-h6">Enter Coordinates</div>
+      </q-card-section>
+
+      <q-card-section class="q-pt-none">
+        <q-input
+          v-model="coordinatesInput"
+          label="Enter coordinates (latitude longitude)"
+          placeholder="e.g. 20.5937 78.9629 or 20.5937, 78.9629"
+          @keyup.enter="() => handleCoordinatesInput('enter')"
+          :error="!!coordinatesError"
+          :error-message="coordinatesError"
+          :loading="isProcessingCoordinates"
+          autofocus
+        >
+          <template v-slot:append>
+            <q-btn
+              round
+              dense
+              flat
+              icon="place"
+              @click="() => handleCoordinatesInput('button')"
+            />
+          </template>
+        </q-input>
+      </q-card-section>
+
+      <q-card-actions align="right">
+        <q-btn flat label="Close" color="primary" v-close-popup />
+      </q-card-actions>
+    </q-card>
+  </q-dialog>
 </template>
 
 <script setup lang="ts">
@@ -74,6 +146,8 @@ import L from 'leaflet';
 import { Geolocation } from '@capacitor/geolocation';
 import 'leaflet/dist/leaflet.css';
 import { useQuasar } from 'quasar';
+import { debounce } from 'lodash';
+import type { NominatimResponse } from '@/types/location';
 
 const $q = useQuasar();
 
@@ -106,6 +180,11 @@ const selectedLocation = ref<{ lat: number; lng: number } | null>(null);
 const coordinatesInput = ref('');
 const coordinatesError = ref('');
 const isProcessingCoordinates = ref(false);
+const searchQuery = ref('');
+const searchResults = ref<NominatimResponse[]>([]);
+const isSearching = ref(false);
+const showSearchDialog = ref(false);
+const showCoordinatesDialog = ref(false);
 
 const defaultZoom = computed(() => props.zoom || 15);
 
@@ -159,8 +238,7 @@ const initMap = (center: L.LatLngExpression) => {
       color: 'negative',
       message: 'Error initializing map',
       icon: 'error',
-      position:'top-right'
-
+      position: 'top-right',
     });
   }
 };
@@ -233,6 +311,9 @@ const cleanupMap = () => {
   selectedLocation.value = null;
   coordinatesInput.value = '';
   coordinatesError.value = '';
+  searchQuery.value = '';
+  searchResults.value = [];
+  showCoordinatesDialog.value = false;
 };
 
 const handleCoordinatesInput = async (trigger: 'enter' | 'button' | 'blur') => {
@@ -271,6 +352,7 @@ const handleCoordinatesInput = async (trigger: 'enter' | 'button' | 'blur') => {
       await new Promise((resolve) => setTimeout(resolve, 500));
       map.value.setView([lat, lng], defaultZoom.value);
       updateMarker([lat, lng]);
+      showCoordinatesDialog.value = false;
 
       // Blur input field if triggered by enter or button click
       if (trigger !== 'blur') {
@@ -283,6 +365,48 @@ const handleCoordinatesInput = async (trigger: 'enter' | 'button' | 'blur') => {
   } finally {
     isProcessingCoordinates.value = false;
   }
+};
+
+const searchLocation = debounce(async (query: string) => {
+  if (!query.trim()) {
+    searchResults.value = [];
+    return;
+  }
+
+  isSearching.value = true;
+  try {
+    const response = await fetch(
+      `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
+        query
+      )}&limit=5`
+    );
+    const data = await response.json();
+    searchResults.value = data;
+  } catch (error) {
+    console.error('Error searching location:', error);
+    $q.notify({
+      color: 'negative',
+      message: 'Error searching location',
+      icon: 'error',
+      position: 'top-right',
+    });
+  } finally {
+    isSearching.value = false;
+  }
+}, 500);
+
+const selectSearchResult = (result: NominatimResponse) => {
+  const lat = parseFloat(result.lat);
+  const lng = parseFloat(result.lon);
+
+  if (map.value) {
+    map.value.setView([lat, lng], defaultZoom.value);
+    updateMarker([lat, lng]);
+  }
+
+  searchResults.value = [];
+  searchQuery.value = '';
+  showSearchDialog.value = false;
 };
 
 watch(
@@ -315,13 +439,17 @@ onUnmounted(() => {
   height: 100%;
   width: 100%;
   position: relative;
+  z-index: 1;
 }
 
 .map-controls {
   position: absolute;
   bottom: 20px;
   right: 20px;
-  z-index: 1000;
+  z-index: 1001;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .custom-div-icon {
@@ -332,5 +460,6 @@ onUnmounted(() => {
 :deep(.leaflet-container) {
   height: 100%;
   width: 100%;
+  z-index: 1;
 }
 </style>
