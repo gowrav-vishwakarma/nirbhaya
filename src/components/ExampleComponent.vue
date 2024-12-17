@@ -8,29 +8,20 @@
     </ul>
     <p></p>
     <p>Active: {{ active ? 'yes' : 'no' }}</p>
-    <p>Clicks on todos: {{ clickCount }}</p>
+    <p>Clicks on todos: {{ paramValue }}</p>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed } from 'vue';
+import { useRoute } from 'vue-router'; // Import useRoute
+const route = useRoute(); // Get the current route
+
+const paramValue = computed(() => route.params); // Replace 'yourParamName' with the actual parameter name
+
+console.log(
+  'deeplink example component',
+  JSON.stringify(paramValue.value, null, 2)
+); // Convert to JSON string
 // import { Todo, Meta } from './models';
-
-interface Props {
-  // title: string;
-  todos?: Todo[];
-  // meta: Meta;
-  active?: boolean;
-}
-const props = withDefaults(defineProps<Props>(), {
-  todos: () => [],
-});
-
-const clickCount = ref(0);
-function increment() {
-  clickCount.value += 1;
-  return clickCount.value;
-}
-
-const todoCount = computed(() => props.todos.length);
 </script>
