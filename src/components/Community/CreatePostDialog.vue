@@ -50,8 +50,13 @@
           label="Description"
           placeholder="What do you want to share?"
           autogrow
-          class="text-h6"
-          borderless
+          class="description-input q-mb-md"
+          :input-style="{
+            minHeight: '150px',
+            fontSize: '16px',
+            lineHeight: '1.5',
+          }"
+          :rows="6"
           maxlength="1000"
           :rules="[
             (val) =>
@@ -767,5 +772,15 @@ const handleLocationSelected = (location: {
 <style scoped>
 .q-dialog__inner {
   min-width: 80vw;
+}
+
+.description-input :deep(.q-field__native) {
+  min-height: 150px;
+  padding: 12px;
+}
+
+.description-input :deep(.q-field__control) {
+  height: auto;
+  min-height: 150px;
 }
 </style>
