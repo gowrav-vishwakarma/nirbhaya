@@ -287,6 +287,7 @@ const loadComments = async (loadMore = false) => {
     $q.notify({
       message: error.response?.data?.message || 'Failed to load comments',
       color: 'negative',
+      position:'top-right'
     });
   } finally {
     isLoading.value = false;
@@ -387,6 +388,7 @@ const addComment = async () => {
     $q.notify({
       message: error.response?.data?.message || 'Failed to add comment',
       color: 'negative',
+      position:'top-right'
     });
   }
 };
@@ -442,6 +444,7 @@ const openUserProfile = (userId: string | number) => {
     $q.notify({
       message: 'Unable to open user profile',
       color: 'negative',
+      position:'top-right'
     });
   }
 };

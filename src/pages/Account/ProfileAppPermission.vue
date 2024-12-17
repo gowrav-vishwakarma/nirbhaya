@@ -218,7 +218,8 @@ const handleSettingChange = async (setting: keyof SOSSettings) => {
     $q.notify({
       color: 'negative',
       message: t('common.errorSavingSettings'),
-      icon: 'error'
+      icon: 'error',
+      position:'top-right'
     });
   }
 };

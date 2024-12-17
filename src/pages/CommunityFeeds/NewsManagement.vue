@@ -397,6 +397,7 @@ async function loadNews() {
     $q.notify({
       color: 'negative',
       message: 'Failed to load news',
+      position:'top-right'
     });
   } finally {
     loading.value = false;
@@ -480,14 +481,16 @@ async function saveNews() {
     newsDialog.value = false;
     await loadNews();
     $q.notify({
-      color: 'positive',
+      color: 'black',
       message: `News ${editingNews.value ? 'updated' : 'created'} successfully`,
+      position:'top-right'
     });
   } catch (error) {
     console.error('Save news error:', error);
     $q.notify({
       color: 'negative',
       message: 'Failed to save news',
+      position:'top-right'
     });
   } finally {
     loading.value = false;

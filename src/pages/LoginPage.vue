@@ -279,6 +279,8 @@ callbacks.onError = async (error: any) => {
     message: otpSent.value
       ? 'Login failed. Please check your OTP and try again.'
       : 'Failed to send OTP. Please try again.',
+      position:'top-right'
+
   });
 };
 
@@ -306,6 +308,7 @@ const resendOTP = async () => {
     Notify.create({
       type: 'positive',
       message: 'OTP resent successfully',
+      position:'top-right'
     });
     startCountdown();
   } catch (error) {
@@ -313,6 +316,7 @@ const resendOTP = async () => {
     Notify.create({
       type: 'negative',
       message: 'Failed to resend OTP. Please try again.',
+      position:'top-right'
     });
   } finally {
     isLoading.value = false;

@@ -476,6 +476,7 @@ const fetchLeaderboard = async () => {
       color: 'negative',
       message: t('common.errorFetchingLeaderboard'),
       icon: 'error',
+      position:'top-right'
     });
     leaderboardData.value = [];
   } finally {

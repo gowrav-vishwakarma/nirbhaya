@@ -478,6 +478,7 @@ callbacks.onError = async (error: any): Promise<void> => {
     color: 'negative',
     message: t('common.emergencyContactsUpdateError'),
     icon: 'error',
+    position:'top-right'
   });
 };
 

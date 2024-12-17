@@ -639,6 +639,7 @@ const loadPosts = async (loadMore = false) => {
       color: 'negative',
       message: 'Failed to load posts',
       icon: 'error',
+      position:'top-right'
     });
   } finally {
     isLoading.value = false;
@@ -1286,6 +1287,7 @@ const handleLocationSelected = async (location: {
       color: 'negative',
       message: 'Failed to load posts for selected location',
       icon: 'error',
+      position:'top-right'
     });
   } finally {
     loading.value = false;
@@ -1307,9 +1309,10 @@ const confirmDelete = (postId: number | string) => {
       });
       posts.value = posts.value.filter((post) => post.id !== postId);
       $q.notify({
-        color: 'positive',
+        color: 'black',
         message: 'Post deleted successfully',
         icon: 'check',
+        position:'top-right'
       });
     } catch (error) {
       console.error('Error deleting post:', error);
@@ -1317,6 +1320,7 @@ const confirmDelete = (postId: number | string) => {
         color: 'negative',
         message: 'Failed to delete post',
         icon: 'error',
+        position:'top-right'
       });
     }
   });

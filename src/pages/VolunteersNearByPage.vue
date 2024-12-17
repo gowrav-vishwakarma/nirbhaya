@@ -144,6 +144,7 @@ const getCurrentLocation = async () => {
       color: 'negative',
       message: t('common.locationError'),
       icon: 'error',
+      position:'top-right'
     });
   } finally {
     locationLoading.value = false;
@@ -165,6 +166,7 @@ const fetchVolunteers = async () => {
       color: 'negative',
       message: t('common.fetchVolunteersError'),
       icon: 'error',
+      position:'top-right'
     });
   }
 };
@@ -249,6 +251,7 @@ onMounted(() => {
       color: 'negative',
       message: t('common.loginToViewVolunteers'),
       icon: 'error',
+      position:'top-right'
     });
     router.push('/login');
   } else {

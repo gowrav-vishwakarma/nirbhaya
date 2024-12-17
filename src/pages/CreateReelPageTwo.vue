@@ -60,6 +60,7 @@ const checkAndRequestPermissions = async () => {
           color: 'negative',
           message: `${t(perm)} ${t('common.permissionRequired')}`,
           icon: 'error',
+          position:'top-right'
         });
         router.push('/');
         return;
@@ -82,6 +83,7 @@ const getLocation = async () => {
       color: 'negative',
       message: 'Failed to get location. Please try again.',
       icon: 'error',
+      position:'top-right'
     });
   }
 };
@@ -102,6 +104,7 @@ const setupMediaDevices = async () => {
       color: 'negative',
       message: 'Failed to set up camera. Please try again.',
       icon: 'error',
+      position:'top-right'
     });
   }
 };
@@ -125,6 +128,7 @@ const startCamera = async () => {
       color: 'negative',
       message: 'Failed to start camera. Please check your permissions.',
       icon: 'error',
+      position:'top-right'
     });
   }
 };
@@ -163,6 +167,7 @@ const toggleSecondaryCamera = async () => {
         color: 'negative',
         message: 'Failed to start secondary camera.',
         icon: 'error',
+        position:'top-right'
       });
     }
   }
@@ -309,9 +314,10 @@ const uploadReel = async () => {
       headers: { 'Content-Type': 'multipart/form-data' },
     });
     $q.notify({
-      color: 'positive',
+      color: 'black',
       message: 'Incident reel uploaded successfully',
       icon: 'check',
+      position:'top-right'
     });
     router.push('/incident-reels');
   } catch (error) {
@@ -320,6 +326,7 @@ const uploadReel = async () => {
       color: 'negative',
       message: 'Failed to upload incident reel. Please try again.',
       icon: 'error',
+      position:'top-right'
     });
   }
 
@@ -381,6 +388,7 @@ const playRecordedVideo = () => {
         color: 'negative',
         message: 'Failed to play video. Please try again.',
         icon: 'error',
+        position:'top-right'
       });
     });
   }

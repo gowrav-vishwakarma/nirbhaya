@@ -220,6 +220,7 @@ const handleLike = async () => {
       $q.notify({
         message: 'Please login to like posts',
         color: 'warning',
+        position:'top-right'
       });
       return;
     }

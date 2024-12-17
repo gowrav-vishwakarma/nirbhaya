@@ -676,6 +676,7 @@ const loadPosts = async (loadMore = false, search = '') => {
       color: 'negative',
       message: 'Failed to load posts',
       icon: 'error',
+      position:'top-right'
     });
   } finally {
     isLoading.value = false;
@@ -910,6 +911,7 @@ const createPost = () => {
       message: `You've reached your daily post limit of ${userInteractionRules.value.dailyPostLimit} posts`,
       color: 'gray',
       position: 'top-right',
+      icon: 'error'
     });
 
     return;
@@ -1361,6 +1363,7 @@ const handleLocationSelected = async (location: {
       color: 'negative',
       message: 'Failed to get location',
       icon: 'error',
+      position:'top-right'
     });
   } finally {
     isLocationLoading.value = false;

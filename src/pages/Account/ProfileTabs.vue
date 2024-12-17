@@ -213,6 +213,7 @@ const handleFileChange = async(event: Event) => {
         color: 'negative',
         message: 'Error processing images',
         icon: 'error',
+        position:'top-right'
       });
     } finally {
       isProcessingImages.value = false;

@@ -159,6 +159,8 @@ const initMap = (center: L.LatLngExpression) => {
       color: 'negative',
       message: 'Error initializing map',
       icon: 'error',
+      position:'top-right'
+
     });
   }
 };

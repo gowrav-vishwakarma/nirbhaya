@@ -530,6 +530,7 @@ const loadPosts = async (loadMore = false) => {
         color: 'warning',
         message: 'Post not found',
         icon: 'warning',
+        position:'top-right'
       });
       router.push('/community');
       return;
@@ -564,6 +565,7 @@ const loadPosts = async (loadMore = false) => {
       color: 'negative',
       message: 'Failed to load post',
       icon: 'error',
+      position:'top-right'
     });
     router.push('/community');
   } finally {

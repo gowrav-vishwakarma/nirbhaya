@@ -140,6 +140,7 @@ const loadMoreLikes = async (loadMore = false) => {
     $q.notify({
       message: 'Error loading likes',
       color: 'negative',
+      position:'top-right'
     });
   } finally {
     isLoading.value = false;
@@ -199,6 +200,7 @@ const openUserProfile = (userId: string | number) => {
     $q.notify({
       message: 'Unable to open user profile',
       color: 'negative',
+      position:'top-right'
     });
   }
 };

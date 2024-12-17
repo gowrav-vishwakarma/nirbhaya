@@ -178,7 +178,8 @@ const sosAcceptedUsers = async () => {
     console.error('Error fetching SOS accepted users:', error);
     $q.notify({
       type: 'negative',
-      message: 'Failed to load volunteer data'
+      message: 'Failed to load volunteer data',
+      position:'top-right'
     });
   } finally {
     loading.value = false;
@@ -225,7 +226,7 @@ const submitFeedback = async (volunteerFeedBack: Volunteer) => {
     $q.notify({
       type: 'negative',
       message: 'Failed to submit feedback',
-      position: 'top'
+      position: 'top-right'
     });
   } finally {
     loading.value = false;

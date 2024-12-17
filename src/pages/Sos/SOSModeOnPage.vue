@@ -456,7 +456,7 @@ const showResolveConfirmation = (): Promise<boolean> => {
             $q.notify({
               message: 'Your SOS event has been closed.',
               color: 'info',
-              position: 'top',
+              position: 'top-right',
               // multiLine: true,
               timeout: 3000
             });
@@ -469,7 +469,7 @@ const showResolveConfirmation = (): Promise<boolean> => {
             $q.notify({
               message: 'Your SOS event has been resolved.',
               color: 'positive',
-              position: 'top',
+              position: 'top-right',
               // multiLine: true,
               timeout: 3000
             });
@@ -480,7 +480,7 @@ const showResolveConfirmation = (): Promise<boolean> => {
             $q.notify({
               message: 'Your SOS event remains active.',
               color: 'warning',
-              position: 'top',
+              position: 'top-right',
               // multiLine: true,
               timeout: 3000
             });
@@ -491,7 +491,8 @@ const showResolveConfirmation = (): Promise<boolean> => {
       .onCancel(() => {
         $q.notify({
           message: 'Action cancelled. Your SOS event remains active.',
-          color: 'warning',
+            color: 'warning',
+          position:'top-right'
         });
         resolve(false);
       })
@@ -1045,7 +1046,7 @@ const saveLocalRecording = async () => {
           message: 'Failed to save video. Please check app permissions.',
           color: 'negative',
           icon: 'error',
-          position: 'top',
+          position: 'top-right',
           // multiLine: true,
           timeout: 3000
         });
@@ -1088,7 +1089,7 @@ const updateNearByAlso = () => {
   $q.notify({
     message: 'SOS Sent Nearby Volunteers.',
     color: 'positive',
-    position: 'top',
+    position: 'top-right',
     // multiLine: true,
     timeout: 2000
   });
