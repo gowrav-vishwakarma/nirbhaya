@@ -214,53 +214,27 @@ const handleLocationSelect = async (
   locationType: 'current' | 'stored',
   storedLocation?: UserLocation
 ) => {
-  console.log('handleLocationSelect called with:', {
-    locationType,
-    storedLocation,
-  });
-  selectedLocationId.value =
-    locationType === 'current'
-      ? 'current'
-      : storedLocation?.id?.toString() || '';
   try {
-    isLoading.value = true;
-
     if (locationType === 'current') {
-      try {
-        const position = await Geolocation.getCurrentPosition({
-          enableHighAccuracy: true,
-          timeout: 10000,
-        });
-        // Emit current location data
-        if (position) {
-          emit('location-selected', {
-            type: 'Point',
-            latitude: position.coords.latitude,
-            longitude: position.coords.longitude,
-            name: currentLocationName.value,
-            source: 'current',
-          });
-          isOpen.value = false; // Close dialog after successful selection
-        }
-      } catch (error) {
-        console.error('Geolocation error:', error);
-        throw error;
-      }
+      // Just emit with source='current' and close dialog immediately
+      emit('location-selected', {
+        type: 'Point',
+        latitude: null,
+        longitude: null,
+        name: '',
+        source: 'current',
+      });
+      isOpen.value = false;
     } else if (storedLocation && storedLocation.location) {
-      console.log('Selected stored location:', storedLocation);
-      console.log('Coordinates:', storedLocation.location.coordinates);
-
-      const locationData = {
+      // For stored locations, emit complete data
+      emit('location-selected', {
         type: 'Point',
         latitude: storedLocation.location.coordinates[1],
         longitude: storedLocation.location.coordinates[0],
         name: storedLocation.name,
         source: 'stored' as const,
-      };
-
-      console.log('Emitting location data:', locationData);
-      emit('location-selected', locationData);
-      isOpen.value = false; // Close dialog after successful selection
+      });
+      isOpen.value = false;
     }
   } catch (error) {
     console.error('Location selection failed:', error);
@@ -272,8 +246,6 @@ const handleLocationSelect = async (
       color: 'black',
       icon: 'error',
     });
-  } finally {
-    isLoading.value = false;
   }
 };
 

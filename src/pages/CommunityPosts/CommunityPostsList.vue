@@ -676,7 +676,7 @@ const loadPosts = async (loadMore = false, search = '') => {
       color: 'negative',
       message: 'Failed to load posts',
       icon: 'error',
-      position:'top-right'
+      position: 'top-right',
     });
   } finally {
     isLoading.value = false;
@@ -911,7 +911,7 @@ const createPost = () => {
       message: `You've reached your daily post limit of ${userInteractionRules.value.dailyPostLimit} posts`,
       color: 'gray',
       position: 'top-right',
-      icon: 'error'
+      icon: 'error',
     });
 
     return;
@@ -1311,8 +1311,8 @@ const selectedLocation = ref({
 // Update the handleLocationSelected method
 const handleLocationSelected = async (location: {
   type: string;
-  latitude: number;
-  longitude: number;
+  latitude: number | null;
+  longitude: number | null;
   name?: string;
   source?: 'current' | 'stored' | 'map';
 }) => {
@@ -1320,13 +1320,23 @@ const handleLocationSelected = async (location: {
 
   try {
     if (location.source === 'current') {
+      // Show loading state immediately
       isLocationLoading.value = true;
+      selectedLocation.value = {
+        type: 'current',
+        latitude: null,
+        longitude: null,
+        name: 'Current Location',
+        address: '',
+      };
+
+      // Get current position
       const position = await Geolocation.getCurrentPosition({
         enableHighAccuracy: true,
         timeout: 10000,
       });
 
-      // Update selected location with current position
+      // Update with actual coordinates
       selectedLocation.value = {
         type: 'current',
         latitude: position.coords.latitude,
@@ -1335,7 +1345,7 @@ const handleLocationSelected = async (location: {
         address: '',
       };
     } else {
-      // Update selected location for other cases
+      // For stored/map locations, use provided data
       selectedLocation.value = {
         type: location.source || 'stored',
         latitude: location.latitude,
@@ -1352,9 +1362,6 @@ const handleLocationSelected = async (location: {
     hasMore.value = true;
     loading.value = true;
 
-    // Close location dialog
-    showLocationDialog.value = false;
-
     // Reload posts with new location
     await loadPosts(false);
   } catch (error) {
@@ -1363,8 +1370,17 @@ const handleLocationSelected = async (location: {
       color: 'negative',
       message: 'Failed to get location',
       icon: 'error',
-      position:'top-right'
+      position: 'top-right',
     });
+
+    // Reset location on error
+    selectedLocation.value = {
+      type: 'current',
+      latitude: null,
+      longitude: null,
+      name: '',
+      address: '',
+    };
   } finally {
     isLocationLoading.value = false;
     loading.value = false;
