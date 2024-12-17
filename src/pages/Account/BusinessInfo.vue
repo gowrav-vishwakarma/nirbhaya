@@ -235,7 +235,7 @@ const getCurrentLocation = async () => {
       businessData.longitude = position.coords.longitude;
 
       $q.notify({
-        type: 'positive',
+        type: 'black',
         message: t('common.locationUpdated'),
         position: 'top-right',
       });
@@ -308,7 +308,6 @@ const handleSubmit = async () => {
       showInputFields.value = false; // Hide the form after successful submission
 
       $q.notify({
-        type: 'positive',
         color: 'black',
         message: 'Business information saved successfully',
         position: 'top-right',
@@ -413,7 +412,6 @@ const removeBusinessInfo = async () => {
     });
 
     $q.notify({
-      type: 'positive',
       color: 'black',
       message: 'Business information removed successfully',
       position: 'top-right',
