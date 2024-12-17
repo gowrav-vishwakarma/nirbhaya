@@ -68,7 +68,7 @@
               v-model.trim="searchQuery"
               class="col post-input-btn"
               dense
-              placeholder="What's on your mind?"
+              placeholder="Search and Create new post!"
               bg-color="grey-2"
               rounded
               borderless
