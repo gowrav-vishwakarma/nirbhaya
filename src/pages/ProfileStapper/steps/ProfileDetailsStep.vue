@@ -181,6 +181,7 @@
               bg-color="pink-1"
               dense
               hide-bottom-space
+              placeholder="e.g., Shop No. 123, Building Name"
             />
           </div>
 

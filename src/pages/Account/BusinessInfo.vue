@@ -57,7 +57,7 @@
         </div>
 
         <div class="custom-input">
-          <label>{{ t('common.locationName') }}</label>
+          <label>{{ t('common.businessLocation') }}</label>
           <q-input
             v-model="businessData.locationName"
             filled
