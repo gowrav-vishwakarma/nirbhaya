@@ -14,9 +14,11 @@
           v-model="coordinatesInput"
           label="Enter coordinates (latitude longitude)"
           placeholder="e.g. 20.5937 78.9629 or 20.5937, 78.9629"
-          @keyup.enter="handleCoordinatesInput"
+          @keyup.enter="() => handleCoordinatesInput('enter')"
+          @blur="() => handleCoordinatesInput('blur')"
           :error="!!coordinatesError"
           :error-message="coordinatesError"
+          :loading="isProcessingCoordinates"
         >
           <template v-slot:append>
             <q-btn
@@ -24,7 +26,7 @@
               dense
               flat
               icon="place"
-              @click="handleCoordinatesInput"
+              @click="() => handleCoordinatesInput('button')"
             />
           </template>
         </q-input>
@@ -103,6 +105,7 @@ const isLoading = ref(true);
 const selectedLocation = ref<{ lat: number; lng: number } | null>(null);
 const coordinatesInput = ref('');
 const coordinatesError = ref('');
+const isProcessingCoordinates = ref(false);
 
 const defaultZoom = computed(() => props.zoom || 15);
 
@@ -230,36 +233,53 @@ const cleanupMap = () => {
   coordinatesError.value = '';
 };
 
-const handleCoordinatesInput = () => {
+const handleCoordinatesInput = async (trigger: 'enter' | 'button' | 'blur') => {
   if (!coordinatesInput.value) return;
+
+  // Don't process on blur if coordinates were already processed by enter or button
+  if (trigger === 'blur' && isProcessingCoordinates.value) return;
 
   // Clear previous error
   coordinatesError.value = '';
+  isProcessingCoordinates.value = true;
 
-  // Split by comma or space
-  const coords = coordinatesInput.value.split(/[\s,]+/).filter(Boolean);
+  try {
+    // Split by comma or space
+    const coords = coordinatesInput.value.split(/[\s,]+/).filter(Boolean);
 
-  if (coords.length !== 2) {
-    coordinatesError.value = 'Please enter valid latitude and longitude';
-    return;
-  }
+    if (coords.length !== 2) {
+      coordinatesError.value = 'Please enter valid latitude and longitude';
+      return;
+    }
 
-  const lat = parseFloat(coords[0]);
-  const lng = parseFloat(coords[1]);
+    const lat = parseFloat(coords[0]);
+    const lng = parseFloat(coords[1]);
 
-  if (isNaN(lat) || isNaN(lng)) {
-    coordinatesError.value = 'Invalid coordinates format';
-    return;
-  }
+    if (isNaN(lat) || isNaN(lng)) {
+      coordinatesError.value = 'Invalid coordinates format';
+      return;
+    }
 
-  if (lat < -90 || lat > 90 || lng < -180 || lng > 180) {
-    coordinatesError.value = 'Coordinates out of valid range';
-    return;
-  }
+    if (lat < -90 || lat > 90 || lng < -180 || lng > 180) {
+      coordinatesError.value = 'Coordinates out of valid range';
+      return;
+    }
 
-  if (map.value) {
-    map.value.setView([lat, lng], defaultZoom.value);
-    updateMarker([lat, lng]);
+    if (map.value) {
+      await new Promise((resolve) => setTimeout(resolve, 500));
+      map.value.setView([lat, lng], defaultZoom.value);
+      updateMarker([lat, lng]);
+
+      // Blur input field if triggered by enter or button click
+      if (trigger !== 'blur') {
+        const input = document.querySelector(
+          'input[type="text"]'
+        ) as HTMLInputElement;
+        input?.blur();
+      }
+    }
+  } finally {
+    isProcessingCoordinates.value = false;
   }
 };
 
