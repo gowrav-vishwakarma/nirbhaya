@@ -278,6 +278,9 @@ interface FormValues {
   pincode: string
   showBusinessInfo: boolean
   businessInfo: BusinessInfo | null
+  locations?: UserLocation[]
+  whatsappNumber?: string
+  businessName?: string
 }
 
 // const props = defineProps<{
@@ -412,7 +415,7 @@ const isFormValid = computed(() => {
   return baseValidation;
 });
 
-callbacks.beforeSubmit = (data) => {
+callbacks.beforeSubmit = (data: FormValues) => {
   const processedData = {
     ...data,
     dob: data.dob || '',
@@ -427,46 +430,66 @@ callbacks.beforeSubmit = (data) => {
     processedData.city = cityData.officename;
   }
 
+  if (data.showBusinessInfo && data.businessInfo && 'longitude' in data.businessInfo) {
+    processedData.businessName = data.businessInfo.businessName;
+    processedData.whatsappNumber = data.businessInfo.whatsappNumber.toString();
+    
+    const businessLocation: UserLocation = {
+      name: data.businessInfo.locationName,
+      location: {
+        type: 'Point',
+        coordinates: [data.businessInfo.longitude, data.businessInfo.latitude]
+      },
+      isBusinessLocation: true
+    };
+
+    processedData.locations = [
+      ...(userStore.user?.locations || []).filter(
+        (loc: UserLocation) => !loc.isBusinessLocation
+      ),
+      businessLocation
+    ];
+  }
+
   return processedData;
 };
 
 const handleSubmit = async () => {
   if (isFormValid.value) {
     try {
-      // First submit profile data
-      
-      // Then handle business info if enabled
+      // If business info is enabled, handle it first
       if (values.value.showBusinessInfo && values.value.businessInfo) {
-        // First update the user store with business info
-        const updatedLocations: UserLocation[] = [
+        // First make the API call for business information
+        await api.post('/user/add-business-information', values.value.businessInfo);
+
+        // After successful API call, update the store with business info
+        const businessLocation: UserLocation = {
+          name: values.value.businessInfo.locationName,
+          location: {
+            type: 'Point',
+            coordinates: [values.value.businessInfo.longitude, values.value.businessInfo.latitude]
+          },
+          isBusinessLocation: true
+        };
+
+        // Update store with business details and location
+        const updatedLocations = [
           ...(userStore.user?.locations || []).filter(
             (loc: UserLocation) => !loc.isBusinessLocation
           ),
-          {
-            name: values.value.businessInfo.locationName,
-            location: {
-              type: 'Point',
-              coordinates: [values.value.businessInfo.longitude, values.value.businessInfo.latitude]
-            },
-            isBusinessLocation: true
-          }
+          businessLocation
         ];
 
-        // Update store first
         userStore.updateUser({
           ...userStore.user,
           businessName: values.value.businessInfo.businessName,
           whatsappNumber: values.value.businessInfo.whatsappNumber.toString(),
           locations: updatedLocations
         });
-
-
-
-        // Then make the API call
-        await api.post('/user/add-business-information', values.value.businessInfo);
-        await validateAndSubmit(false);
-
       }
+
+      // Then submit the profile data
+      await validateAndSubmit(false);
 
       // Show success notification
       $q.notify({
@@ -500,6 +523,9 @@ const handleSubmit = async () => {
 };
 
 callbacks.onSuccess = (data) => {
+  // Prepare locations array
+  const locations = userStore.user?.locations || [];
+  
   // Update the user store with the new data
   const updatedUserData = {
     ...userStore.user, // Keep existing user data
@@ -513,23 +539,12 @@ callbacks.onSuccess = (data) => {
     pincode: values.value.pincode,
     userType: values.value.userType,
     profession: values.value.profession,
-    referredBy: values.value.referredBy
+    referredBy: values.value.referredBy,
+    locations: locations // Preserve the locations array
   };
 
   // Update the store
   userStore.updateUser(updatedUserData);
-
-  // Show success notification
-  // $q.notify({
-  //   color: 'black',
-  //   message: t('common.profileUpdateSuccess'),
-  //   icon: 'check',
-  //   position: 'top-right',
-  // });
-
-  // Emit events for parent components
-  emit('update-profile', { ...values.value });
-  emit('next-step');
 };
 
 callbacks.onError = (error: any) => {

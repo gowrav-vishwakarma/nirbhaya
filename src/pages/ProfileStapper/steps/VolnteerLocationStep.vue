@@ -290,12 +290,7 @@ const updateLocationCoordinates = async (index: number) => {
     
     userStore.updateUser(response.data.user)
 
-    $q.notify({
-      color: 'black',
-      message: t('common.locationUpdated'),
-      icon: 'check',
-      position: 'top-right'
-    })
+   
   } catch (error) {
     console.error('Error getting location', error)
     locations.value[index].location.coordinates = [null, null]
@@ -440,12 +435,7 @@ const getCurrentLocationForNew = async () => {
 
     newLocation.value.location.coordinates = [position.coords.longitude, position.coords.latitude]
 
-    $q.notify({
-      color: 'positive',
-      message: t('common.locationUpdated'),
-      icon: 'check',
-      position: 'top-right'
-    })
+    
   } catch (error) {
     console.error('Error getting location', error)
     $q.notify({
@@ -505,9 +495,10 @@ const addNewLocation = async () => {
     clearInputFields()
     
     $q.notify({
-      color: 'positive',
-      message: t('common.locationAdded'),
-      icon: 'check'
+      color: 'black',
+      message: t('common.locationUpdated'),
+      icon: 'check',
+      position: 'top-right'
     })
   } catch (error) {
     console.error('Error adding location:', error)
