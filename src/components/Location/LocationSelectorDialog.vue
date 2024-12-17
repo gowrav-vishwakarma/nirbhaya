@@ -1,6 +1,6 @@
 <template>
   <q-dialog v-model="isOpen" maximized>
-    <q-card class="column full-height">
+    <q-card class="column no-wrap full-height">
       <q-card-section class="row items-center q-pb-none">
         <div class="text-h6">Select Location</div>
         <q-space />
@@ -9,6 +9,29 @@
 
       <q-separator class="q-my-md" />
 
+      <q-card-section class="q-pt-none">
+        <q-input
+          v-model="coordinatesInput"
+          label="Enter coordinates (latitude longitude)"
+          placeholder="e.g. 20.5937 78.9629 or 20.5937, 78.9629"
+          @keyup.enter="() => handleCoordinatesInput('enter')"
+          @blur="() => handleCoordinatesInput('blur')"
+          :error="!!coordinatesError"
+          :error-message="coordinatesError"
+          :loading="isProcessingCoordinates"
+        >
+          <template v-slot:append>
+            <q-btn
+              round
+              dense
+              flat
+              icon="place"
+              @click="() => handleCoordinatesInput('button')"
+            />
+          </template>
+        </q-input>
+      </q-card-section>
+
       <q-card-section class="col q-pt-none">
         <div class="map-container" ref="mapContainer">
           <q-inner-loading :showing="isLoading">
@@ -16,7 +39,7 @@
           </q-inner-loading>
         </div>
 
-        <div class="map-controls q-gutter-sm absolute-bottom-right q-ma-md">
+        <div class="map-controls q-gutter-sm">
           <q-btn icon="add" round color="primary" @click="zoomIn" />
           <q-btn icon="remove" round color="primary" @click="zoomOut" />
           <q-btn
@@ -28,16 +51,19 @@
         </div>
       </q-card-section>
 
-      <q-card-actions align="right" class="q-pa-md">
-        <q-btn flat label="Cancel" v-close-popup />
-        <q-btn
-          unelevated
-          color="primary"
-          label="Select Location"
-          @click="confirmLocation"
-          :disable="!selectedLocation"
-        />
-      </q-card-actions>
+      <q-card-section class="q-pa-none">
+        <q-separator />
+        <div class="row justify-end q-pa-md">
+          <q-btn flat label="Cancel" v-close-popup class="q-mr-sm" />
+          <q-btn
+            unelevated
+            color="primary"
+            label="Select Location"
+            @click="confirmLocation"
+            :disable="!selectedLocation"
+          />
+        </div>
+      </q-card-section>
     </q-card>
   </q-dialog>
 </template>
@@ -77,6 +103,9 @@ const map = ref<L.Map | null>(null);
 const marker = ref<L.Marker | null>(null);
 const isLoading = ref(true);
 const selectedLocation = ref<{ lat: number; lng: number } | null>(null);
+const coordinatesInput = ref('');
+const coordinatesError = ref('');
+const isProcessingCoordinates = ref(false);
 
 const defaultZoom = computed(() => props.zoom || 15);
 
@@ -200,6 +229,58 @@ const cleanupMap = () => {
     marker.value = null;
   }
   selectedLocation.value = null;
+  coordinatesInput.value = '';
+  coordinatesError.value = '';
+};
+
+const handleCoordinatesInput = async (trigger: 'enter' | 'button' | 'blur') => {
+  if (!coordinatesInput.value) return;
+
+  // Don't process on blur if coordinates were already processed by enter or button
+  if (trigger === 'blur' && isProcessingCoordinates.value) return;
+
+  // Clear previous error
+  coordinatesError.value = '';
+  isProcessingCoordinates.value = true;
+
+  try {
+    // Split by comma or space
+    const coords = coordinatesInput.value.split(/[\s,]+/).filter(Boolean);
+
+    if (coords.length !== 2) {
+      coordinatesError.value = 'Please enter valid latitude and longitude';
+      return;
+    }
+
+    const lat = parseFloat(coords[0]);
+    const lng = parseFloat(coords[1]);
+
+    if (isNaN(lat) || isNaN(lng)) {
+      coordinatesError.value = 'Invalid coordinates format';
+      return;
+    }
+
+    if (lat < -90 || lat > 90 || lng < -180 || lng > 180) {
+      coordinatesError.value = 'Coordinates out of valid range';
+      return;
+    }
+
+    if (map.value) {
+      await new Promise((resolve) => setTimeout(resolve, 500));
+      map.value.setView([lat, lng], defaultZoom.value);
+      updateMarker([lat, lng]);
+
+      // Blur input field if triggered by enter or button click
+      if (trigger !== 'blur') {
+        const input = document.querySelector(
+          'input[type="text"]'
+        ) as HTMLInputElement;
+        input?.blur();
+      }
+    }
+  } finally {
+    isProcessingCoordinates.value = false;
+  }
 };
 
 watch(
@@ -231,7 +312,6 @@ onUnmounted(() => {
 .map-container {
   height: 100%;
   width: 100%;
-  min-height: calc(100vh - 200px);
   position: relative;
 }
 

@@ -50,8 +50,13 @@
           label="Description"
           placeholder="What do you want to share?"
           autogrow
-          class="text-h6"
-          borderless
+          class="description-input q-mb-md"
+          :input-style="{
+            minHeight: '150px',
+            fontSize: '16px',
+            lineHeight: '1.5',
+          }"
+          :rows="6"
           maxlength="1000"
           :rules="[
             (val) =>
@@ -671,6 +676,11 @@ const submitPost = async () => {
     );
     formData.append('isBusinessPost', String(isBusinessPost.value));
 
+    // Add whatsappNumber if it's a business post
+    if (isBusinessPost.value && userStore.user?.whatsappNumber) {
+      formData.append('whatsappNumber', userStore.user.whatsappNumber);
+    }
+
     // Append each file
     selectedFiles.value.forEach((file, index) => {
       formData.append(`media_${index}`, file);
@@ -762,5 +772,15 @@ const handleLocationSelected = (location: {
 <style scoped>
 .q-dialog__inner {
   min-width: 80vw;
+}
+
+.description-input :deep(.q-field__native) {
+  min-height: 150px;
+  padding: 12px;
+}
+
+.description-input :deep(.q-field__control) {
+  height: auto;
+  min-height: 150px;
 }
 </style>

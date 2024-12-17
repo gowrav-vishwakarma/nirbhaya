@@ -38,18 +38,25 @@
       >
         <q-card class="create-post-card q-pa-md">
           <div class="row items-center no-wrap">
-            <div class="relative-position">
+            <div class="relative-position location-selector">
               <q-avatar
                 size="45px"
                 class="avatar cursor-pointer"
                 @click="showLocationDialog = true"
               >
+                <template v-if="isLocationLoading">
+                  <q-spinner-dots color="primary" size="30px" />
+                </template>
                 <img
+                  v-else
                   style="height: 30px; width: 30px"
                   src="/locationIcon.png"
                   alt="Location Icon"
                 />
               </q-avatar>
+              <div class="location-name text-caption text-center q-mt-xs">
+                {{ getLocationDisplayName }}
+              </div>
 
               <LocationSelectionDialog
                 v-model="showLocationDialog"
@@ -67,6 +74,7 @@
               borderless
               clearable
               style="border-radius: 20px; padding: 0 8px"
+              @keyup.enter="performSearch"
             >
               <template #append>
                 <q-btn
@@ -135,7 +143,7 @@
           class="col-12"
           :ref="index === posts.length - 1 ? (el) => { lastPostRef = el as HTMLElement } : undefined"
         >
-          <q-card flat class="post-card">
+          <q-card flat :class="['post-card', getPostCardClass(post)]">
             <!-- User Info Section -->
             <q-card-section class="q-pb-none">
               <div class="row items-center">
@@ -154,7 +162,7 @@
                     style="object-fit: cover"
                   />
                 </q-avatar>
-                <div class="q-ml-md"> 
+                <div class="q-ml-md">
                   <div
                     class="text-weight-bold text-capitalize"
                     style="font-size: 16px"
@@ -200,11 +208,16 @@
                 {{ post.title }}
               </div>
               <div class="text-body1 post-description">
-                {{
-                  showFullDescription[post.id.toString()]
-                    ? post.description
-                    : truncateText(post.description, 15)
-                }}
+                <div
+                  v-html="
+                    makeLinksClickable(
+                      showFullDescription[post.id.toString()]
+                        ? post.description
+                        : truncateText(post.description, 15),
+                      post.priority
+                    )
+                  "
+                ></div>
                 <span
                   v-if="post.description.split(' ').length > 10"
                   @click="toggleDescription(post.id)"
@@ -470,6 +483,7 @@ interface Post extends Omit<CommunityPost, 'liked'> {
     y: number; // latitude
   };
   showLocation?: boolean;
+  whatsappNumber?: string; // Add this field
 }
 
 // Add this interface after the Post interface
@@ -534,7 +548,7 @@ const performSearch = () => {
 
 // Update the formatDate helper function
 const formatDate = (date: string | null) => {
-  console.log('date.......', date);
+  // console.log('date.......', date);
 
   if (!date) return 'Recent';
 
@@ -613,8 +627,12 @@ const loadPosts = async (loadMore = false, search = '') => {
     const response = await api.get('/posts/community-posts', {
       params: {
         status: 'active',
-        prompt: searchQuery.value && searchQuery.value.length > 0 ? searchQuery.value : '',
-        isSearch:searchQuery.value &&  searchQuery.value.length > 0 ? true : false,
+        prompt:
+          searchQuery.value && searchQuery.value.length > 0
+            ? searchQuery.value
+            : '',
+        isSearch:
+          searchQuery.value && searchQuery.value.length > 0 ? true : false,
         userId: userStore.user?.id || null,
         page: page.value,
         limit: limit.value,
@@ -623,7 +641,7 @@ const loadPosts = async (loadMore = false, search = '') => {
     });
 
     let postsData: Post[] = [];
-    
+
     // Add null checks and proper type handling
     if (response?.data) {
       if (Array.isArray(response.data)) {
@@ -1298,35 +1316,54 @@ const handleLocationSelected = async (location: {
 }) => {
   console.log('Location selected:', location);
 
-  // Update selected location
-  selectedLocation.value = {
-    type: location.source || 'current',
-    latitude: location.latitude,
-    longitude: location.longitude,
-    name: location.source === 'map' ? 'Custom Location' : location.name || '',
-    address: location.address || '',
-  };
-
-  // Reset pagination and posts
-  page.value = 1;
-  posts.value = [];
-  hasMore.value = true;
-  loading.value = true;
-
   try {
+    if (location.source === 'current') {
+      isLocationLoading.value = true;
+      const position = await Geolocation.getCurrentPosition({
+        enableHighAccuracy: true,
+        timeout: 10000,
+      });
+
+      // Update selected location with current position
+      selectedLocation.value = {
+        type: 'current',
+        latitude: position.coords.latitude,
+        longitude: position.coords.longitude,
+        name: 'Current Location',
+        address: '',
+      };
+    } else {
+      // Update selected location for other cases
+      selectedLocation.value = {
+        type: location.source || 'stored',
+        latitude: location.latitude,
+        longitude: location.longitude,
+        name:
+          location.source === 'map' ? 'Custom Location' : location.name || '',
+        address: location.address || '',
+      };
+    }
+
+    // Reset pagination and posts
+    page.value = 1;
+    posts.value = [];
+    hasMore.value = true;
+    loading.value = true;
+
     // Close location dialog
     showLocationDialog.value = false;
 
     // Reload posts with new location
     await loadPosts(false);
   } catch (error) {
-    console.error('Error loading posts for new location:', error);
+    console.error('Error handling location selection:', error);
     $q.notify({
       color: 'negative',
-      message: 'Failed to load posts for selected location',
+      message: 'Failed to get location',
       icon: 'error',
     });
   } finally {
+    isLocationLoading.value = false;
     loading.value = false;
   }
 };
@@ -1380,6 +1417,78 @@ watch(searchQuery, (newValue) => {
     loadPosts(false);
   }
 });
+
+// Add new ref for location loading state
+const isLocationLoading = ref(false);
+
+// Add computed property for location display name
+const getLocationDisplayName = computed(() => {
+  if (isLocationLoading.value) {
+    return 'Getting location...';
+  }
+  if (!selectedLocation.value.name) {
+    return 'Select Location';
+  }
+  if (selectedLocation.value.type === 'current') {
+    return 'Current Location';
+  }
+  if (selectedLocation.value.type === 'map') {
+    return 'Custom Location';
+  }
+  return selectedLocation.value.name;
+});
+
+// Update the makeLinksClickable function to handle priority
+const makeLinksClickable = (text: string, priority?: string) => {
+  if (!text) return '';
+
+  // URL regex pattern
+  const urlPattern =
+    /(https?:\/\/[^\s]+)|(www\.[^\s]+)|([a-zA-Z0-9._-]+\.[a-zA-Z]{2,6}(\/[^\s]*)?)/g;
+
+  // For low priority posts, just return the text
+  if (!priority || priority === 'low') {
+    return text;
+  }
+
+  // For other priorities, make links clickable
+  const htmlContent = text.replace(urlPattern, (url) => {
+    let href = url;
+    if (url.startsWith('www.')) {
+      href = 'https://' + url;
+    } else if (!url.startsWith('http')) {
+      href = 'https://' + url;
+    }
+    return `<a href="${href}" target="_blank" rel="noopener noreferrer" class="post-link">${url}</a>`;
+  });
+
+  return htmlContent;
+};
+
+// Add this method to safely handle HTML content
+const createMarkup = (content: string) => {
+  return { __html: makeLinksClickable(content) };
+};
+
+// Add this computed property after other computed properties
+const getPostCardClass = (post: Post) => {
+  // First check if it's a business post since that takes precedence
+  if (post.isBusinessPost) {
+    return 'business-post';
+  }
+
+  // Then check priority levels
+  switch (post.priority?.toLowerCase()) {
+    case 'high':
+      return 'high-priority-post';
+    case 'medium':
+      return 'medium-priority-post';
+    case 'regular':
+      return 'regular-post';
+    default:
+      return '';
+  }
+};
 </script>
 <style scoped lang="scss">
 .container {
@@ -1400,13 +1509,84 @@ watch(searchQuery, (newValue) => {
   position: relative;
   z-index: 1;
   margin-bottom: 0px;
+
+  // High Priority Post
+  &.high-priority-post {
+    border-left: 4px solid #ff4081; // Pink accent
+    .text-h5 {
+      color: #ff4081 !important;
+    }
+  }
+
+  // Medium Priority Post
+  &.medium-priority-post {
+    border-left: 4px solid #2196f3; // Blue accent
+    .text-h5 {
+      color: #2196f3 !important;
+    }
+  }
+
+  // Business Post
+  &.business-post {
+    border-left: 4px solid #ffa726; // Orange accent
+    .text-h5 {
+      color: #f57c00 !important;
+    }
+
+    .q-avatar {
+      border: 2px solid #ffa726;
+    }
+  }
+
+  // Regular Post
+  &.regular-post {
+    border-left: 4px solid #9c27b0; // Purple accent
+    .text-h5 {
+      color: #9c27b0 !important;
+    }
+  }
+
+  // Add hover effects
+  &.high-priority-post,
+  &.medium-priority-post,
+  &.business-post,
+  &.regular-post {
+    transition: all 0.3s ease;
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+  }
+
+  // Add subtle animation for priority posts
+  @keyframes subtlePulse {
+    0% {
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    50% {
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+    100% {
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+  }
+
+  &.high-priority-post {
+    animation: subtlePulse 3s infinite;
+  }
 }
 
-.post-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 -10px 15px -10px rgba(0, 0, 0, 0.4),
-    /* Enhanced top shadow on hover */ 0 10px 15px -10px rgba(0, 0, 0, 0.4);
-  /* Enhanced bottom shadow on hover */
+// Add responsive adjustments
+@media (max-width: 600px) {
+  .post-card {
+    &.high-priority-post,
+    &.medium-priority-post,
+    &.business-post,
+    &.regular-post {
+      border-left-width: 3px;
+    }
+  }
 }
 
 .post-description {
@@ -1416,6 +1596,22 @@ watch(searchQuery, (newValue) => {
   font-size: 1rem;
   letter-spacing: 0.015em;
   margin-top: -10px;
+
+  .post-link {
+    color: #2563eb;
+    text-decoration: none;
+    word-break: break-word;
+    transition: all 0.2s ease;
+
+    &:hover {
+      color: #1d4ed8;
+      text-decoration: underline;
+    }
+
+    &:visited {
+      color: #7c3aed;
+    }
+  }
 }
 
 .hashtags-container {
@@ -2503,7 +2699,7 @@ watch(searchQuery, (newValue) => {
 
   .avatar {
     background-color: rgb(248, 240, 242);
-    margin-right: 2px;
+    margin-right: 1px;
   }
 }
 
@@ -2574,5 +2770,30 @@ watch(searchQuery, (newValue) => {
 .post-input-box {
   border-radius: 8px; /* Optional for rounded corners */
   outline: none; /* Removes focus outline */
+}
+
+.location-selector {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-right: 8px;
+  max-width: 70px; // Reduced from min-width to max-width
+}
+
+.location-name {
+  font-size: 10px;
+  color: $grey-7;
+  width: 100%; // Take full width of parent
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.2;
+  padding: 0 2px; // Add small padding to prevent text touching edges
+}
+
+.avatar {
+  margin-right: 0;
+  flex-shrink: 0; // Prevent avatar from shrinking
 }
 </style>

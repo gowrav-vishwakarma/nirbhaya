@@ -184,6 +184,7 @@ interface PostProps extends Omit<CommunityPost, 'liked'> {
   wasLiked: boolean;
   liked: boolean;
   isBusinessPost?: boolean;
+  whatsappNumber?: string;
 }
 
 interface UserInteractionRules {
@@ -442,12 +443,7 @@ watch(showComments, async (newValue) => {
 
 const openWhatsApp = async () => {
   try {
-    if (!props.post.id) return;
-
-    const response = await communityService.getBusinessWhatsApp(
-      props.post.id.toString()
-    );
-    const whatsappNumber = response.whatsappNumber;
+    const whatsappNumber = props.post.whatsappNumber;
 
     if (!whatsappNumber) {
       $q.notify({
@@ -458,7 +454,7 @@ const openWhatsApp = async () => {
       return;
     }
 
-    const text = `Hi, I'm interested in your post: ${props.post.title}`;
+    const text = `Hi, I'm interested in your post on https://app.sosbharat.com/#/sos-bharat-community-post/${props.post.id} : ${props.post.title}`;
     const encodedText = encodeURIComponent(text);
 
     // Create both universal and app-specific URLs
@@ -486,7 +482,7 @@ const openWhatsApp = async () => {
       window.location.href = universalUrl;
     }
   } catch (error) {
-    console.error('Error getting WhatsApp number:', error);
+    console.error('Error opening WhatsApp:', error);
     $q.notify({
       message: 'Unable to connect via WhatsApp',
       color: 'negative',

@@ -110,7 +110,7 @@
           class="col-12"
           :ref="index === posts.length - 1 ? (el) => { lastPostRef = el as HTMLElement } : undefined"
         >
-          <q-card flat class="post-card">
+          <q-card flat :class="['post-card', getPostCardClass(post)]">
             <!-- User Info Section -->
             <q-card-section class="q-pb-none">
               <div class="row items-center">
@@ -185,11 +185,16 @@
                 {{ post.title }}
               </div>
               <div class="text-body1 post-description">
-                {{
-                  showFullDescription[post.id.toString()]
-                    ? post.description
-                    : truncateText(post.description, 15)
-                }}
+                <div
+                  v-html="
+                    makeLinksClickable(
+                      showFullDescription[post.id.toString()]
+                        ? post.description
+                        : truncateText(post.description, 15),
+                      post.priority
+                    )
+                  "
+                ></div>
                 <span
                   v-if="post.description.split(' ').length > 10"
                   @click="toggleDescription(post.id)"
@@ -460,6 +465,7 @@ interface Post extends Omit<CommunityPost, 'liked'> {
     y: number; // latitude
   };
   showLocation?: boolean;
+  priority?: string; // Add this line
 }
 
 // Add this interface near the top with other interfaces
@@ -1410,6 +1416,53 @@ const formatDistance = (distance: number | undefined) => {
     return `${distance.toFixed(1)}km away`;
   }
 };
+
+// Add this new function in the script section after other functions
+const makeLinksClickable = (text: string, priority?: string) => {
+  if (!text) return '';
+
+  // URL regex pattern
+  const urlPattern =
+    /(https?:\/\/[^\s]+)|(www\.[^\s]+)|([a-zA-Z0-9._-]+\.[a-zA-Z]{2,6}(\/[^\s]*)?)/g;
+
+  // For low priority posts, just return the text
+  if (!priority || priority === 'low') {
+    return text;
+  }
+
+  // For other priorities, make links clickable
+  const htmlContent = text.replace(urlPattern, (url) => {
+    let href = url;
+    if (url.startsWith('www.')) {
+      href = 'https://' + url;
+    } else if (!url.startsWith('http')) {
+      href = 'https://' + url;
+    }
+    return `<a href="${href}" target="_blank" rel="noopener noreferrer" class="post-link">${url}</a>`;
+  });
+
+  return htmlContent;
+};
+
+// Add this computed property after other computed properties
+const getPostCardClass = (post: Post) => {
+  // First check if it's a business post since that takes precedence
+  if (post.isBusinessPost) {
+    return 'business-post';
+  }
+
+  // Then check priority levels
+  switch (post.priority?.toLowerCase()) {
+    case 'high':
+      return 'high-priority-post';
+    case 'medium':
+      return 'medium-priority-post';
+    case 'regular':
+      return 'regular-post';
+    default:
+      return '';
+  }
+};
 </script>
 <style scoped lang="scss">
 .container {
@@ -1430,13 +1483,72 @@ const formatDistance = (distance: number | undefined) => {
   position: relative;
   z-index: 1;
   margin-bottom: 0px;
-}
 
-.post-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 -10px 15px -10px rgba(0, 0, 0, 0.4),
-    /* Enhanced top shadow on hover */ 0 10px 15px -10px rgba(0, 0, 0, 0.4);
-  /* Enhanced bottom shadow on hover */
+  // High Priority Post
+  &.high-priority-post {
+    border-left: 4px solid #ff4081; // Pink accent
+    .text-h5 {
+      color: #ff4081 !important;
+    }
+  }
+
+  // Medium Priority Post
+  &.medium-priority-post {
+    border-left: 4px solid #2196f3; // Blue accent
+    .text-h5 {
+      color: #2196f3 !important;
+    }
+  }
+
+  // Business Post
+  &.business-post {
+    border-left: 4px solid #ffa726; // Orange accent
+    .text-h5 {
+      color: #f57c00 !important;
+    }
+
+    .q-avatar {
+      border: 2px solid #ffa726;
+    }
+  }
+
+  // Regular Post
+  &.regular-post {
+    border-left: 4px solid #9c27b0; // Purple accent
+    .text-h5 {
+      color: #9c27b0 !important;
+    }
+  }
+
+  // Add hover effects
+  &.high-priority-post,
+  &.medium-priority-post,
+  &.business-post,
+  &.regular-post {
+    transition: all 0.3s ease;
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+  }
+
+  // Add subtle animation for priority posts
+  @keyframes subtlePulse {
+    0% {
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    50% {
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+    100% {
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+  }
+
+  &.high-priority-post {
+    animation: subtlePulse 3s infinite;
+  }
 }
 
 .post-description {
@@ -1446,6 +1558,22 @@ const formatDistance = (distance: number | undefined) => {
   font-size: 1rem;
   letter-spacing: 0.015em;
   margin-top: -10px;
+
+  .post-link {
+    color: #2563eb;
+    text-decoration: none;
+    word-break: break-word;
+    transition: all 0.2s ease;
+
+    &:hover {
+      color: #1d4ed8;
+      text-decoration: underline;
+    }
+
+    &:visited {
+      color: #7c3aed;
+    }
+  }
 }
 
 .hashtags-container {
@@ -2562,5 +2690,17 @@ const formatDistance = (distance: number | undefined) => {
   align-items: center;
   color: whitesmoke;
   // margin-top: 5px
+}
+
+// Add responsive adjustments
+@media (max-width: 600px) {
+  .post-card {
+    &.high-priority-post,
+    &.medium-priority-post,
+    &.business-post,
+    &.regular-post {
+      border-left-width: 3px;
+    }
+  }
 }
 </style>
