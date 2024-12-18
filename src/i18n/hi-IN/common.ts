@@ -334,7 +334,7 @@ export default {
   peopleYouHaveEncouraged: 'आपके द्वारा प्रोत्साहित लोग',
   locationsSecured: 'सुरक्षित स्थान',
   // Added keys
-  referredBy: 'रेफर किया गया',
+  referredBy: 'रेफरल कोड',
   referralIdNotFound: 'रेफरल आईडी नहीं मिली',
   referralIdValidationFailed: 'रेफरल आईडी सत्यापित करने में विफल',
   // Added translations for form validation

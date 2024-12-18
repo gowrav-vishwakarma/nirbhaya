@@ -317,7 +317,7 @@ export default {
   peopleYouHaveEncouraged: 'તમે પ્રોત્સાહિત કરેલા લોકો',
   locationsSecured: 'સુરક્ષિત સ્થળો',
   // Additional Keys Identified in ProfilePage.vue
-  referredBy: 'રેફરલ દ્વારા',
+  referredBy: 'રેફરલ કોડ',
   referralIdNotFound: 'રેફરલ ID મળી નથી',
   referralIdValidationFailed: 'રેફરલ ID ચકાસવામાં નિષ્ફળ',
   // Added translations for form validation

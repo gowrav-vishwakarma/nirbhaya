@@ -10,10 +10,10 @@
               <!-- Name Input -->
               <div class="col-12 col-sm-6 q-py-none custom-input">
                 <label>{{ $t('common.name') }}</label>
-                <q-input 
-                  v-model="values.name" 
+                <q-input
+                  v-model="values.name"
                   :error="!!errors.name"
-                  :error-message="errors.name?.join('; ')" 
+                  :error-message="errors.name?.join('; ')"
                   :rules="[(val) => !!val || $t('common.nameRequired')]"
                   filled
                   class="custom-radius"
@@ -26,7 +26,7 @@
               <!-- Phone Number Input -->
               <div class="col-12 col-sm-6 q-py-none custom-input">
                 <label>{{ $t('common.mobileNumber') }}</label>
-                <q-input 
+                <q-input
                   v-model="values.phoneNumber"
                   filled
                   class="custom-radius"
@@ -41,7 +41,7 @@
               <!-- DOB Input -->
               <div class="col-12 col-sm-6 q-py-none custom-input">
                 <label>{{ $t('common.dob') }}</label>
-                <q-input 
+                <q-input
                   v-model="values.dob"
                   mask="date"
                   filled
@@ -52,10 +52,19 @@
                 >
                   <template v-slot:append>
                     <q-icon name="event" class="cursor-pointer">
-                      <q-popup-proxy cover transition-show="scale" transition-hide="scale">
+                      <q-popup-proxy
+                        cover
+                        transition-show="scale"
+                        transition-hide="scale"
+                      >
                         <q-date v-model="values.dob">
                           <div class="row items-center justify-end">
-                            <q-btn v-close-popup label="ok" color="primary" flat />
+                            <q-btn
+                              v-close-popup
+                              label="ok"
+                              color="primary"
+                              flat
+                            />
                           </div>
                         </q-date>
                       </q-popup-proxy>
@@ -67,7 +76,7 @@
               <!-- State Input -->
               <div class="col-12 col-sm-6 q-py-none custom-input">
                 <label>{{ $t('common.state') }}</label>
-                <q-select 
+                <q-select
                   v-model="values.state"
                   :options="stateOptions"
                   filled
@@ -101,7 +110,7 @@
               <!-- User Type Input -->
               <div class="col-12 col-sm-6 q-py-none custom-input">
                 <label>{{ $t('common.userType') }}</label>
-                <q-select 
+                <q-select
                   v-model="values.userType"
                   :options="userTypeOptions"
                   filled
@@ -117,7 +126,7 @@
               <!-- Profession Input -->
               <div class="col-12 q-py-none custom-input">
                 <label>{{ $t('common.profession') }}</label>
-                <q-select 
+                <q-select
                   v-model="values.profession"
                   :options="professionOptions"
                   filled
@@ -137,7 +146,7 @@
               <!-- Referred By Input -->
               <div class="col-12 q-py-none custom-input">
                 <label>{{ $t('common.referredBy') }}</label>
-                <q-input 
+                <q-input
                   v-model="values.referredBy"
                   filled
                   class="custom-radius"
@@ -152,16 +161,19 @@
             </div>
 
             <!-- Submit Button -->
-            <div class="row q-col-gutter-md q-mt-none" style="margin-top: -15px;">
+            <div
+              class="row q-col-gutter-md q-mt-none"
+              style="margin-top: -15px"
+            >
               <div class="col-12">
-                <q-btn 
-                  type="submit" 
-                  :loading="isLoading" 
-                  color="primary" 
-                  class="full-width next-button q-mt-xs" 
+                <q-btn
+                  type="submit"
+                  :loading="isLoading"
+                  color="primary"
+                  class="full-width next-button q-mt-xs"
                   :disable="!isFormValid"
                   no-caps
-                  style="border-radius: 10px !important; height: 40px;"
+                  style="border-radius: 10px !important; height: 40px"
                 >
                   <b>{{ $t('common.saveChanges') }}</b>
                 </q-btn>
@@ -191,7 +203,7 @@ const userStore = useUserStore();
 
 // const STREAM_SAVE = computed(() => process.env.STREAM_SAVE);
 const props = defineProps<{
-  reloadComponents?: () => void
+  reloadComponents?: () => void;
 }>();
 
 const emit = defineEmits(['reloadComponents']);
@@ -234,7 +246,7 @@ const originalStateOptions = [
   'Chandigarh',
   'Pondicherry',
   'Andaman and Nico.In.',
-  'West Bengal'
+  'West Bengal',
 ];
 
 const stateOptions = ref([...originalStateOptions]);
@@ -244,14 +256,14 @@ const stateOptions = ref([...originalStateOptions]);
 // });
 
 const professionOptions = [
-  { label: t('common.hospital'), value: 'hospital' },
-  { label: t('common.doctorGeneral'), value: 'doctorGeneral' },
-  { label: t('common.doctorEmergency'), value: 'doctorEmergency' },
-  { label: t('common.mechanic2Wheeler'), value: 'mechanic2Wheeler' },
-  { label: t('common.mechanic4Wheeler'), value: 'mechanic4Wheeler' },
-  { label: t('common.mechanicBoth'), value: 'mechanicBoth' },
-  { label: t('common.nurse'), value: 'nurse' },
-  { label: t('common.tech'), value: 'tech' },
+  // { label: t('common.hospital'), value: 'hospital' },
+  // { label: t('common.doctorGeneral'), value: 'doctorGeneral' },
+  // { label: t('common.doctorEmergency'), value: 'doctorEmergency' },
+  // { label: t('common.mechanic2Wheeler'), value: 'mechanic2Wheeler' },
+  // { label: t('common.mechanic4Wheeler'), value: 'mechanic4Wheeler' },
+  // { label: t('common.mechanicBoth'), value: 'mechanicBoth' },
+  // { label: t('common.nurse'), value: 'nurse' },
+  // { label: t('common.tech'), value: 'tech' },
   { label: t('common.student'), value: 'student' },
   { label: t('common.freelancer'), value: 'freelancer' },
   { label: t('common.onlineSeller'), value: 'onlineSeller' },
@@ -263,7 +275,10 @@ const professionOptions = [
   { label: t('common.skilledTradesWorker'), value: 'skilledTradesWorker' },
   { label: t('common.shopOwner'), value: 'shopOwner' },
   { label: t('common.techITProfessional'), value: 'techITProfessional' },
-  { label: t('common.healthcareMedicalWorker'), value: 'healthcareMedicalWorker' },
+  {
+    label: t('common.healthcareMedicalWorker'),
+    value: 'healthcareMedicalWorker',
+  },
   { label: t('common.socialWorker'), value: 'socialWorker' },
   { label: t('common.privateSectorEmployee'), value: 'privateSectorEmployee' },
   { label: t('common.governmentEmployee'), value: 'governmentEmployee' },
@@ -305,10 +320,8 @@ interface FormValues {
   referredBy: string;
 }
 
-const { values, errors, isLoading, validateAndSubmit, callbacks } = useForm<FormValues>(
-  api,
-  'user/user-profile-update',
-  {
+const { values, errors, isLoading, validateAndSubmit, callbacks } =
+  useForm<FormValues>(api, 'user/user-profile-update', {
     name: '',
     phoneNumber: '',
     city: null,
@@ -322,8 +335,7 @@ const { values, errors, isLoading, validateAndSubmit, callbacks } = useForm<Form
     streamAudioVideoOnSos: false,
     broadcastAudioOnSos: false,
     referredBy: '',
-  }
-);
+  });
 callbacks.beforeSubmit = (data) => {
   console.log('data before processing...', data);
   const processedData = {
@@ -331,7 +343,7 @@ callbacks.beforeSubmit = (data) => {
     dob: data.dob || '',
     state: data.state || '',
     pincode: data.pincode || '',
-    referredBy: errors.value.referredBy ? '' : data.referredBy
+    referredBy: errors.value.referredBy ? '' : data.referredBy,
   };
 
   if (data.city && typeof data.city === 'object') {
@@ -356,7 +368,7 @@ const loadUserData = async () => {
     const cityObject: City = {
       officename: userData.city,
       statename: userData.state,
-      pincode: userData.pincode
+      pincode: userData.pincode,
     };
     values.value.city = cityObject;
   }
@@ -376,7 +388,7 @@ const loadUserData = async () => {
     startAudioVideoRecordOnSos: userData.startAudioVideoRecordOnSos || false,
     streamAudioVideoOnSos: userData.streamAudioVideoOnSos || false,
     broadcastAudioOnSos: userData.broadcastAudioOnSos || false,
-    referredBy: userData.referredBy || ''
+    referredBy: userData.referredBy || '',
   });
 
   lastCheckedReferralId.value = values.value.referredBy;
@@ -405,7 +417,6 @@ onMounted(() => {
   // checkPermissions();
 });
 
-
 const hasEmergencyContacts = computed(
   () => values.value.emergencyContacts.length > 0
 );
@@ -430,16 +441,11 @@ const isFormValid = computed(() => {
     !errors.value.dob &&
     !errors.value.state &&
     !errors.value.city &&
-    !Object.keys(errors.value).some(key =>
-      key.startsWith('emergencyContact')
-    )
+    !Object.keys(errors.value).some((key) => key.startsWith('emergencyContact'))
   );
 });
 
-
-
 const handleSubmit = async () => {
-
   if (isFormValid.value || values.value.emergencyContacts.length === 0) {
     validateAndSubmit(false);
   } else {
@@ -459,7 +465,7 @@ callbacks.onSuccess = (data) => {
     dob: values.value.dob,
     state: values.value.state,
     pincode: values.value.pincode,
-    profession: values.value.profession
+    profession: values.value.profession,
   };
 
   userStore.updateUser(updatedUserData);
@@ -485,8 +491,6 @@ callbacks.onError = async (error: any): Promise<void> => {
     position: 'top-right',
   });
 };
-
-
 
 // Add a reactive reference to track the last checked referral ID
 const lastCheckedReferralId = ref('');
@@ -526,7 +530,10 @@ const handleStateChange = (newState: string | null) => {
   }
 };
 
-const filterStates: QSelectFilterFn = (val: string, update: (fn: () => void) => void) => {
+const filterStates: QSelectFilterFn = (
+  val: string,
+  update: (fn: () => void) => void
+) => {
   if (val === '') {
     update(() => {
       stateOptions.value = originalStateOptions;
@@ -558,9 +565,7 @@ watch(
     }
 
     try {
-      const response = await api.get(
-        `/user/validate-referral/${newValue}`
-      );
+      const response = await api.get(`/user/validate-referral/${newValue}`);
       if (!response.data.exists) {
         errors.value.referredBy = [t('referralIdNotFound')];
       } else {

@@ -84,7 +84,7 @@ export default {
   name: 'Name',
   city: 'City',
   state: 'State',
-  userType: 'User Type',
+  userType: 'Age Group',
   dob: 'Date Of Birth',
   emergencyContacts: 'Emergency Contacts',
   emergencyContactsHelp:
@@ -328,7 +328,7 @@ export default {
   peopleYouHaveEncouraged: 'People You Have Encouraged',
   locationsSecured: 'Locations Secured',
   // Add these keys
-  referredBy: 'Referred By',
+  referredBy: 'Referral Code',
   referralIdNotFound: 'Referral ID not found',
   referralIdValidationFailed: 'Failed to validate referral ID',
   // Added translations for form validation
