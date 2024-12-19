@@ -41,8 +41,12 @@
             }}</q-item-label>
           </q-item-section>
           <q-item-section side>
-            <q-toggle v-model="values.startAudioVideoRecordOnSos"
-              @update:model-value="handleSettingChange('startAudioVideoRecordOnSos')" />
+            <q-toggle
+              v-model="values.startAudioVideoRecordOnSos"
+              @update:model-value="
+                handleSettingChange('startAudioVideoRecordOnSos')
+              "
+            />
           </q-item-section>
         </q-item>
         <q-item v-if="STREAM_SAVE" tag="label" v-ripple>
@@ -52,25 +56,37 @@
             }}</q-item-label>
           </q-item-section>
           <q-item-section side>
-            <q-toggle v-model="values.streamAudioVideoOnSos"
-              @update:model-value="handleSettingChange('streamAudioVideoOnSos')" />
+            <q-toggle
+              v-model="values.streamAudioVideoOnSos"
+              @update:model-value="handleSettingChange('streamAudioVideoOnSos')"
+            />
           </q-item-section>
         </q-item>
         <q-item tag="label" v-ripple>
           <q-item-section>
-            <q-item-label>{{
-              $t('common.broadcastAudioOnSos')
-            }}</q-item-label>
+            <q-item-label>{{ $t('common.broadcastAudioOnSos') }}</q-item-label>
           </q-item-section>
           <q-item-section side>
-            <q-toggle v-model="values.broadcastAudioOnSos"
-              @update:model-value="handleSettingChange('broadcastAudioOnSos')" color="grey" :disable="true" />
+            <q-toggle
+              v-model="values.broadcastAudioOnSos"
+              @update:model-value="handleSettingChange('broadcastAudioOnSos')"
+              color="grey"
+              :disable="true"
+            />
           </q-item-section>
         </q-item>
       </q-list>
     </div>
+    <div v-else style="padding: 16px">
+      <q-banner dense inline-actions class="bg-grey-2">
+        Your device is not supported. Please check your settings or try a
+        different device.
 
-
+        <template v-slot:action>
+          <q-btn flat icon="warning" color="red" />
+        </template>
+      </q-banner>
+    </div>
   </div>
 </template>
 
@@ -83,6 +99,7 @@ import { api } from 'src/boot/axios';
 import { Capacitor, Plugins } from '@capacitor/core';
 import { Geolocation } from '@capacitor/geolocation';
 import { Camera } from '@capacitor/camera';
+import { useMediaPermissions } from '../../composables/useMediaPermissions';
 
 // Define interface for values
 interface SOSSettings {
@@ -91,16 +108,14 @@ interface SOSSettings {
   broadcastAudioOnSos: boolean;
 }
 const props = defineProps<{
-  reloadComponents?: () => void
+  reloadComponents?: () => void;
 }>();
 
 const emit = defineEmits(['reloadComponents']);
 // Define props and emits if needed
 defineOptions({
-  name: 'ProfileAppPermission'
+  name: 'ProfileAppPermission',
 });
-
-
 
 // Get composition API utilities
 const { t } = useI18n();
@@ -109,7 +124,8 @@ const userStore = useUserStore();
 
 // Initialize values from store immediately
 const values = ref<SOSSettings>({
-  startAudioVideoRecordOnSos: userStore.user?.startAudioVideoRecordOnSos ?? false,
+  startAudioVideoRecordOnSos:
+    userStore.user?.startAudioVideoRecordOnSos ?? false,
   streamAudioVideoOnSos: userStore.user?.streamAudioVideoOnSos ?? false,
   broadcastAudioOnSos: userStore.user?.broadcastAudioOnSos ?? true,
 });
@@ -118,12 +134,13 @@ const values = ref<SOSSettings>({
 onMounted(() => {
   if (userStore.user) {
     values.value = {
-      startAudioVideoRecordOnSos: userStore.user.startAudioVideoRecordOnSos ?? false,
+      startAudioVideoRecordOnSos:
+        userStore.user.startAudioVideoRecordOnSos ?? false,
       streamAudioVideoOnSos: userStore.user.streamAudioVideoOnSos ?? false,
       broadcastAudioOnSos: userStore.user.broadcastAudioOnSos ?? true,
     };
   }
-  checkPermissions()
+  checkPermissions();
 });
 
 // Add STREAM_SAVE constant
@@ -131,15 +148,15 @@ const STREAM_SAVE = computed(() => process.env.STREAM_SAVE);
 
 // Add isNavigatorMediaSupported computed property
 const isNavigatorMediaSupported = computed(() => {
-  return typeof navigator !== 'undefined' && navigator.mediaDevices !== undefined;
+  return (
+    typeof navigator !== 'undefined' && navigator.mediaDevices !== undefined
+  );
 });
 
 const permissions = ref([
   { name: 'common.location', granted: false },
   { name: 'common.camera', granted: false },
 ]);
-
-
 
 const checkPermissions = async () => {
   for (const permission of permissions.value) {
@@ -187,13 +204,13 @@ const handleSettingChange = async (setting: keyof SOSSettings) => {
   try {
     // First update the store
     userStore.updateUserSettings({
-      [setting]: values.value[setting]
+      [setting]: values.value[setting],
     });
 
     // Call the API endpoint
     await api.post('user/media-broadcast-permission', {
       [setting]: values.value[setting],
-      userId: userStore.user.id
+      userId: userStore.user.id,
     });
 
     props.reloadComponents?.();
@@ -212,27 +229,32 @@ const handleSettingChange = async (setting: keyof SOSSettings) => {
 
     // Also revert the store update
     userStore.updateUserSettings({
-      [setting]: !values.value[setting]
+      [setting]: !values.value[setting],
     });
 
     $q.notify({
       color: 'negative',
       message: t('common.errorSavingSettings'),
-      icon: 'error'
+      icon: 'error',
+      position: 'top-right',
     });
   }
 };
 
 // Add a watcher to sync values with store changes
-watch(() => userStore.user, (newUser) => {
-  if (newUser) {
-    values.value = {
-      startAudioVideoRecordOnSos: newUser.startAudioVideoRecordOnSos ?? false,
-      streamAudioVideoOnSos: newUser.streamAudioVideoOnSos ?? false,
-      broadcastAudioOnSos: newUser.broadcastAudioOnSos ?? true,
-    };
-  }
-}, { deep: true });
+watch(
+  () => userStore.user,
+  (newUser) => {
+    if (newUser) {
+      values.value = {
+        startAudioVideoRecordOnSos: newUser.startAudioVideoRecordOnSos ?? false,
+        streamAudioVideoOnSos: newUser.streamAudioVideoOnSos ?? false,
+        broadcastAudioOnSos: newUser.broadcastAudioOnSos ?? true,
+      };
+    }
+  },
+  { deep: true }
+);
 </script>
 
 <style scoped></style>

@@ -10,11 +10,23 @@
 
           <div class="row q-col-gutter-md q-mb-md">
             <div class="col-12">
-              <q-input v-model="address" :label="$t('common.location')" :loading="addressLoading"
-                :readonly="addressLoading" outlined dense>
+              <q-input
+                v-model="address"
+                :label="$t('common.location')"
+                :loading="addressLoading"
+                :readonly="addressLoading"
+                outlined
+                dense
+              >
                 <template v-slot:append>
-                  <q-btn round dense flat :icon="$t('common.icons.myLocation')" @click="getCurrentLocation"
-                    :loading="locationLoading">
+                  <q-btn
+                    round
+                    dense
+                    flat
+                    :icon="$t('common.icons.myLocation')"
+                    @click="getCurrentLocation"
+                    :loading="locationLoading"
+                  >
                     <q-tooltip>{{ $t('common.useCurrentLocation') }}</q-tooltip>
                   </q-btn>
                 </template>
@@ -24,21 +36,41 @@
               <div class="text-subtitle2 q-mb-sm">
                 {{ $t('common.searchRadius') }}
               </div>
-              <q-slider v-model="range" :min="100" :max="5000" :step="100" label label-always :label-value="`${range}m`"
-                color="primary" />
+              <q-slider
+                v-model="range"
+                :min="100"
+                :max="5000"
+                :step="100"
+                label
+                label-always
+                :label-value="`${range}m`"
+                color="primary"
+              />
             </div>
           </div>
 
           <div class="volunteer-map q-mb-md" ref="volunteerMap">
             <div class="map-center">
-              <q-icon :name="$t('common.icons.myLocation')" size="24px" color="primary" />
+              <q-icon
+                :name="$t('common.icons.myLocation')"
+                size="24px"
+                color="primary"
+              />
             </div>
             <div class="north-indicator">
               <q-icon name="north" size="24px" color="red" />
             </div>
-            <div v-for="volunteer in volunteers" :key="volunteer.id" class="volunteer-icon"
-              :style="getVolunteerPosition(volunteer)">
-              <q-icon :name="getVolunteerIcon(volunteer)" size="20px" :color="getVolunteerColor(volunteer)" />
+            <div
+              v-for="volunteer in volunteers"
+              :key="volunteer.id"
+              class="volunteer-icon"
+              :style="getVolunteerPosition(volunteer)"
+            >
+              <q-icon
+                :name="getVolunteerIcon(volunteer)"
+                size="20px"
+                :color="getVolunteerColor(volunteer)"
+              />
               <q-tooltip>
                 {{ volunteer.profession }}
               </q-tooltip>
@@ -52,28 +84,20 @@
             </p>
           </div>
 
-          <!-- <q-list bordered separator>
-            <q-item v-for="volunteer in volunteers" :key="volunteer.id">
-              <q-item-section avatar>
-                <q-icon
-                  :name="getVolunteerIcon(volunteer)"
-                  :color="getVolunteerColor(volunteer)"
-                />
-              </q-item-section>
-              <q-item-section>
-                <q-item-label>{{ volunteer.profession }}</q-item-label>
-                <q-item-label caption>
-                  {{ $t('common.distance') }}:
-                  {{ calculateDistance(volunteer) }}m
-                </q-item-label>
-              </q-item-section>
-            </q-item>
-          </q-list> -->
-          <!-- <div class="text-center q-mt-md">
-            <q-btn class="volunteers-bg-color" @click="router.push('/sos-events-map')">
-              <span class="text-bold"> View SOS Events Map </span>
+          <div class="text-center q-mt-md">
+            <!-- <q-btn
+              class="volunteers-bg-color q-mr-md"
+              @click="router.push('/sos-events-map')"
+            >
+              <span class="text-bold">{{ $t('common.viewSOSEventsMap') }}</span>
+            </q-btn> -->
+            <q-btn
+              class="volunteers-bg-color"
+              @click="router.push('/leaderboard')"
+            >
+              <span class="text-bold">{{ $t('common.viewLeaderboard') }}</span>
             </q-btn>
-          </div> -->
+          </div>
         </q-card-section>
       </q-card>
     </div>
@@ -120,6 +144,7 @@ const getCurrentLocation = async () => {
       color: 'negative',
       message: t('common.locationError'),
       icon: 'error',
+      position:'top-right'
     });
   } finally {
     locationLoading.value = false;
@@ -141,6 +166,7 @@ const fetchVolunteers = async () => {
       color: 'negative',
       message: t('common.fetchVolunteersError'),
       icon: 'error',
+      position:'top-right'
     });
   }
 };
@@ -225,6 +251,7 @@ onMounted(() => {
       color: 'negative',
       message: t('common.loginToViewVolunteers'),
       icon: 'error',
+      position:'top-right'
     });
     router.push('/login');
   } else {
@@ -292,5 +319,13 @@ onMounted(() => {
 .volunteers-bg-color {
   background: linear-gradient(135deg, $primary, darken($primary, 10%));
   color: whitesmoke;
+
+  // Add these styles for better button spacing and hover effect
+  margin: 4px;
+  transition: transform 0.2s;
+
+  &:hover {
+    transform: translateY(-2px);
+  }
 }
 </style>

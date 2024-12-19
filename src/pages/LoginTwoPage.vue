@@ -161,6 +161,7 @@ callbacks.onError = (error) => {
     message: otpSent.value
       ? 'Login failed. Please check your OTP and try again.'
       : 'Failed to send OTP. Please try again.',
+      position:'top-right'
   });
 };
 
@@ -171,14 +172,16 @@ const resendOTP = async () => {
   try {
     await api.post('auth/sendOtp', { mobileNumber: values.value.mobileNumber });
     Notify.create({
-      type: 'positive',
+      type: 'black',
       message: 'OTP resent successfully',
+      position:'top-right'
     });
   } catch (error) {
     console.error('Error resending OTP:', error);
     Notify.create({
       type: 'negative',
       message: 'Failed to resend OTP. Please try again.',
+      position:'top-right',
     });
   } finally {
     isLoading.value = false;

@@ -160,6 +160,7 @@ const toggleAudio = async () => {
       color: 'negative',
       message: t('common.errorTogglingAudio'),
       icon: 'warning',
+      position:'top-right'
     });
     isAudioOpen.value = false;
   } finally {
@@ -211,6 +212,7 @@ const handleSosAudioStarted = (sosPeerId: string) => {
   $q.notify({
     message: t('common.sosAudioStarted'),
     color: 'info',
+    position:'top-right'
   });
 };
 
@@ -219,6 +221,7 @@ const handleSosAudioStopped = () => {
   $q.notify({
     message: t('common.sosAudioStopped'),
     color: 'warning',
+    position:'top-right'
   });
   if (audioElement.value) {
     audioElement.value.pause();

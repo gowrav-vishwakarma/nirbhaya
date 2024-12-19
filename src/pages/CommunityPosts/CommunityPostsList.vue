@@ -1,5 +1,11 @@
 <template>
-  <q-page class="bg-grey-1" style="padding-top: env(safe-area-inset-top)">
+  <q-page
+    class="bg-grey-1"
+    style="
+      padding-top: env(safe-area-inset-top);
+      padding-bottom: env(safe-area-inset-bottom);
+    "
+  >
     <div class="container q-pa-md" v-if="isUserPermitted">
       <!-- Add Suggestion Button -->
       <!-- <div class="suggestion-button-container q-mb-md">
@@ -25,35 +31,93 @@
         </div> -->
       </div>
 
-      <div class="q-mb-lg" v-if="userStore.user.canCreatePost" style="margin-top: -15px">
+      <div
+        class="q-mb-lg"
+        v-if="userStore.user.canCreatePost"
+        style="margin-top: -15px"
+      >
         <q-card class="create-post-card q-pa-md">
           <div class="row items-center no-wrap">
-            <div class="relative-position">
-              <q-avatar size="45px" class="avatar cursor-pointer" @click="showLocationDialog = true">
-                <img style="height: 30px; width: 30px" src="/locationIcon.png" alt="Location Icon" />
+            <div class="relative-position location-selector">
+              <q-avatar
+                size="45px"
+                class="avatar cursor-pointer"
+                @click="showLocationDialog = true"
+              >
+                <template v-if="isLocationLoading">
+                  <q-spinner-dots color="primary" size="30px" />
+                </template>
+                <img
+                  v-else
+                  style="height: 30px; width: 30px"
+                  src="/locationIcon.png"
+                  alt="Location Icon"
+                />
               </q-avatar>
+              <div class="location-name text-caption text-center q-mt-xs">
+                {{ getLocationDisplayName }}
+              </div>
 
-              <LocationSelectionDialog v-model="showLocationDialog" :user-locations="userStore.user?.locations || []"
-                @location-selected="handleLocationSelected" />
+              <LocationSelectionDialog
+                v-model="showLocationDialog"
+                :user-locations="userStore.user?.locations || []"
+                @location-selected="handleLocationSelected"
+              />
             </div>
-            <q-btn class="col post-input-btn" flat color="grey-7">
-              <div class="row full-width items-center text-left">
-                <span class="text-grey-7" style="font-size: 0.8em">What's Post on your mind?</span>
-                <q-space />
-                <q-btn color="primary" class="q-ml-sm suggestion-btn" @click="createPost">
-                  <span style="
-                      font-size: 20px;
-                      font-weight: 800;
-                      padding-right: 5px;
-                    ">
+            <q-input
+              v-model.trim="searchQuery"
+              class="col post-input-btn"
+              dense
+              placeholder="Search and Create new post!"
+              bg-color="grey-2"
+              rounded
+              borderless
+              clearable
+              style="border-radius: 20px; padding: 0 8px"
+              @keyup.enter="performSearch"
+            >
+              <template #append>
+                <q-btn
+                  v-if="searchQuery"
+                  color="primary"
+                  class="search-btn"
+                  style="margin-top: 5px"
+                  @click="performSearch"
+                  unelevated
+                  rounded
+                >
+                  <q-icon name="search" class="q-mr-xs" />
+                  <span
+                    class="text-capitalize"
+                    style="font-size: 14px; font-weight: 800"
+                  >
+                    Search
+                  </span>
+                </q-btn>
+                <q-btn
+                  v-else
+                  color="primary"
+                  class="create-btn"
+                  style="margin-top: 5px"
+                  @click="createPost"
+                  unelevated
+                  rounded
+                >
+                  <span
+                    style="font-size: 20px; font-weight: 800"
+                    class="q-mr-xs"
+                  >
                     +
                   </span>
-                  <span class="text-capitalize" style="font-weight: 800; padding-top: 1px">
+                  <span
+                    class="text-capitalize"
+                    style="font-size: 14px; font-weight: 800"
+                  >
                     Create
                   </span>
                 </q-btn>
-              </div>
-            </q-btn>
+              </template>
+            </q-input>
           </div>
         </q-card>
       </div>
@@ -73,30 +137,63 @@
 
       <!-- Posts List -->
       <div v-else class="row q-col-gutter-y-md" style="margin-top: -30px">
-        <div v-for="(post, index) in posts" :key="post.id" class="col-12"
-          :ref="index === posts.length - 1 ? (el) => { lastPostRef = el as HTMLElement } : undefined">
-          <q-card flat class="post-card">
+        <div
+          v-for="(post, index) in posts"
+          :key="post.id"
+          class="col-12"
+          :ref="index === posts.length - 1 ? (el) => { lastPostRef = el as HTMLElement } : undefined"
+        >
+          <q-card flat :class="['post-card', getPostCardClass(post)]">
             <!-- User Info Section -->
             <q-card-section class="q-pb-none">
               <div class="row items-center">
-                <q-avatar size="48px" class="shadow-2" @click="router.push(`/my-posts/${post.userId}`)">
-                  <img :src="post.userId == 1
-                    ? '/sos_logo_1080_1080.png'
-                    : 'https://icons-for-free.com/iff/png/512/profile+profile+page+user+icon-1320186864367220794.png'
-                    " :alt="post.userName + '\'s profile'" style="object-fit: cover" />
+                <q-avatar
+                  size="48px"
+                  class="shadow-2"
+                  @click="router.push(`/my-posts/${post.userId}`)"
+                >
+                  <img
+                    :src="
+                      post.userId == 1
+                        ? '/sos_logo_1080_1080.png'
+                        : '/profile.png'
+                    "
+                    :alt="post.userName + '\'s profile'"
+                    style="object-fit: cover"
+                  />
                 </q-avatar>
                 <div class="q-ml-md">
-                  <div class="text-weight-bold text-capitalize" style="font-size: 16px"
-                    @click="router.push(`/my-posts/${post.userId}`)">
+                  <div
+                    class="text-weight-bold text-capitalize"
+                    style="font-size: 16px"
+                    @click="router.push(`/my-posts/${post.userId}`)"
+                  >
                     {{
                       post.userName == 'SOS Bharat Community'
                         ? 'SOS Bharat Community'
                         : post.userName
                     }}
                   </div>
-                  <div class="text-caption text-grey-7">
+                  <div class="text-caption text-grey-7 row items-center">
                     <q-icon name="schedule" size="xs" class="q-mr-xs" />
-                    {{ formatDate(post.createdAt) }}
+                    <span>{{ formatDate(post.createdAt) }}</span>
+
+                    <!-- Add location icon and distance if available -->
+                    <template v-if="post.location">
+                      <q-separator vertical spaced="sm" class="q-mx-sm" />
+                      <q-icon
+                        name="place"
+                        size="xs"
+                        class="q-mr-xs cursor-pointer"
+                        @click="openInGoogleMaps(post)"
+                      />
+                      <span
+                        class="cursor-pointer"
+                        @click="openInGoogleMaps(post)"
+                      >
+                        {{ formatDistance(post.distance) }}
+                      </span>
+                    </template>
                   </div>
                 </div>
               </div>
@@ -104,17 +201,28 @@
 
             <!-- Post Content -->
             <q-card-section style="padding: 10px 10px 0px 10px">
-              <div class="text-h5 text-weight-bold text-primary q-mb-sm" style="font-size: 16px">
+              <div
+                class="text-h5 text-weight-bold text-primary q-mb-sm"
+                style="font-size: 16px"
+              >
                 {{ post.title }}
               </div>
               <div class="text-body1 post-description">
-                {{
-                  showFullDescription[post.id.toString()]
-                    ? post.description
-                    : truncateText(post.description, 15)
-                }}
-                <span v-if="post.description.split(' ').length > 10" @click="toggleDescription(post.id)"
-                  class="read-more-link">
+                <div
+                  v-html="
+                    makeLinksClickable(
+                      showFullDescription[post.id.toString()]
+                        ? post.description
+                        : truncateText(post.description, 15),
+                      post.priority
+                    )
+                  "
+                ></div>
+                <span
+                  v-if="post.description.split(' ').length > 10"
+                  @click="toggleDescription(post.id)"
+                  class="read-more-link"
+                >
                   {{
                     showFullDescription[post.id.toString()]
                       ? 'Read Less'
@@ -124,33 +232,58 @@
               </div>
 
               <!-- Hashtags section -->
-              <div v-if="post.tags && post.tags.length" class="hashtags-container">
-                <span v-for="tag in post.tags" :key="tag" class="hashtag" @click="handleTagClick(tag)">
+              <div
+                v-if="post.tags && post.tags.length"
+                class="hashtags-container"
+              >
+                <span
+                  v-for="tag in post.tags"
+                  :key="tag"
+                  class="hashtag"
+                  @click="handleTagClick(tag)"
+                >
                   #{{ tag }}
                 </span>
               </div>
             </q-card-section>
 
             <!-- Media Section -->
-            <q-card-section v-if="post.mediaUrls || post.videoUrl" class="q-pa-none q-mt-md">
+            <q-card-section
+              v-if="post.mediaUrls || post.videoUrl"
+              class="q-pa-none q-mt-md"
+            >
               <!-- Show YouTube video if videoUrl exists -->
-              <div v-if="post.videoUrl" class="video-container"
-                v-intersection="onVideoIntersection(post.id.toString())">
-                <iframe :key="getVideoUrl(post.id.toString(), post.videoUrl)"
-                  :src="getVideoUrl(post.id.toString(), post.videoUrl)" :id="`video-${post.id}`"
+              <div
+                v-if="post.videoUrl"
+                class="video-container"
+                v-intersection="onVideoIntersection(post.id.toString())"
+              >
+                <iframe
+                  :key="getVideoUrl(post.id.toString(), post.videoUrl)"
+                  :src="getVideoUrl(post.id.toString(), post.videoUrl)"
+                  :id="`video-${post.id}`"
                   :title="`Video post by ${post.userName}`"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowfullscreen class="video-frame">
+                  allowfullscreen
+                  class="video-frame"
+                >
                 </iframe>
               </div>
               <!-- Show image collage or carousel based on showCarousel state -->
-              <div v-else-if="post.mediaUrls && post.mediaUrls.length" class="media-section">
+              <div
+                v-else-if="post.mediaUrls && post.mediaUrls.length"
+                class="media-section"
+              >
                 <!-- Move controls inside the carousel template -->
                 <template v-if="activeCarouselPost === post.id.toString()">
                   <!-- Dots Navigation -->
                   <div class="carousel-dots">
-                    <button v-for="index in currentImageCount.total" :key="index" class="dot"
-                      :class="{ active: activeDotIndex === index - 1 }"></button>
+                    <button
+                      v-for="index in currentImageCount.total"
+                      :key="index"
+                      class="dot"
+                      :class="{ active: activeDotIndex === index - 1 }"
+                    ></button>
                     <!-- @click.stop="goToSlide(index - 1)" -->
                   </div>
 
@@ -164,16 +297,31 @@
                     <i class="material-icons">close</i>
                   </button>
 
-                  <div class="custom-carousel" ref="carousel" @touchstart="handleTouchStart"
-                    @touchmove="handleTouchMove" @touchend="handleTouchEnd">
+                  <div
+                    class="custom-carousel"
+                    ref="carousel"
+                    @touchstart="handleTouchStart"
+                    @touchmove="handleTouchMove"
+                    @touchend="handleTouchEnd"
+                  >
                     <div class="carousel-inner" :style="carouselStyle">
-                      <div v-for="(url, index) in Array.isArray(post.mediaUrls)
-                        ? post.mediaUrls.map((url) => imageCdn + url)
-                        : [imageCdn + post.mediaUrls]" :key="index" class="carousel-slide"
-                        :class="{ active: currentIndex === index }" v-intersection="onCarouselImageIntersection(index)"
-                        ref="carouselImages">
-                        <q-img :src="url" :alt="`Image ${index + 1}`" class="carousel-image" @click.stop
-                          :fit="'contain'" />
+                      <div
+                        v-for="(url, index) in Array.isArray(post.mediaUrls)
+                          ? post.mediaUrls.map((url) => imageCdn + url)
+                          : [imageCdn + post.mediaUrls]"
+                        :key="index"
+                        class="carousel-slide"
+                        :class="{ active: currentIndex === index }"
+                        v-intersection="onCarouselImageIntersection(index)"
+                        ref="carouselImages"
+                      >
+                        <q-img
+                          :src="url"
+                          :alt="`Image ${index + 1}`"
+                          class="carousel-image"
+                          @click.stop
+                          :fit="'contain'"
+                        />
                       </div>
                     </div>
 
@@ -191,22 +339,37 @@
                 <template v-else>
                   <div class="media-collage">
                     <!-- Single Image -->
-                    <template v-if="
-                      !Array.isArray(post.mediaUrls) ||
-                      post.mediaUrls.length === 1
-                    ">
-                      <q-img :src="imageCdn +
-                        (Array.isArray(post.mediaUrls)
-                          ? post.mediaUrls[0]
-                          : post.mediaUrls)
-                        " class="single-image" :fit="'contain'" />
+                    <template
+                      v-if="
+                        !Array.isArray(post.mediaUrls) ||
+                        post.mediaUrls.length === 1
+                      "
+                    >
+                      <q-img
+                        :src="
+                          imageCdn +
+                          (Array.isArray(post.mediaUrls)
+                            ? post.mediaUrls[0]
+                            : post.mediaUrls)
+                        "
+                        class="single-image"
+                        :fit="'contain'"
+                      />
                     </template>
 
                     <!-- Two Images -->
                     <template v-else-if="post.mediaUrls.length === 2">
                       <div class="two-images-grid">
-                        <div v-for="(url, index) in post.mediaUrls" :key="index" class="grid-image-container">
-                          <q-img :src="imageCdn + url" class="grid-image" @click="showCarousel(post.id, index)" />
+                        <div
+                          v-for="(url, index) in post.mediaUrls"
+                          :key="index"
+                          class="grid-image-container"
+                        >
+                          <q-img
+                            :src="imageCdn + url"
+                            class="grid-image"
+                            @click="showCarousel(post.id, index)"
+                          />
                         </div>
                       </div>
                     </template>
@@ -215,16 +378,30 @@
                     <template v-else>
                       <div class="multi-images-grid">
                         <div class="main-image-container">
-                          <q-img :src="imageCdn + post.mediaUrls[0]" class="main-grid-image"
-                            @click="showCarousel(post.id, 0)" />
+                          <q-img
+                            :src="imageCdn + post.mediaUrls[0]"
+                            class="main-grid-image"
+                            @click="showCarousel(post.id, 0)"
+                          />
                         </div>
                         <div class="secondary-images-container">
-                          <div v-for="(url, index) in post.mediaUrls.slice(1, 3)" :key="index"
-                            class="secondary-image-wrapper">
-                            <q-img :src="imageCdn + url" class="secondary-grid-image"
-                              @click="showCarousel(post.id, index + 1)">
-                              <div v-if="index === 1 && post.mediaUrls.length > 3" class="see-all-overlay">
-                                <span class="text-white text-weight-bold">+{{ post.mediaUrls.length - 3 }}</span>
+                          <div
+                            v-for="(url, index) in post.mediaUrls.slice(1, 3)"
+                            :key="index"
+                            class="secondary-image-wrapper"
+                          >
+                            <q-img
+                              :src="imageCdn + url"
+                              class="secondary-grid-image"
+                              @click="showCarousel(post.id, index + 1)"
+                            >
+                              <div
+                                v-if="index === 1 && post.mediaUrls.length > 3"
+                                class="see-all-overlay"
+                              >
+                                <span class="text-white text-weight-bold"
+                                  >+{{ post.mediaUrls.length - 3 }}</span
+                                >
                               </div>
                             </q-img>
                           </div>
@@ -235,8 +412,11 @@
                 </template>
               </div>
               <!-- Engagement Actions -->
-              <PostEngagement :post="post" :userInteractionRules="userInteractionRules"
-                @update:post="updatePost($event)" />
+              <PostEngagement
+                :post="post"
+                :userInteractionRules="userInteractionRules"
+                @update:post="updatePost($event)"
+              />
             </q-card-section>
           </q-card>
         </div>
@@ -248,12 +428,20 @@
       </div>
 
       <!-- No more posts message -->
-      <div v-if="!hasMore && posts.length > 0" class="col-12 text-center q-pa-md text-grey-7">
+      <div
+        v-if="!hasMore && posts.length > 0"
+        class="col-12 text-center q-pa-md text-grey-7"
+      >
         No more posts to load
       </div>
     </div>
     <div v-else class="q-pt-lg q-px-md">
-      <q-banner dense inline-actions class="text-white bg-primary" style="border-radius: 10px">
+      <q-banner
+        dense
+        inline-actions
+        class="text-white bg-primary"
+        style="border-radius: 10px"
+      >
         <div class="text-h5 q-pa-sm">
           <q-icon flat color="white" name="warning" />
           <span>
@@ -263,7 +451,11 @@
       </q-banner>
     </div>
   </q-page>
-  <CreatePostDialog v-model="showCreatePostDialog" @post-created="handlePostCreated" v-if="isUserPermitted" />
+  <CreatePostDialog
+    v-model="showCreatePostDialog"
+    @post-created="handlePostCreated"
+    v-if="isUserPermitted"
+  />
 </template>
 
 <script setup lang="ts">
@@ -285,6 +477,13 @@ interface Post extends Omit<CommunityPost, 'liked'> {
   userName: string;
   wasLiked: boolean;
   liked: boolean;
+  distance?: number;
+  location?: {
+    x: number; // longitude
+    y: number; // latitude
+  };
+  showLocation?: boolean;
+  whatsappNumber?: string; // Add this field
 }
 
 // Add this interface after the Post interface
@@ -322,6 +521,8 @@ const videoVisibility = ref<Record<string, boolean>>({});
 // Add loading state
 const loading = ref(true);
 
+const searchQuery = ref<string>('');
+
 // Add a ref to track the currently playing video
 const currentlyPlayingVideo = ref<string | null>(null);
 const isUserPermitted = ref(false);
@@ -335,9 +536,19 @@ const isUserPermitted = ref(false);
 
 const router = useRouter();
 
+// Function to handle search
+const performSearch = () => {
+  // Reset pagination
+  page.value = 1;
+  posts.value = [];
+  hasMore.value = true;
+  // Load posts with search query
+  loadPosts(false);
+};
+
 // Update the formatDate helper function
 const formatDate = (date: string | null) => {
-  console.log('date.......', date);
+  // console.log('date.......', date);
 
   if (!date) return 'Recent';
 
@@ -359,8 +570,9 @@ const formatDate = (date: string | null) => {
 
     // Less than an hour
     if (diffInMinutes < 60) {
-      return `${diffInMinutes} ${diffInMinutes === 1 ? 'minute' : 'minutes'
-        } ago`;
+      return `${diffInMinutes} ${
+        diffInMinutes === 1 ? 'minute' : 'minutes'
+      } ago`;
     }
 
     // Less than a day
@@ -397,7 +609,7 @@ const userLocation = ref({
 });
 
 // Update the loadPosts function
-const loadPosts = async (loadMore = false) => {
+const loadPosts = async (loadMore = false, search = '') => {
   if (isLoading.value || (!loadMore && !hasMore.value)) return;
 
   try {
@@ -407,14 +619,20 @@ const loadPosts = async (loadMore = false) => {
     const locationParams =
       selectedLocation.value.latitude && selectedLocation.value.longitude
         ? {
-          latitude: selectedLocation.value.latitude,
-          longitude: selectedLocation.value.longitude,
-        }
+            latitude: selectedLocation.value.latitude,
+            longitude: selectedLocation.value.longitude,
+          }
         : {}; // Empty object if no location selected
 
     const response = await api.get('/posts/community-posts', {
       params: {
         status: 'active',
+        prompt:
+          searchQuery.value && searchQuery.value.length > 0
+            ? searchQuery.value
+            : '',
+        isSearch:
+          searchQuery.value && searchQuery.value.length > 0 ? true : false,
         userId: userStore.user?.id || null,
         page: page.value,
         limit: limit.value,
@@ -423,10 +641,14 @@ const loadPosts = async (loadMore = false) => {
     });
 
     let postsData: Post[] = [];
-    if (Array.isArray(response.data)) {
-      postsData = response.data;
-    } else if (response.data.data && Array.isArray(response.data.data)) {
-      postsData = response.data.data;
+
+    // Add null checks and proper type handling
+    if (response?.data) {
+      if (Array.isArray(response.data)) {
+        postsData = response.data;
+      } else if (response.data.data && Array.isArray(response.data.data)) {
+        postsData = response.data.data;
+      }
     }
 
     // Transform the posts data
@@ -454,6 +676,7 @@ const loadPosts = async (loadMore = false) => {
       color: 'negative',
       message: 'Failed to load posts',
       icon: 'error',
+      position: 'top-right',
     });
   } finally {
     isLoading.value = false;
@@ -629,7 +852,6 @@ onMounted(async () => {
         name: userStore.user.locations[0].name,
       });
     } else {
-
       const position = await Geolocation.getCurrentPosition({
         enableHighAccuracy: true,
         timeout: 10000,
@@ -689,6 +911,7 @@ const createPost = () => {
       message: `You've reached your daily post limit of ${userInteractionRules.value.dailyPostLimit} posts`,
       color: 'gray',
       position: 'top-right',
+      icon: 'error',
     });
 
     return;
@@ -734,10 +957,10 @@ const showCarousel = (postId: string | number, startIndex: number) => {
       totalImages: Array.isArray(post.mediaUrls) ? post.mediaUrls.length : 1,
       allImages: Array.isArray(post.mediaUrls)
         ? post.mediaUrls.map((url, idx) => ({
-          index: idx + 1,
-          url: imageCdn + url,
-          isActive: idx === startIndex,
-        }))
+            index: idx + 1,
+            url: imageCdn + url,
+            isActive: idx === startIndex,
+          }))
         : [{ index: 1, url: imageCdn + post.mediaUrls, isActive: true }],
       activeDot: startIndex,
     };
@@ -914,13 +1137,15 @@ const handleTouchEnd = () => {
       prevSlide();
     } else {
       // Reset to current slide if at bounds
-      carousel.value.style.transform = `translate3d(-${currentIndex.value * 100
-        }%, 0, 0)`;
+      carousel.value.style.transform = `translate3d(-${
+        currentIndex.value * 100
+      }%, 0, 0)`;
     }
   } else {
     // Reset to current slide if threshold not met
-    carousel.value.style.transform = `translate3d(-${currentIndex.value * 100
-      }%, 0, 0)`;
+    carousel.value.style.transform = `translate3d(-${
+      currentIndex.value * 100
+    }%, 0, 0)`;
   }
 
   touchStart.value = 0;
@@ -1086,43 +1311,201 @@ const selectedLocation = ref({
 // Update the handleLocationSelected method
 const handleLocationSelected = async (location: {
   type: string;
-  latitude: number;
-  longitude: number;
+  latitude: number | null;
+  longitude: number | null;
   name?: string;
-  address?: string;
+  source?: 'current' | 'stored' | 'map';
 }) => {
   console.log('Location selected:', location);
 
-  // Update selected location
-  selectedLocation.value = {
-    type: location.type as 'current' | 'stored',
-    latitude: location.latitude,
-    longitude: location.longitude,
-    name: location.name || '',
-    address: location.address || '',
-  };
-
-  // Reset pagination and posts
-  page.value = 1;
-  posts.value = [];
-  hasMore.value = true;
-  loading.value = true;
-
   try {
-    // Close location dialog
-    showLocationDialog.value = false;
+    if (location.source === 'current') {
+      // Show loading state immediately
+      isLocationLoading.value = true;
+      selectedLocation.value = {
+        type: 'current',
+        latitude: null,
+        longitude: null,
+        name: 'Current Location',
+        address: '',
+      };
+
+      // Get current position
+      const position = await Geolocation.getCurrentPosition({
+        enableHighAccuracy: true,
+        timeout: 10000,
+      });
+
+      // Update with actual coordinates
+      selectedLocation.value = {
+        type: 'current',
+        latitude: position.coords.latitude,
+        longitude: position.coords.longitude,
+        name: 'Current Location',
+        address: '',
+      };
+    } else {
+      // For stored/map locations, use provided data
+      selectedLocation.value = {
+        type: location.source || 'stored',
+        latitude: location.latitude,
+        longitude: location.longitude,
+        name:
+          location.source === 'map' ? 'Custom Location' : location.name || '',
+        address: location.address || '',
+      };
+    }
+
+    // Reset pagination and posts
+    page.value = 1;
+    posts.value = [];
+    hasMore.value = true;
+    loading.value = true;
 
     // Reload posts with new location
     await loadPosts(false);
   } catch (error) {
-    console.error('Error loading posts for new location:', error);
+    console.error('Error handling location selection:', error);
     $q.notify({
       color: 'negative',
-      message: 'Failed to load posts for selected location',
+      message: 'Failed to get location',
       icon: 'error',
+      position: 'top-right',
     });
+
+    // Reset location on error
+    selectedLocation.value = {
+      type: 'current',
+      latitude: null,
+      longitude: null,
+      name: '',
+      address: '',
+    };
   } finally {
+    isLocationLoading.value = false;
     loading.value = false;
+  }
+};
+
+// Update the openInGoogleMaps function
+const openInGoogleMaps = async (post: Post) => {
+  if (post.location?.x && post.location?.y) {
+    try {
+      // Get current location
+      // const position = await Geolocation.getCurrentPosition({
+      //   enableHighAccuracy: true,
+      // });
+
+      // Create Google Maps directions URL with current location as start point
+      const url = `https://www.google.com/maps/dir/?api=1&destination=${post.location.y},${post.location.x}&travelmode=driving`;
+
+      window.open(url, '_blank');
+    } catch (error) {
+      // Fallback to simple location view if can't get current position
+      const url = `https://www.google.com/maps?q=${post.location.y},${post.location.x}`;
+      window.open(url, '_blank');
+
+      console.error('Error getting current location:', error);
+    }
+  } else {
+    const url = `https://www.google.com/maps?q=${post.location.y},${post.location.x}`;
+    window.open(url, '_blank');
+  }
+};
+
+// Add this helper function to format distance
+const formatDistance = (distance: number) => {
+  if (distance < 1) {
+    // Convert to meters
+    const meters = Math.round(distance * 1000);
+    return `${meters}m away`;
+  } else {
+    // Round to 1 decimal place for kilometers
+    return `${distance.toFixed(1)}km away`;
+  }
+};
+
+// Add this watch after other watch statements
+watch(searchQuery, (newValue) => {
+  if (!newValue) {
+    // Reset pagination
+    page.value = 1;
+    posts.value = [];
+    hasMore.value = true;
+    // Load posts without search query
+    loadPosts(false);
+  }
+});
+
+// Add new ref for location loading state
+const isLocationLoading = ref(false);
+
+// Add computed property for location display name
+const getLocationDisplayName = computed(() => {
+  if (isLocationLoading.value) {
+    return 'Getting location...';
+  }
+  if (!selectedLocation.value.name) {
+    return 'Select Location';
+  }
+  if (selectedLocation.value.type === 'current') {
+    return 'Current Location';
+  }
+  if (selectedLocation.value.type === 'map') {
+    return 'Custom Location';
+  }
+  return selectedLocation.value.name;
+});
+
+// Update the makeLinksClickable function to handle priority
+const makeLinksClickable = (text: string, priority?: string) => {
+  if (!text) return '';
+
+  // URL regex pattern
+  const urlPattern =
+    /(https?:\/\/[^\s]+)|(www\.[^\s]+)|([a-zA-Z0-9._-]+\.[a-zA-Z]{2,6}(\/[^\s]*)?)/g;
+
+  // For low priority posts, just return the text
+  if (!priority || priority === 'low') {
+    return text;
+  }
+
+  // For other priorities, make links clickable
+  const htmlContent = text.replace(urlPattern, (url) => {
+    let href = url;
+    if (url.startsWith('www.')) {
+      href = 'https://' + url;
+    } else if (!url.startsWith('http')) {
+      href = 'https://' + url;
+    }
+    return `<a href="${href}" target="_blank" rel="noopener noreferrer" class="post-link">${url}</a>`;
+  });
+
+  return htmlContent;
+};
+
+// Add this method to safely handle HTML content
+const createMarkup = (content: string) => {
+  return { __html: makeLinksClickable(content) };
+};
+
+// Add this computed property after other computed properties
+const getPostCardClass = (post: Post) => {
+  // First check if it's a business post since that takes precedence
+  if (post.isBusinessPost) {
+    return 'business-post';
+  }
+
+  // Then check priority levels
+  switch (post.priority?.toLowerCase()) {
+    case 'high':
+      return 'high-priority-post';
+    case 'medium':
+      return 'medium-priority-post';
+    case 'regular':
+      return 'regular-post';
+    default:
+      return '';
   }
 };
 </script>
@@ -1138,22 +1521,91 @@ const handleLocationSelected = async (location: {
   background: white;
   transition: all 0.3s ease;
   box-shadow: 0 -10px 10px -10px rgba(0, 0, 0, 0.3),
-    /* Top shadow */
-    0 10px 10px -10px rgba(0, 0, 0, 0.3);
+    /* Top shadow */ 0 10px 10px -10px rgba(0, 0, 0, 0.3);
   /* Bottom shadow */
   overflow: hidden;
   border: none;
   position: relative;
   z-index: 1;
   margin-bottom: 0px;
+
+  // High Priority Post
+  &.high-priority-post {
+    border-left: 4px solid #ff4081; // Pink accent
+    .text-h5 {
+      color: #ff4081 !important;
+    }
+  }
+
+  // Medium Priority Post
+  &.medium-priority-post {
+    border-left: 4px solid #2196f3; // Blue accent
+    .text-h5 {
+      color: #2196f3 !important;
+    }
+  }
+
+  // Business Post
+  &.business-post {
+    border-left: 4px solid #ffa726; // Orange accent
+    .text-h5 {
+      color: #f57c00 !important;
+    }
+
+    .q-avatar {
+      border: 2px solid #ffa726;
+    }
+  }
+
+  // Regular Post
+  &.regular-post {
+    border-left: 4px solid #9c27b0; // Purple accent
+    .text-h5 {
+      color: #9c27b0 !important;
+    }
+  }
+
+  // Add hover effects
+  &.high-priority-post,
+  &.medium-priority-post,
+  &.business-post,
+  &.regular-post {
+    transition: all 0.3s ease;
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+  }
+
+  // Add subtle animation for priority posts
+  @keyframes subtlePulse {
+    0% {
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    50% {
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+    100% {
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+  }
+
+  &.high-priority-post {
+    animation: subtlePulse 3s infinite;
+  }
 }
 
-.post-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 -10px 15px -10px rgba(0, 0, 0, 0.4),
-    /* Enhanced top shadow on hover */
-    0 10px 15px -10px rgba(0, 0, 0, 0.4);
-  /* Enhanced bottom shadow on hover */
+// Add responsive adjustments
+@media (max-width: 600px) {
+  .post-card {
+    &.high-priority-post,
+    &.medium-priority-post,
+    &.business-post,
+    &.regular-post {
+      border-left-width: 3px;
+    }
+  }
 }
 
 .post-description {
@@ -1163,6 +1615,22 @@ const handleLocationSelected = async (location: {
   font-size: 1rem;
   letter-spacing: 0.015em;
   margin-top: -10px;
+
+  .post-link {
+    color: #2563eb;
+    text-decoration: none;
+    word-break: break-word;
+    transition: all 0.2s ease;
+
+    &:hover {
+      color: #1d4ed8;
+      text-decoration: underline;
+    }
+
+    &:visited {
+      color: #7c3aed;
+    }
+  }
 }
 
 .hashtags-container {
@@ -1421,7 +1889,6 @@ const handleLocationSelected = async (location: {
 
 // Responsive adjustments
 @media (max-width: 600px) {
-
   .single-image,
   .two-images-grid,
   .multi-images-grid {
@@ -1457,9 +1924,11 @@ const handleLocationSelected = async (location: {
   justify-content: space-between;
   align-items: center;
   padding: 12px 20px;
-  background: linear-gradient(to bottom,
-      rgba(0, 0, 0, 0.7) 0%,
-      rgba(0, 0, 0, 0) 100%);
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.7) 0%,
+    rgba(0, 0, 0, 0) 100%
+  );
 }
 
 .gallery-content {
@@ -2249,7 +2718,7 @@ const handleLocationSelected = async (location: {
 
   .avatar {
     background-color: rgb(248, 240, 242);
-    margin-right: 2px;
+    margin-right: 1px;
   }
 }
 
@@ -2313,5 +2782,37 @@ const handleLocationSelected = async (location: {
 .relative-position {
   position: relative;
   z-index: 2000;
+}
+.post-input-box {
+  position: relative;
+}
+.post-input-box {
+  border-radius: 8px; /* Optional for rounded corners */
+  outline: none; /* Removes focus outline */
+}
+
+.location-selector {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-right: 8px;
+  max-width: 70px; // Reduced from min-width to max-width
+}
+
+.location-name {
+  font-size: 10px;
+  color: $grey-7;
+  width: 100%; // Take full width of parent
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.2;
+  padding: 0 2px; // Add small padding to prevent text touching edges
+}
+
+.avatar {
+  margin-right: 0;
+  flex-shrink: 0; // Prevent avatar from shrinking
 }
 </style>

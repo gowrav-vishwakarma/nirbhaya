@@ -169,7 +169,8 @@ const loadComments = async () => {
     console.error('Error loading comments:', error);
     $q.notify({
       message: error.response?.data?.message || 'Failed to load comments',
-      color: 'negative'
+      color: 'negative',
+      position:'top-right'
     });
   } finally {
     isLoading.value = false;

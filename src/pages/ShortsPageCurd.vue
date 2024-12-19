@@ -128,7 +128,8 @@ const fetchIncidents = async () => {
   } catch (error) {
     $q.notify({
       color: 'negative',
-      message: 'Failed to fetch incidents'
+      message: 'Failed to fetch incidents',
+      position:'top-right'
     })
   } finally {
     loading.value = false
@@ -165,21 +166,24 @@ const onSubmit = async () => {
       $q.notify({
         color: 'warning',
         message: 'Could not get location. Using default coordinates.',
-        timeout: 2000
+        timeout: 2000,
+        position:'top-right'
       })
     }
 
     if (isEditing.value) {
       await api.put(`/incidents/shorts/${form.value.id}`, form.value)
       $q.notify({
-        color: 'positive',
-        message: 'Incident updated successfully with location'
+        color: 'black',
+        message: 'Incident updated successfully with location',
+        position:'top-right'
       })
     } else {
       await api.post('/incidents/shorts', form.value)
       $q.notify({
-        color: 'positive',
-        message: 'Incident created successfully with location'
+        color: 'black',
+        message: 'Incident created successfully with location',
+        position:'top-right'
       })
     }
     resetForm()
@@ -187,7 +191,8 @@ const onSubmit = async () => {
   } catch (error) {
     $q.notify({
       color: 'negative',
-      message: 'Operation failed'
+      message: 'Operation failed',
+      position:'top-right'
     })
   }
 }
@@ -213,13 +218,16 @@ const deleteIncident = async (id: number) => {
     await api.delete(`/incidents/shorts/${id}`)
     await fetchIncidents()
     $q.notify({
-      color: 'positive',
-      message: 'Incident deleted successfully'
+      color: 'black',
+      message: 'Incident deleted successfully',
+      position:'top-right'
+
     })
   } catch (error) {
     $q.notify({
       color: 'negative',
-      message: 'Failed to delete incident'
+      message: 'Failed to delete incident',
+      position:'top-right'
     })
   }
 }

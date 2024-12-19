@@ -227,7 +227,7 @@ export default {
   locationName: 'स्थान नाम',
   useCurrentLocation: 'वर्तमान स्थान का उपयोग करें',
   addNotificationLocation: 'सूचना स्थान जोड़ें',
-  availableForCommunity: 'समुदाय सहायता के ल��ए उपलब्ध',
+  availableForCommunity: 'समुदाय सहायता के लिए उपलब्ध',
   availableForCommunityDescription:
     'आपातकाल में दूसरों की मदद करने के लिए अपनी उपलब्धत दर्शाने के लिए इसे टॉगल करें',
   volunteeringUpdateSuccess: 'स्वयंसेवा जानकारी सफलतापूर्वक अपडेट की गई',
@@ -334,7 +334,7 @@ export default {
   peopleYouHaveEncouraged: 'आपके द्वारा प्रोत्साहित लोग',
   locationsSecured: 'सुरक्षित स्थान',
   // Added keys
-  referredBy: 'रेफर किया गया',
+  referredBy: 'रेफरल कोड',
   referralIdNotFound: 'रेफरल आईडी नहीं मिली',
   referralIdValidationFailed: 'रेफरल आईडी सत्यापित करने में विफल',
   // Added translations for form validation
@@ -384,4 +384,9 @@ export default {
   viewOnMap: 'मानचित्र पर देखें',
   awayFrom: 'दूर',
   pending: 'लंबित',
+  // confirm: 'पुष्टि करें',
+  confirmDeleteContact: 'क्या आप वाकई इस आपातकालीन संपर्क को हटाना चाहते हैं?',
+  delete: 'हटाएं',
+  // cancel: 'रद्द करें',
+  contactDeletedSuccess: 'आपातकालीन संपर्क सफलतापूर्वक हटा दिया गया',
 };

@@ -249,6 +249,7 @@ const startCamera = async () => {
       color: 'negative',
       message: 'Failed to start camera. Please check your permissions.',
       icon: 'error',
+      position:'top-right'
     });
   }
 };
@@ -489,6 +490,7 @@ const uploadReel = async () => {
       color: 'positive',
       message: 'Incident reel uploaded successfully',
       icon: 'check',
+      position:'top-right'
     });
     router.push('/incident-reels');
   } catch (error) {
@@ -497,6 +499,7 @@ const uploadReel = async () => {
       color: 'negative',
       message: 'Failed to upload incident reel. Please try again.',
       icon: 'error',
+      position:'top-right'
     });
   } finally {
     isUploading.value = false; // Reset loading state
@@ -516,6 +519,7 @@ const togglePlayback = () => {
           color: 'negative',
           message: 'Failed to play video. Please try again.',
           icon: 'error',
+          position:'top-right'
         });
       });
     }

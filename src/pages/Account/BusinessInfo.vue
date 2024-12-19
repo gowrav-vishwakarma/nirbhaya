@@ -1,116 +1,142 @@
 <template>
   <div class="business-info-container">
-    <q-form @submit="handleSubmit" ref="formRef">
-      <div class="text-h6 q-mb-md row items-center justify-between">
-        Business Information
-        <q-btn
-          v-if="hasBusinessInfo"
-          flat
-          round
-          icon="delete"
-          color="grey-7"
-          size="sm"
-          @click="confirmRemoveBusiness"
-        >
-          <q-tooltip>Remove Business Information</q-tooltip>
-        </q-btn>
-      </div>
-      <div>
-        <q-input
-          v-model="businessData.businessName"
-          label="Business Name"
-          :rules="[(val) => !!val || 'Business name is required']"
-          outlined
-          dense
-        />
+    <h5 class="text-h6 q-mb-sm q-px-md q-mt-md q-ma-none">{{ t('common.businessInformation') }}</h5>
+    <p class="q-px-md q-ma-none q-mb-sm">{{ t('common.businessLocationHelp') }}</p>
 
-        <q-input
-          v-model="businessData.whatsappNumber"
-          label="WhatsApp Number"
-          type="number"
-          :rules="[
-            (val) => !!val || 'WhatsApp number is required',
-            (val) =>
-              String(val).length === 10 || 'Phone number must be 10 digits',
-          ]"
-          @input="validatePhoneNumber"
-          maxlength="10"
-          prefix="+91"
-          outlined
-          dense
-          class="q-mt-xs"
-        />
+    <!-- <q-card flat bordered class="q-mb-md">
+      <q-card-section>
+        <div class="text-subtitle1 text-weight-bold q-mb-sm">
+          {{ t('common.businessSettings') }}
+        </div>
+      </q-card-section>
+    </q-card> -->
 
-        <q-input
-          v-model="businessData.locationName"
-          label="Business Location Name"
-          :rules="[(val) => !!val || 'Location name is required']"
-          outlined
-          dense
-          class="q-mt-sm"
-          placeholder="e.g., Shop No. 123, Building Name"
-        />
+    <div class="scrollable-inputs q-px-md q-pt-md">
+      <q-btn
+        v-if="!userStore.user?.businessName"
+        icon="add"
+        color="primary"
+        class="full-width custom-radius q-mb-md"
+        @click="showInputFields = !showInputFields"
+        label="Add Business Information"
+        style="border-radius: 10px !important;"
+      />
+      
+      <div v-if="showInputFields" class="input-fields">
+        <div class="custom-input">
+          <label>{{ t('common.businessName') }}</label>
+          <q-input
+            v-model="businessData.businessName"
+            filled
+            class="custom-radius"
+            bg-color="pink-1"
+            dense
+            hide-bottom-space
+            :rules="[(val) => !!val || 'Business name is required']"
+          />
+        </div>
 
-        <div class="location-section q-mt-xs">
+        <div class="custom-input">
+          <label>{{ t('common.whatsappNumber') }}</label>
+          <q-input
+            v-model="businessData.whatsappNumber"
+            type="number"
+            filled
+            class="custom-radius"
+            bg-color="pink-1"
+            dense
+            hide-bottom-space
+            prefix="+91"
+            :rules="[
+              (val) => !!val || 'WhatsApp number is required',
+              (val) => String(val).length === 10 || 'Phone number must be 10 digits'
+            ]"
+            @input="validatePhoneNumber"
+            maxlength="10"
+          />
+        </div>
+
+        <div class="custom-input">
+          <label>{{ t('common.businessLocation') }}</label>
+          <q-input
+            v-model="businessData.locationName"
+            filled
+            class="custom-radius"
+            bg-color="pink-1"
+            dense
+            hide-bottom-space
+            :rules="[(val) => !!val || 'Location name is required']"
+            placeholder="e.g., Shop No. 123, Building Name"
+          />
+        </div>
+
+        <div class="custom-input">
           <q-btn
-            class="full-width"
-            :loading="isLoadingLocation"
-            @click="getCurrentLocation"
-            icon="my_location"
-            color="primary"
             flat
+            color="white"
+            style="border-radius: 10px !important;"
+            icon="my_location"
+            class="full-width custom-radius bg-primary"
+            @click="getCurrentLocation"
+            :loading="isLoadingLocation"
           >
-            <span style="font-size: 12px; margin-left: 5px; font-weight: 700">
-              Get Current Location
-            </span>
+            {{ t('common.useCurrentLocation') }}
           </q-btn>
-
-          <div
-            v-if="businessData.latitude && businessData.longitude"
-            class="coordinates-display q-mt-xs"
-          >
-            <div class="row items-center justify-between">
-              <div class="text-subtitle2">Current Location:</div>
-              <q-btn
-                flat
-                dense
-                round
-                icon="map"
-                @click="
-                  openGoogleMaps(
-                    businessData.latitude!,
-                    businessData.longitude!
-                  )
-                "
-              >
-                <q-tooltip>View on Map</q-tooltip>
-              </q-btn>
-            </div>
-            <div class="text-caption">
-              Latitude: {{ businessData.latitude.toFixed(6) }}
-            </div>
-            <div class="text-caption">
-              Longitude: {{ businessData.longitude.toFixed(6) }}
-            </div>
+          <div v-if="businessData.latitude && businessData.longitude" class="text-caption q-mt-sm">
+            {{ t('common.coordinates') }}: {{ businessData.latitude.toFixed(6) }}, {{ businessData.longitude.toFixed(6) }}
           </div>
         </div>
 
-        <div class="row q-col-gutter-md q-mt-md" style="margin-top: -15px">
-          <div class="col-12 q-mt-md">
+        <div class="row q-col-gutter-sm">
+          <div class="col-6">
             <q-btn
-              type="submit"
-              :loading="loading"
+              label="Cancel"
+              color="black"
+              style="border-radius: 10px !important;"
+              class="full-width custom-radius"
+              @click="showInputFields = false"
+            />
+          </div>
+          <div class="col-6">
+            <q-btn
+              label="Add"
               color="primary"
-              class="full-width"
-              :disable="!isFormValid"
-              no-caps
-            >
-              <b>{{ t('common.saveChanges') }}</b>
-            </q-btn>
+              style="border-radius: 10px !important;"
+              class="full-width custom-radius"
+              @click="handleSubmit"
+              :disabled="!isFormValid"
+              :loading="loading"
+            />
           </div>
         </div>
       </div>
-    </q-form>
+
+      <div class="contact-cards q-mt-md" v-if="userStore.user?.businessName">
+        <q-card flat bordered class="contact-card q-mb-sm">
+          <q-card-section class="row items-center" style="width: 100%;">
+            <div class="col-auto q-pa-none q-ma-none">
+              <q-avatar class="q-pa-none q-ma-none">
+                <img src='/my-business.png' alt='business-icon' style="width: 80%; height: 100%; object-fit: contain;" />
+              </q-avatar>
+            </div>
+            <div class="col q-pl-sm" >
+              <div class="text-subtitle2">{{ userStore.user?.businessName }}</div>
+              <div class="text-caption">WhatsApp: +91 {{ userStore.user?.whatsappNumber }}</div>
+              <div class="text-caption"> Address: {{ businessLocation?.name }}</div>
+              <div class="col-auto">
+                <q-btn
+                  class="remove-btn"
+                  flat
+                  label="Remove"
+                  style="border-radius: 10px !important;"
+                  @click="confirmRemoveBusiness"
+                />
+              </div>
+            </div>
+          </q-card-section>
+        </q-card>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -127,6 +153,7 @@ const formRef = ref();
 const loading = ref(false);
 const isLoadingLocation = ref(false);
 const userStore = useUserStore();
+const showInputFields = ref(false);
 
 const props = defineProps<{
   reloadComponents?: () => void;
@@ -204,20 +231,20 @@ const getCurrentLocation = async () => {
     });
 
     if (position) {
-      const { latitude, longitude } = position.coords;
+      businessData.latitude = position.coords.latitude;
+      businessData.longitude = position.coords.longitude;
 
-      // Update business data with coordinates
-      businessData.latitude = latitude;
-      businessData.longitude = longitude;
+      $q.notify({
+        type: 'black',
+        message: t('common.locationUpdated'),
+        position: 'top-right',
+      });
     }
   } catch (error) {
     console.error('Location error:', error);
     $q.notify({
       type: 'negative',
-      message:
-        error instanceof Error
-          ? error.message
-          : 'Failed to get location. Please try again.',
+      message: error instanceof Error ? error.message : t('common.locationError'),
       position: 'top-right',
     });
   } finally {
@@ -226,13 +253,10 @@ const getCurrentLocation = async () => {
 };
 
 const handleSubmit = async () => {
-  const isValid = await formRef.value.validate();
-  if (!isValid) return;
-
-  if (!businessData.latitude || !businessData.longitude) {
+  if (!isFormValid.value) {
     $q.notify({
       type: 'warning',
-      message: 'Please get your current location first',
+      message: 'Please fill all required fields including location',
       position: 'top-right',
     });
     return;
@@ -249,18 +273,10 @@ const handleSubmit = async () => {
       longitude: businessData.longitude,
     };
 
-    const response = await api.post(
-      '/user/add-business-information',
-      businessInfo
-    );
+    const response = await api.post('/user/add-business-information', businessInfo);
 
     if (response.data) {
-      // Get current locations from user store with correct type
-      const currentLocations = [
-        ...(userStore.user?.locations || []),
-      ] as UserLocation[];
-
-      // Now the findIndex will work correctly with the proper type
+      const currentLocations = [...(userStore.user?.locations || [])] as UserLocation[];
       const businessLocationIndex = currentLocations.findIndex(
         (loc) => loc.isBusinessLocation
       );
@@ -276,14 +292,12 @@ const handleSubmit = async () => {
         isBusinessLocation: true,
       };
 
-      // If business location exists, update it. Otherwise, add new location
       if (businessLocationIndex !== -1) {
         currentLocations[businessLocationIndex] = updatedLocation;
       } else {
         currentLocations.push(updatedLocation);
       }
 
-      // Update the user store
       userStore.updateUser({
         ...userStore.user,
         businessName: businessData.businessName,
@@ -291,8 +305,9 @@ const handleSubmit = async () => {
         locations: currentLocations,
       });
 
+      showInputFields.value = false; // Hide the form after successful submission
+
       $q.notify({
-        type: 'positive',
         color: 'black',
         message: 'Business information saved successfully',
         position: 'top-right',
@@ -303,8 +318,7 @@ const handleSubmit = async () => {
     const error = err as { response?: { data?: { message?: string } } };
     $q.notify({
       type: 'negative',
-      message:
-        error.response?.data?.message || 'Failed to save business information',
+      message: error.response?.data?.message || 'Failed to save business information',
       position: 'top-right',
     });
   } finally {
@@ -366,10 +380,6 @@ const isFormValid = computed(() => {
   );
 });
 
-const hasBusinessInfo = computed(() => {
-  return !!businessData.businessName || !!businessData.whatsappNumber;
-});
-
 const confirmRemoveBusiness = () => {
   $q.dialog({
     title: 'Confirm Removal',
@@ -402,7 +412,6 @@ const removeBusinessInfo = async () => {
     });
 
     $q.notify({
-      type: 'positive',
       color: 'black',
       message: 'Business information removed successfully',
       position: 'top-right',
@@ -428,25 +437,70 @@ const openGoogleMaps = (latitude: number, longitude: number) => {
   const url = `https://www.google.com/maps/search/?api=1&query=${latitude},${longitude}`;
   window.open(url, '_blank');
 };
+
+const businessLocation = computed(() => {
+  return userStore.user?.locations?.find(loc => loc.isBusinessLocation);
+});
 </script>
 
-<style scoped>
+<style scoped>  
 .business-info-container {
-  max-width: 600px;
-  margin: 0 auto;
-  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  position: relative;
+  background-color: white;
 }
 
-.location-section {
-  border: 1px solid #e0e0e0;
-  border-radius: 4px;
-  padding: 12px;
+.scrollable-inputs {
+  flex: 1;
+  overflow-y: auto;
+  padding-bottom: 80px;
 }
 
-.coordinates-display {
-  background: #f5f5f5;
-  padding: 8px 12px;
-  border-radius: 4px;
+.custom-input {
+  margin-bottom: 20px;
+}
+
+.custom-input label {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+:deep(.custom-radius) .q-field__control {
+  border-radius: 10px !important;
+  height: 45px;
+}
+
+:deep(.custom-radius) .q-field__marginal {
+  height: 56px;
+  border-radius: 20px;
+}
+
+:deep(.custom-radius) .q-field__native,
+:deep(.custom-radius) .q-field__input {
+  border-radius: 20px;
+}
+
+.contact-card {
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+}
+
+.remove-btn {
+  position:absolute ;
+  top:10px;
+  right:5px;
+  background-color: black;
+  align-self: flex-end;
+  border-radius: 10px;
+  margin-left: 10px;
+  color: white;
+  font-size: 12px;
+  text-transform: capitalize;
 }
 
 /* Hide number input spinners */
@@ -458,10 +512,6 @@ input::-webkit-inner-spin-button {
 
 input[type='number'] {
   -moz-appearance: textfield;
-}
-
-/* Prevent copy-paste of more than 10 digits */
-input[type='number'] {
   max-width: 100%;
 }
 </style>

@@ -1,10 +1,19 @@
 <template>
   <q-page class="incident-reels-page">
     <div class="reels-container" ref="reelsContainerRef">
-      <div v-for="(reel, index) in reels" :key="reel.uniqueKey" class="reel-item"
-        v-intersection="(entry) => onReelIntersect(entry, index)">
-        <IncidentReelPlayer :reel="reel" :isActive="index === currentReelIndex" :isVisible="!!visibleReels[index]"
-          :key="reel.uniqueKey" ref="reelRefs" />
+      <div
+        v-for="(reel, index) in reels"
+        :key="reel.uniqueKey"
+        class="reel-item"
+        v-intersection="(entry) => onReelIntersect(entry, index)"
+      >
+        <IncidentReelPlayer
+          :reel="reel"
+          :isActive="index === currentReelIndex"
+          :isVisible="!!visibleReels[index]"
+          :key="reel.uniqueKey"
+          ref="reelRefs"
+        />
       </div>
     </div>
   </q-page>
@@ -12,11 +21,11 @@
 
 <script setup lang="ts">
 import { ref, onMounted, watch, onBeforeUnmount, nextTick } from 'vue';
-import { useQuasar } from 'quasar';
+// import { useQuasar } from 'quasar';
 import { api } from 'src/boot/axios';
 import IncidentReelPlayer from 'components/IncidentReelPlayer.vue';
 
-const $q = useQuasar();
+// const $q = useQuasar();
 const reelRefs = ref([]);
 
 interface Reel {
@@ -59,10 +68,9 @@ const fetchReels = async () => {
 
     console.log('fetched..............', response);
 
-
     const newReels = response.data.map((reel, idx) => ({
       ...reel,
-      uniqueKey: `${reel.id}-${page.value}-${idx}`
+      uniqueKey: `${reel.id}-${page.value}-${idx}`,
     }));
 
     reels.value.push(...newReels);
@@ -81,7 +89,7 @@ const fetchReels = async () => {
 
       console.log('Initial reel state:', {
         currentIndex: 0,
-        visibleStates: visibleReels.value
+        visibleStates: visibleReels.value,
       });
     }
 
@@ -101,14 +109,17 @@ const handleScroll = () => {
 
   const containerHeight = reelsContainerRef.value.clientHeight;
   const scrollPosition = reelsContainerRef.value.scrollTop;
-  const threshold = containerHeight * 0.5; // 50% threshold for changing reels
+  // const threshold = containerHeight * 0.5; // 50% threshold for changing reels
 
   // Calculate current index based on scroll position with threshold
   const rawIndex = scrollPosition / containerHeight;
   const index = Math.floor(rawIndex + 0.5); // Round to nearest whole number
 
   if (index !== currentReelIndex.value) {
-    currentReelIndex.value = Math.max(0, Math.min(reels.value.length - 1, index));
+    currentReelIndex.value = Math.max(
+      0,
+      Math.min(reels.value.length - 1, index)
+    );
 
     // Update visibility states
     Object.keys(visibleReels.value).forEach((idx) => {
@@ -119,7 +130,10 @@ const handleScroll = () => {
 };
 
 // Update the onReelIntersect function
-const onReelIntersect = (entry: IntersectionObserverEntry, index: number): boolean => {
+const onReelIntersect = (
+  entry: IntersectionObserverEntry,
+  index: number
+): boolean => {
   const isIntersecting = entry.isIntersecting;
   const intersectionRatio = entry.intersectionRatio;
 
@@ -138,7 +152,7 @@ const onReelIntersect = (entry: IntersectionObserverEntry, index: number): boole
     if (reelsContainerRef.value) {
       reelsContainerRef.value.scrollTo({
         top: index * reelsContainerRef.value.clientHeight,
-        behavior: 'smooth'
+        behavior: 'smooth',
       });
     }
   }
@@ -147,27 +161,35 @@ const onReelIntersect = (entry: IntersectionObserverEntry, index: number): boole
 };
 
 // Add a watch for reels to initialize visibility
-watch(reels, (newReels) => {
-  newReels.forEach((_, index) => {
-    visibleReels.value[index] = index === currentReelIndex.value;
-  });
-}, { immediate: true });
+watch(
+  reels,
+  (newReels) => {
+    newReels.forEach((_, index) => {
+      visibleReels.value[index] = index === currentReelIndex.value;
+    });
+  },
+  { immediate: true }
+);
 
 // Update the watch for currentReelIndex
-watch(currentReelIndex, (newIndex, oldIndex) => {
-  console.log(`Current reel index changed from ${oldIndex} to ${newIndex}`);
+watch(
+  currentReelIndex,
+  (newIndex, oldIndex) => {
+    console.log(`Current reel index changed from ${oldIndex} to ${newIndex}`);
 
-  // Load more reels if needed
-  if (reels.value.length - newIndex <= 2) {
-    fetchReels();
-  }
+    // Load more reels if needed
+    if (reels.value.length - newIndex <= 2) {
+      fetchReels();
+    }
 
-  // Update visibility states
-  Object.keys(visibleReels.value).forEach((idx) => {
-    const i = parseInt(idx);
-    visibleReels.value[i] = i === newIndex;
-  });
-}, { immediate: true });
+    // Update visibility states
+    Object.keys(visibleReels.value).forEach((idx) => {
+      const i = parseInt(idx);
+      visibleReels.value[i] = i === newIndex;
+    });
+  },
+  { immediate: true }
+);
 
 onMounted(() => {
   fetchReels();
@@ -218,7 +240,7 @@ onBeforeUnmount(() => {
   overflow: hidden;
   transform: translateZ(0);
 
-  &>* {
+  & > * {
     width: 100%;
     height: 100%;
   }

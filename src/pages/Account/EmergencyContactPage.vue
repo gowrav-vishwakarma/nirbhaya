@@ -1,74 +1,126 @@
 <template>
-  <q-page>
-
-    <q-card flat>
+  <q-page class="q-pa-xs">
+    <q-card flat class="emergency-contacts-card">
       <q-card-section>
-        <!-- Emergency contacts -->
-        <div>
-          <!-- <div class="text-subtitle1 text-weight-bold q-mb-sm">
-              {{ t('common.emergencyContacts') }}
-              <q-icon :name="t('common.icons.help')" size="xs" class="q-ml-sm">
-                <q-tooltip>{{ t('common.emergencyContactsHelp') }}</q-tooltip>
-              </q-icon>
-            </div> -->
+        <h5 class="text-h6 q-mb-sm q-ma-none">Emergency Contacts</h5>
+        <p class="q-ma-none q-mb-sm">Add Your emergency contacts below.</p>
 
+        <div class="scrollable-inputs">
           <!-- Button group for Add Emergency Contact and Emergency Contact Requests -->
-          <div class="row q-col-gutter-sm q-mb-md">
-            <div class="col-12">
-              <q-btn-group class="full-width">
-                <q-btn @click="addEmergencyContact" color="primary" :icon="t('common.icons.addCircle')"
-                  :label="t('common.addEmergencyContact')" no-caps class="full-width" />
-                <q-btn @click="openEmergencyContactRequests" color="secondary" :icon="t('common.icons.contacts')"
-                  :label="t('common.emergencyContactRequests')" no-caps class="full-width" />
-              </q-btn-group>
+          <div class="row q-col-gutter-sm q-mb-md q-mt-xs">
+            <div class="col-6">
+              <q-btn
+                icon="add"
+                color="primary"
+                class="full-width custom-radius"
+                @click="showInputFields = !showInputFields"
+                :label="t('common.addEmergencyContact')"
+                style="border-radius: 10px !important;"
+                no-caps
+              />
+            </div>
+            <div class="col-6">
+              <q-btn 
+                @click="openEmergencyContactRequests" 
+                color="secondary" 
+                class="full-width custom-radius"
+                :icon="t('common.icons.contacts')"
+                :label="t('common.emergencyContactRequests')" 
+                style="border-radius: 10px !important;"
+                no-caps 
+              />
             </div>
           </div>
+          
+          <!-- Input Fields Section -->
+          <div v-if="showInputFields" class="input-fields">
+            <div class="custom-input">
+              <label>{{ t('common.name') }}</label>
+              <q-input
+                v-model="newContact.contactName"
+                :rules="[val => !!val || t('common.nameRequired')]"
+                filled
+                class="custom-radius"
+                bg-color="pink-1"
+                dense
+                hide-bottom-space
+              />
+            </div>
 
-          <q-list bordered separator>
-            <q-item v-for="(contact, index) in values.emergencyContacts" :key="index">
-              <q-item-section>
-                <q-input v-model="contact.contactName" :disable="contact.consentGiven" :label="t('common.name')" dense
-                  outlined class="q-mb-sm" :rules="contact.touched ? [
-                    (val) => !!val || t('common.contactNameRequired'),
-                  ] : []" @blur="contact.touched = true" />
-                <q-input v-model="contact.contactPhone" :disable="contact.consentGiven"
-                  :label="t('common.mobileNumber')" dense outlined class="q-mb-sm" type="tel" mask="##########"
-                  fill-mask :rules="contact.touched ? [
-                    (val) => !!val || t('common.contactNumberRequired'),
-                    (val) => val.length === 10 || t('common.invalidPhoneNumberLength'),
-                    (val) => /^[0-9]+$/.test(val) || t('common.onlyNumbersAllowed')
-                  ] : []" @blur="handlePhoneBlur(contact, index)" :error="!!errors[`emergencyContact${index}`]"
-                  :error-message="errors[`emergencyContact${index}`]?.join('; ')" />
-                <q-chip class="q-ma-none" :color="contact.consentGiven ? 'positive' : 'secondary'" text-color="white"
-                  :icon="contact.consentGiven ? 'check_circle' : 'warning'" size="sm"
-                  style="display: flex; justify-content: center; align-items: center; text-align: center; width: 120px;">
-                  <span style="text-align: center">{{
-                    contact.consentGiven
-                      ? t('common.approved')
-                      : t('common.pendingApproval')
-                  }}</span>
-                </q-chip>
+            <div class="custom-input">
+              <label>{{ t('common.mobileNumber') }}</label>
+              <q-input
+                v-model="newContact.contactPhone"
+                :error="!!errors[`emergencyContact${newContactErrorIndex}`]"
+                :error-message="errors[`emergencyContact${newContactErrorIndex}`]"
+                filled
+                class="custom-radius"
+                bg-color="pink-1"
+                dense
+                type="tel"
+                mask="##########"
+                hide-bottom-space
+                @blur="() => handlePhoneBlur(newContact, newContactErrorIndex)"
+              />
+            </div>
 
-              </q-item-section>
-              <q-item-section side>
-                <q-btn flat round color="negative" :icon="t('common.icons.delete')"
-                  @click="removeEmergencyContact(index)" />
-              </q-item-section>
-            </q-item>
-          </q-list>
-          <p v-if="!hasEmergencyContacts" class="text-negative q-mt-sm">
-            {{ t('common.atLeastOneEmergencyContactRequired') }}
+            <div class="row q-col-gutter-sm"> 
+              <div class="col-6">
+                <q-btn
+                  label="Cancel"
+                  color="black"
+                  style="border-radius: 10px !important;"
+                  class="full-width custom-radius"
+                  @click="clearInputFields"
+                />
+              </div>
+              <div class="col-6">
+                <q-btn
+                  label="Add"
+                  color="primary"
+                  style="border-radius: 10px !important;"
+                  class="full-width custom-radius"
+                  @click="addEmergencyContact"
+                  :loading="isAddingContact"
+                >
+                  <template v-slot:loading>
+                    <q-spinner/>
+                  </template>
+                </q-btn>
+              </div>
+            </div>
+          </div>
+          <q-separator v-if="showInputFields" class="q-mt-md" />
+
+          <!-- Contact Cards -->
+          <div class="contact-cards q-mt-md" v-if="hasEmergencyContacts">
+            <q-card v-for="(contact, index) in values.emergencyContacts" :key="index" flat bordered class="contact-card q-mb-sm">
+              <q-card-section class="row items-center" style="width: 100%;">
+                <div class="col-auto">
+                  <q-avatar>
+                    <img src='/profile.png' alt='/profile.png' />
+                  </q-avatar>
+                </div>
+                <div class="col">
+                  <div class="text-subtitle2">{{ contact.contactName }}</div>
+                  <div class="text-caption">{{ contact.contactPhone }}</div>
+                  <div>Approval Status: ({{ contact.consentGiven ? 'Approved' : 'Pending' }})</div>
+                </div>
+                <div class="col-auto q-ml-auto">
+                  <q-btn
+                    class="remove-btn"
+                    flat
+                    label="Remove"
+                    style="border-radius: 10px !important;"
+                    @click="removeEmergencyContact(index)"
+                  />
+                </div>
+              </q-card-section>
+            </q-card>
+          </div>
+          <p v-else class="text-negative q-mt-sm">
+            {{ t('common.noEmergencyContacts') }}
           </p>
-
-          <!-- Submit button -->
-          <div class="row q-col-gutter-md q-mt-lg">
-            <div class="col-12">
-              <q-btn type="submit" :loading="isLoading" color="primary" class="full-width" :disable="!isFormValid"
-                no-caps @click="handleSubmit">
-                <b>{{ t('common.saveChanges') }}</b>
-              </q-btn>
-            </div>
-          </div>
         </div>
       </q-card-section>
     </q-card>
@@ -147,47 +199,148 @@ onMounted(() => {
   loadUserData();
 });
 
-const addEmergencyContact = () => {
-  values.value.emergencyContacts.unshift({
+const showInputFields = ref(false)
+const newContact = ref({
+  contactName: '',
+  contactPhone: '',
+  relationship: undefined,
+  isAppUser: true,
+  priority: 0,
+  consentGiven: false
+})
+
+const clearInputFields = () => {
+  newContact.value = {
     contactName: '',
     contactPhone: '',
-    relationship: '',
-    isAppUser: false,
+    relationship: undefined,
+    isAppUser: true,
     priority: 0,
-    consentGiven: false,
-    touched: false,
-  });
-};
+    consentGiven: false
+  }
+  showInputFields.value = false
+}
+
+const isAddingContact = ref(false);
+
+const addEmergencyContact = async () => {
+  if (newContact.value.contactName && newContact.value.contactPhone) {
+    const isDuplicate = values.value.emergencyContacts.some(
+      contact => contact.contactPhone === newContact.value.contactPhone
+    )
+
+    if (isDuplicate) {
+      $q.notify({
+        color: 'negative',
+        message: t('common.phoneNumberAlreadyExists'),
+        icon: 'error',
+        position: 'top-right'
+      })
+      return
+    }
+
+    // Validate phone number
+    const isValid = await validatePhoneNumber(newContact.value.contactPhone, values.value.emergencyContacts.length)
+    if (!isValid) {
+      return
+    }
+
+    try {
+      isAddingContact.value = true; // Start loading
+
+      // Add new contact to the list
+      values.value.emergencyContacts.push({ 
+        contactName: newContact.value.contactName,
+        contactPhone: newContact.value.contactPhone,
+        relationship: newContact.value.relationship,
+        isAppUser: true,
+        priority: 0,
+        consentGiven: false,
+        touched: true
+      })
+
+      // Save all contacts
+      await validateAndSubmit(false)
+
+      // Clear input fields and hide form
+      clearInputFields()
+      
+      // Reload updated data
+      await loadUserData()
+
+    } catch (error) {
+      console.error('Error adding emergency contact:', error)
+      $q.notify({
+        color: 'negative',
+        message: t('common.errorAddingContact'),
+        icon: 'error',
+        position: 'top-right'
+      })
+    } finally {
+      isAddingContact.value = false; // Stop loading
+    }
+  } else {
+    $q.notify({
+      color: 'negative', 
+      message: t('common.fillRequiredFields'),
+      icon: 'error',
+      position: 'top-right'
+    })
+  }
+}
 
 const removeEmergencyContact = async (index: number) => {
-  try {
-    const contactToDelete = values.value.emergencyContacts[index];
-    const userId = userStore.user.id;
+  // Add confirmation dialog
+  $q.dialog({
+    title: t('common.confirm'),
+    message: t('common.confirmDeleteContact'),
+    cancel: true,
+    persistent: true,
+    ok: {
+      label: t('common.delete'),
+      color: 'black'
+    },
+    cancel: {
+      label: t('common.cancel'),
+      color: 'grey'
+    }
+  }).onOk(async () => {
+    try {
+      const contactToDelete = values.value.emergencyContacts[index];
+      const userId = userStore.user.id;
 
-    // Call API to delete the contact with both phone and userId
-    await api.post('/user/emergency-contact', {
-      userId: userId,
-      contactPhone: contactToDelete.contactPhone
-    });
+      // Call API to delete the contact
+      await api.post('/user/emergency-contact', {
+        userId: userId,
+        contactPhone: contactToDelete.contactPhone
+      });
 
-    // Remove from local state
-    values.value.emergencyContacts.splice(index, 1);
+      // Remove from local state
+      values.value.emergencyContacts.splice(index, 1);
 
-    // Update store
-    userStore.updateUser({
-      ...userStore.user,
-      emergencyContacts: values.value.emergencyContacts
-    });
+      // Save changes immediately
+      await validateAndSubmit(false);
 
-  } catch (error) {
-    console.error('Error deleting emergency contact:', error);
-    $q.notify({
-      color: 'negative',
-      message: t('common.emergencyContactDeleteError'),
-      icon: 'error',
-      position: 'top-right',
-    });
-  }
+      // Update store and reload data
+      userStore.updateUser({
+        ...userStore.user,
+        emergencyContacts: values.value.emergencyContacts
+      });
+
+      await loadUserData();
+
+      // Show success notification
+
+    } catch (error) {
+      console.error('Error deleting emergency contact:', error);
+      $q.notify({
+        color: 'negative',
+        message: t('common.emergencyContactDeleteError'),
+        icon: 'error',
+        position: 'top-right',
+      });
+    }
+  });
 };
 
 const hasEmergencyContacts = computed(
@@ -231,14 +384,14 @@ const validatePhoneNumber = async (phoneNumber: string, index: number): Promise<
   try {
     // First check if the number is user's own number
     if (phoneNumber === userStore.user.phoneNumber) {
-      errors.value[`emergencyContact${index}`] = [t('common.cantAddOwnNumber')];
+      errors.value[`emergencyContact${index}`] = t('common.cantAddOwnNumber');
       return false;
     }
 
-    // Rest of the existing validation
+    // Validate phone number with API
     const response = await api.post('auth/validate-phone', { phoneNumber });
     if (!response.data.isValid) {
-      errors.value[`emergencyContact${index}`] = [t('common.phoneNumberNotInSystem')];
+      errors.value[`emergencyContact${index}`] = t('common.userNotRegisteredInApp');
       return false;
     } else {
       delete errors.value[`emergencyContact${index}`];
@@ -246,13 +399,12 @@ const validatePhoneNumber = async (phoneNumber: string, index: number): Promise<
     }
   } catch (error) {
     console.error('Error validating phone number:', error);
-    errors.value[`emergencyContact${index}`] = [t('common.phoneValidationError')];
+    errors.value[`emergencyContact${index}`] = t('common.phoneValidationError');
     return false;
   }
 };
 
-const handlePhoneBlur = async (contact: EmergencyContact, index: number) => {
-  contact.touched = true;
+const handlePhoneBlur = async (contact: EmergencyContact | typeof newContact.value, index: number) => {
   if (contact.contactPhone) {
     await validatePhoneNumber(contact.contactPhone, index);
   }
@@ -326,6 +478,7 @@ callbacks.onError = async (error: any): Promise<void> => {
     color: 'negative',
     message: t('common.emergencyContactsUpdateError'),
     icon: 'error',
+    position:'top-right'
   });
 };
 
@@ -334,16 +487,92 @@ const openEmergencyContactRequests = () => {
     component: EmergencyContactRequestsDialog,
   });
 };
+
+const newContactErrorIndex = computed(() => {
+  return values.value?.emergencyContacts?.length || 0;
+});
 </script>
 
 <style lang="scss" scoped>
-.q-page {
-  min-height: auto !important;
-}
-
-.q-card {
-  height: 100%;
+.emergency-contacts-card {
+  height: auto;
   max-width: 600px;
   margin: 0 auto;
+  background-color: white;
+}
+
+.scrollable-inputs {
+  overflow-y: auto;
+  padding-bottom: 16px;
+}
+
+.custom-input {
+  margin-bottom: 20px;
+}
+
+.custom-input label {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+/* Custom border radius */
+:deep(.custom-radius) .q-field__control {
+  border-radius: 10px !important;
+  height: 45px;
+}
+
+:deep(.custom-radius) .q-field__marginal {
+  height: 56px;
+  border-radius: 20px;
+}
+
+:deep(.custom-radius) .q-field__native,
+:deep(.custom-radius) .q-field__input {
+  border-radius: 20px;
+}
+
+.contact-card {
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+}
+
+.remove-btn {
+  background-color: black;
+  align-self: flex-end;
+  border-radius: 10px;
+  margin-left: 10px;
+  color: white;
+  font-size: 12px;
+  text-transform: capitalize;
+}
+
+/* Scrollbar styles */
+.scrollable-inputs::-webkit-scrollbar {
+  width: 3px;
+}
+
+.scrollable-inputs::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.scrollable-inputs::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 10px;
+}
+
+.scrollable-inputs::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+.q-page {
+  min-height: unset !important;
+  padding-bottom: 16px;
+}
+
+:deep(.q-page) {
+  min-height: unset !important;
 }
 </style>

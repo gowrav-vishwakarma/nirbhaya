@@ -90,6 +90,8 @@ const handleRequestPermission = async (permissionName: string) => {
         textColor: 'white',
         icon: 'warning',
         message: t('common.permissionRequestFailed'),
+        position:'top-right'
+
       });
     }
   } catch (error) {
@@ -99,6 +101,8 @@ const handleRequestPermission = async (permissionName: string) => {
       textColor: 'white',
       icon: 'error',
       message: t('common.unexpectedError'),
+      position:'top-right'
+
     });
   }
 };

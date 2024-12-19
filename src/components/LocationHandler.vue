@@ -105,8 +105,9 @@ export default defineComponent({
 
         locationStatus.value = 'granted'
         $q.notify({
-          type: 'positive',
-          message: 'Location access granted'
+          type: 'black',
+          message: 'Location access granted',
+          position:'top-right'
         })
 
         // Here you can handle the position data
@@ -124,7 +125,8 @@ export default defineComponent({
 
         $q.notify({
           type: 'negative',
-          message: 'Location access denied'
+          message: 'Location access denied',
+          position:'top-right'
         })
       }
     }
