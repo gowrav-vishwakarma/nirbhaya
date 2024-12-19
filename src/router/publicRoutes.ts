@@ -33,6 +33,7 @@ const publicRoutes: RouteRecordRaw[] = [
     path: 'deeplink',
     component: () => import('components/ExampleComponent.vue'),
   },
+
   {
     path: 'deeplink/:id',
     component: () => import('components/ExampleComponent.vue'),

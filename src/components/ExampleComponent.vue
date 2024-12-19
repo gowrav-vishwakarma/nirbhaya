@@ -8,7 +8,8 @@
     </ul>
     <p></p>
     <p>Active: {{ active ? 'yes' : 'no' }}</p>
-    <p>Clicks on todos: {{ paramValue }}</p>
+    <p>params: {{ paramValue }}</p>
+    <p>query: {{ route.query }}</p>
   </div>
 </template>
 
@@ -20,8 +21,12 @@ const route = useRoute(); // Get the current route
 const paramValue = computed(() => route.params); // Replace 'yourParamName' with the actual parameter name
 
 console.log(
-  'deeplink example component',
+  'deeplink example component: params',
   JSON.stringify(paramValue.value, null, 2)
-); // Convert to JSON string
+);
+console.log(
+  'deeplink example component: query',
+  JSON.stringify(route.query, null, 2)
+);
 // import { Todo, Meta } from './models';
 </script>

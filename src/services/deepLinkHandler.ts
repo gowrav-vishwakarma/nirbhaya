@@ -45,7 +45,7 @@ export function setupDeepLinks(router: Router) {
         console.log(`deeplink: Redirecting to: ${finalPath}`);
       } else {
         const queryParams = new URLSearchParams(remainingParams).toString(); // Convert remaining params to query string
-        const finalPath = queryParams ? `${newPath}/${queryParams}` : newPath; // Append values to the path if they exist
+        const finalPath = queryParams ? `${newPath}?${queryParams}` : newPath; // Append values to the path if they exist
         router.push(finalPath);
         console.log(`deeplink: Redirecting to: ${finalPath}`);
       }
