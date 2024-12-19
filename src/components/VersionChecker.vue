@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
+import { onMounted } from 'vue';
 import { useQuasar } from 'quasar';
 import { api } from 'src/boot/axios';
 import { iosVersion, androidVersion } from '../../package.json';
@@ -14,6 +14,7 @@ interface VersionResponse {
   minimumVersion: string;
   androidUpdateUrl: string;
   iosUpdateUrl: string;
+  skipUpdate: boolean;
 }
 
 const openStoreUrl = (androidUrl: string, iosUrl: string) => {
@@ -23,7 +24,11 @@ const openStoreUrl = (androidUrl: string, iosUrl: string) => {
 
 const checkVersion = async () => {
   const version = $q.platform.is.ios ? iosVersion : androidVersion;
-  const isApp = $q.platform.is.ios ? true : $q.platform.is.android ? true : false;
+  const isApp = $q.platform.is.ios
+    ? true
+    : $q.platform.is.android
+    ? true
+    : false;
 
   try {
     const response = await api.post<VersionResponse>('check-version', {
@@ -31,11 +36,11 @@ const checkVersion = async () => {
     });
 
     const {
-      latestVersion,
+      // latestVersion,
       latestIosVersion,
       latestAndroidVersion,
       forceUpdate,
-      minimumVersion,
+      // minimumVersion,
       androidUpdateUrl,
       iosUpdateUrl,
       skipUpdate,
@@ -45,7 +50,9 @@ const checkVersion = async () => {
       return;
     }
 
-    const appVersion = $q.platform.is.ios ? latestIosVersion : latestAndroidVersion;
+    const appVersion = $q.platform.is.ios
+      ? latestIosVersion
+      : latestAndroidVersion;
     if (isApp && forceUpdate && version !== appVersion) {
       $q.dialog({
         title: 'Update Required',

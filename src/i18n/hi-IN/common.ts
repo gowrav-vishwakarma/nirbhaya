@@ -384,9 +384,9 @@ export default {
   viewOnMap: 'मानचित्र पर देखें',
   awayFrom: 'दूर',
   pending: 'लंबित',
-  confirm: 'पुष्टि करें',
+  // confirm: 'पुष्टि करें',
   confirmDeleteContact: 'क्या आप वाकई इस आपातकालीन संपर्क को हटाना चाहते हैं?',
   delete: 'हटाएं',
-  cancel: 'रद्द करें',
-  contactDeletedSuccess: 'आपातकालीन संपर्क सफलतापूर्वक हटा दिया गया'
+  // cancel: 'रद्द करें',
+  contactDeletedSuccess: 'आपातकालीन संपर्क सफलतापूर्वक हटा दिया गया',
 };
