@@ -14,7 +14,7 @@
       </div> -->
 
       <!-- Header -->
-      <div
+      <!-- <div
         style="
           display: flex;
           justify-content: flex-end;
@@ -35,7 +35,7 @@
         >
           <span style="font-weight: 700; font-size: 14px"> Login </span>
         </q-btn>
-      </div>
+      </div> -->
       <div class="row items-center justify-between q-pa-md">
         <div>
           <h4 class="text-h5 text-weight-bold q-my-none text-primary">
@@ -435,14 +435,15 @@ const loading = ref(true);
 const currentlyPlayingVideo = ref<string | null>(null);
 
 // Add these refs near the top of the script section
-const showLoginDialog = ref(true);
+const showLoginDialog = ref(false);
 const postCount = ref(0);
 // Add this method to handle login dialog visibility
 const checkAndShowLoginDialog = () => {
+  console.log('checkAndShowLoginDialog', userStore.isLoggedIn);
   // Only show dialog if user is not logged in and has viewed more than 2 posts
-  // if (!userStore.user) {
-  showLoginDialog.value = true;
-  // }
+  if (!userStore.isLoggedIn) {
+    showLoginDialog.value = true;
+  }
 };
 
 // Update the formatDate helper function
@@ -530,7 +531,7 @@ const loadPosts = async (loadMore = false) => {
         color: 'warning',
         message: 'Post not found',
         icon: 'warning',
-        position:'top-right'
+        position: 'top-right',
       });
       router.push('/community');
       return;
@@ -565,7 +566,7 @@ const loadPosts = async (loadMore = false) => {
       color: 'negative',
       message: 'Failed to load post',
       icon: 'error',
-      position:'top-right'
+      position: 'top-right',
     });
     router.push('/community');
   } finally {
@@ -711,7 +712,7 @@ onMounted(async () => {
   await loadPosts();
 
   // Show login dialog immediately
-  showLoginPrompt();
+  // showLoginPrompt();
 });
 
 // Clean up on component unmount
@@ -1038,9 +1039,9 @@ watch(
 );
 
 // Add this method to show login prompt
-const showLoginPrompt = () => {
-  showLoginDialog.value = true;
-};
+// const showLoginPrompt = () => {
+//   showLoginDialog.value = true;
+// };
 </script>
 <style scoped lang="scss">
 .container {
