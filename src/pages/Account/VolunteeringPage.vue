@@ -1,111 +1,157 @@
 <template>
-  <q-page class="volunteering-page ">
+  <q-page class="volunteering-page">
     <div class="volunteering-content">
-      <q-card flat class="volunteering-card q-mb-md">
+      <h5 class="text-h6 q-mb-sm q-px-md q-mt-md q-ma-none">
+        {{ $t('common.volunteeringSettings') }}
+      </h5>
+      <p class="q-px-md q-ma-none q-mb-sm">
+        {{ $t('common.notificationLocationsHelp') }}
+      </p>
+
+      <!-- Availability toggles -->
+      <q-card flat bordered class="q-mb-md">
         <q-card-section>
-          <div class="text-h6 text-weight-bold q-mb-md">
-            {{ $t('common.volunteeringSettings') }}
+          <div class="text-subtitle1 text-weight-bold q-mb-sm">
+            {{ $t('common.availabilitySettings') }}
           </div>
-
-          <q-form @submit.prevent="handleSubmit">
-            <!-- Notification locations -->
-            <div class="q-mb-lg">
-              <div class="text-subtitle1 text-weight-bold q-mb-sm">
-                {{ $t('common.notificationLocations') }}
-                <q-icon :name="$t('common.icons.help')" size="xs" class="q-ml-sm">
-                  <q-tooltip>{{
-                    $t('common.notificationLocationsHelp')
-                  }}</q-tooltip>
-                </q-icon>
-              </div>
-              <q-list bordered separator>
-                <q-item v-for="(location, index) in values.locations" :key="index">
-                  <q-item-section>
-                    <q-input outlined dense v-model="location.name" :label="$t('common.locationName')"
-                      :error="!isLocationValid(location)" :error-message="$t('common.pleaseSelectLocation')"
-                      class="full-width" :disable="!values.availableForCommunity">
-                    </q-input>
-                    <div v-if="isLocationValid(location)" class="text-caption q-mt-sm">
-                      {{ getLocationCoordinates(location) }}
-                    </div>
-                  </q-item-section>
-                  <q-item-section side top>
-                    <q-btn-group spread>
-                      <q-btn flat color="primary" :icon="$t('common.icons.myLocation')"
-                        @click="updateLocationCoordinates(index)" :loading="locationLoading[index]"
-                        :disable="!values.availableForCommunity">
-                        <q-tooltip>{{
-                          $t('common.useCurrentLocation')
-                        }}</q-tooltip>
-                      </q-btn>
-                      <q-btn flat color="negative" :icon="$t('common.icons.delete')"
-                        @click="removeNotificationLocation(index)" :disable="!values.availableForCommunity" />
-                    </q-btn-group>
-                    <q-space />
-                    <q-btn flat dense round icon="map" :disable="!isLocationValid(location) ||
-                      !values.availableForCommunity
-                      " @click="openGoogleMaps(location.location.coordinates)" class="q-mb-0">
-                      <q-tooltip>{{ $t('common.viewOnMap') }}</q-tooltip>
-                    </q-btn>
-                  </q-item-section>
-                </q-item>
-              </q-list>
-              <div class="text-center q-mt-sm">
-                <q-btn v-if="values.locations.length < 10" @click="addNotificationLocation" color="primary"
-                  :icon="$t('common.icons.addCircle')" :label="$t('common.addNotificationLocation')" no-caps
-                  :disable="!values.availableForCommunity" />
-              </div>
-            </div>
-
-            <!-- Availability toggles -->
-            <q-card flat bordered class="q-mb-md">
-              <q-card-section>
-                <div class="text-subtitle1 text-weight-bold q-mb-sm">
-                  {{ $t('common.availabilitySettings') }}
-                </div>
-                <q-list>
-                  <q-item tag="label" v-ripple>
-                    <q-item-section>
-                      <q-item-label>{{
-                        $t('common.availableForCommunity')
-                      }}</q-item-label>
-                      <q-item-label caption>{{
-                        $t('common.availableForCommunityDescription')
-                      }}</q-item-label>
-                    </q-item-section>
-                    <q-item-section side>
-                      <q-toggle v-model="values.availableForCommunity" color="primary" />
-                    </q-item-section>
-                  </q-item>
-                  <!-- <q-item tag="label" v-ripple>
-                    <q-item-section>
-                      <q-item-label>{{
-                        $t('common.availableForPaidProfessionalService')
-                        }}</q-item-label>
-                      <q-item-label caption>{{
-                        $t(
-                          'common.availableForPaidProfessionalServiceDescription'
-                        )
-                      }}</q-item-label>
-                    </q-item-section>
-                    <q-item-section side>
-                      <q-toggle v-model="values.availableForPaidProfessionalService" color="primary" />
-                    </q-item-section>
-                  </q-item> -->
-                </q-list>
-              </q-card-section>
-            </q-card>
-
-            <!-- Save button -->
-            <div class="q-mt-lg">
-              <q-btn type="submit" :loading="isLoading" color="primary" class="full-width" :disable="!isFormValid"
-                no-caps>
-                <b>{{ $t('common.saveChanges') }}</b>
-              </q-btn>
-            </div>
-          </q-form>
+          <q-list>
+            <q-item tag="label" v-ripple>
+              <q-item-section>
+                <q-item-label>{{
+                  $t('common.availableForCommunity')
+                }}</q-item-label>
+                <q-item-label caption>{{
+                  $t('common.availableForCommunityDescription')
+                }}</q-item-label>
+              </q-item-section>
+              <q-item-section side>
+                <q-toggle
+                  v-model="values.availableForCommunity"
+                  color="primary"
+                  @update:model-value="handleAvailabilityToggle"
+                />
+              </q-item-section>
+            </q-item>
+          </q-list>
         </q-card-section>
       </q-card>
+
+      <div class="scrollable-inputs q-px-md">
+        <!-- Add Location Button -->
+        <q-btn
+          v-if="values.locations.length < 10"
+          icon="add"
+          color="primary"
+          class="full-width custom-radius q-mb-md"
+          @click="showInputFields = !showInputFields"
+          :label="$t('common.addNotificationLocation')"
+          style="border-radius: 10px !important;"
+          :disable="!values.availableForCommunity"
+        />
+
+        <!-- New Location Input Fields -->
+        <div v-if="showInputFields" class="input-fields">
+          <div class="custom-input">
+            <label>{{ $t('common.locationName') }}</label>
+            <q-input
+              v-model="newLocation.name"
+              filled
+              class="custom-radius"
+              bg-color="pink-1"
+              dense
+              hide-bottom-space
+            />
+          </div>
+
+          <div class="custom-input">
+            <q-btn
+              flat
+              color="white"
+              style="border-radius: 10px !important;"
+              icon="my_location"
+              class="full-width custom-radius bg-primary"
+              @click="getCurrentLocationForNew"
+              :loading="newLocationLoading"
+            >
+              {{ $t('common.useCurrentLocation') }}
+            </q-btn>
+            <div v-if="newLocation.location?.coordinates[0]" class="text-caption q-mt-sm">
+              {{ getLocationCoordinates(newLocation) }}
+            </div>
+          </div>
+
+          <div class="row q-col-gutter-sm">
+            <div class="col-6">
+              <q-btn
+                label="Cancel"
+                color="black"
+                style="border-radius: 10px !important;"
+                class="full-width custom-radius"
+                @click="clearInputFields"
+              />
+            </div>
+            <div class="col-6">
+              <q-btn
+                label="Add"
+                color="primary"
+                style="border-radius: 10px !important;"
+                class="full-width custom-radius"
+                @click="addNewLocation"
+                :disabled="!isNewLocationValid"
+                :loading="isAddingLocation"
+              />
+            </div>
+          </div>
+        </div>
+        <q-separator v-if="showInputFields" class="q-mt-md" />
+
+        <!-- Location Cards -->
+        <div class="contact-cards q-mt-md" v-if="hasLocations">
+          <q-card v-for="(location, index) in values.locations" :key="index" flat bordered class="contact-card q-mb-sm">
+            <q-card-section class="row items-center" style="width: 100%;">
+              <div class="col-auto">
+                <q-avatar>
+                  <img src='https://static.vecteezy.com/system/resources/thumbnails/051/222/604/small/3d-pink-location-pin-on-map-icon-png.png' alt='/profile.png' />
+                </q-avatar>
+              </div>
+              <div class="col q-pl-sm">
+                <div class="text-subtitle2">{{ location.name }}</div>
+                <div class="text-caption" v-if="isLocationValid(location)">
+                  {{ getLocationCoordinates(location) }}
+                </div>
+              </div>
+              <div class="col-auto">
+                <div class="text-center">
+                  <q-btn
+                    flat
+                    dense
+                    round
+                    class="q-mb-0 text-blue q-mb-sm"
+                    icon="mdi-directions"
+                    :disable="!isLocationValid(location)"
+                    @click="openGoogleMaps(location.location.coordinates)"
+                  >
+                    <q-tooltip>{{ $t('common.viewOnMap') }}</q-tooltip>
+                  </q-btn>
+                </div>
+                <div>
+                  <q-btn
+                    class="remove-btn"
+                    flat
+                    label="Remove"
+                    style="border-radius: 10px !important;"
+                    @click="removeNotificationLocation(index)"
+                  />
+                </div>
+              </div>
+            </q-card-section>
+          </q-card>
+        </div>
+
+        <p v-if="!hasLocations && values.availableForCommunity" class="text-negative q-mt-sm">
+          No location Added
+        </p>
+      </div>
     </div>
   </q-page>
 </template>
@@ -151,9 +197,13 @@ const locationLoading = ref<boolean[]>([]);
 const loadUserData = () => {
   const userData = userStore.user;
   // Filter out business locations and create a deep copy
-  values.value.locations = JSON.parse(JSON.stringify(
-    (userData.locations || []).filter((loc: UserLocation) => !loc.isBusinessLocation)
-  ));
+  values.value.locations = JSON.parse(
+    JSON.stringify(
+      (userData.locations || []).filter(
+        (loc: UserLocation) => !loc.isBusinessLocation
+      )
+    )
+  );
   values.value.availableForCommunity = userData.availableForCommunity || false;
   values.value.availableForPaidProfessionalService =
     userData.availableForPaidProfessionalService || false;
@@ -176,38 +226,106 @@ const addNotificationLocation = () => {
   }
 };
 
-const removeNotificationLocation = (index: number) => {
-  values.value.locations.splice(index, 1);
-  locationLoading.value.splice(index, 1);
+const removeNotificationLocation = async (index: number) => {
+  try {
+    const updatedLocations = [...values.value.locations];
+    updatedLocations.splice(index, 1);
+    
+    values.value.locations = updatedLocations;
+    locationLoading.value.splice(index, 1);
+
+    await validateAndSubmit(false);
+    
+    props.reloadComponents?.();
+    emit('reloadComponents');
+  } catch (error) {
+    console.error('Error removing location:', error);
+    loadUserData();
+    $q.notify({
+      color: 'negative',
+      message: t('common.errorRemovingLocation'),
+      icon: 'error',
+      position: 'top-right'
+    });
+  }
 };
 
+// Add this helper function to calculate distance between coordinates
+const calculateDistance = (
+  lat1: number,
+  lon1: number,
+  lat2: number,
+  lon2: number
+): number => {
+  const R = 6371e3; // Earth's radius in meters
+  const φ1 = (lat1 * Math.PI) / 180;
+  const φ2 = (lat2 * Math.PI) / 180;
+  const Δφ = ((lat2 - lat1) * Math.PI) / 180;
+  const Δλ = ((lon2 - lon1) * Math.PI) / 180;
+
+  const a =
+    Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
+    Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+  return R * c; // Distance in meters
+};
+
+// Update the updateLocationCoordinates function
 const updateLocationCoordinates = async (index: number) => {
   locationLoading.value[index] = true;
   try {
     const position = await Geolocation.getCurrentPosition({
       enableHighAccuracy: true,
-      timeout: 10000,
+      timeout: 10000
     });
 
+    const newLat = position.coords.latitude;
+    const newLon = position.coords.longitude;
+    
+    // Check distance with all existing locations
+    const tooClose = values.value.locations.some((loc, idx) => {
+      if (idx === index || !isLocationValid(loc)) return false;
+
+      const [existingLon, existingLat] = loc.location.coordinates;
+      const distance = calculateDistance(
+        newLat,
+        newLon,
+        existingLat,
+        existingLon
+      );
+
+      return distance < 500; // Less than 500 meters
+    });
+
+    if (tooClose) {
+      // Clear the location if too close
+      values.value.locations[index].location.coordinates = [null, null];
+      values.value.locations[index].name = '';
+
+      $q.notify({
+        color: 'negative',
+        message: t('common.locationTooClose'),
+        icon: 'error',
+        position: 'top-right'
+      });
+      return;
+    }
+
+    // Update coordinates if location is valid
     values.value.locations[index].location.coordinates = [
       position.coords.longitude,
-      position.coords.latitude,
+      position.coords.latitude
     ];
 
-    $q.notify({
-      color: 'black',
-      message: t('common.locationUpdated'),
-      icon: 'check',
-      position: 'top-right',
-
-    });
+    await validateAndSubmit(false);
   } catch (error) {
     console.error('Error getting location', error);
     $q.notify({
       color: 'negative',
       message: t('common.locationError'),
       icon: 'error',
-      position: 'top-right',
+      position: 'top-right'
     });
   } finally {
     locationLoading.value[index] = false;
@@ -254,7 +372,7 @@ const getLocationCoordinates = (location: {
 
 // Add defineEmits near the top of the script setup section, after the imports
 const props = defineProps<{
-  reloadComponents?: () => void
+  reloadComponents?: () => void;
 }>();
 
 const emit = defineEmits(['reloadComponents']);
@@ -290,7 +408,6 @@ const handleSubmit = async () => {
       // Call both the prop function and emit the event
       props.reloadComponents?.();
       emit('reloadComponents');
-
     } catch (error) {
       console.error('Form submission error:', error);
       $q.notify({
@@ -328,14 +445,153 @@ defineExpose({
   removeNotificationLocation,
   openGoogleMaps,
   handleSubmit,
-  isFormValid
+  isFormValid,
 });
+
+// Add these refs
+const showInputFields = ref(false);
+const newLocation = ref<UserLocation>({
+  name: '',
+  location: {
+    type: 'Point',
+    coordinates: [null, null]
+  }
+});
+const newLocationLoading = ref(false);
+const isAddingLocation = ref(false);
+
+// Add these computed properties
+const hasLocations = computed(() => values.value.locations.length > 0);
+const isNewLocationValid = computed(() => {
+  return newLocation.value.name.trim() !== '' && 
+         newLocation.value.location.coordinates[0] !== null && 
+         newLocation.value.location.coordinates[1] !== null;
+});
+
+// Add these methods
+const handleAvailabilityToggle = async () => {
+  try {
+    await validateAndSubmit(false);
+    props.reloadComponents?.();
+    emit('reloadComponents');
+  } catch (error) {
+    console.error('Error updating availability:', error);
+    $q.notify({
+      color: 'negative',
+      message: t('common.updateError'),
+      icon: 'error',
+      position: 'top-right'
+    });
+  }
+};
+
+const clearInputFields = () => {
+  newLocation.value = {
+    name: '',
+    location: {
+      type: 'Point',
+      coordinates: [null, null]
+    }
+  };
+  showInputFields.value = false;
+};
+
+const getCurrentLocationForNew = async () => {
+  newLocationLoading.value = true;
+  try {
+    const position = await Geolocation.getCurrentPosition({
+      enableHighAccuracy: true,
+      timeout: 10000
+    });
+
+    const newLat = position.coords.latitude;
+    const newLon = position.coords.longitude;
+
+    // Check distance with existing locations
+    const tooClose = values.value.locations.some((loc) => {
+      if (!isLocationValid(loc)) return false;
+
+      const [existingLon, existingLat] = loc.location.coordinates;
+      if (!existingLat || !existingLon) return false;
+
+      const distance = calculateDistance(newLat, newLon, existingLat, existingLon);
+      return distance < 500; // Less than 500 meters
+    });
+
+    if (tooClose) {
+      newLocation.value = {
+        name: '',
+        location: {
+          type: 'Point',
+          coordinates: [null, null]
+        }
+      };
+      
+      $q.notify({
+        color: 'negative',
+        message: t('common.locationTooClose'),
+        icon: 'error',
+        position: 'top-right'
+      });
+      return;
+    }
+
+    newLocation.value.location.coordinates = [position.coords.longitude, position.coords.latitude];
+
+   
+  } catch (error) {
+    console.error('Error getting location', error);
+    $q.notify({
+      color: 'negative',
+      message: t('common.locationError'),
+      icon: 'error',
+      position: 'top-right'
+    });
+  } finally {
+    newLocationLoading.value = false;
+  }
+};
+
+const addNewLocation = async () => {
+  if (!isNewLocationValid.value) {
+    $q.notify({
+      color: 'negative',
+      message: t('common.pleaseSelectLocation'),
+      icon: 'error',
+      position: 'top-right'
+    });
+    return;
+  }
+
+  isAddingLocation.value = true;
+
+  try {
+    const updatedLocations = [...values.value.locations, { ...newLocation.value }];
+    values.value.locations = updatedLocations;
+    await validateAndSubmit(false);
+    clearInputFields();
+    
+    props.reloadComponents?.();
+    emit('reloadComponents');
+  } catch (error) {
+    console.error('Error adding location:', error);
+    loadUserData();
+    $q.notify({
+      color: 'negative',
+      message: t('common.errorAddingLocation'),
+      icon: 'error',
+      position: 'top-right'
+    });
+  } finally {
+    isAddingLocation.value = false;
+  }
+};
 </script>
 
 <style lang="scss" scoped>
 .volunteering-page {
-  // background: linear-gradient(135deg, $primary, darken($primary, 20%));
   min-height: auto !important;
+  background-color: white;
 }
 
 .volunteering-content {
@@ -343,21 +599,37 @@ defineExpose({
   margin: 0 auto;
 }
 
-.volunteering-card {
-  border-radius: 12px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+.custom-input {
+  margin-bottom: 20px;
 }
 
-.q-item {
-  border-radius: 8px;
+.custom-input label {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 0.9rem;
+  color: #666;
 }
 
-.q-btn-group {
-  border-radius: 8px;
-  overflow: hidden;
+.contact-card {
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
 }
 
-.q-input {
-  width: 100%;
+.remove-btn {
+  background-color: black;
+  align-self: flex-end;
+  border-radius: 10px;
+  margin-left: 10px;
+  color: white;
+  font-size: 12px;
+  text-transform: capitalize;
 }
+
+:deep(.custom-radius) .q-field__control {
+  border-radius: 10px !important;
+  height: 45px;
+}
+
+/* Add other styles from the reference component */
 </style>

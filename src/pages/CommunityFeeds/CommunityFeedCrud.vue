@@ -152,6 +152,7 @@ async function loadFeeds() {
     $q.notify({
       color: 'negative',
       message: 'Failed to load feeds',
+      position:'top-right'
     });
   } finally {
     loading.value = false;
@@ -191,9 +192,9 @@ async function onSubmit() {
     });
 
     const successMessage = isEditing.value ? 'Feed updated successfully' : 'Feed created successfully';
-    $q.notify({ color: 'positive', message: successMessage });
+    $q.notify({ color: 'positive', message: successMessage, position:'top-right' });
   } catch (error) {
-    $q.notify({ color: 'negative', message: 'Failed to create or update feed' });
+    $q.notify({ color: 'negative', message: 'Failed to create or update feed', position:'top-right' });
   } finally {
     loading.value = false;
   }
@@ -225,13 +226,14 @@ async function deleteFeed(id: number) {
     });
 
     await api.delete(`/api/community-feeds/${id}`);
-    $q.notify({ color: 'positive', message: 'Feed deleted successfully' });
+    $q.notify({ color: 'black', message: 'Feed deleted successfully', position:'top-right' });
     await loadFeeds();
   } catch (error) {
     if (error) {
       $q.notify({
         color: 'negative',
         message: 'Delete operation failed',
+        position:'top-right'
       });
     }
   }
@@ -251,6 +253,7 @@ async function getCurrentLocation() {
     $q.notify({
       color: 'negative',
       message: 'Failed to get location',
+      position:'top-right'
     });
   }
 }

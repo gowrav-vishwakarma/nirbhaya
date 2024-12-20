@@ -256,6 +256,7 @@ const fetchSOSEvents = async () => {
       color: 'negative',
       message: t('common.fetchSOSEventsError'),
       icon: 'error',
+      position:'top-right'
     });
   } finally {
     isLoading.value = false;
@@ -364,6 +365,7 @@ const getUserLocation = async () => {
       color: 'negative',
       message: t('common.locationError'),
       icon: 'error',
+      position:'top-right'
     });
     return null;
   } finally {

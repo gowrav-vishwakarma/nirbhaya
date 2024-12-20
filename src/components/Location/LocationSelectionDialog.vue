@@ -1,10 +1,26 @@
 <template>
-  <q-dialog v-model="isOpen" position="top" style="padding-top: env(safe-area-inset-top)"
-    @hide="$emit('update:modelValue', false)" @touchstart="handleTouchStart" @touchmove.prevent="handleTouchMove"
-    @touchend="handleTouchEnd" @click="checkSwipeToClose" persistent :maximized="false" transition-show="slide-down"
-    transition-hide="slide-up">
-    <q-card class="dialog-card" :style="{ '--swipe-progress': swipeProgress }" @touchstart="handleTouchStart"
-      @touchmove="handleTouchMove" @touchend="handleTouchEnd" @click="checkSwipeToClose">
+  <q-dialog
+    v-model="isOpen"
+    position="top"
+    style="padding-top: env(safe-area-inset-top)"
+    @hide="$emit('update:modelValue', false)"
+    @touchstart="handleTouchStart"
+    @touchmove.prevent="handleTouchMove"
+    @touchend="handleTouchEnd"
+    @click="checkSwipeToClose"
+    persistent
+    :maximized="false"
+    transition-show="slide-down"
+    transition-hide="slide-up"
+  >
+    <q-card
+      class="dialog-card"
+      :style="{ '--swipe-progress': swipeProgress }"
+      @touchstart="handleTouchStart"
+      @touchmove="handleTouchMove"
+      @touchend="handleTouchEnd"
+      @click="checkSwipeToClose"
+    >
       <q-card-section class="row items-center q-pb-none">
         <div class="text-h6">Select Location</div>
         <q-space />
@@ -14,11 +30,25 @@
       <q-card-section class="q-pt-md">
         <q-list>
           <div @click="handleLocationSelect('current')">
-
-            <q-item clickable v-ripple class="location-item" :class="{ 'selected': selectedLocationId === 'current' }">
+            <q-item
+              clickable
+              v-ripple
+              class="location-item"
+              :class="{ selected: selectedLocationId === 'current' }"
+            >
               <q-item-section avatar>
-                <q-icon :name="isLoading && selectedLocationId === 'current' ? 'sync' : 'my_location'" color="primary"
-                  size="24px" :class="{ 'rotate': isLoading && selectedLocationId === 'current' }" />
+                <q-icon
+                  :name="
+                    isLoading && selectedLocationId === 'current'
+                      ? 'sync'
+                      : 'my_location'
+                  "
+                  color="primary"
+                  size="24px"
+                  :class="{
+                    rotate: isLoading && selectedLocationId === 'current',
+                  }"
+                />
               </q-item-section>
               <q-item-section>
                 <q-item-label>Current Location</q-item-label>
@@ -30,29 +60,57 @@
             </q-item>
           </div>
 
-          <!-- <q-separator spaced /> -->
-          <q-item v-for="location in userLocations" :key="location.id" clickable v-ripple class="location-item"
-            :class="{ 'selected': selectedLocationId === location.id?.toString() }">
-            <div @click="handleLocationSelect('stored', location)" style="width: 100%; display: flex;">
+          <div @click="openMapSelector">
+            <q-item
+              clickable
+              v-ripple
+              class="location-item"
+              :class="{ selected: selectedLocationId === 'map' }"
+            >
+              <q-item-section avatar>
+                <q-icon name="map" color="primary" size="24px" />
+              </q-item-section>
+              <q-item-section>
+                <q-item-label>Select on Map</q-item-label>
+                <q-item-label caption>Choose a custom location</q-item-label>
+              </q-item-section>
+            </q-item>
+          </div>
 
+          <!-- <q-separator spaced /> -->
+          <q-item
+            v-for="location in userLocations"
+            :key="location.id"
+            clickable
+            v-ripple
+            class="location-item"
+            :class="{
+              selected: selectedLocationId === location.id?.toString(),
+            }"
+          >
+            <div
+              @click="handleLocationSelect('stored', location)"
+              style="width: 100%; display: flex"
+            >
               <q-item-section avatar>
                 <q-icon name="location_on" color="primary" size="24px" />
               </q-item-section>
               <q-item-section>
-
                 <q-item-label class="text-capitalize">{{
                   location.name ? location.name : 'Location'
-                  }}</q-item-label>
+                }}</q-item-label>
 
                 <q-item-label caption>Saved Location</q-item-label>
               </q-item-section>
 
-              <q-item-section side v-if="selectedLocationId === location.id?.toString()">
+              <q-item-section
+                side
+                v-if="selectedLocationId === location.id?.toString()"
+              >
                 <q-icon name="check" color="primary" />
               </q-item-section>
               <q-separator spaced />
             </div>
-
           </q-item>
 
           <q-item v-if="!userLocations?.length" class="location-item disabled">
@@ -68,18 +126,25 @@
       </q-card-section>
     </q-card>
   </q-dialog>
+
+  <LocationSelectorDialog
+    v-model="showMapSelector"
+    :zoom="15"
+    @location-selected="handleMapLocationSelected"
+  />
 </template>
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
 import { useQuasar } from 'quasar';
 import { Geolocation } from '@capacitor/geolocation';
+import LocationSelectorDialog from './LocationSelectorDialog.vue';
 
 interface UserLocation {
   id?: string | number;
   name: string;
   location: {
-    type: "Point";
+    type: 'Point';
     coordinates: [number, number]; // [longitude, latitude]
   };
 }
@@ -94,18 +159,21 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   (e: 'update:modelValue', value: boolean): void;
-  (e: 'location-selected', location: {
-    type: string;
-    latitude: number;
-    longitude: number;
-    name?: string;
-    source?: 'current' | 'stored';
-  }): void;
+  (
+    e: 'location-selected',
+    location: {
+      type: string;
+      latitude: number;
+      longitude: number;
+      name?: string;
+      source?: 'current' | 'stored';
+    }
+  ): void;
 }>();
 
 const isOpen = computed({
   get: () => props.modelValue,
-  set: (value) => emit('update:modelValue', value)
+  set: (value) => emit('update:modelValue', value),
 });
 
 const touchStartY = ref(0);
@@ -123,7 +191,10 @@ const handleTouchStart = (event: TouchEvent) => {
 const handleTouchMove = (event: TouchEvent) => {
   event.preventDefault();
   touchEndY.value = event.touches[0].clientY;
-  const progress = Math.min(Math.max((touchStartY.value - touchEndY.value) / minSwipeDistance, 0), 1);
+  const progress = Math.min(
+    Math.max((touchStartY.value - touchEndY.value) / minSwipeDistance, 0),
+    1
+  );
   swipeProgress.value = progress;
 };
 
@@ -139,54 +210,32 @@ const checkSwipeToClose = (event: MouseEvent) => {
   event.stopPropagation();
 };
 
-const handleLocationSelect = async (locationType: 'current' | 'stored', storedLocation?: UserLocation) => {
-  console.log('handleLocationSelect called with:', { locationType, storedLocation });
-  selectedLocationId.value = locationType === 'current' ? 'current' : storedLocation?.id?.toString() || '';
+const handleLocationSelect = async (
+  locationType: 'current' | 'stored',
+  storedLocation?: UserLocation
+) => {
   try {
-    isLoading.value = true;
-
     if (locationType === 'current') {
-
-      try {
-        const position = await Geolocation.getCurrentPosition({
-          enableHighAccuracy: true,
-          timeout: 10000,
-        });
-        // Emit current location data
-        if (position) {
-
-          emit('location-selected', {
-            type: 'Point',
-            latitude: position.coords.latitude,
-            longitude: position.coords.longitude,
-            name: currentLocationName.value,
-            source: 'current'
-          });
-          isOpen.value = false;  // Close dialog after successful selection
-        }
-
-      } catch (error) {
-        console.error('Geolocation error:', error);
-        throw error;
-      }
-
+      // Just emit with source='current' and close dialog immediately
+      emit('location-selected', {
+        type: 'Point',
+        latitude: null,
+        longitude: null,
+        name: '',
+        source: 'current',
+      });
+      isOpen.value = false;
     } else if (storedLocation && storedLocation.location) {
-      console.log('Selected stored location:', storedLocation);
-      console.log('Coordinates:', storedLocation.location.coordinates);
-
-      const locationData = {
+      // For stored locations, emit complete data
+      emit('location-selected', {
         type: 'Point',
         latitude: storedLocation.location.coordinates[1],
         longitude: storedLocation.location.coordinates[0],
         name: storedLocation.name,
-        source: 'stored' as const
-      };
-
-      console.log('Emitting location data:', locationData);
-      emit('location-selected', locationData);
-      isOpen.value = false;  // Close dialog after successful selection
+        source: 'stored' as const,
+      });
+      isOpen.value = false;
     }
-
   } catch (error) {
     console.error('Location selection failed:', error);
     $q.notify({
@@ -195,11 +244,30 @@ const handleLocationSelect = async (locationType: 'current' | 'stored', storedLo
       position: 'top-right',
       timeout: 3000,
       color: 'black',
-      icon: 'error'
+      icon: 'error',
     });
-  } finally {
-    isLoading.value = false;
   }
+};
+
+const showMapSelector = ref(false);
+
+const openMapSelector = () => {
+  showMapSelector.value = true;
+  selectedLocationId.value = 'map';
+};
+
+const handleMapLocationSelected = (location: {
+  type: string;
+  coordinates: number[];
+}) => {
+  emit('location-selected', {
+    type: 'Point',
+    latitude: location.coordinates[1],
+    longitude: location.coordinates[0],
+    name: 'Custom Location',
+    source: 'map',
+  });
+  isOpen.value = false;
 };
 </script>
 

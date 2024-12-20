@@ -141,7 +141,7 @@
         style="font-weight: 600"
       >
         <span style="font-size: 13px">App version : </span>
-        <span style="font-size: 13px">{{ version }}</span>
+        <span style="font-size: 13px">{{ appVersion }}</span>
       </div>
     </div>
   </q-page>
@@ -158,7 +158,7 @@ import { Notify } from 'quasar';
 import LanguageSelector from 'src/components/LanguageSelector.vue';
 import { Device } from '@capacitor/device';
 import { useI18n } from 'vue-i18n';
-import { version } from 'src/../package.json';
+import { version, iosVersion, androidVersion } from 'src/../package.json';
 
 const { t } = useI18n();
 const $q = useQuasar();
@@ -168,6 +168,15 @@ const otpSent = ref(false);
 const acceptedTerms = ref(false);
 const countdown = ref(0);
 const countdownTimer = ref<number | null>(null);
+
+// Define appVersion
+const appVersion = computed(() => {
+  return $q.platform.is.ios
+    ? iosVersion
+    : $q.platform.is.android
+    ? androidVersion
+    : version;
+});
 
 const isIosNotSafari = computed(() => {
   return (
@@ -189,10 +198,10 @@ interface FormValues {
   deviceId: string;
 }
 
-interface FormErrors {
-  mobileNumber?: string[];
-  otp?: string[];
-}
+// interface FormErrors {
+//   mobileNumber?: string[];
+//   otp?: string[];
+// }
 
 const { values, errors, validateAndSubmit, updateUrl, callbacks } =
   useForm<FormValues>(api, 'auth/sendOtp', {
@@ -256,7 +265,7 @@ callbacks.onSuccess = async (userData) => {
     if (userData.name) {
       router.push('/sos');
     } else {
-      router.push('/account');
+      router.push('/profile');
     }
   }
   isLoading.value = false;
@@ -270,6 +279,7 @@ callbacks.onError = async (error: any) => {
     message: otpSent.value
       ? 'Login failed. Please check your OTP and try again.'
       : 'Failed to send OTP. Please try again.',
+    position: 'top-right',
   });
 };
 
@@ -297,6 +307,7 @@ const resendOTP = async () => {
     Notify.create({
       type: 'positive',
       message: 'OTP resent successfully',
+      position: 'top-right',
     });
     startCountdown();
   } catch (error) {
@@ -304,6 +315,7 @@ const resendOTP = async () => {
     Notify.create({
       type: 'negative',
       message: 'Failed to resend OTP. Please try again.',
+      position: 'top-right',
     });
   } finally {
     isLoading.value = false;

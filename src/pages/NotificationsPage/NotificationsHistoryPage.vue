@@ -125,7 +125,7 @@ const fetchNotifications = async (isLoadMore = false) => {
     $q.notify({
       type: 'negative',
       message: t('common.errorLoadingMore'),
-      position: 'top',
+      position: 'top-right',
     });
   } finally {
     isLoading.value = false;

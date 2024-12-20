@@ -57,6 +57,7 @@ onMounted(() => {
       color: 'warning',
       message: t('common.pleaseLoginFirst'),
       icon: 'warning',
+      position:'top-right'
     });
   }
 });
@@ -67,9 +68,10 @@ const logout = async () => {
     userStore.logout(); // This will clear both in-memory and persisted state
     router.push('/login');
     $q.notify({
-      color: 'positive',
+      color: 'black',
       message: t('common.logoutSuccess'),
       icon: 'check',
+      position:'top-right'
     });
   } catch (error) {
     console.error('Error logging out', error);
@@ -77,6 +79,7 @@ const logout = async () => {
       color: 'negative',
       message: t('common.logoutError'),
       icon: 'error',
+      position:'top-right'
     });
   }
 };

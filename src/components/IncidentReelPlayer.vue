@@ -414,8 +414,8 @@ const fallbackShare = (reel: { videoUrl: string }) => {
   // Show notification
   $q.notify({
     message: 'Link copied to clipboard!',
-    color: 'positive',
-    position: 'top',
+    color: 'black',
+    position: 'top-right',
     timeout: 2000
   });
 };

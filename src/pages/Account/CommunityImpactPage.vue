@@ -277,6 +277,7 @@ const shareToWhatsApp = async () => {
       color: 'negative',
       message: 'No video recorded to share',
       icon: 'warning',
+      position:'top-right'
     });
     return;
   }
@@ -315,6 +316,7 @@ const shareToWhatsApp = async () => {
       color: 'negative',
       message: 'Failed to share the video',
       icon: 'error',
+      position:'top-right'
     });
   }
 };

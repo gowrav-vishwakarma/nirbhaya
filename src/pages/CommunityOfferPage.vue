@@ -204,6 +204,7 @@ const joinMovement = async () => {
       color: 'negative',
       message: t('common.fillAllFields'),
       icon: 'warning',
+      position:'top-right'
     });
     return;
   }
@@ -223,6 +224,7 @@ const joinMovement = async () => {
       color: 'negative',
       message: t('common.errorJoiningCommunity'),
       icon: 'error',
+      position:'top-right'
     });
   }
 };

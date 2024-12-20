@@ -131,17 +131,19 @@ const handleRequestPermission = async (permissionName: string) => {
   const granted = await requestPermission(permissionName);
   if (granted) {
     $q.notify({
-      color: 'positive',
+      color: 'black',
       message: t('common.permissionGranted', {
         permission: t(permissionName),
       }),
       icon: 'check',
+      position:'top-right'
     });
   } else {
     $q.notify({
       color: 'negative',
       message: t('common.permissionDenied', { permission: t(permissionName) }),
       icon: 'error',
+      position:'top-right'
     });
   }
   await checkPermissions();

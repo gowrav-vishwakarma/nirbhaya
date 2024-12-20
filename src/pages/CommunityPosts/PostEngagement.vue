@@ -2,7 +2,10 @@
   <div>
     <!-- Engagement Section -->
     <div class="flex flex-wrap justify-evenly gap-4 px-4 py-2 py-2 q-py-sm">
-      <div class="flex items-start justify-start gap-2" style="width: 30%">
+      <div
+        class="flex items-start justify-start gap-2"
+        :style="{ width: post.isBusinessPost ? '25%' : '30%' }"
+      >
         <q-btn @click="handleLike" flat round style="margin-left: 20px">
           <div
             class="flex items-center justify-center gap-2 px-3 py-2 cursor-pointer hover:bg-gray-100 rounded-lg"
@@ -38,7 +41,10 @@
         </p>
       </div>
 
-      <div class="flex items-center justify-center gap-2" style="width: 30%">
+      <div
+        class="flex items-center justify-center gap-2"
+        :style="{ width: post.isBusinessPost ? '25%' : '30%' }"
+      >
         <q-btn flat round @click="toggleComments">
           <div
             class="flex items-center justify-center gap-2 px-3 py-2 cursor-pointer hover:bg-gray-100 rounded-lg"
@@ -74,7 +80,7 @@
       <div
         v-if="post.isBusinessPost"
         class="flex items-center justify-center gap-2"
-        style="width: 40%"
+        :style="{ width: post.isBusinessPost ? '25%' : '40%' }"
       >
         <q-btn flat round @click="openWhatsApp">
           <div
@@ -85,7 +91,7 @@
                 xmlns="http://www.w3.org/2000/svg"
                 width="24px"
                 height="24px"
-                fill="#25d366"
+                fill="currentColor"
                 viewBox="0 0 256 256"
               >
                 <path
@@ -97,30 +103,58 @@
         </q-btn>
       </div>
 
-      <!-- <div class="flex items-center justify-center gap-2" style="width: 40%">
+      <div
+        v-if="showShareButton"
+        class="flex items-center justify-center gap-2"
+        :style="{ width: post.isBusinessPost ? '25%' : '40%' }"
+      >
         <q-btn @click="handleShare" flat round>
-          <div class="flex items-center justify-center gap-2 px-3 py-2 cursor-pointer hover:bg-gray-100 rounded-lg">
-            <div class="text-[#637588]" data-icon="PaperPlaneRight" data-size="24px" data-weight="regular">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor"
-                viewBox="0 0 256 256">
+          <div
+            class="flex items-center justify-center gap-2 px-3 py-2 cursor-pointer hover:bg-gray-100 rounded-lg"
+          >
+            <div
+              class="text-[#637588]"
+              data-icon="PaperPlaneRight"
+              data-size="24px"
+              data-weight="regular"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24px"
+                height="24px"
+                fill="currentColor"
+                viewBox="0 0 256 256"
+              >
                 <path
-                  d="M223.87,114l-168-95.89A16,16,0,0,0,32.93,37.32l31,90.47a.42.42,0,0,0,0,.1.3.3,0,0,0,0,.1l-31,90.67A16,16,0,0,0,48,240a16.14,16.14,0,0,0,7.92-2.1l167.91-96.05a16,16,0,0,0,.05-27.89ZM48,224l0-.09L78.14,136H136a8,8,0,0,0,0-16H78.22L48.06,32.12,48,32l168,95.83Z">
-                </path>
+                  d="M223.87,114l-168-95.89A16,16,0,0,0,32.93,37.32l31,90.47a.42.42,0,0,0,0,.1.3.3,0,0,0,0,.1l-31,90.67A16,16,0,0,0,48,240a16.14,16.14,0,0,0,7.92-2.1l167.91-96.05a16,16,0,0,0,.05-27.89ZM48,224l0-.09L78.14,136H136a8,8,0,0,0,0-16H78.22L48.06,32.12,48,32l168,95.83Z"
+                ></path>
               </svg>
             </div>
           </div>
         </q-btn>
-        <p class="text-[#637588] text-[13px] font-bold leading-normal tracking-[0.015em]" style="padding-top: 10px">
+        <p
+          class="text-[#637588] text-[13px] font-bold leading-normal tracking-[0.015em]"
+          style="padding-top: 10px"
+        >
           {{ post.sharesCount || '' }}
         </p>
-      </div> -->
+      </div>
     </div>
 
     <!-- Comments Dialog -->
     <CommentsDialog
       v-model="showComments"
       :post="post"
-      :userInteractionRules="userInteractionRules"
+      :userInteractionRules="
+        userInteractionRules || {
+          dailyLikeLimit: 0,
+          dailyCommentLimit: 0,
+          dailyPostLimit: 0,
+          usedLikeCount: 0,
+          usedCommentCount: 0,
+          usedPostCount: 0,
+        }
+      "
       @update:post="handlePostUpdate"
       @update:userInteractionRules="
         $emit('update:userInteractionRules', $event)
@@ -132,7 +166,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, nextTick } from 'vue';
+import { ref, watch, nextTick, computed } from 'vue';
 import { useQuasar } from 'quasar';
 import { useUserStore } from 'src/stores/user-store';
 import type { CommunityPost } from 'src/types/CommunityPost';
@@ -149,18 +183,22 @@ interface PostProps extends Omit<CommunityPost, 'liked'> {
   userName: string;
   wasLiked: boolean;
   liked: boolean;
+  isBusinessPost?: boolean;
+  whatsappNumber?: string;
+}
+
+interface UserInteractionRules {
+  dailyLikeLimit: number;
+  dailyCommentLimit: number;
+  dailyPostLimit: number;
+  usedLikeCount: number;
+  usedCommentCount: number;
+  usedPostCount: number;
 }
 
 const props = defineProps<{
   post: PostProps;
-  userInteractionRules?: {
-    dailyLikeLimit: number;
-    dailyCommentLimit: number;
-    dailyPostLimit: number;
-    usedLikeCount: number;
-    usedCommentCount: number;
-    usedPostCount: number;
-  };
+  userInteractionRules?: UserInteractionRules;
 }>();
 
 const emit = defineEmits(['update:post', 'update:userInteractionRules']);
@@ -182,6 +220,7 @@ const handleLike = async () => {
       $q.notify({
         message: 'Please login to like posts',
         color: 'warning',
+        position:'top-right'
       });
       return;
     }
@@ -405,12 +444,7 @@ watch(showComments, async (newValue) => {
 
 const openWhatsApp = async () => {
   try {
-    if (!props.post.id) return;
-
-    const response = await communityService.getBusinessWhatsApp(
-      props.post.id.toString()
-    );
-    const whatsappNumber = response.whatsappNumber;
+    const whatsappNumber = props.post.whatsappNumber;
 
     if (!whatsappNumber) {
       $q.notify({
@@ -421,7 +455,7 @@ const openWhatsApp = async () => {
       return;
     }
 
-    const text = `Hi, I'm interested in your post: ${props.post.title}`;
+    const text = `Hi, I'm interested in your post on https://app.sosbharat.com/#/sos-bharat-community-post/${props.post.id} : ${props.post.title}`;
     const encodedText = encodeURIComponent(text);
 
     // Create both universal and app-specific URLs
@@ -449,7 +483,7 @@ const openWhatsApp = async () => {
       window.location.href = universalUrl;
     }
   } catch (error) {
-    console.error('Error getting WhatsApp number:', error);
+    console.error('Error opening WhatsApp:', error);
     $q.notify({
       message: 'Unable to connect via WhatsApp',
       color: 'negative',
@@ -469,6 +503,16 @@ const showLikesList = () => {
     }
   });
 };
+
+// Add this after the props definition
+const allowedShareIds =
+  process.env.VITE_SHOW_INSTALL_PROMPT?.split(',').map((id: string) =>
+    parseInt(id)
+  ) || [];
+
+const showShareButton = computed(() => {
+  return allowedShareIds.includes(userStore.user?.id);
+});
 </script>
 
 <style lang="scss" scoped>

@@ -303,7 +303,8 @@ const shareCertificate = async () => {
     console.error('Error sharing:', error)
     $q.notify({
       message: 'Unable to share certificate',
-      color: 'negative'
+      color: 'negative',
+      position:'top-right'
     })
   }
 }

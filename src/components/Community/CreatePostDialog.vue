@@ -50,8 +50,13 @@
           label="Description"
           placeholder="What do you want to share?"
           autogrow
-          class="text-h6"
-          borderless
+          class="description-input q-mb-md"
+          :input-style="{
+            minHeight: '150px',
+            fontSize: '16px',
+            lineHeight: '1.5',
+          }"
+          :rows="6"
           maxlength="1000"
           :rules="[
             (val) =>
@@ -106,7 +111,10 @@
         <div class="q-mt-md">
           <q-select
             v-model="selectedLocationId"
-            :options="savedLocations"
+            :options="[
+              ...savedLocations,
+              { id: -1, name: 'Select on Map', location: null },
+            ]"
             option-value="id"
             option-label="name"
             label="Select Location (to primarily display this post)"
@@ -122,30 +130,30 @@
             <template v-slot:option="scope">
               <q-item v-bind="scope.itemProps">
                 <q-item-section>
-                  <q-item-label
-                    >{{ scope.opt.name ? scope.opt.name : 'Your Saved Location'
-                    }}{{
-                      scope.opt.isBusinessLocation ? ' (Business)' : ''
-                    }}</q-item-label
-                  >
-                  <q-item-label
-                    caption
-                    v-if="scope.opt.id !== 0 || !isLoadingLocations"
-                  >
+                  <q-item-label>{{ scope.opt.name }}</q-item-label>
+                  <q-item-label caption v-if="scope.opt.location">
                     {{ scope.opt.location.coordinates.join(', ') }}
-                  </q-item-label>
-                  <q-item-label caption v-else>
-                    Fetching location...
                   </q-item-label>
                 </q-item-section>
               </q-item>
             </template>
           </q-select>
 
+          <LocationSelectorDialog
+            v-model="showLocationSelector"
+            :zoom="17"
+            @location-selected="handleLocationSelected"
+          />
+
           <q-checkbox
             v-model="isBusinessPost"
             label="Business Post"
-            :disable="!hasBusinessLocation"
+            v-if="hasBusinessLocation"
+            class="q-mb-md"
+          />
+          <q-checkbox
+            v-model="form.showLocation"
+            label="Show location on post"
             class="q-mb-md"
           />
         </div>
@@ -239,6 +247,7 @@ import { api } from 'src/boot/axios';
 import { useQuasar } from 'quasar';
 import { useUserStore } from 'src/stores/user-store';
 import { Geolocation } from '@capacitor/geolocation';
+import LocationSelectorDialog from '../Location/LocationSelectorDialog.vue';
 
 const userStore = useUserStore();
 
@@ -269,6 +278,7 @@ const form = ref({
     type: 'Point',
     coordinates: [0, 0],
   },
+  showLocation: false,
 });
 
 const tagInput = ref('');
@@ -454,6 +464,7 @@ const handleMediaUpload = () => {
             color: 'negative',
             message: 'Error processing images',
             icon: 'error',
+            position:'top-right'
           });
         } finally {
           isProcessingImages.value = false;
@@ -498,6 +509,9 @@ const isLoadingLocations = ref(true);
 const loadSavedLocations = async () => {
   isLoadingLocations.value = true;
   try {
+    // Reset saved locations
+    savedLocations.value = [];
+
     // Add current location as first option with placeholder coordinates
     savedLocations.value = [
       {
@@ -511,6 +525,7 @@ const loadSavedLocations = async () => {
         isBusinessLocation: false,
       },
     ];
+
     // Add user's saved locations
     if (userStore.user?.locations) {
       const userLocations = userStore.user.locations.map((loc) => ({
@@ -575,13 +590,41 @@ const getCurrentLocation = async () => {
   }
 };
 
-// Update the watch section to load saved locations when dialog opens
+// Add a watch for dialog open state
 watch(
   () => isOpen.value,
-  (newValue) => {
+  async (newValue) => {
     if (newValue) {
-      loadSavedLocations();
-      getCurrentLocation();
+      // Reset form when dialog opens
+      form.value = {
+        title: '',
+        description: '',
+        mediaUrls: [],
+        videoUrl: '',
+        tags: [],
+        location: {
+          type: 'Point',
+          coordinates: [0, 0],
+        },
+        showLocation: false,
+      };
+
+      // Reset files and previews
+      selectedFiles.value = [];
+      previewUrls.value.forEach((url) => URL.revokeObjectURL(url));
+      previewUrls.value = [];
+
+      // Reset location selection
+      selectedLocationId.value = null;
+
+      // Load locations and set current location
+      await loadSavedLocations();
+      await getCurrentLocation();
+
+      // Set to current location by default
+      if (savedLocations.value.length > 0) {
+        selectedLocationId.value = 0; // Current location has id 0
+      }
     }
   }
 );
@@ -590,6 +633,11 @@ watch(
 watch(
   () => selectedLocationId.value,
   (newValue) => {
+    if (newValue === -1) {
+      showLocationSelector.value = true;
+      return;
+    }
+
     const selectedLocation = savedLocations.value.find(
       (loc) => loc.id === newValue
     );
@@ -618,6 +666,7 @@ const submitPost = async () => {
     formData.append('postType', 'community');
     formData.append('status', 'active');
     formData.append('location', JSON.stringify(form.value.location));
+    formData.append('showLocation', String(form.value.showLocation));
     formData.append('tags', JSON.stringify(form.value.tags));
     formData.append('userId', String(userStore.user?.id || ''));
     formData.append(
@@ -627,6 +676,11 @@ const submitPost = async () => {
         : userStore.user?.name || ''
     );
     formData.append('isBusinessPost', String(isBusinessPost.value));
+
+    // Add whatsappNumber if it's a business post
+    if (isBusinessPost.value && userStore.user?.whatsappNumber) {
+      formData.append('whatsappNumber', userStore.user.whatsappNumber);
+    }
 
     // Append each file
     selectedFiles.value.forEach((file, index) => {
@@ -650,6 +704,7 @@ const submitPost = async () => {
         type: 'Point',
         coordinates: [0, 0],
       },
+      showLocation: true,
     };
     selectedFiles.value = [];
     previewUrls.value.forEach((url) => URL.revokeObjectURL(url));
@@ -680,6 +735,7 @@ watch(
       );
       if (businessLocation) {
         selectedLocationId.value = businessLocation.id;
+        form.value.showLocation = true;
       }
     } else {
       // Find first non-business location
@@ -692,10 +748,40 @@ watch(
     }
   }
 );
+
+const showLocationSelector = ref(false);
+
+const handleLocationSelected = (location: {
+  type: string;
+  coordinates: number[];
+}) => {
+  // Add the selected location to saved locations
+  const newLocation = {
+    id: Date.now(), // Generate a unique ID
+    name: 'Custom Location',
+    location: location,
+    timestamp: null,
+    isBusinessLocation: false,
+  };
+
+  savedLocations.value = [...savedLocations.value, newLocation];
+  selectedLocationId.value = newLocation.id;
+  form.value.location = location;
+};
 </script>
 
 <style scoped>
 .q-dialog__inner {
   min-width: 80vw;
+}
+
+.description-input :deep(.q-field__native) {
+  min-height: 150px;
+  padding: 12px;
+}
+
+.description-input :deep(.q-field__control) {
+  height: auto;
+  min-height: 150px;
 }
 </style>

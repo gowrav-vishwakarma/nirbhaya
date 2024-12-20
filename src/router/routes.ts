@@ -1,7 +1,7 @@
 import { RouteRecordRaw } from 'vue-router';
 import VolunteersNearByPage from 'pages/VolunteersNearByPage.vue';
 import publicRoutes from './publicRoutes'; // Import public routes
-import SOSEventsMapPage from 'pages/SOSEventsMapPage.vue';
+// import SOSEventsMapPage from 'pages/SOSEventsMapPage.vue';
 import IncidentReelsPage from 'pages/IncidentReelsPage.vue';
 import CreateReelPage from 'pages/CreateReelPage.vue';
 import NewsPage from 'pages/CommunityFeeds/NewsPage.vue';
@@ -9,7 +9,8 @@ import CommunityFeedback from 'pages/Sos/SosRating.vue';
 import ShareCartificatePage from 'pages/Cartificate/ShareCartificatePage.vue';
 import CommunityPostsList from 'pages/CommunityPosts/CommunityPostsList.vue';
 import Feed from 'pages/CommunityFeeds/CommunityFeedsPage.vue';
-import MyPostsPage from 'pages/CommunityPosts/MyPostsPage.vue';
+// import MyPostsPage from 'pages/CommunityPosts/MyPostsPage.vue';
+import LeaderboardPage from 'pages/Leaderboard/LeaderboardPage.vue';
 const routes: RouteRecordRaw[] = [
   {
     path: '/',
@@ -152,6 +153,18 @@ const routes: RouteRecordRaw[] = [
         name: 'UserProfile',
         component: () => import('pages/CommunityPosts/MyPostsPage.vue'),
         props: true,
+      },
+      {
+        path: '/profile',
+        name: 'profile',
+        component: () => import('pages/ProfileStapper/ProfileStapperPage.vue'),
+        props: true,
+        meta: { requiresAuth: true },
+      },
+      {
+        path: 'leaderboard',
+        component: LeaderboardPage,
+        meta: { requiresAuth: true },
       },
     ],
   },

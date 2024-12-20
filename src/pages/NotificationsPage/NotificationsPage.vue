@@ -221,9 +221,10 @@ const acceptNotification = async (notificationId: number) => {
       responseData.value[index].status = 'accepted';
     }
     $q.notify({
-      color: 'positive',
+      color: 'black',
       message: t('common.notificationAcceptedSuccess'),
       icon: 'check',
+      position:'top-right'
     });
     await fetchUnreadNotificationCount();
   } catch (error) {
@@ -232,6 +233,7 @@ const acceptNotification = async (notificationId: number) => {
       color: 'negative',
       message: t('common.notificationAcceptedError'),
       icon: 'error',
+      position:'top-right'
     });
   }
 };
@@ -246,6 +248,7 @@ const followLocation = (location: { type: string; coordinates: number[] }) => {
       color: 'negative',
       message: t('common.locationNotAvailable'),
       icon: 'error',
+      position:'top-right'
     });
   }
 };
@@ -325,9 +328,10 @@ const discardNotification = async (notificationId: number) => {
       (n) => n.id !== notificationId
     ); // Remove the discarded notification from the list
     $q.notify({
-      color: 'positive',
+      color: 'black',
       message: t('common.notificationDiscardedSuccess'),
       icon: 'check',
+      position:'top-right'
     });
   } catch (error) {
     console.error('Error discarding notification:', error);
@@ -335,6 +339,7 @@ const discardNotification = async (notificationId: number) => {
       color: 'negative',
       message: t('common.notificationDiscardedError'),
       icon: 'error',
+      position:'top-right'
     });
   }
 };
@@ -395,10 +400,10 @@ const startNotificationCountRefresh = async (intervalMs = 20000) => {
               ? 'common.notificationCancelled'
               : 'common.notificationResolved';
           $q.notify({
-            color: 'positive',
+            color: 'black',
             message: t(messageKey, { eventId: resolvedEvent.id }),
             icon: 'check',
-            position: 'top',
+            position: 'top-right',
             timeout: 10000,
             actions: [{ label: 'Dismiss', color: 'white' }],
           });

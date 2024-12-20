@@ -1,6 +1,12 @@
 <template>
-  <q-page class="bg-grey-1" style="padding-top: env(safe-area-inset-top)">
-    <div class="container q-pa-md" v-if="isUserPermitted">
+  <q-page
+    class="bg-grey-1"
+    style="
+      padding-top: env(safe-area-inset-top);
+      padding-bottom: env(safe-area-inset-bottom);
+    "
+  >
+    <div class="container q-pa-md">
       <!-- Add Suggestion Button -->
       <!-- <div class="suggestion-button-container q-mb-md">
         <q-btn color="primary" icon="add_circle" label="Add Suggestion" class="suggestion-btn"
@@ -8,16 +14,38 @@
       </div> -->
 
       <!-- Header -->
+      <!-- <div
+        style="
+          display: flex;
+          justify-content: flex-end;
+          position: absolute;
+          right: 10px;
+          top: 15px;
+        "
+      >
+        <q-btn
+          unelevated
+          class="login-btn"
+          @click="
+            () => {
+              showLoginDialog = false;
+              router.push('/login');
+            }
+          "
+        >
+          <span style="font-weight: 700; font-size: 14px"> Login </span>
+        </q-btn>
+      </div> -->
       <div class="row items-center justify-between q-pa-md">
         <div>
           <h4 class="text-h5 text-weight-bold q-my-none text-primary">
             Community Posts
           </h4>
-          <p class="text-grey-7 q-mt-sm">Stay connected with your community</p>
+          <p class="text-grey-7 q-mt-sm">
+            Stay connected with your SOS Bharat community
+          </p>
         </div>
-
       </div>
-
 
       <!-- Loading State -->
       <div v-if="loading" class="row justify-center q-pa-md">
@@ -34,17 +62,31 @@
 
       <!-- Posts List -->
       <div v-else class="row q-col-gutter-y-md" style="margin-top: -30px">
-        <div v-for="(post, index) in posts" :key="post.id" class="col-12"
-          :ref="index === posts.length - 1 ? (el) => { lastPostRef = el as HTMLElement } : undefined">
+        <div
+          v-for="(post, index) in posts"
+          :key="post.id"
+          class="col-12"
+          :ref="index === posts.length - 1 ? (el) => { lastPostRef = el as HTMLElement } : undefined"
+        >
           <q-card flat class="post-card">
             <!-- User Info Section -->
             <q-card-section class="q-pb-none">
               <div class="row items-center">
-                <q-avatar size="48px" class="shadow-2" @click="router.push(`/my-posts/${post.userId}`)">
-                  <img src="/sos_logo_1080_1080.png" style="object-fit: cover" />
+                <q-avatar
+                  size="48px"
+                  class="shadow-2"
+                  @click="router.push(`/my-posts/${post.userId}`)"
+                >
+                  <img
+                    src="/sos_logo_1080_1080.png"
+                    style="object-fit: cover"
+                  />
                 </q-avatar>
                 <div class="q-ml-md">
-                  <div class="text-weight-bold text-capitalize" style="font-size: 16px">
+                  <div
+                    class="text-weight-bold text-capitalize"
+                    style="font-size: 16px"
+                  >
                     {{
                       post.userName == 'SOS Bharat Community'
                         ? 'SOS Bharat Community'
@@ -61,7 +103,10 @@
 
             <!-- Post Content -->
             <q-card-section style="padding: 10px 10px 0px 10px">
-              <div class="text-h5 text-weight-bold text-primary q-mb-sm" style="font-size: 16px">
+              <div
+                class="text-h5 text-weight-bold text-primary q-mb-sm"
+                style="font-size: 16px"
+              >
                 {{ post.title }}
               </div>
               <div class="text-body1 post-description">
@@ -70,8 +115,11 @@
                     ? post.description
                     : truncateText(post.description, 15)
                 }}
-                <span v-if="post.description.split(' ').length > 10" @click="toggleDescription(post.id)"
-                  class="read-more-link">
+                <span
+                  v-if="post.description.split(' ').length > 10"
+                  @click="toggleDescription(post.id)"
+                  class="read-more-link"
+                >
                   {{
                     showFullDescription[post.id.toString()]
                       ? 'Read Less'
@@ -81,32 +129,59 @@
               </div>
 
               <!-- Hashtags section -->
-              <div v-if="post.tags && post.tags.length" class="hashtags-container">
-                <span v-for="tag in post.tags" :key="tag" class="hashtag" @click="handleTagClick(tag)">
+              <div
+                v-if="post.tags && post.tags.length"
+                class="hashtags-container"
+              >
+                <span
+                  v-for="tag in post.tags"
+                  :key="tag"
+                  class="hashtag"
+                  @click="handleTagClick(tag)"
+                >
                   #{{ tag }}
                 </span>
               </div>
             </q-card-section>
 
             <!-- Media Section -->
-            <q-card-section v-if="post.mediaUrls || post.videoUrl" class="q-pa-none q-mt-md">
+            <q-card-section
+              v-if="post.mediaUrls || post.videoUrl"
+              class="q-pa-none q-mt-md"
+            >
               <!-- Show YouTube video if videoUrl exists -->
-              <div v-if="post.videoUrl" class="video-container"
-                v-intersection="onVideoIntersection(post.id.toString())">
-                <iframe :key="getVideoUrl(post.id.toString(), post.videoUrl)"
-                  :src="getVideoUrl(post.id.toString(), post.videoUrl)" :id="`video-${post.id}`" frameborder="0"
+              <div
+                v-if="post.videoUrl"
+                class="video-container"
+                v-intersection="onVideoIntersection(post.id.toString())"
+              >
+                <iframe
+                  :key="getVideoUrl(post.id.toString(), post.videoUrl)"
+                  :src="getVideoUrl(post.id.toString(), post.videoUrl)"
+                  :id="`video-${post.id}`"
+                  frameborder="0"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowfullscreen class="video-frame">
+                  allowfullscreen
+                  class="video-frame"
+                >
                 </iframe>
               </div>
               <!-- Show image collage or carousel based on showCarousel state -->
-              <div v-else-if="post.mediaUrls && post.mediaUrls.length" class="media-section">
+              <div
+                v-else-if="post.mediaUrls && post.mediaUrls.length"
+                class="media-section"
+              >
                 <!-- Move controls inside the carousel template -->
                 <template v-if="activeCarouselPost === post.id.toString()">
                   <!-- Dots Navigation -->
                   <div class="carousel-dots">
-                    <button v-for="index in currentImageCount.total" :key="index" class="dot"
-                      :class="{ active: activeDotIndex === index - 1 }" @click.stop="goToSlide(index - 1)"></button>
+                    <button
+                      v-for="index in currentImageCount.total"
+                      :key="index"
+                      class="dot"
+                      :class="{ active: activeDotIndex === index - 1 }"
+                      @click.stop="goToSlide(index - 1)"
+                    ></button>
                   </div>
 
                   <!-- Image Counter -->
@@ -119,16 +194,31 @@
                     <i class="material-icons">close</i>
                   </button>
 
-                  <div class="custom-carousel" ref="carousel" @touchstart="handleTouchStart"
-                    @touchmove="handleTouchMove" @touchend="handleTouchEnd">
+                  <div
+                    class="custom-carousel"
+                    ref="carousel"
+                    @touchstart="handleTouchStart"
+                    @touchmove="handleTouchMove"
+                    @touchend="handleTouchEnd"
+                  >
                     <div class="carousel-inner" :style="carouselStyle">
-                      <div v-for="(url, index) in Array.isArray(post.mediaUrls)
-                        ? post.mediaUrls.map((url) => imageCdn + url)
-                        : [imageCdn + post.mediaUrls]" :key="index" class="carousel-slide"
-                        :class="{ active: currentIndex === index }" v-intersection="onCarouselImageIntersection(index)"
-                        ref="carouselImages">
-                        <q-img :src="url" :alt="`Image ${index + 1}`" class="carousel-image" @click.stop
-                          :fit="'contain'" />
+                      <div
+                        v-for="(url, index) in Array.isArray(post.mediaUrls)
+                          ? post.mediaUrls.map((url) => imageCdn + url)
+                          : [imageCdn + post.mediaUrls]"
+                        :key="index"
+                        class="carousel-slide"
+                        :class="{ active: currentIndex === index }"
+                        v-intersection="onCarouselImageIntersection(index)"
+                        ref="carouselImages"
+                      >
+                        <q-img
+                          :src="url"
+                          :alt="`Image ${index + 1}`"
+                          class="carousel-image"
+                          @click.stop
+                          :fit="'contain'"
+                        />
                       </div>
                     </div>
 
@@ -146,22 +236,37 @@
                 <template v-else>
                   <div class="media-collage">
                     <!-- Single Image -->
-                    <template v-if="
-                      !Array.isArray(post.mediaUrls) ||
-                      post.mediaUrls.length === 1
-                    ">
-                      <q-img :src="imageCdn +
-                        (Array.isArray(post.mediaUrls)
-                          ? post.mediaUrls[0]
-                          : post.mediaUrls)
-                        " class="single-image" :fit="'contain'" />
+                    <template
+                      v-if="
+                        !Array.isArray(post.mediaUrls) ||
+                        post.mediaUrls.length === 1
+                      "
+                    >
+                      <q-img
+                        :src="
+                          imageCdn +
+                          (Array.isArray(post.mediaUrls)
+                            ? post.mediaUrls[0]
+                            : post.mediaUrls)
+                        "
+                        class="single-image"
+                        :fit="'contain'"
+                      />
                     </template>
 
                     <!-- Two Images -->
                     <template v-else-if="post.mediaUrls.length === 2">
                       <div class="two-images-grid">
-                        <div v-for="(url, index) in post.mediaUrls" :key="index" class="grid-image-container">
-                          <q-img :src="imageCdn + url" class="grid-image" @click="showCarousel(post.id, index)" />
+                        <div
+                          v-for="(url, index) in post.mediaUrls"
+                          :key="index"
+                          class="grid-image-container"
+                        >
+                          <q-img
+                            :src="imageCdn + url"
+                            class="grid-image"
+                            @click="showCarousel(post.id, index)"
+                          />
                         </div>
                       </div>
                     </template>
@@ -170,16 +275,30 @@
                     <template v-else>
                       <div class="multi-images-grid">
                         <div class="main-image-container">
-                          <q-img :src="imageCdn + post.mediaUrls[0]" class="main-grid-image"
-                            @click="showCarousel(post.id, 0)" />
+                          <q-img
+                            :src="imageCdn + post.mediaUrls[0]"
+                            class="main-grid-image"
+                            @click="showCarousel(post.id, 0)"
+                          />
                         </div>
                         <div class="secondary-images-container">
-                          <div v-for="(url, index) in post.mediaUrls.slice(1, 3)" :key="index"
-                            class="secondary-image-wrapper">
-                            <q-img :src="imageCdn + url" class="secondary-grid-image"
-                              @click="showCarousel(post.id, index + 1)">
-                              <div v-if="index === 1 && post.mediaUrls.length > 3" class="see-all-overlay">
-                                <span class="text-white text-weight-bold">+{{ post.mediaUrls.length - 3 }}</span>
+                          <div
+                            v-for="(url, index) in post.mediaUrls.slice(1, 3)"
+                            :key="index"
+                            class="secondary-image-wrapper"
+                          >
+                            <q-img
+                              :src="imageCdn + url"
+                              class="secondary-grid-image"
+                              @click="showCarousel(post.id, index + 1)"
+                            >
+                              <div
+                                v-if="index === 1 && post.mediaUrls.length > 3"
+                                class="see-all-overlay"
+                              >
+                                <span class="text-white text-weight-bold"
+                                  >+{{ post.mediaUrls.length - 3 }}</span
+                                >
                               </div>
                             </q-img>
                           </div>
@@ -190,35 +309,90 @@
                 </template>
               </div>
               <!-- Engagement Actions -->
-              <PostEngagement :post="post" :userInteractionRules="userInteractionRules"
-                @update:post="updatePost($event)" />
+              <PostEngagement
+                :post="post"
+                :userInteractionRules="userInteractionRules"
+                @update:post="updatePost($event)"
+              />
             </q-card-section>
           </q-card>
         </div>
       </div>
-
-      <!-- Loading indicator for infinite scroll -->
-      <div v-if="isLoading" class="col-12 flex justify-center q-pa-md">
-        <q-spinner-dots color="primary" size="40" />
-      </div>
-
-      <!-- No more posts message -->
-      <div v-if="!hasMore && posts.length > 0" class="col-12 text-center q-pa-md text-grey-7">
-        No more posts to load
-      </div>
     </div>
-    <div v-else class="q-pt-lg q-px-md">
-      <q-banner dense inline-actions class="text-white bg-primary" style="border-radius: 10px">
-        <div class="text-h5 q-pa-sm">
-          <q-icon flat color="white" name="warning" />
-          <span>
-            Access Denied: You must be at least 13 years old to view this page.
-          </span>
+    <!-- Login Dialog -->
+    <q-dialog position="bottom" v-model="showLoginDialog" persistent>
+      <q-card
+        class="dialof-bg"
+        style="min-width: 350px; border-radius: 12px 12px 0 0"
+      >
+        <!-- <q-btn style="position: absolute; top: 5px; right: 5px;" icon="close" flat round dense v-close-popup /> -->
+        <div
+          class="q-mb-none"
+          style="
+            justify-content: center;
+            display: flex;
+            padding: 0px !important;
+          "
+        >
+          <img
+            src="/sos_logo_1080_1080.png"
+            style="width: 80px; height: 80px"
+          />
         </div>
-      </q-banner>
-    </div>
-  </q-page>
+        <q-card-section
+          class="row items-center q-pb-none q-mt-none"
+          style="padding-top: 0px !important"
+        >
+          <div class="text-h6">Join Our SOS Bharat Community</div>
+          <q-space />
+        </q-card-section>
 
+        <q-card-section class="q-pt-xs">
+          <p class="text-body1">Create an account or login to:</p>
+          <ul class="q-mt-xs" style="margin-top: -10px; margin-left: -15px">
+            <li>Your safety is our top priority</li>
+            <li>View unlimited Posts / News</li>
+            <li>Interact with the community</li>
+            <li>Share your own stories</li>
+            <li>Engage with the community</li>
+          </ul>
+        </q-card-section>
+
+        <q-card-actions
+          align="right"
+          class="q-pa-md flex"
+          style="margin-top: -10px"
+        >
+          <q-btn
+            class="guest-btn"
+            style="width: 50%; border-radius: 40px"
+            flat
+            color="grey-7"
+            v-close-popup
+          >
+            <span style="font-weight: 700; font-size: 14px">
+              Continue as Guest
+            </span>
+          </q-btn>
+          <q-btn
+            style="width: 45%; border-radius: 10px"
+            unelevated
+            color="primary"
+            @click="
+              () => {
+                showLoginDialog = false;
+                router.push('/login');
+              }
+            "
+          >
+            <span style="font-weight: 700; font-size: 14px">
+              Login / Sign Up
+            </span>
+          </q-btn>
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+  </q-page>
 </template>
 
 <script setup lang="ts">
@@ -232,15 +406,12 @@ import PostEngagement from 'src/pages/CommunityPosts/PostEngagementOpenRoute.vue
 const route = useRoute();
 const router = useRouter();
 
-
-
 // Add these type definitions at the top of the script section
 interface Post extends Omit<CommunityPost, 'liked'> {
   userName: string;
   wasLiked: boolean;
   liked: boolean;
 }
-
 
 const userStore = useUserStore();
 
@@ -262,14 +433,18 @@ const loading = ref(true);
 
 // Add a ref to track the currently playing video
 const currentlyPlayingVideo = ref<string | null>(null);
-const isUserPermitted = ref(false);
 
-// Add new refs for dialog
-// const showSuggestionDialog = ref(false);
-// const suggestionForm = ref({
-//   title: '',
-//   description: ''
-// });
+// Add these refs near the top of the script section
+const showLoginDialog = ref(false);
+const postCount = ref(0);
+// Add this method to handle login dialog visibility
+const checkAndShowLoginDialog = () => {
+  console.log('checkAndShowLoginDialog', userStore.isLoggedIn);
+  // Only show dialog if user is not logged in and has viewed more than 2 posts
+  if (!userStore.isLoggedIn) {
+    showLoginDialog.value = true;
+  }
+};
 
 // Update the formatDate helper function
 const formatDate = (date: string | null) => {
@@ -295,8 +470,9 @@ const formatDate = (date: string | null) => {
 
     // Less than an hour
     if (diffInMinutes < 60) {
-      return `${diffInMinutes} ${diffInMinutes === 1 ? 'minute' : 'minutes'
-        } ago`;
+      return `${diffInMinutes} ${
+        diffInMinutes === 1 ? 'minute' : 'minutes'
+      } ago`;
     }
 
     // Less than a day
@@ -326,27 +502,19 @@ const formatDate = (date: string | null) => {
   }
 };
 
-// Add these new refs near the top of the script section
-const userLocation = ref({
-  latitude: null as number | null,
-  longitude: null as number | null,
-});
-
-// Update the loadPosts function
+// Update the loadPosts function to track post count
 const loadPosts = async (loadMore = false) => {
   if (isLoading.value || (!loadMore && !hasMore.value)) return;
 
   try {
     isLoading.value = true;
-    console.log('route.params........', route.params);
-
     const postId = route.params.postId;
 
     const response = await api.get('/auth/shared-post', {
       params: {
         status: 'active',
         page: page.value,
-        postId: postId
+        postId: postId,
       },
     });
 
@@ -362,7 +530,8 @@ const loadPosts = async (loadMore = false) => {
       $q.notify({
         color: 'warning',
         message: 'Post not found',
-        icon: 'warning'
+        icon: 'warning',
+        position: 'top-right',
       });
       router.push('/community');
       return;
@@ -382,6 +551,10 @@ const loadPosts = async (loadMore = false) => {
       posts.value = transformedPosts;
     }
 
+    // Update post count and check for login dialog
+    postCount.value = posts.value.length;
+    checkAndShowLoginDialog();
+
     // Update pagination state
     hasMore.value = transformedPosts.length === limit.value;
     if (hasMore.value) {
@@ -393,6 +566,7 @@ const loadPosts = async (loadMore = false) => {
       color: 'negative',
       message: 'Failed to load post',
       icon: 'error',
+      position: 'top-right',
     });
     router.push('/community');
   } finally {
@@ -457,7 +631,6 @@ const getVideoUrl = (postId: string, url: string) => {
   const baseUrl = getYouTubeEmbedUrl(url);
   return `${baseUrl}?enablejsapi=1&rel=0&modestbranding=1&mute=1`;
 };
-
 // Update the controlVideo function to be more reliable
 const controlVideo = (postId: string, command: 'play' | 'pause') => {
   const iframe = document.getElementById(
@@ -533,64 +706,13 @@ const onVideoIntersection = (postId: string) => ({
   },
 });
 
-// Update the calculateAge function to handle both string and Date inputs
-const calculateAge = (dob: string | Date): number => {
-  const dobDate = dob instanceof Date ? dob : new Date(dob);
-  const today = new Date();
-  let age = today.getFullYear() - dobDate.getFullYear();
-  const monthDiff = today.getMonth() - dobDate.getMonth();
-
-  if (
-    monthDiff < 0 ||
-    (monthDiff === 0 && today.getDate() < dobDate.getDate())
-  ) {
-    age--;
-  }
-
-  return age;
-};
-
 // Update onMounted to be async
 onMounted(async () => {
-  // Add async here
-  const dob = userStore.user?.dob;
-  if (dob) {
-    isUserPermitted.value = calculateAge(dob) >= 13;
-  } else {
-    isUserPermitted.value = false;
-  }
-
-  // Get initial location
-  try {
-
-    const position = await Geolocation.getCurrentPosition({
-      enableHighAccuracy: true,
-      timeout: 10000,
-    });
-    console.log('position......', position);
-
-    selectedLocation.value = {
-      type: 'current',
-      latitude: position.coords.latitude,
-      longitude: position.coords.longitude,
-      name: 'Current Location',
-      address: 'Current Location',
-    };
-  } catch (error) {
-    console.warn('Could not get initial location:', error);
-    if (userStore.user?.locations && userStore.user.locations.length) {
-      console.log('inside user location', userStore.user);
-      handleLocationSelected({
-        type: 'Point',
-        latitude: userStore.user.locations[0].location.coordinates[1],
-        longitude: userStore.user.locations[0].location.coordinates[0],
-        name: userStore.user.locations[0].name,
-      });
-    }
-  }
-
   // Load initial posts
   await loadPosts();
+
+  // Show login dialog immediately
+  // showLoginPrompt();
 });
 
 // Clean up on component unmount
@@ -600,53 +722,9 @@ onUnmounted(() => {
   }
 });
 
-// Replace dialog methods with navigation method
-const goToCommunityPage = () => {
-  router.push('/community');
-};
-const createPost = () => {
-  if (!userInteractionRules.value) {
-    return;
-  }
-
-  if (
-    userInteractionRules.value.usedPostCount >=
-    userInteractionRules.value.dailyPostLimit
-  ) {
-    console.log('1111111111111111');
-    $q.notify({
-      message: `You've reached your daily post limit of ${userInteractionRules.value.dailyPostLimit} posts`,
-      color: 'gray',
-      position: 'top-right',
-    });
-
-    return;
-  }
-
-  showCreatePostDialog.value = true;
-};
-
-// Add this ref after other refs
-const showCreatePostDialog = ref(false);
-
-// Add this method to handle successful post creation
-const handlePostCreated = async () => {
-  page.value = 1;
-  await loadPosts(true);
-  // window.location.reload()
-  showCreatePostDialog.value = false;
-  // Refresh interaction rules after post creation
-  await updateInteractionRules();
-};
-
 // Add these new refs
 const activeCarouselPost = ref<string | null>(null);
 const carouselSlide = ref(0);
-
-// First, add a computed property to check if we're on the last slide
-const isLastSlide = computed(() => {
-  return currentIndex.value === totalSlides.value - 1;
-});
 
 // Update the showCarousel method to handle number conversion
 const showCarousel = (postId: string | number, startIndex: number) => {
@@ -663,10 +741,10 @@ const showCarousel = (postId: string | number, startIndex: number) => {
       totalImages: Array.isArray(post.mediaUrls) ? post.mediaUrls.length : 1,
       allImages: Array.isArray(post.mediaUrls)
         ? post.mediaUrls.map((url, idx) => ({
-          index: idx + 1,
-          url: imageCdn + url,
-          isActive: idx === startIndex,
-        }))
+            index: idx + 1,
+            url: imageCdn + url,
+            isActive: idx === startIndex,
+          }))
         : [{ index: 1, url: imageCdn + post.mediaUrls, isActive: true }],
       activeDot: startIndex,
     };
@@ -698,7 +776,6 @@ const currentImageCount = computed(() => {
     (p) => p.id.toString() === activeCarouselPost.value
   );
   if (!activePost?.mediaUrls) return { current: 0, total: 0 };
-
   return {
     current: currentIndex.value + 1,
     total: Array.isArray(activePost.mediaUrls)
@@ -720,7 +797,6 @@ const goToSlide = (index: number) => {
   isTransitioning.value = true;
   currentIndex.value = index;
   currentVisibleImage.value = index + 1;
-
   console.log('Go To Slide:', {
     index: index + 1,
     total: totalSlides.value,
@@ -765,33 +841,6 @@ const nextSlide = () => {
   }, 300);
 };
 
-// Add keyboard navigation
-onMounted(() => {
-  window.addEventListener('keydown', handleKeydown);
-});
-
-onUnmounted(() => {
-  window.removeEventListener('keydown', handleKeydown);
-});
-
-const handleKeydown = (event: KeyboardEvent) => {
-  if (!activeCarouselPost.value) return;
-
-  switch (event.key) {
-    case 'ArrowLeft':
-      prevSlide();
-      break;
-    case 'ArrowRight':
-      nextSlide();
-      break;
-    case 'Escape':
-      closeCarousel();
-      break;
-  }
-};
-
-// Update the handleScroll method
-
 // Update the carouselStyle computed property
 const carouselStyle = computed(() => ({
   transform: `translate3d(-${currentIndex.value * 100}%, 0, 0)`,
@@ -830,7 +879,6 @@ const handleTouchEnd = () => {
 
   // Restore transition
   carousel.value.style.transition = 'transform 0.3s ease-out';
-
   const diff = touchStart.value - touchEnd.value;
   const threshold = carousel.value.offsetWidth * 0.2; // 20% of width
 
@@ -841,63 +889,56 @@ const handleTouchEnd = () => {
       prevSlide();
     } else {
       // Reset to current slide if at bounds
-      carousel.value.style.transform = `translate3d(-${currentIndex.value * 100
-        }%, 0, 0)`;
+      carousel.value.style.transform = `translate3d(-${
+        currentIndex.value * 100
+      }%, 0, 0)`;
     }
   } else {
     // Reset to current slide if threshold not met
-    carousel.value.style.transform = `translate3d(-${currentIndex.value * 100
-      }%, 0, 0)`;
+    carousel.value.style.transform = `translate3d(-${
+      currentIndex.value * 100
+    }%, 0, 0)`;
   }
-
   touchStart.value = 0;
   touchEnd.value = 0;
 };
-
-// Update the template to add touch handlers and ref
-
-// Then update the carousel section in the template where the images are displayed
-
 // Add these new refs
 const currentVisibleImage = ref<number | null>(null);
 const carouselImages = ref<HTMLElement[]>([]);
 
 // Update the intersection handler method to fix the type error and track image data
-const onCarouselImageIntersection = (index: number) => (
+const onCarouselImageIntersection = (index: number) => ({
+  handler: (entry?: IntersectionObserverEntry) => {
+    if (!entry) return false;
 
+    if (entry.isIntersecting) {
+      const activePost = posts.value.find(
+        (p) => p.id.toString() === activeCarouselPost.value
+      );
 
-  {
+      const imageData = {
+        index: index + 1,
+        total: totalSlides.value,
+        isIntersecting: entry.isIntersecting,
+        intersectionRatio: entry.intersectionRatio,
+        currentImage: activePost?.mediaUrls
+          ? Array.isArray(activePost.mediaUrls)
+            ? activePost.mediaUrls[index]
+            : activePost.mediaUrls
+          : null,
+        activeDot: currentIndex.value,
+        postId: activeCarouselPost.value,
+      };
 
-    handler: (entry?: IntersectionObserverEntry) => {
-      if (!entry) return false;
-
-      if (entry.isIntersecting) {
-        const activePost = posts.value.find(
-          (p) => p.id.toString() === activeCarouselPost.value
-        );
-        const imageData = {
-          index: index + 1,
-          total: totalSlides.value,
-          isIntersecting: entry.isIntersecting,
-          intersectionRatio: entry.intersectionRatio,
-          currentImage: activePost?.mediaUrls
-            ? Array.isArray(activePost.mediaUrls)
-              ? activePost.mediaUrls[index]
-              : activePost.mediaUrls
-            : null,
-          activeDot: currentIndex.value,
-          postId: activeCarouselPost.value,
-        };
-
-        console.log('Image Data:', imageData);
-        currentVisibleImage.value = index + 1;
-      }
-      return true;
-    },
-    cfg: {
-      threshold: [0.5], // Fix type error by making threshold an array
-    },
-  });
+      console.log('Image Data:', imageData);
+      currentVisibleImage.value = index + 1;
+    }
+    return true;
+  },
+  cfg: {
+    threshold: [0.5], // Fix type error by making threshold an array
+  },
+});
 
 // Add a watcher to log changes in current index
 watch(currentIndex, (newIndex) => {
@@ -983,69 +1024,6 @@ const updateInteractionRules = async () => {
   }
 };
 
-// Add these refs and methods in the script section
-const showLocationDialog = ref(false);
-const selectedLocation = ref({
-  type: 'current' as 'current' | 'stored',
-  latitude: null as number | null,
-  longitude: null as number | null,
-  name: '' as string,
-  address: '' as string,
-});
-
-// Update the watcher to be more verbose
-// watch(showLocationDialog, (newVal) => {
-//   console.log('Location menu visibility changed:', {
-//     isVisible: newVal,
-//     locationState: selectedLocation.value,
-//     menuElement: document.querySelector('.location-menu'),
-//     avatarElement: document.querySelector('.avatar')
-//   });
-// });
-
-// Update the handleLocationSelected method
-const handleLocationSelected = async (location: {
-  type: string;
-  latitude: number;
-  longitude: number;
-  name?: string;
-  address?: string;
-}) => {
-  console.log('Location selected:', location);
-
-  // Update selected location
-  selectedLocation.value = {
-    type: location.type as 'current' | 'stored',
-    latitude: location.latitude,
-    longitude: location.longitude,
-    name: location.name || '',
-    address: location.address || '',
-  };
-
-  // Reset pagination and posts
-  page.value = 1;
-  posts.value = [];
-  hasMore.value = true;
-  loading.value = true;
-
-  try {
-    // Close location dialog
-    showLocationDialog.value = false;
-
-    // Reload posts with new location
-    await loadPosts(false);
-  } catch (error) {
-    console.error('Error loading posts for new location:', error);
-    $q.notify({
-      color: 'negative',
-      message: 'Failed to load posts for selected location',
-      icon: 'error',
-    });
-  } finally {
-    loading.value = false;
-  }
-};
-
 // Add a watcher for route changes
 watch(
   () => route.params.id,
@@ -1059,6 +1037,11 @@ watch(
     }
   }
 );
+
+// Add this method to show login prompt
+// const showLoginPrompt = () => {
+//   showLoginDialog.value = true;
+// };
 </script>
 <style scoped lang="scss">
 .container {
@@ -1072,8 +1055,7 @@ watch(
   background: white;
   transition: all 0.3s ease;
   box-shadow: 0 -10px 10px -10px rgba(0, 0, 0, 0.3),
-    /* Top shadow */
-    0 10px 10px -10px rgba(0, 0, 0, 0.3);
+    /* Top shadow */ 0 10px 10px -10px rgba(0, 0, 0, 0.3);
   /* Bottom shadow */
   overflow: hidden;
   border: none;
@@ -1085,8 +1067,7 @@ watch(
 .post-card:hover {
   transform: translateY(-2px);
   box-shadow: 0 -10px 15px -10px rgba(0, 0, 0, 0.4),
-    /* Enhanced top shadow on hover */
-    0 10px 15px -10px rgba(0, 0, 0, 0.4);
+    /* Enhanced top shadow on hover */ 0 10px 15px -10px rgba(0, 0, 0, 0.4);
   /* Enhanced bottom shadow on hover */
 }
 
@@ -1354,7 +1335,6 @@ watch(
 
 // Responsive adjustments
 @media (max-width: 600px) {
-
   .single-image,
   .two-images-grid,
   .multi-images-grid {
@@ -1390,9 +1370,11 @@ watch(
   justify-content: space-between;
   align-items: center;
   padding: 12px 20px;
-  background: linear-gradient(to bottom,
-      rgba(0, 0, 0, 0.7) 0%,
-      rgba(0, 0, 0, 0) 100%);
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.7) 0%,
+    rgba(0, 0, 0, 0) 100%
+  );
 }
 
 .gallery-content {
@@ -2246,5 +2228,22 @@ watch(
 .relative-position {
   position: relative;
   z-index: 2000;
+}
+
+.login-btn {
+  background-color: rgba(208, 10, 79, 0.877);
+  border-radius: 10px;
+  color: white;
+}
+
+.dialof-bg {
+  background-color: #636262d3;
+  color: white !important;
+}
+
+.guest-btn {
+  background-color: #bbb6b6b4;
+  color: white !important;
+  border-radius: 10px !important;
 }
 </style>

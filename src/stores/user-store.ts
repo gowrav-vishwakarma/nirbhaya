@@ -46,6 +46,7 @@ export interface User {
   canCreatePost: boolean;
   businessName: string;
   whatsappNumber: string;
+  profileImage: '';
 }
 
 interface NewsPreferences {
@@ -81,6 +82,7 @@ const defaultUser: User = {
   canCreatePost: false,
   businessName: '',
   whatsappNumber: '',
+  profileImage: '',
 };
 
 export const useUserStore = defineStore('userStore', {
