@@ -173,6 +173,17 @@
                 >
                   <q-tooltip>Delete Post</q-tooltip>
                 </q-btn>
+                <q-btn
+                  flat
+                  round
+                  color="primary"
+                  icon="edit"
+                  size="sm"
+                  @click="editPost(post)"
+                  v-if="Number(userStore.user?.id) == Number(props.id)"
+                >
+                  <q-tooltip>Edit Post</q-tooltip>
+                </q-btn>
               </div>
             </q-card-section>
 
@@ -433,6 +444,12 @@
     @post-created="handlePostCreated"
     v-if="isUserPermitted"
   />
+  <EditPostDialog
+    v-if="selectedPost"
+    v-model="showEditDialog"
+    :post="selectedPost"
+    @post-updated="handlePostUpdated"
+  />
 </template>
 
 <script setup lang="ts">
@@ -447,6 +464,7 @@ import type { CommunityPost } from 'src/types/CommunityPost';
 import PostEngagement from 'src/pages/CommunityPosts/PostEngagement.vue';
 import { Dialog } from 'quasar';
 import { Geolocation } from '@capacitor/geolocation';
+import EditPostDialog from 'src/components/Community/EditPostDialog.vue';
 
 const props = defineProps<{
   id: string;
@@ -639,7 +657,7 @@ const loadPosts = async (loadMore = false) => {
       color: 'negative',
       message: 'Failed to load posts',
       icon: 'error',
-      position:'top-right'
+      position: 'top-right',
     });
   } finally {
     isLoading.value = false;
@@ -1287,7 +1305,7 @@ const handleLocationSelected = async (location: {
       color: 'negative',
       message: 'Failed to load posts for selected location',
       icon: 'error',
-      position:'top-right'
+      position: 'top-right',
     });
   } finally {
     loading.value = false;
@@ -1312,7 +1330,7 @@ const confirmDelete = (postId: number | string) => {
         color: 'black',
         message: 'Post deleted successfully',
         icon: 'check',
-        position:'top-right'
+        position: 'top-right',
       });
     } catch (error) {
       console.error('Error deleting post:', error);
@@ -1320,7 +1338,7 @@ const confirmDelete = (postId: number | string) => {
         color: 'negative',
         message: 'Failed to delete post',
         icon: 'error',
-        position:'top-right'
+        position: 'top-right',
       });
     }
   });
@@ -1466,6 +1484,19 @@ const getPostCardClass = (post: Post) => {
     default:
       return '';
   }
+};
+
+const showEditDialog = ref(false);
+const selectedPost = ref<Post | null>(null);
+
+const editPost = (post: Post) => {
+  selectedPost.value = post;
+  showEditDialog.value = true;
+};
+
+const handlePostUpdated = async () => {
+  await loadPosts();
+  selectedPost.value = null;
 };
 </script>
 <style scoped lang="scss">

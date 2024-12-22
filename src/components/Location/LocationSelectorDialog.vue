@@ -154,6 +154,15 @@ const $q = useQuasar();
 const props = defineProps<{
   modelValue: boolean;
   zoom?: number;
+  userLocations?: Array<{
+    id?: string | number;
+    name: string;
+    location: {
+      type: string;
+      coordinates: number[];
+    };
+    isBusinessLocation?: boolean;
+  }>;
 }>();
 
 const emit = defineEmits<{
