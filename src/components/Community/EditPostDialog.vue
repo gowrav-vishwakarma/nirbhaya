@@ -106,15 +106,17 @@
         </div>
 
         <div class="q-mt-md">
+          <!-- Show current location text -->
+          <div class="text-caption q-mb-sm">
+            Current Location: {{ currentLocationText }}
+          </div>
+
           <q-select
             v-model="selectedLocationId"
-            :options="[
-              ...savedLocations,
-              { id: -1, name: 'Select on Map', location: null },
-            ]"
+            :options="locationOptions"
             option-value="id"
             option-label="name"
-            label="Select Location (to primarily display this post)"
+            label="Select New Location"
             emit-value
             map-options
             class="q-mb-md"
@@ -129,7 +131,7 @@
                 <q-item-section>
                   <q-item-label>{{ scope.opt.name }}</q-item-label>
                   <q-item-label caption v-if="scope.opt.location">
-                    {{ scope.opt.location.coordinates.join(', ') }}
+                    {{ formatLocationCoords(scope.opt.location.coordinates) }}
                   </q-item-label>
                 </q-item-section>
               </q-item>
@@ -262,12 +264,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted } from 'vue';
+import { ref, computed, watch } from 'vue';
 import { api } from 'src/boot/axios';
 import { useQuasar } from 'quasar';
 import { useUserStore } from 'src/stores/user-store';
 import LocationSelectorDialog from '../Location/LocationSelectorDialog.vue';
 import type { CommunityPost } from 'src/types/CommunityPost';
+import { Geolocation } from '@capacitor/geolocation';
 
 const props = defineProps<{
   modelValue: boolean;
@@ -296,7 +299,12 @@ const form = ref({
   description: props.post.description,
   tags: props.post.tags || [],
   showLocation: props.post.showLocation,
-  location: props.post.location || null,
+  location: props.post.location
+    ? {
+        type: 'Point',
+        coordinates: [props.post.location.x, props.post.location.y],
+      }
+    : null,
 });
 
 const existingImages = ref(props.post.mediaUrls || []);
@@ -310,9 +318,33 @@ const isProcessingImages = ref(false);
 const isSubmitting = ref(false);
 const fileInput = ref<HTMLInputElement | null>(null);
 const showLocationSelector = ref(false);
-const isLoadingLocations = ref(true);
-const selectedLocationId = ref<number | null>(null);
-const savedLocations = ref<any[]>([]);
+const isLoadingLocations = ref(false);
+const selectedLocationId = ref<string | number | null>(
+  props.post.location ? 'post-location' : null
+);
+const savedLocations = ref([
+  { id: 0, name: 'Current Location' },
+  ...(userStore.user?.locations?.map((loc) => ({
+    id: Math.random(),
+    name: loc.name,
+    location: loc.location,
+    isBusinessLocation: loc.isBusinessLocation,
+  })) || []),
+  ...(props.post.location
+    ? [
+        {
+          id: Math.random(),
+          name: 'Post Location',
+          location: {
+            type: 'Point',
+            coordinates: [props.post.location.x, props.post.location.y],
+          },
+          isBusinessLocation: props.post.isBusinessPost,
+        },
+      ]
+    : []),
+  { id: -1, name: 'Select on Map' },
+]);
 const isBusinessPost = ref(props.post.isBusinessPost || false);
 
 // Add computed properties
@@ -470,108 +502,83 @@ const resizeImage = (file: File): Promise<Blob> => {
   });
 };
 
-// Add location handling methods
-const loadSavedLocations = async () => {
-  isLoadingLocations.value = true;
-  try {
-    savedLocations.value = [
-      {
-        id: 0,
-        name: 'Current Location',
-        location: {
-          type: 'Point',
-          coordinates: [0, 0],
-        },
-        timestamp: null,
-        isBusinessLocation: false,
-      },
-    ];
+// Add this computed property to show current location text
+const currentLocationText = computed(() => {
+  if (!form.value.location) return 'No location set';
 
-    if (userStore.user?.locations) {
-      const userLocations = userStore.user.locations.map((loc) => ({
-        id: Math.random(),
-        name: loc.name || 'Saved Location',
-        location: {
-          type: 'Point',
-          coordinates: loc.location.coordinates,
-        },
-        timestamp: null,
-        isBusinessLocation: loc.isBusinessLocation || false,
-      }));
-
-      savedLocations.value = [...savedLocations.value, ...userLocations];
-    }
-
-    // Set initial location from post
-    if (props.post.location?.coordinates) {
-      const matchingLocation = savedLocations.value.find(
-        (loc) =>
-          loc.location.coordinates[0] === props.post.location.coordinates[0] &&
-          loc.location.coordinates[1] === props.post.location.coordinates[1]
-      );
-      if (matchingLocation) {
-        selectedLocationId.value = matchingLocation.id;
-      } else {
-        // If no matching location, add current post location as an option
-        const postLocation = {
-          id: Math.random(),
-          name: 'Post Location',
-          location: props.post.location,
-          isBusinessLocation: props.post.isBusinessPost,
-        };
-        savedLocations.value.push(postLocation);
-        selectedLocationId.value = postLocation.id;
-      }
-    }
-  } catch (error) {
-    console.error('Error loading locations:', error);
-  } finally {
-    isLoadingLocations.value = false;
+  // Handle Point format
+  if (form.value.location.type === 'Point') {
+    const [longitude, latitude] = form.value.location.coordinates;
+    return `${latitude}, ${longitude}`;
   }
-};
 
-const handleLocationSelected = (location: {
+  return 'No location set';
+});
+
+// Update location handling
+const handleLocationSelected = async (location: {
   type: string;
   coordinates: number[];
 }) => {
   form.value.location = location;
   showLocationSelector.value = false;
+
+  // Update selected location ID to show "Custom Location" in select
+  const customLocationId = `custom-${Date.now()}`;
+  locationOptions.value.push({
+    id: customLocationId,
+    name: 'Custom Location',
+    location: location,
+    isBusinessLocation: false,
+  });
+  selectedLocationId.value = customLocationId;
 };
 
-// Add watchers
-watch(
-  () => isOpen.value,
-  async (newValue) => {
-    if (newValue) {
-      await loadSavedLocations();
-    }
-  }
-);
-
+// Update watcher for selectedLocationId
 watch(
   () => selectedLocationId.value,
-  (newValue) => {
+  async (newValue) => {
     if (newValue === -1) {
       showLocationSelector.value = true;
       return;
     }
 
-    const selectedLocation = savedLocations.value.find(
-      (loc) => loc.id === newValue
-    );
-    if (selectedLocation) {
-      form.value.location = selectedLocation.location;
-      if (selectedLocation.isBusinessLocation) {
-        isBusinessPost.value = true;
+    if (newValue === 0) {
+      // Handle current location
+      try {
+        const position = await Geolocation.getCurrentPosition();
+        form.value.location = {
+          type: 'Point',
+          coordinates: [position.coords.longitude, position.coords.latitude],
+        };
+      } catch (error) {
+        console.error('Error getting current location:', error);
+        $q.notify({
+          color: 'negative',
+          message: 'Failed to get current location',
+          icon: 'error',
+          position: 'top-right',
+        });
+      }
+    } else {
+      // Handle saved or custom location selection
+      const selectedLocation = locationOptions.value.find(
+        (loc) => loc.id === newValue
+      );
+      if (selectedLocation?.location) {
+        form.value.location = selectedLocation.location;
+        if (selectedLocation.isBusinessLocation) {
+          isBusinessPost.value = true;
+        }
       }
     }
   }
 );
 
 // Initialize component
-onMounted(async () => {
-  await loadSavedLocations();
-});
+// onMounted(async () => {
+//   await loadSavedLocations();
+// });
 
 // Add computed for total images
 const totalImages = computed(() => {
@@ -585,31 +592,33 @@ const removeExistingImage = (index: number) => {
   existingImages.value.splice(index, 1);
 };
 
-// Add this after the removeExistingImage method
+// Update submitUpdate to include all form data
 const submitUpdate = async () => {
   try {
     isSubmitting.value = true;
-
     const formData = new FormData();
+
+    // Match create post format
     formData.append('postId', props.post.id.toString());
     formData.append('title', form.value.title);
     formData.append('description', form.value.description);
+    formData.append('postType', 'community');
+    formData.append('status', 'active');
 
-    // Handle location
+    // Send location in same format as create
     if (form.value.location) {
-      formData.append('location', JSON.stringify(form.value.location));
-    } else if (selectedLocationId.value && selectedLocationId.value !== -1) {
-      const selectedLocation = savedLocations.value.find(
-        (loc) => loc.id === selectedLocationId.value
-      );
-      if (selectedLocation?.location) {
-        formData.append('location', JSON.stringify(selectedLocation.location));
-      }
+      formData.append('location', JSON.stringify(form.value.location)); // Already in {type: 'Point', coordinates: []} format
     }
 
     formData.append('showLocation', String(form.value.showLocation));
     formData.append('tags', JSON.stringify(form.value.tags));
     formData.append('userId', String(userStore.user?.id));
+    formData.append(
+      'userName',
+      isBusinessPost.value
+        ? userStore.user?.businessName || ''
+        : userStore.user?.name || ''
+    );
     formData.append('isBusinessPost', String(isBusinessPost.value));
     formData.append('deletedImages', JSON.stringify(deletedImages.value));
 
@@ -652,6 +661,36 @@ const submitUpdate = async () => {
 };
 
 // Rest of the component logic...
+
+const formatLocationCoords = (coords: number[]) => {
+  if (!coords || coords.length !== 2) return '';
+  const [longitude, latitude] = coords;
+  return `${latitude}, ${longitude}`;
+};
+
+const locationOptions = computed(() => [
+  { id: 0, name: 'Current Location' },
+  ...(userStore.user?.locations?.map((loc) => ({
+    id: Math.random(),
+    name: loc.name || 'Saved Location',
+    location: loc.location,
+    isBusinessLocation: loc.isBusinessLocation,
+  })) || []),
+  ...(props.post.location
+    ? [
+        {
+          id: 'post-location',
+          name: 'Post Location',
+          location: {
+            type: 'Point',
+            coordinates: [props.post.location.x, props.post.location.y],
+          },
+          isBusinessLocation: props.post.isBusinessPost,
+        },
+      ]
+    : []),
+  { id: -1, name: 'Select on Map' },
+]);
 </script>
 
 <style scoped>
