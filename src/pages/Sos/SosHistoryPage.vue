@@ -15,16 +15,30 @@
         </div>
 
         <div v-else class="history-list">
-          <div v-for="sos in displayedSosHistory" :key="sos.id" class="history-item">
+          <div
+            v-for="sos in displayedSosHistory"
+            :key="sos.id"
+            class="history-item"
+          >
             <div class="history-card">
               <div class="card-header">
-                <div class="card-title text-capitalize">{{ sos.threat ? sos.threat : 'Emergency Alert' }}</div>
+                <div class="card-title text-capitalize">
+                  {{ sos.threat ? sos.threat : 'Emergency Alert' }}
+                </div>
               </div>
-              <div class="card-subtitle" style="margin-top: -20px; margin-bottom: 10px;">
+              <div
+                class="card-subtitle"
+                style="margin-top: -20px; margin-bottom: 10px"
+              >
                 {{ formatDate(sos.createdAt) }}
               </div>
-              <div class="card-subtitle" style="margin-top: -10px; margin-bottom: 10px;"
-                :style="{ color: sos.status === 'resolved' ? '#4CAF50' : '#F44336' }">
+              <div
+                class="card-subtitle"
+                style="margin-top: -10px; margin-bottom: 10px"
+                :style="{
+                  color: sos.status === 'resolved' ? '#4CAF50' : '#F44336',
+                }"
+              >
                 {{ sos.status }}
               </div>
 
@@ -46,8 +60,35 @@
                   <p>{{ formatLocation(sos.location) }}</p>
                 </div>
 
-                <button :disabled="sos.status == 'cancelled'" v-if="!sos.isRated" class="rate-button"
-                  @click="goToRating(sos.id)">
+                <div class="video-controls q-mt-md">
+                  <q-btn
+                    outline
+                    color="primary"
+                    icon="play_circle"
+                    class="q-mr-sm"
+                    @click="playLocalVideo(sos.id)"
+                    size="sm"
+                  >
+                    Local Video
+                  </q-btn>
+
+                  <q-btn
+                    outline
+                    color="secondary"
+                    icon="cloud_download"
+                    @click="playRemoteVideo(sos.id)"
+                    size="sm"
+                  >
+                    Cloud Video
+                  </q-btn>
+                </div>
+
+                <button
+                  :disabled="sos.status == 'cancelled'"
+                  v-if="!sos.isRated"
+                  class="rate-button"
+                  @click="goToRating(sos.id)"
+                >
                   Rate Helper
                 </button>
                 <p v-else class="rated-text">Already rated</p>
@@ -57,7 +98,11 @@
         </div>
 
         <div v-if="hasMore" class="load-more-container">
-          <button class="load-more-button" @click="loadMore" :disabled="buttonLoading">
+          <button
+            class="load-more-button"
+            @click="loadMore"
+            :disabled="buttonLoading"
+          >
             <span v-if="buttonLoading" class="button-loader"></span>
             <span v-else>Load More</span>
           </button>
@@ -74,6 +119,8 @@ import { useRouter } from 'vue-router';
 import { useUserStore } from 'src/stores/user-store';
 import { useQuasar } from 'quasar';
 import SosRating from './SosRating.vue';
+import { Capacitor } from '@capacitor/core';
+import { Filesystem, Directory } from '@capacitor/filesystem';
 const userStore = useUserStore();
 const $q = useQuasar();
 
@@ -126,7 +173,7 @@ const getAddressFromCoordinates = async (coordinates: [number, number]) => {
   const now = Date.now();
   const timeToWait = Math.max(0, RATE_LIMIT_MS - (now - lastRequestTime));
   if (timeToWait > 0) {
-    await new Promise(resolve => setTimeout(resolve, timeToWait));
+    await new Promise((resolve) => setTimeout(resolve, timeToWait));
   }
 
   try {
@@ -136,8 +183,8 @@ const getAddressFromCoordinates = async (coordinates: [number, number]) => {
       {
         headers: {
           'Accept-Language': 'en-US,en;q=0.9',
-          'User-Agent': 'Nirbhaya-App'
-        }
+          'User-Agent': 'Nirbhaya-App',
+        },
       }
     );
     const data = await response.json();
@@ -202,16 +249,18 @@ const goToRating = (sosId: string | number) => {
   $q.dialog({
     component: SosRating,
     componentProps: {
-      eventId: sosId.toString()
+      eventId: sosId.toString(),
     },
     position: 'bottom',
     seamless: true,
     fullWidth: true,
-  }).onOk(() => {
-    fetchSosHistory();
-  }).onCancel(() => {
-    console.log('Dialog cancelled');
-  });
+  })
+    .onOk(() => {
+      fetchSosHistory();
+    })
+    .onCancel(() => {
+      console.log('Dialog cancelled');
+    });
 };
 
 const formatLocation = (location: SOS['location']) => {
@@ -233,7 +282,7 @@ const updateAddressesForDisplayed = async () => {
       const address = await getAddressFromCoordinates(sos.location.coordinates);
       // Update address in both displayed and all history
       sos.location.address = address;
-      const fullItem = allSosHistory.value.find(item => item.id === sos.id);
+      const fullItem = allSosHistory.value.find((item) => item.id === sos.id);
       if (fullItem) {
         fullItem.location.address = address;
       }
@@ -259,7 +308,7 @@ const loadMore = async () => {
       const address = await getAddressFromCoordinates(sos.location.coordinates);
       // Update address in both displayed and all history
       sos.location.address = address;
-      const fullItem = allSosHistory.value.find(item => item.id === sos.id);
+      const fullItem = allSosHistory.value.find((item) => item.id === sos.id);
       if (fullItem) {
         fullItem.location.address = address;
       }
@@ -267,6 +316,75 @@ const loadMore = async () => {
   }
 
   buttonLoading.value = false;
+};
+
+const playLocalVideo = async (sosId: string | number) => {
+  try {
+    const isIOS = Capacitor.getPlatform() === 'ios';
+    const extension = isIOS ? 'mp4' : 'webm';
+    const fileName = `sos_recording_${sosId}.${extension}`;
+
+    if (Capacitor.isNativePlatform()) {
+      // For native platforms, use system video player
+      const filePath = `DCIM/Nirbhaya/${fileName}`;
+      const fileInfo = await Filesystem.getUri({
+        path: filePath,
+        directory: Directory.ExternalStorage,
+      });
+
+      window.open(fileInfo.uri, '_system');
+    } else {
+      // For web, download the file
+      const result = await Filesystem.readFile({
+        path: `DCIM/Nirbhaya/${fileName}`,
+        directory: Directory.ExternalStorage,
+      });
+
+      const blob = base64ToBlob(
+        result.data,
+        isIOS ? 'video/mp4' : 'video/webm'
+      );
+      const url = URL.createObjectURL(blob);
+      window.open(url, '_blank');
+    }
+  } catch (error) {
+    console.error('Error playing local video:', error);
+    $q.notify({
+      message: 'No local video recording found',
+      color: 'negative',
+      position: 'top',
+      timeout: 2000,
+    });
+  }
+};
+
+const playRemoteVideo = async (sosId: string | number) => {
+  try {
+    const { data } = await api.get(`/sos/get-video-url/${sosId}`);
+    if (data.url) {
+      window.open(data.url, '_blank');
+    } else {
+      throw new Error('No remote video URL found');
+    }
+  } catch (error) {
+    console.error('Error playing remote video:', error);
+    $q.notify({
+      message: 'No remote video recording found',
+      color: 'negative',
+      position: 'top',
+      timeout: 2000,
+    });
+  }
+};
+
+const base64ToBlob = (base64: string, type: string) => {
+  const binaryString = window.atob(base64);
+  const len = binaryString.length;
+  const bytes = new Uint8Array(len);
+  for (let i = 0; i < len; i++) {
+    bytes[i] = binaryString.charCodeAt(i);
+  }
+  return new Blob([bytes], { type: type });
 };
 
 onMounted(() => {
@@ -480,6 +598,17 @@ onMounted(() => {
 @keyframes spin {
   to {
     transform: rotate(360deg);
+  }
+}
+
+.video-controls {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 12px;
+
+  .q-btn {
+    min-width: 120px;
   }
 }
 </style>
