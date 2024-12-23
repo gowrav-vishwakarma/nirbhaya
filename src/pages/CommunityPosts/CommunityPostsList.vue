@@ -6,13 +6,7 @@
       padding-bottom: env(safe-area-inset-bottom);
     "
   >
-    <div class="container q-pa-md" v-if="isUserPermitted">
-      <!-- Add Suggestion Button -->
-      <!-- <div class="suggestion-button-container q-mb-md">
-        <q-btn color="primary" icon="add_circle" label="Add Suggestion" class="suggestion-btn"
-          @click="goToCommunityPage" />
-      </div> -->
-
+    <div class="container" v-if="isUserPermitted">
       <!-- Header -->
       <div class="row items-center justify-between q-pa-md">
         <div>
@@ -31,11 +25,8 @@
         </div> -->
       </div>
 
-      <div
-        class="q-mb-lg"
-        v-if="userStore.user.canCreatePost"
-        style="margin-top: -15px"
-      >
+      <!-- Create post container -->
+      <div class="create-post-container" v-if="userStore.user.canCreatePost">
         <q-card class="create-post-card q-pa-md">
           <div class="row items-center no-wrap">
             <div class="relative-position location-selector">
@@ -1513,8 +1504,7 @@ const getPostCardClass = (post: Post) => {
 .container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0px;
-  //background: linear-gradient(135deg, $primary, darken($primary, 20%));
+  padding: 0;
 }
 
 .post-card {
@@ -1755,10 +1745,17 @@ const getPostCardClass = (post: Post) => {
 }
 
 .create-post-card {
+  width: 100%;
   background: white;
-  border-radius: 0px;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   padding: 8px;
+  transition: all 0.3s ease;
+
+  /* Modify shadow when sticky */
+  .create-post-container:not(:first-child) & {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  }
 }
 
 .post-input-btn {
@@ -2814,5 +2811,49 @@ const getPostCardClass = (post: Post) => {
 .avatar {
   margin-right: 0;
   flex-shrink: 0; // Prevent avatar from shrinking
+}
+
+/* Add these styles for better sticky behavior */
+.create-post-sticky {
+  z-index: 2000;
+  background: #eef2f6;
+  width: 100%;
+}
+
+/* Add these styles for sticky behavior */
+.create-post-container {
+  position: sticky;
+  top: 0; /* Change to 0 to stick to very top */
+  z-index: 2000;
+  width: 100%;
+  // padding: 0 16px;
+  background: #eef2f6;
+  margin-bottom: 16px;
+  transition: all 0.3s ease;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 100%;
+    background: #eef2f6;
+    z-index: -1;
+  }
+}
+
+.create-post-card {
+  width: 100%;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 8px;
+  transition: all 0.3s ease;
+
+  /* Modify shadow when sticky */
+  .create-post-container:not(:first-child) & {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  }
 }
 </style>
