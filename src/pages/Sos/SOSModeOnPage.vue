@@ -14,90 +14,162 @@
 
         <template v-if="!sosSent">
           <div class="text-center q-mb-lg">
-            <q-circular-progress show-value class="text-red q-ma-md" :value="timeLeft" size="150px" :thickness="0.22"
-              color="red" track-color="grey-3" :min="0" :max="countdownDuration" @click="resetCountdown">
+            <q-circular-progress
+              show-value
+              class="text-red q-ma-md"
+              :value="timeLeft"
+              size="150px"
+              :thickness="0.22"
+              color="red"
+              track-color="grey-3"
+              :min="0"
+              :max="countdownDuration"
+              @click="resetCountdown"
+            >
               <div class="text-h5">{{ timeLeft }}</div>
             </q-circular-progress>
             <div class="text-subtitle1 q-mt-sm">
               {{ $t('common.sosCountdownMessage') }}
             </div>
-            <q-btn @click="cancelSOS" class="cancel-sos-button full-width q-py-sm">
+            <q-btn
+              @click="cancelSOS"
+              class="cancel-sos-button full-width q-py-sm"
+            >
               <span class="text-bold">{{ $t('common.cancelSOS') }}</span>
             </q-btn>
           </div>
         </template>
-
 
         <template v-else>
           <!-- <template v-else> -->
           <!-- <SosButtonNearby @initiate-sos="initiateSOSMode" /> -->
 
           <div class="text-center q-mb-lg">
-            <q-icon name="warning" color="red" size="4rem" style="margin-top: -10px;" />
+            <q-icon
+              name="warning"
+              color="red"
+              size="4rem"
+              style="margin-top: -10px"
+            />
             <div class="text-h6 text-red text-weight-bold q-mt-sm">
               {{ $t('common.sosSent') }}
             </div>
             <!-- Move status icons here -->
-            <div class="status-icons q-mb-md" style="
-              display: flex;
-              justify-content: center;
-              align-items: center;
-              background-color: antiquewhite;
-              border-radius: 20px;
-              width: 200px;
-              margin: auto;
-              padding: 3px;
-              margin-bottom: 20px;
-              margin-top: 10px;
-            ">
-              <q-icon :name="$t('common.icons.videocam')" :color="getIconColor(recordingStatus)" size="sm">
+            <div
+              class="status-icons q-mb-md"
+              style="
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                background-color: antiquewhite;
+                border-radius: 20px;
+                width: 200px;
+                margin: auto;
+                padding: 3px;
+                margin-bottom: 20px;
+                margin-top: 10px;
+              "
+            >
+              <q-icon
+                :name="$t('common.icons.videocam')"
+                :color="getIconColor(recordingStatus)"
+                size="sm"
+              >
                 <q-tooltip>{{
                   getTooltip(recordingStatus, 'recording')
                 }}</q-tooltip>
               </q-icon>
-              <q-icon :name="$t('common.icons.mic')" :color="getIconColor(audioStatus)" size="sm" class="q-ml-sm">
+              <q-icon
+                :name="$t('common.icons.mic')"
+                :color="getIconColor(audioStatus)"
+                size="sm"
+                class="q-ml-sm"
+              >
                 <q-tooltip>{{ getTooltip(audioStatus, 'audio') }}</q-tooltip>
               </q-icon>
-              <q-icon :name="$t('common.icons.locationOn')" :color="getIconColor(locationStatus)" size="sm"
-                class="q-ml-sm">
+              <q-icon
+                :name="$t('common.icons.locationOn')"
+                :color="getIconColor(locationStatus)"
+                size="sm"
+                class="q-ml-sm"
+              >
                 <q-tooltip>{{
                   getTooltip(locationStatus, 'location')
                 }}</q-tooltip>
               </q-icon>
             </div>
-            <AudioControls :sosEventId="createdSosId" @audioStatusChange="handleAudioStatusChange" />
-
+            <AudioControls
+              :sosEventId="createdSosId"
+              @audioStatusChange="handleAudioStatusChange"
+            />
           </div>
 
           <!-- <div> -->
-          <div class="q-ma-none" style="margin-top: -10px; text-align: center;" v-if="!sentSosUpdateNearByAlso">
+          <div
+            class="q-ma-none"
+            style="margin-top: -10px; text-align: center"
+            v-if="!sentSosUpdateNearByAlso"
+          >
             <div class="q-mb-sm">
-              <q-btn @click="updateNearByAlso" round
-                style="height: 60px;width: 60px;color: white;background-color:orange; border-radius: 50%; ">
-                <span style="font-weight: bolder;padding-top: 15px; font-weight: 900; font-size: 18px;"> Sos <p
-                    style="font-size: 9px;margin-top: -8px;font-weight: 800;" class="text-capitalize">
+              <q-btn
+                @click="updateNearByAlso"
+                round
+                style="
+                  height: 60px;
+                  width: 60px;
+                  color: white;
+                  background-color: orange;
+                  border-radius: 50%;
+                "
+              >
+                <span
+                  style="
+                    font-weight: bolder;
+                    padding-top: 15px;
+                    font-weight: 900;
+                    font-size: 18px;
+                  "
+                >
+                  Sos
+                  <p
+                    style="font-size: 9px; margin-top: -8px; font-weight: 800"
+                    class="text-capitalize"
+                  >
                     Nearby
                   </p>
                 </span>
               </q-btn>
             </div>
-            <span class="q-ma-none" style="font-weight: 700">Send SOS to nearby volunteers?</span>
+            <span class="q-ma-none" style="font-weight: 700"
+              >Send SOS to nearby volunteers?</span
+            >
           </div>
           <!-- </div> -->
 
-
-          <q-list bordered class="rounded-borders notify-person-box q-mb-md q-mt-none flex justify-evenly"
-            style="border: 1px solid pink;margin-top: 10px;">
+          <q-list
+            bordered
+            class="rounded-borders notify-person-box q-mb-md q-mt-none flex justify-evenly"
+            style="border: 1px solid pink; margin-top: 10px"
+          >
             <!-- <q-item v-if="!contactsOnly"> -->
             <q-item>
-              <q-item-section style="text-align: center;">
+              <q-item-section style="text-align: center">
                 <q-item-label>
-                  <span class=""
-                    style="font-size: 20px; font-weight: bolder; color: whitesmoke;  margin: 0;padding: 0;">{{
-                      informed
-                    }}</span> </q-item-label>
-                <q-item-label class="q-px-sm notify-person-box-label"> <q-icon name="person" />
-                  <span style="margin-top: -30px;">
+                  <span
+                    class=""
+                    style="
+                      font-size: 20px;
+                      font-weight: bolder;
+                      color: whitesmoke;
+                      margin: 0;
+                      padding: 0;
+                    "
+                    >{{ informed }}</span
+                  >
+                </q-item-label>
+                <q-item-label class="q-px-sm notify-person-box-label">
+                  <q-icon name="person" />
+                  <span style="margin-top: -30px">
                     {{ $t('common.notifiedPersons') }}
                   </span>
                 </q-item-label>
@@ -105,29 +177,46 @@
             </q-item>
             <!-- <q-item v-if="!contactsOnly"> -->
             <q-item>
-              <q-item-section style="text-align: center;">
+              <q-item-section style="text-align: center">
                 <q-item-label>
-                  <span class=""
-                    style="font-size: 20px; font-weight: bolder; color: whitesmoke;  margin: 0;padding: 0;">{{
-                      accepted
-                    }}</span> </q-item-label>
-                <q-item-label class="q-px-sm notify-person-box-label"> <q-icon name="person" />
-                  <span style="margin-top: -30px;">
+                  <span
+                    class=""
+                    style="
+                      font-size: 20px;
+                      font-weight: bolder;
+                      color: whitesmoke;
+                      margin: 0;
+                      padding: 0;
+                    "
+                    >{{ accepted }}</span
+                  >
+                </q-item-label>
+                <q-item-label class="q-px-sm notify-person-box-label">
+                  <q-icon name="person" />
+                  <span style="margin-top: -30px">
                     {{ $t('common.acceptedPersons') }}
                   </span>
                 </q-item-label>
               </q-item-section>
             </q-item>
             <q-item>
-              <q-item-section style="text-align: center;">
+              <q-item-section style="text-align: center">
                 <q-item-label>
-                  <span class=""
-                    style="font-size: 18px; font-weight: bolder; color: whitesmoke;  margin: 0;padding: 0;">{{
-                      $t('common.yes')
-                    }}</span> </q-item-label>
+                  <span
+                    class=""
+                    style="
+                      font-size: 18px;
+                      font-weight: bolder;
+                      color: whitesmoke;
+                      margin: 0;
+                      padding: 0;
+                    "
+                    >{{ $t('common.yes') }}</span
+                  >
+                </q-item-label>
                 <q-item-label class="q-px-sm notify-person-box-label">
-                  <span style="margin-top: -30px;"> {{ $t('common.emergencyContactsInformed')
-                    }}
+                  <span style="margin-top: -30px">
+                    {{ $t('common.emergencyContactsInformed') }}
                   </span>
                   <q-icon name="done_all" color="blue" />
                 </q-item-label>
@@ -158,20 +247,34 @@
           </q-item>
         </q-list> -->
 
-        <div class=" text-weight-bold q-mb-sm" style="font-size: 16px;">
+        <div class="text-weight-bold q-mb-sm" style="font-size: 16px">
           {{ $t('common.helpUsMore') }}
         </div>
-        <div class=" q-col-gutter-sm q-mb-md">
-          <div class="flex " style="width: 100%; ">
-            <q-btn v-for="threat in threats" :key="threat.threatName" class="button-background q-mr-xs"
-              @click="handleThreatButtonClick(threat.threatName)" size="sm" style="border-radius: 30px">
-              <q-btn round size="sm" :style="{
-                marginLeft: '-10px',
-                backgroundColor: `${threat.color}`,
-                borderRadius: '50%',
-              }"><q-icon :name="threat.icon" style="color: whitesmoke"></q-icon> </q-btn><span class="q-ml-xs"
-                style="font-weight: bold">
-                {{ $t(threat.visibleThreat) }}</span>
+        <div class="q-col-gutter-sm q-mb-md">
+          <div class="flex" style="width: 100%">
+            <q-btn
+              v-for="threat in threats"
+              :key="threat.threatName"
+              class="button-background q-mr-xs"
+              @click="handleThreatButtonClick(threat.threatName)"
+              size="sm"
+              style="border-radius: 30px"
+            >
+              <q-btn
+                round
+                size="sm"
+                :style="{
+                  marginLeft: '-10px',
+                  backgroundColor: `${threat.color}`,
+                  borderRadius: '50%',
+                }"
+                ><q-icon
+                  :name="threat.icon"
+                  style="color: whitesmoke"
+                ></q-icon> </q-btn
+              ><span class="q-ml-xs" style="font-weight: bold">
+                {{ $t(threat.visibleThreat) }}</span
+              >
             </q-btn>
           </div>
         </div>
@@ -186,8 +289,14 @@
           <q-item-section>
             <q-item-label>{{
               currentLocationName || $t('common.gettingLocation')
-              }}</q-item-label>
-            <q-item-label caption v-if="currentLocation.latitude != null && currentLocation.longitude != null">
+            }}</q-item-label>
+            <q-item-label
+              caption
+              v-if="
+                currentLocation.latitude != null &&
+                currentLocation.longitude != null
+              "
+            >
               {{ t('common.coordinates') }}:
               {{ currentLocation.latitude.toFixed(6) }},
               {{ currentLocation.longitude.toFixed(6) }}
@@ -211,7 +320,11 @@
           <span class="text-bold">{{ $t('common.contactPoliceStation') }}</span>
         </q-btn> -->
         <!--v-if="sosSent" -->
-        <q-btn @click="showResolveConfirmation" color="" class="green-bg-color full-width q-mt-md">
+        <q-btn
+          @click="showResolveConfirmation"
+          color=""
+          class="green-bg-color full-width q-mt-md"
+        >
           <span class="text-bold">{{ $t('common.resolveSOSIssue') }}</span>
         </q-btn>
       </q-card-section>
@@ -253,7 +366,7 @@ import { throttle } from 'quasar';
 import AudioControls from './SosAudioControls.vue';
 import { Filesystem, Directory } from '@capacitor/filesystem';
 import SosRating from './SosRating.vue';
-import SosButtonNearby from 'pages/Dashboard/components/SosButtonNearby.vue'
+import SosButtonNearby from 'pages/Dashboard/components/SosButtonNearby.vue';
 import { Plugins } from '@capacitor/core';
 const { SMS } = Plugins;
 
@@ -263,7 +376,7 @@ const { t } = useI18n();
 const $q = useQuasar();
 const userStore = useUserStore();
 const leavingSos = ref(false);
-const sentSosUpdateNearByAlso = ref(false)
+const sentSosUpdateNearByAlso = ref(false);
 
 const STREAM_SAVE = process.env.STREAM_SAVE;
 
@@ -275,7 +388,9 @@ const isResolvingManually = ref(false);
 const notifiedPersons = ref(0);
 const acceptedPersons = ref(0);
 
-const createdSosId = ref(route.query.sosEventId ? parseInt(String(route.query.sosEventId)) : 0);
+const createdSosId = ref(
+  route.query.sosEventId ? parseInt(String(route.query.sosEventId)) : 0
+);
 const contactsOnly = ref(route.query.contactsOnly === 'true');
 
 const currentLocation = ref<Location>({ latitude: null, longitude: null });
@@ -330,9 +445,6 @@ const threats = [
     threatName: 'followedBySomeone',
     visibleThreat: 'Someone Followed',
   },
-
-
-
 
   {
     color: '#008080',
@@ -458,7 +570,7 @@ const showResolveConfirmation = (): Promise<boolean> => {
               color: 'info',
               position: 'top-right',
               // multiLine: true,
-              timeout: 3000
+              timeout: 3000,
             });
             sosSent.value = false; // Reset sosSent
             router.push('/sos'); // Redirect to dashboard
@@ -471,7 +583,7 @@ const showResolveConfirmation = (): Promise<boolean> => {
               color: 'positive',
               position: 'top-right',
               // multiLine: true,
-              timeout: 3000
+              timeout: 3000,
             });
             sosSent.value = false; // Reset sosSent
             resolve(true);
@@ -482,7 +594,7 @@ const showResolveConfirmation = (): Promise<boolean> => {
               color: 'warning',
               position: 'top-right',
               // multiLine: true,
-              timeout: 3000
+              timeout: 3000,
             });
             resolve(false);
             break;
@@ -491,8 +603,8 @@ const showResolveConfirmation = (): Promise<boolean> => {
       .onCancel(() => {
         $q.notify({
           message: 'Action cancelled. Your SOS event remains active.',
-            color: 'warning',
-          position:'top-right'
+          color: 'warning',
+          position: 'top-right',
         });
         resolve(false);
       })
@@ -504,7 +616,7 @@ const showResolveConfirmation = (): Promise<boolean> => {
 
 onBeforeRouteLeave(async (to, from, next) => {
   console.log('Leaving SOSModeOnPage');
-  leavingSos.value = true
+  leavingSos.value = true;
   if (countdownInterval) {
     clearInterval(countdownInterval);
   }
@@ -559,7 +671,10 @@ const cancelSOS = async () => {
 };
 
 const activateSOSPermissions = async () => {
-  const requiredPermissions: PermissionType[] = ['common.location', 'common.camera'];
+  const requiredPermissions: PermissionType[] = [
+    'common.location',
+    'common.camera',
+  ];
   for (const permissionName of requiredPermissions) {
     const permission = permissions.value.find((p) => p.name === permissionName);
     if (permission && !permission.granted) {
@@ -590,7 +705,7 @@ const updateSOSData = async (data: {
     if (currentLocation.value.latitude && currentLocation.value.longitude) {
       values.value.location = {
         latitude: currentLocation.value.latitude,
-        longitude: currentLocation.value.longitude
+        longitude: currentLocation.value.longitude,
       };
       locationSentToServer.value = true; // Set this to true when data is successfully sent
     }
@@ -600,7 +715,7 @@ const updateSOSData = async (data: {
     values.value.sosEventId = createdSosId.value;
 
     if (data.status === 'resolved' || data.status === 'cancelled') {
-      leavingSos.value = true
+      leavingSos.value = true;
     }
     await validateAndSubmit();
     if (data.status === 'resolved') {
@@ -608,33 +723,31 @@ const updateSOSData = async (data: {
         component: SosRating,
         componentProps: {
           eventId: createdSosId.value,
-          source: 'sosmode'
-        }
+          source: 'sosmode',
+        },
       });
     }
     console.log('SOS data updated:', values.value);
     logMessage(
       'SOS data updated: ' +
-      JSON.stringify(
-        {
-          location: currentLocation.value,
-          status: data.status,
-          threat: data.threat,
-          contactsOnly: contactsOnly.value,
-          sosEventId: createdSosId.value,
-        },
-        null,
-        2
-      )
+        JSON.stringify(
+          {
+            location: currentLocation.value,
+            status: data.status,
+            threat: data.threat,
+            contactsOnly: contactsOnly.value,
+            sosEventId: createdSosId.value,
+          },
+          null,
+          2
+        )
     );
-
-
 
     if (!isLocationReceived.value) {
       updateCurrentLocation();
     }
   } catch (error) {
-    leavingSos.value = false
+    leavingSos.value = false;
     logMessage('Failed to update SOS data: ' + error);
     console.error('Failed to update SOS data:', error);
   }
@@ -693,8 +806,9 @@ const sendConfirmSOSRequest = async (threatType?: string) => {
 };
 
 const sendSOSviaSMS = async (sosData: any) => {
-  const message = `SOS: ${sosData.threatType || 'Emergency'} at ${sosData.location.latitude
-    }, ${sosData.location.longitude}. Time: ${sosData.timestamp}`;
+  const message = `SOS: ${sosData.threatType || 'Emergency'} at ${
+    sosData.location.latitude
+  }, ${sosData.location.longitude}. Time: ${sosData.timestamp}`;
 
   try {
     await SMS.send({
@@ -745,7 +859,10 @@ const startLocationWatching = async () => {
   }
 };
 
-const handleLocationUpdate: WatchPositionCallback = (position: Position | null, err?: any) => {
+const handleLocationUpdate: WatchPositionCallback = (
+  position: Position | null,
+  err?: any
+) => {
   if (err) {
     logMessage('Error in location update: ' + err);
     console.error('Error in location update:', err);
@@ -761,7 +878,9 @@ const handleLocationUpdate: WatchPositionCallback = (position: Position | null, 
     };
 
     currentLocation.value = newLocation;
-    currentLocationName.value = `Lat: ${newLocation.latitude?.toFixed(4)}, Lon: ${newLocation.longitude?.toFixed(4)}`;
+    currentLocationName.value = `Lat: ${newLocation.latitude?.toFixed(
+      4
+    )}, Lon: ${newLocation.longitude?.toFixed(4)}`;
     isLocationReceived.value = true;
     locationStatus.value = 'success';
 
@@ -769,16 +888,19 @@ const handleLocationUpdate: WatchPositionCallback = (position: Position | null, 
   }
 };
 
-const calculateDistance = (loc1: LocationWithCoords, loc2: LocationWithCoords): number => {
+const calculateDistance = (
+  loc1: LocationWithCoords,
+  loc2: LocationWithCoords
+): number => {
   const R = 6371;
   const dLat = (loc2.latitude - loc1.latitude) * (Math.PI / 180);
   const dLon = (loc2.longitude - loc1.longitude) * (Math.PI / 180);
   const a =
     Math.sin(dLat / 2) * Math.sin(dLat / 2) +
     Math.cos(loc1.latitude * (Math.PI / 180)) *
-    Math.cos(loc2.latitude * (Math.PI / 180)) *
-    Math.sin(dLon / 2) *
-    Math.sin(dLon / 2);
+      Math.cos(loc2.latitude * (Math.PI / 180)) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2);
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   const distance = R * c * 1000; // Convert to meters
 
@@ -813,17 +935,17 @@ const { values, validateAndSubmit, errors, callbacks, isLoading, updateUrl } =
     threat: '',
     contactsOnly: contactsOnly.value,
     sosEventId: createdSosId.value,
-    updateNearbyAlso: false
+    updateNearbyAlso: false,
   });
 
 callbacks.beforeSubmit = (data) => {
   data.updateNearbyAlso = sentSosUpdateNearByAlso.value;
   if (sentSosUpdateNearByAlso.value) {
-    data.status = !data.status ? 'active' : data.status
-    data.contactsOnly = false
+    data.status = !data.status ? 'active' : data.status;
+    data.contactsOnly = false;
   }
-  return data
-}
+  return data;
+};
 
 const informed = ref(0);
 const accepted = ref(0);
@@ -1009,15 +1131,13 @@ const saveLocalRecording = async () => {
       type: VIDEO_FORMAT.value.mimeType,
     });
 
-    const fileName = `sos_recording_${Date.now()}.${VIDEO_FORMAT.value.extension
-      }`;
+    const fileName = `sos_recording_${createdSosId.value}.${VIDEO_FORMAT.value.extension}`;
 
     if (Capacitor.isNativePlatform()) {
-      const { Filesystem, Directory } = await import('@capacitor/filesystem');
       const base64Data = await blobToBase64(blob);
 
       try {
-        // Save to external storage (usually accessible to the user)
+        // Save to external storage with predictable filename
         const result = await Filesystem.writeFile({
           path: `DCIM/Nirbhaya/${fileName}`,
           data: base64Data,
@@ -1028,31 +1148,27 @@ const saveLocalRecording = async () => {
         console.log('File saved:', result.uri);
         logMessage(`Full recording saved to DCIM/Nirbhaya/${fileName}`);
 
-        // Optionally, you can show a notification to the user
         $q.notify({
-          message: `Video saved to DCIM/Nirbhaya/${fileName}`,
+          message: `Video saved as ${fileName}`,
           color: 'positive',
           icon: 'save',
           position: 'top',
-          // multiLine: true,
-          timeout: 3000
+          timeout: 3000,
         });
       } catch (error) {
         console.error('Failed to save full recording:', error);
         logMessage('Failed to save full recording: ' + error);
 
-        // Show error notification
         $q.notify({
           message: 'Failed to save video. Please check app permissions.',
           color: 'negative',
           icon: 'error',
           position: 'top-right',
-          // multiLine: true,
-          timeout: 3000
+          timeout: 3000,
         });
       }
     } else {
-      // For web platform, we'll save the blob directly
+      // For web platform, use same predictable filename
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.style.display = 'none';
@@ -1084,16 +1200,16 @@ const handleAudioStatusChange = (status: string) => {
 
 const updateNearByAlso = () => {
   sentSosUpdateNearByAlso.value = true;
-  values.value.updateNearbyAlso = sentSosUpdateNearByAlso.value
+  values.value.updateNearbyAlso = sentSosUpdateNearByAlso.value;
   validateAndSubmit();
   $q.notify({
     message: 'SOS Sent Nearby Volunteers.',
     color: 'positive',
     position: 'top-right',
     // multiLine: true,
-    timeout: 2000
+    timeout: 2000,
   });
-}
+};
 </script>
 
 <style lang="scss" scoped>
@@ -1156,9 +1272,11 @@ const updateNearByAlso = () => {
 }
 
 .button-background {
-  background: linear-gradient(135deg,
-      white,
-      darken(rgb(255, 255, 255), 0%)) !important;
+  background: linear-gradient(
+    135deg,
+    white,
+    darken(rgb(255, 255, 255), 0%)
+  ) !important;
   border: 1px solid rgba(221, 218, 218, 0.418) !important;
   width: 180px;
   margin-bottom: 5px;
@@ -1173,20 +1291,17 @@ const updateNearByAlso = () => {
   background: linear-gradient(135deg, $primary, darken($primary, 10%));
   border-radius: 10px;
   margin-top: 30px;
-
 }
 
 .green-bg-color {
   background: linear-gradient(40deg, green, darken(green, 15%));
   border-radius: 10px;
-
 }
 
 .cancel-sos-button {
   background: linear-gradient(40deg, red, darken(red, 15%));
   border-radius: 10px;
   color: whitesmoke;
-
 }
 
 .notify-person-box-label {
@@ -1196,7 +1311,6 @@ const updateNearByAlso = () => {
   padding: 5px;
   color: whitesmoke;
   margin-bottom: -5px;
-
 }
 
 .q-list {
