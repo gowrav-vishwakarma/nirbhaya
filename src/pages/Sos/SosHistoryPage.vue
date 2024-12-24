@@ -60,7 +60,7 @@
                   <p>{{ formatLocation(sos.location) }}</p>
                 </div>
 
-                <div class="video-controls q-mt-md">
+                <!-- <div class="video-controls q-mt-md">
                   <q-btn
                     outline
                     color="primary"
@@ -81,7 +81,7 @@
                   >
                     Cloud Video
                   </q-btn>
-                </div>
+                </div> -->
 
                 <button
                   :disabled="sos.status == 'cancelled'"
