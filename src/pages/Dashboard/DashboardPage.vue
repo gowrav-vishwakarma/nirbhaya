@@ -7,6 +7,15 @@
         ref="promotingAppInstall"
       ></PromotingAppInstall>
       <SOSButtons @initiate-sos="initiateSOSMode" />
+      <div class="row justify-center q-mt-md">
+        <q-btn
+          class="nearby-btn"
+          color="secondary"
+          icon="emoji_people"
+          label="Find Nearby Volunteers"
+          @click="goToVolunteersPage"
+        />
+      </div>
       <div class="beta-notice" @click="goToCommunityRoute">
         {{ $t('common.betaNotice') }}
         <q-icon
@@ -74,6 +83,10 @@ const goToCommunityRoute = () => {
   router.push('/community');
 };
 
+const goToVolunteersPage = () => {
+  router.push('/volunteers');
+};
+
 const promotingAppInstall = ref();
 
 onMounted(async () => {
@@ -108,5 +121,12 @@ onMounted(async () => {
 .dashboard-content {
   max-width: 600px;
   margin: 0 auto;
+}
+
+.nearby-btn {
+  width: 80%;
+  max-width: 300px;
+  padding: 10px;
+  border-radius: 8px;
 }
 </style>

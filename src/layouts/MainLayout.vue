@@ -100,23 +100,29 @@
               class="q-ma-none q-pa-none font-size-11"
               style="margin-top: -11px"
             >
-              Home
+              {{
+                userStore.user.defaultApp === 'community'
+                  ? 'Community'
+                  : userStore.user.defaultApp === 'news'
+                  ? 'News'
+                  : 'SOS'
+              }}
             </p>
           </div>
         </q-btn>
-        <q-space />
 
         <q-btn
+          v-if="showSosIcon"
           style="padding-bottom: 0; width: 60px; margin-top: 2px"
           class="q-pa-none"
           flat
-          aria-label="Nearby Volunteers"
+          aria-label="SOS"
           :disabled="!userStore.isLoggedIn"
-          @click="goToVolunteersPage"
+          @click="router.push('/')"
         >
           <div>
             <q-icon
-              name="emoji_people"
+              name="warning"
               class="font-size-25"
               style="font-weight: 600; font-size: 22px"
             ></q-icon>
@@ -124,16 +130,15 @@
               class="q-ma-none q-pa-none font-size-11"
               style="margin-top: -1px"
             >
-              Nearby
+              SOS
             </p>
           </div>
         </q-btn>
 
-        <q-space v-if="isShortsVisible" />
         <q-btn
           v-if="isShortsVisible"
           style="padding-bottom: 0; width: 60px; margin-top: 2px"
-          class="q-pa-none q-ml-sm"
+          class="q-pa-none"
           flat
           aria-label="Shorts"
           @click="goToReelsPage"
@@ -195,10 +200,10 @@
           </div>
         </q-btn>
 
-        <q-space />
         <q-btn
-          style="padding-bottom: 0; width: 60px"
-          class="q-pa-none q-ml-sm"
+          v-if="showNewsIcon"
+          style="padding-bottom: 0; width: 60px; margin-top: 2px"
+          class="q-pa-none"
           flat
           aria-label="News"
           @click="goToNewsPage"
@@ -225,9 +230,9 @@
           </div>
         </q-btn>
 
-        <q-space />
         <q-btn
-          style="padding-bottom: 0; width: 60px"
+          v-if="showCommunityIcon"
+          style="padding-bottom: 0; width: 60px; margin-top: 2px"
           flat
           aria-label="Community"
           @click="goToCommunityPage"
@@ -244,6 +249,28 @@
               style="margin-top: -5px"
             >
               Community
+            </p>
+          </div>
+        </q-btn>
+
+        <q-btn
+          style="padding-bottom: 0; width: 60px; margin-top: 2px"
+          flat
+          aria-label="Profile"
+          @click="goToAccountPage"
+          :disabled="!userStore.isLoggedIn"
+        >
+          <div>
+            <q-icon
+              name="person"
+              class="font-size-25"
+              style="font-size: 24px; margin-top: -2px"
+            ></q-icon>
+            <p
+              class="q-ma-none q-pa-none font-size-11"
+              style="margin-top: -5px"
+            >
+              Profile
             </p>
           </div>
         </q-btn>
@@ -380,6 +407,8 @@ onMounted(() => {
     }
     next();
   });
+
+  handleInitialRoute();
 });
 
 onUnmounted(() => {
@@ -427,7 +456,10 @@ const handleScroll = () => {
 
 // Navigation functions
 const goToAccountPage = () => router.push('/account');
-const goToDashboardPage = () => router.push('/');
+const goToDashboardPage = () => {
+  if (!userStore.isLoggedIn) return;
+  router.push(userStore.defaultAppRoute);
+};
 const goToLoginPage = () => router.push('/login');
 const goToVolunteersPage = () => router.push('/volunteers');
 const goToCommunityPage = () => router.push('/comunity-post');
@@ -586,6 +618,29 @@ onUnmounted(() => {
     console.error('Error cleaning up pull to refresh:', error);
   }
 });
+
+// Add computed property for footer icons visibility
+const showNewsIcon = computed(() => {
+  return userStore.user.defaultApp !== 'news';
+});
+
+const showSosIcon = computed(() => {
+  return (
+    userStore.user.defaultApp === 'news' ||
+    userStore.user.defaultApp === 'community'
+  );
+});
+
+const showCommunityIcon = computed(() => {
+  return userStore.user.defaultApp !== 'community';
+});
+
+// Add function to handle initial route on app mount
+const handleInitialRoute = () => {
+  if (userStore.isLoggedIn && router.currentRoute.value.path === '/') {
+    router.push(userStore.defaultAppRoute);
+  }
+};
 </script>
 
 <style lang="scss" scoped>
@@ -616,8 +671,14 @@ onUnmounted(() => {
   border-radius: 10px;
   background-color: rgb(208 10 78);
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-evenly;
+  align-items: center;
   box-shadow: 0px 4px 8px rgba(78, 25, 25, 0.699);
+
+  .q-btn {
+    flex: 1;
+    max-width: 60px;
+  }
 }
 
 .bg-green {

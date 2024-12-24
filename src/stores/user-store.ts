@@ -166,6 +166,17 @@ export const useUserStore = defineStore('userStore', {
     isLoggedIn: (state) => !!state.user.token,
     userName: (state) => state.user.name ?? '',
     userMobileNumber: (state) => state.user.phoneNumber ?? '',
+    defaultAppRoute: (state) => {
+      switch (state.user.defaultApp) {
+        case 'news':
+          return '/news';
+        case 'community':
+          return '/comunity-post';
+        case 'sos':
+        default:
+          return '/';
+      }
+    },
   },
   persist: {
     key: 'sos-user',
