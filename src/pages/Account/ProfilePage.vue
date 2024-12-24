@@ -158,6 +158,24 @@
                   hide-bottom-space
                 />
               </div>
+
+              <!-- Default App Input -->
+              <div class="col-12 q-py-none custom-input">
+                <label>{{ $t('common.defaultApp') }}</label>
+                <q-select
+                  v-model="values.defaultApp"
+                  :options="defaultAppOptions"
+                  filled
+                  class="custom-radius"
+                  bg-color="pink-1"
+                  dense
+                  map-options
+                  emit-value
+                  option-value="value"
+                  option-label="label"
+                  hide-bottom-space
+                />
+              </div>
             </div>
 
             <!-- Submit Button -->
@@ -207,7 +225,16 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits(['reloadComponents']);
-const userTypeOptions = ['Girl', 'Child', 'Elder Woman', 'Elder Man', 'Youth'];
+const userTypeOptions = [
+  'Girl/Woman (18-35)',
+  'Woman (35+)',
+  'Senior Woman (60+)',
+  'Boy/Man (18-35)',
+  'Man (35+)',
+  'Senior Man (60+)',
+  'Child (Under 18)',
+  'Prefer not to say',
+];
 
 const originalStateOptions = [
   'Andhra Pradesh',
@@ -289,6 +316,14 @@ const professionOptions = [
   { label: t('common.other'), value: 'other' },
 ];
 
+// Add defaultApp options
+const defaultAppOptions = [
+  { label: t('common.sos'), value: 'sos' },
+  { label: t('common.news'), value: 'news' },
+  { label: t('common.community'), value: 'community' },
+  // { label: t('common.astroai'), value: 'astroai' },
+];
+
 interface EmergencyContact {
   contactName: string;
   contactPhone: string;
@@ -318,6 +353,7 @@ interface FormValues {
   streamAudioVideoOnSos: boolean;
   broadcastAudioOnSos: boolean;
   referredBy: string;
+  defaultApp: 'sos' | 'news' | 'community' | 'astroai';
 }
 
 const { values, errors, isLoading, validateAndSubmit, callbacks } =
@@ -335,6 +371,7 @@ const { values, errors, isLoading, validateAndSubmit, callbacks } =
     streamAudioVideoOnSos: false,
     broadcastAudioOnSos: false,
     referredBy: '',
+    defaultApp: 'sos',
   });
 callbacks.beforeSubmit = (data) => {
   console.log('data before processing...', data);
@@ -389,6 +426,7 @@ const loadUserData = async () => {
     streamAudioVideoOnSos: userData.streamAudioVideoOnSos || false,
     broadcastAudioOnSos: userData.broadcastAudioOnSos || false,
     referredBy: userData.referredBy || '',
+    defaultApp: userData.defaultApp || 'sos',
   });
 
   lastCheckedReferralId.value = values.value.referredBy;

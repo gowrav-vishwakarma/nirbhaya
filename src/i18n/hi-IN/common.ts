@@ -389,4 +389,9 @@ export default {
   delete: 'हटाएं',
   // cancel: 'रद्द करें',
   contactDeletedSuccess: 'आपातकालीन संपर्क सफलतापूर्वक हटा दिया गया',
+  defaultApp: 'डिफ़ॉल्ट ऐप',
+  sos: 'एसओएस',
+  news: 'समाचार',
+  community: 'समुदाय',
+  astroai: 'एस्ट्रोएआई',
 };

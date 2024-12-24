@@ -599,4 +599,9 @@ export default {
   emergencyContactsUpdated: 'Emergency contacts updated successfully',
   emergencyContactsUpdateError: 'Error updating emergency contacts',
   locationUpdateSuccess: 'Location updated successfully',
+  defaultApp: 'Default App',
+  sos: 'SOS',
+  news: 'News',
+  community: 'Community',
+  astroai: 'AstroAI',
 };

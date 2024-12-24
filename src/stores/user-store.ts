@@ -47,6 +47,7 @@ export interface User {
   businessName: string;
   whatsappNumber: string;
   profileImage: '';
+  defaultApp: 'sos' | 'news' | 'community' | 'astroai';
 }
 
 interface NewsPreferences {
@@ -83,6 +84,7 @@ const defaultUser: User = {
   businessName: '',
   whatsappNumber: '',
   profileImage: '',
+  defaultApp: 'sos',
 };
 
 export const useUserStore = defineStore('userStore', {
