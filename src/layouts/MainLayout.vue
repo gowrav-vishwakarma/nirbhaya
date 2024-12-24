@@ -104,7 +104,7 @@
                 userStore.user.defaultApp === 'community'
                   ? 'Community'
                   : userStore.user.defaultApp === 'news'
-                  ? 'News'
+                  ? 'Bulletin'
                   : 'SOS'
               }}
             </p>

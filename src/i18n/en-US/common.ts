@@ -601,7 +601,7 @@ export default {
   locationUpdateSuccess: 'Location updated successfully',
   defaultApp: 'Default App',
   sos: 'SOS',
-  news: 'News',
+  news: 'Bulletin',
   community: 'Community',
   astroai: 'AstroAI',
 };
