@@ -172,6 +172,8 @@ export const useUserStore = defineStore('userStore', {
           return '/news';
         case 'community':
           return '/comunity-post';
+        case 'astroai':
+          return process.env.ENABLE_ASTRO_APP === 'true' ? '/astro-ai' : '/';
         case 'sos':
         default:
           return '/';

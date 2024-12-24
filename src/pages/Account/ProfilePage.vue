@@ -317,12 +317,19 @@ const professionOptions = [
 ];
 
 // Add defaultApp options
-const defaultAppOptions = [
-  { label: t('common.sos'), value: 'sos' },
-  { label: t('common.news'), value: 'news' },
-  { label: t('common.community'), value: 'community' },
-  // { label: t('common.astroai'), value: 'astroai' },
-];
+const defaultAppOptions = computed(() => {
+  const options = [
+    { label: t('common.sos'), value: 'sos' },
+    { label: t('common.news'), value: 'news' },
+    { label: t('common.community'), value: 'community' },
+  ];
+
+  if (process.env.ENABLE_ASTRO_APP === 'true') {
+    options.push({ label: t('common.astroai'), value: 'astroai' });
+  }
+
+  return options;
+});
 
 interface EmergencyContact {
   contactName: string;
