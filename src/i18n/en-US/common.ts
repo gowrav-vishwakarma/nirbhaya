@@ -126,6 +126,7 @@ export default {
   privateSectorEmployee: 'Private Sector Employee',
   governmentEmployee: 'Government Employee',
   businessOwner: 'Business Owner',
+  business: 'Business',
   housewife: 'Housewife',
   retired: 'Retired',
   unemployed: 'Unemployed',
@@ -592,6 +593,7 @@ export default {
   addBusinessInformation: 'Add Business Information',
   businessLocationHelp:
     'Add your business information to promote your business.',
+  setLocation: 'Set Location',
 
   userNotRegisteredInApp: 'This phone number is not registered in the app',
 

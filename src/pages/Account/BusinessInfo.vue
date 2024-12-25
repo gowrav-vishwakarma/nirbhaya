@@ -1,7 +1,11 @@
 <template>
   <div class="business-info-container">
-    <h5 class="text-h6 q-mb-sm q-px-md q-mt-md q-ma-none">{{ t('common.businessInformation') }}</h5>
-    <p class="q-px-md q-ma-none q-mb-sm">{{ t('common.businessLocationHelp') }}</p>
+    <h5 class="text-h6 q-mb-sm q-px-md q-mt-md q-ma-none">
+      {{ t('common.businessInformation') }}
+    </h5>
+    <p class="q-px-md q-ma-none q-mb-sm">
+      {{ t('common.businessLocationHelp') }}
+    </p>
 
     <!-- <q-card flat bordered class="q-mb-md">
       <q-card-section>
@@ -19,9 +23,9 @@
         class="full-width custom-radius q-mb-md"
         @click="showInputFields = !showInputFields"
         label="Add Business Information"
-        style="border-radius: 10px !important;"
+        style="border-radius: 10px !important"
       />
-      
+
       <div v-if="showInputFields" class="input-fields">
         <div class="custom-input">
           <label>{{ t('common.businessName') }}</label>
@@ -48,8 +52,10 @@
             hide-bottom-space
             prefix="+91"
             :rules="[
-              (val) => !!val || 'WhatsApp number is required',
-              (val) => String(val).length === 10 || 'Phone number must be 10 digits'
+              (val) =>
+                !val ||
+                String(val).length === 10 ||
+                'Phone number must be 10 digits',
             ]"
             @input="validatePhoneNumber"
             maxlength="10"
@@ -74,16 +80,20 @@
           <q-btn
             flat
             color="white"
-            style="border-radius: 10px !important;"
+            style="border-radius: 10px !important"
             icon="my_location"
             class="full-width custom-radius bg-primary"
-            @click="getCurrentLocation"
-            :loading="isLoadingLocation"
+            @click="showLocationSelector = true"
           >
-            {{ t('common.useCurrentLocation') }}
+            {{ t('common.setLocation') }}
           </q-btn>
-          <div v-if="businessData.latitude && businessData.longitude" class="text-caption q-mt-sm">
-            {{ t('common.coordinates') }}: {{ businessData.latitude.toFixed(6) }}, {{ businessData.longitude.toFixed(6) }}
+          <div
+            v-if="businessData.latitude && businessData.longitude"
+            class="text-caption q-mt-sm"
+          >
+            {{ t('common.coordinates') }}:
+            {{ businessData.latitude.toFixed(6) }},
+            {{ businessData.longitude.toFixed(6) }}
           </div>
         </div>
 
@@ -92,7 +102,7 @@
             <q-btn
               label="Cancel"
               color="black"
-              style="border-radius: 10px !important;"
+              style="border-radius: 10px !important"
               class="full-width custom-radius"
               @click="showInputFields = false"
             />
@@ -101,7 +111,7 @@
             <q-btn
               label="Add"
               color="primary"
-              style="border-radius: 10px !important;"
+              style="border-radius: 10px !important"
               class="full-width custom-radius"
               @click="handleSubmit"
               :disabled="!isFormValid"
@@ -113,22 +123,32 @@
 
       <div class="contact-cards q-mt-md" v-if="userStore.user?.businessName">
         <q-card flat bordered class="contact-card q-mb-sm">
-          <q-card-section class="row items-center" style="width: 100%;">
+          <q-card-section class="row items-center" style="width: 100%">
             <div class="col-auto q-pa-none q-ma-none">
               <q-avatar class="q-pa-none q-ma-none">
-                <img src='/my-business.png' alt='business-icon' style="width: 80%; height: 100%; object-fit: contain;" />
+                <img
+                  src="/my-business.png"
+                  alt="business-icon"
+                  style="width: 80%; height: 100%; object-fit: contain"
+                />
               </q-avatar>
             </div>
-            <div class="col q-pl-sm" >
-              <div class="text-subtitle2">{{ userStore.user?.businessName }}</div>
-              <div class="text-caption">WhatsApp: +91 {{ userStore.user?.whatsappNumber }}</div>
-              <div class="text-caption"> Address: {{ businessLocation?.name }}</div>
+            <div class="col q-pl-sm">
+              <div class="text-subtitle2">
+                {{ userStore.user?.businessName }}
+              </div>
+              <div class="text-caption">
+                WhatsApp: +91 {{ userStore.user?.whatsappNumber }}
+              </div>
+              <div class="text-caption">
+                Address: {{ businessLocation?.name }}
+              </div>
               <div class="col-auto">
                 <q-btn
                   class="remove-btn"
                   flat
                   label="Remove"
-                  style="border-radius: 10px !important;"
+                  style="border-radius: 10px !important"
                   @click="confirmRemoveBusiness"
                 />
               </div>
@@ -137,6 +157,11 @@
         </q-card>
       </div>
     </div>
+
+    <LocationSelectorDialog
+      v-model="showLocationSelector"
+      @location-selected="handleLocationSelected"
+    />
   </div>
 </template>
 
@@ -147,6 +172,7 @@ import { Geolocation } from '@capacitor/geolocation';
 import { useI18n } from 'vue-i18n';
 import { api } from 'src/boot/axios';
 import { useUserStore } from 'src/stores/user-store';
+import LocationSelectorDialog from 'src/components/Location/LocationSelectorDialog.vue';
 
 const $q = useQuasar();
 const formRef = ref();
@@ -154,6 +180,10 @@ const loading = ref(false);
 const isLoadingLocation = ref(false);
 const userStore = useUserStore();
 const showInputFields = ref(false);
+const showLocationSelector = ref(false);
+const selectedLocation = ref<{ type: string; coordinates: number[] } | null>(
+  null
+);
 
 const props = defineProps<{
   reloadComponents?: () => void;
@@ -195,11 +225,9 @@ const businessData = reactive<BusinessData>({
 
 const validatePhoneNumber = (value: number | string) => {
   if (value) {
-    const phoneStr = String(value).replace(/\D/g, ''); // Remove non-digits
+    const phoneStr = String(value).replace(/\D/g, '').trim(); // Remove non-digits and trim
     if (phoneStr.length > 10) {
-      // Truncate to 10 digits and update the model
       businessData.whatsappNumber = Number(phoneStr.slice(0, 10));
-      // Show warning notification
       $q.notify({
         type: 'warning',
         message: 'Phone number should be 10 digits',
@@ -207,7 +235,7 @@ const validatePhoneNumber = (value: number | string) => {
         timeout: 2000,
       });
     } else {
-      businessData.whatsappNumber = Number(phoneStr);
+      businessData.whatsappNumber = phoneStr ? Number(phoneStr) : null;
     }
   } else {
     businessData.whatsappNumber = null;
@@ -244,7 +272,8 @@ const getCurrentLocation = async () => {
     console.error('Location error:', error);
     $q.notify({
       type: 'negative',
-      message: error instanceof Error ? error.message : t('common.locationError'),
+      message:
+        error instanceof Error ? error.message : t('common.locationError'),
       position: 'top-right',
     });
   } finally {
@@ -262,69 +291,98 @@ const handleSubmit = async () => {
     return;
   }
 
-  try {
-    loading.value = true;
+  const submitBusinessInfo = async () => {
+    try {
+      loading.value = true;
 
-    const businessInfo = {
-      businessName: businessData.businessName,
-      whatsappNumber: businessData.whatsappNumber,
-      locationName: businessData.locationName,
-      latitude: businessData.latitude,
-      longitude: businessData.longitude,
-    };
-
-    const response = await api.post('/user/add-business-information', businessInfo);
-
-    if (response.data) {
-      const currentLocations = [...(userStore.user?.locations || [])] as UserLocation[];
-      const businessLocationIndex = currentLocations.findIndex(
-        (loc) => loc.isBusinessLocation
-      );
-
-      const updatedLocation: UserLocation = {
-        id: response.data.locationId,
-        name: businessData.locationName,
-        location: {
-          type: 'Point',
-          coordinates: [businessData.longitude, businessData.latitude],
-        },
-        timestamp: null,
-        isBusinessLocation: true,
+      const businessInfo = {
+        businessName: businessData.businessName,
+        whatsappNumber: businessData.whatsappNumber,
+        locationName: businessData.locationName,
+        latitude: businessData.latitude,
+        longitude: businessData.longitude,
       };
 
-      if (businessLocationIndex !== -1) {
-        currentLocations[businessLocationIndex] = updatedLocation;
-      } else {
-        currentLocations.push(updatedLocation);
+      const response = await api.post(
+        '/user/add-business-information',
+        businessInfo
+      );
+
+      if (response.data) {
+        const currentLocations = [
+          ...(userStore.user?.locations || []),
+        ] as UserLocation[];
+        const businessLocationIndex = currentLocations.findIndex(
+          (loc) => loc.isBusinessLocation
+        );
+
+        const updatedLocation: UserLocation = {
+          id: response.data.locationId,
+          name: businessData.locationName,
+          location: {
+            type: 'Point',
+            coordinates: [businessData.longitude, businessData.latitude],
+          },
+          timestamp: null,
+          isBusinessLocation: true,
+        };
+
+        if (businessLocationIndex !== -1) {
+          currentLocations[businessLocationIndex] = updatedLocation;
+        } else {
+          currentLocations.push(updatedLocation);
+        }
+
+        userStore.updateUser({
+          ...userStore.user,
+          businessName: businessData.businessName,
+          whatsappNumber: businessData.whatsappNumber?.toString(),
+          locations: currentLocations,
+        });
+
+        showInputFields.value = false;
+
+        $q.notify({
+          color: 'black',
+          message: 'Business information saved successfully',
+          position: 'top-right',
+        });
       }
-
-      userStore.updateUser({
-        ...userStore.user,
-        businessName: businessData.businessName,
-        whatsappNumber: businessData.whatsappNumber?.toString(),
-        locations: currentLocations,
-      });
-
-      showInputFields.value = false; // Hide the form after successful submission
-
+    } catch (err: unknown) {
+      console.error('Error saving business info:', err);
+      const error = err as { response?: { data?: { message?: string } } };
       $q.notify({
-        color: 'black',
-        message: 'Business information saved successfully',
+        type: 'negative',
+        message:
+          error.response?.data?.message ||
+          'Failed to save business information',
         position: 'top-right',
       });
+    } finally {
+      loading.value = false;
+      props.reloadComponents?.();
+      emit('reloadComponents');
     }
-  } catch (err: unknown) {
-    console.error('Error saving business info:', err);
-    const error = err as { response?: { data?: { message?: string } } };
-    $q.notify({
-      type: 'negative',
-      message: error.response?.data?.message || 'Failed to save business information',
-      position: 'top-right',
-    });
-  } finally {
-    loading.value = false;
-    props.reloadComponents?.();
-    emit('reloadComponents');
+  };
+
+  if (!businessData.whatsappNumber) {
+    $q.dialog({
+      title: 'WhatsApp Number Missing',
+      message:
+        "You are not submitting a WhatsApp number. You won't be able to be contacted. Do you still want to proceed?",
+      cancel: true,
+      persistent: true,
+    })
+      .onOk(() => {
+        submitBusinessInfo(); // Only submit if user clicks OK
+      })
+      .onCancel(() => {
+        // Do nothing if user cancels
+        return;
+      });
+  } else {
+    // If WhatsApp number is provided, submit directly
+    await submitBusinessInfo();
   }
 };
 
@@ -372,8 +430,6 @@ const { t } = useI18n();
 const isFormValid = computed(() => {
   return (
     businessData.businessName &&
-    businessData.whatsappNumber &&
-    String(businessData.whatsappNumber).length === 10 &&
     businessData.locationName &&
     businessData.latitude &&
     businessData.longitude
@@ -439,11 +495,20 @@ const openGoogleMaps = (latitude: number, longitude: number) => {
 };
 
 const businessLocation = computed(() => {
-  return userStore.user?.locations?.find(loc => loc.isBusinessLocation);
+  return userStore.user?.locations?.find((loc) => loc.isBusinessLocation);
 });
+
+const handleLocationSelected = (location: {
+  type: string;
+  coordinates: number[];
+}) => {
+  businessData.latitude = location.coordinates[1]; // latitude is second in GeoJSON
+  businessData.longitude = location.coordinates[0]; // longitude is first in GeoJSON
+  showLocationSelector.value = false; // Close the dialog
+};
 </script>
 
-<style scoped>  
+<style scoped>
 .business-info-container {
   display: flex;
   flex-direction: column;
@@ -491,9 +556,9 @@ const businessLocation = computed(() => {
 }
 
 .remove-btn {
-  position:absolute ;
-  top:10px;
-  right:5px;
+  position: absolute;
+  top: 10px;
+  right: 5px;
   background-color: black;
   align-self: flex-end;
   border-radius: 10px;
