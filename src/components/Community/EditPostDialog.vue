@@ -141,6 +141,7 @@
           <LocationSelectorDialog
             v-model="showLocationSelector"
             @location-selected="handleLocationSelected"
+            :initial-location="form.location"
           />
 
           <q-checkbox
@@ -565,12 +566,20 @@ const handleLocationSelected = async (location: {
 
   // Update selected location ID to show "Custom Location" in select
   const customLocationId = `custom-${Date.now()}`;
-  locationOptions.value.push({
+  const customLocation = {
     id: customLocationId,
     name: 'Custom Location',
     location: location,
     isBusinessLocation: false,
-  });
+  };
+
+  // Remove any previous custom locations to avoid duplicates
+  locationOptions.value = locationOptions.value.filter(
+    (loc) => !loc.id.toString().startsWith('custom-')
+  );
+
+  // Add the new custom location
+  locationOptions.value.push(customLocation);
   selectedLocationId.value = customLocationId;
 };
 
