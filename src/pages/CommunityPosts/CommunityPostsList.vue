@@ -9,6 +9,22 @@
     <div class="container" v-if="isUserPermitted">
       <!-- Header -->
       <div class="row items-center justify-between q-pa-md">
+        <div class="NotifictionIcon" @click="goToNotificationPage">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path>
+            <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+          </svg>
+        </div>
         <div>
           <h4 class="text-h5 text-weight-bold q-my-none text-primary">
             Community Posts
@@ -528,6 +544,10 @@ const isUserPermitted = ref(false);
 // });
 
 const router = useRouter();
+
+const goToNotificationPage = () => {
+  router.push('/post-notifications');
+};
 
 // Function to handle search
 const performSearch = () => {
@@ -2857,5 +2877,14 @@ const getPostCardClass = (post: Post) => {
   .create-post-container:not(:first-child) & {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
   }
+}
+
+.NotifictionIcon {
+  width: 24px;
+  height: 24px;
+  position: absolute;
+  top: 20px;
+  right: 10px;
+  color: $primary;
 }
 </style>

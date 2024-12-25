@@ -527,6 +527,7 @@ const isHeaderHide = computed(() => {
     '/my-posts',
     '/news',
     '/profile',
+    '/post-notifications'
   ];
 
   // If on iOS and path is /comunity-post, don't hide the header

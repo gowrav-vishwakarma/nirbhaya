@@ -9,8 +9,7 @@
       <SOSButtons @initiate-sos="initiateSOSMode" />
       <div class="row justify-center q-mt-md">
         <q-btn
-          class="nearby-btn"
-          color="secondary"
+          class="nearby-btn text-white"
           icon="emoji_people"
           label="Find Nearby Volunteers"
           @click="goToVolunteersPage"
@@ -124,8 +123,8 @@ onMounted(async () => {
 }
 
 .nearby-btn {
-  width: 80%;
-  max-width: 300px;
+  width: 100%;
+  // max-width: 300px;
   padding: 10px;
   border-radius: 8px;
 }

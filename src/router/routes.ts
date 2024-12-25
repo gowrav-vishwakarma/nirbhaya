@@ -137,6 +137,11 @@ const routes: RouteRecordRaw[] = [
         component: CommunityPostsList,
       },
       {
+        path: 'post-notifications',
+        component: () => import('src/pages/CommunityPosts/PostNotification.vue'),
+        meta: { requiresAuth: true },
+      },
+      {
         path: '/feed',
         name: 'feed',
         component: Feed,
