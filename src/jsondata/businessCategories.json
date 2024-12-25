@@ -67,6 +67,18 @@
       {
         "label": "Catering & Events",
         "value": "catering"
+      },
+      {
+        "label": "Bakery & Confectionery",
+        "value": "bakery"
+      },
+      {
+        "label": "Ice Cream & Desserts",
+        "value": "desserts"
+      },
+      {
+        "label": "Beverages & Drinks",
+        "value": "beverages"
       }
     ]
   },
@@ -113,6 +125,106 @@
       {
         "label": "Hiring & Recruitment",
         "value": "hiring"
+      }
+    ]
+  },
+  {
+    "group": "Automotive & Transport",
+    "options": [
+      {
+        "label": "Car Services & Repair",
+        "value": "car_service"
+      },
+      {
+        "label": "Taxi & Transportation",
+        "value": "transport"
+      },
+      {
+        "label": "Driving Schools",
+        "value": "driving_school"
+      },
+      {
+        "label": "Vehicle Sales & Rental",
+        "value": "vehicle_sales"
+      }
+    ]
+  },
+  {
+    "group": "Art & Creative Services",
+    "options": [
+      {
+        "label": "Photography & Videography",
+        "value": "photography"
+      },
+      {
+        "label": "Graphic Design & Printing",
+        "value": "design"
+      },
+      {
+        "label": "Art & Craft",
+        "value": "art"
+      },
+      {
+        "label": "Music & Dance Classes",
+        "value": "music_dance"
+      }
+    ]
+  },
+  {
+    "group": "Travel & Tourism",
+    "options": [
+      {
+        "label": "Travel Agencies",
+        "value": "travel_agency"
+      },
+      {
+        "label": "Hotels & Accommodation",
+        "value": "hotels"
+      },
+      {
+        "label": "Tour Guides & Packages",
+        "value": "tours"
+      },
+      {
+        "label": "Adventure Sports",
+        "value": "adventure"
+      }
+    ]
+  },
+  {
+    "group": "Events & Entertainment",
+    "options": [
+      {
+        "label": "Carnivals & Mega Melas",
+        "value": "carnival_mela"
+      },
+      {
+        "label": "Exhibitions & Trade Shows",
+        "value": "exhibitions"
+      },
+      {
+        "label": "Cultural Events & Festivals",
+        "value": "cultural_events"
+      },
+      {
+        "label": "Concerts & Music Shows",
+        "value": "concerts"
+      },
+      {
+        "label": "Theater & Drama",
+        "value": "theater"
+      },
+      {
+        "label": "Comedy Shows",
+        "value": "comedy"
+      },
+      {
+        "label": "Kids Events & Activities",
+        "value": "kids_events"
+      },
+      {
+        "label": "Religious Events",
+        "value": "religious_events"
       }
     ]
   }
