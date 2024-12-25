@@ -43,7 +43,11 @@
       </div>
 
       <!-- Create post container -->
-      <div class="create-post-container" v-if="userStore.user.canCreatePost">
+      <div 
+        class="create-post-container" 
+        :class="{ 'create-post-hidden': !showCreatePostContainer }"
+        v-if="userStore.user.canCreatePost"
+      >
         <q-card class="create-post-card q-pa-md">
           <div class="row items-center no-wrap">
             <div class="relative-position location-selector">
@@ -139,7 +143,7 @@
       </div>
 
       <!-- Posts List -->
-      <div v-else class="row q-col-gutter-y-md" style="margin-top: -30px">
+      <div v-else class="row q-col-gutter-y-md" style="margin-top: -20px">
         <div
           v-for="(post, index) in posts"
           :key="post.id"
@@ -905,6 +909,9 @@ onMounted(async () => {
 
   // Then load posts
   await loadPosts();
+
+  // Add scroll event listener
+  window.addEventListener('scroll', handleScroll);
 });
 
 // Clean up on component unmount
@@ -912,6 +919,9 @@ onUnmounted(() => {
   if (currentlyPlayingVideo.value !== null) {
     controlVideo(currentlyPlayingVideo.value, 'pause');
   }
+
+  // Remove scroll event listener
+  window.removeEventListener('scroll', handleScroll);
 });
 
 // Replace dialog methods with navigation method
@@ -1552,6 +1562,41 @@ const clearSearch = () => {
   searchCategory.value = null;
   performSearch();
 };
+
+// Add these refs after other refs
+const lastScrollPosition = ref(0);
+const showCreatePostContainer = ref(true);
+const headerHeight = 100; // Adjust this value based on your header height
+
+// Add this method to handle scroll events
+const handleScroll = () => {
+  const currentScrollPosition = window.scrollY;
+  const scrollingUp = currentScrollPosition < lastScrollPosition.value;
+  const scrollingDown = currentScrollPosition > lastScrollPosition.value;
+  
+  // When scrolling up, show the container
+  if (scrollingUp) {
+    showCreatePostContainer.value = true;
+  }
+  
+  // When scrolling down past header height, hide the container
+  if (scrollingDown && currentScrollPosition > headerHeight) {
+    showCreatePostContainer.value = false;
+  }
+  
+  // Update last scroll position
+  lastScrollPosition.value = currentScrollPosition;
+};
+
+// Add scroll event listener on mount
+onMounted(() => {
+  window.addEventListener('scroll', handleScroll);
+});
+
+// Remove scroll event listener on unmount
+onUnmounted(() => {
+  window.removeEventListener('scroll', handleScroll);
+});
 </script>
 <style scoped lang="scss">
 .container {
@@ -2876,13 +2921,21 @@ const clearSearch = () => {
 /* Add these styles for sticky behavior */
 .create-post-container {
   position: sticky;
-  top: 0; /* Change to 0 to stick to very top */
+  top: 0;
   z-index: 2000;
   width: 100%;
-  // padding: 0 16px;
   background: #eef2f6;
   margin-bottom: 16px;
-  transition: all 0.3s ease;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+  transform: translateY(0);
+  opacity: 1;
+  will-change: transform, opacity;
+
+  &.create-post-hidden {
+    transform: translateY(-100%);
+    opacity: 0;
+    pointer-events: none;
+  }
 
   &::before {
     content: '';
@@ -2904,8 +2957,7 @@ const clearSearch = () => {
   padding: 8px;
   transition: all 0.3s ease;
 
-  /* Modify shadow when sticky */
-  .create-post-container:not(:first-child) & {
+  .create-post-container:not(.create-post-hidden) & {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
   }
 }
@@ -2915,5 +2967,48 @@ const clearSearch = () => {
   height: 24px;
   color: $primary;
   margin-top: -40px;
+}
+
+.create-post-container {
+  position: sticky;
+  top: 0;
+  z-index: 2000;
+  width: 100%;
+  background: #eef2f6;
+  margin-bottom: 16px;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+  transform: translateY(0);
+  opacity: 1;
+
+  &.create-post-hidden {
+    transform: translateY(-100%);
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 100%;
+    background: #eef2f6;
+    z-index: -1;
+  }
+}
+
+// Update existing create-post-card styles
+.create-post-card {
+  width: 100%;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 8px;
+  transition: all 0.3s ease;
+
+  .create-post-container:not(.create-post-hidden) & {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  }
 }
 </style>
