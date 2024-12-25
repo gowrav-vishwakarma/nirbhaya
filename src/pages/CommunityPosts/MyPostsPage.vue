@@ -200,14 +200,16 @@
                   v-html="
                     makeLinksClickable(
                       showFullDescription[post.id.toString()]
-                        ? post.description
-                        : truncateText(post.description, 15),
+                        ? post.description || ''
+                        : truncateText(post.description || '', 15),
                       post.priority
                     )
                   "
                 ></div>
                 <span
-                  v-if="post.description.split(' ').length > 10"
+                  v-if="
+                    post.description && post.description.split(' ').length > 10
+                  "
                   @click="toggleDescription(post.id)"
                   class="read-more-link"
                 >
