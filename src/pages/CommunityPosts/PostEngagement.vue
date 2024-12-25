@@ -82,11 +82,27 @@
         class="flex items-center justify-center gap-2"
         :style="{ width: post.isBusinessPost ? '25%' : '40%' }"
       >
-        <q-btn flat round @click="openWhatsApp">
+        <q-btn
+          flat
+          round
+          :disable="!post.whatsappNumber"
+          @click="shareOnWhatsApp"
+          :class="{ 'disabled-btn': !post.whatsappNumber }"
+        >
           <div
-            class="flex items-center justify-center gap-2 px-3 py-2 cursor-pointer hover:bg-gray-100 rounded-lg"
+            :class="[
+              'flex items-center justify-center gap-2 px-3 py-2 rounded-lg',
+              post.whatsappNumber
+                ? 'cursor-pointer hover:bg-gray-100'
+                : 'cursor-not-allowed',
+            ]"
           >
-            <div class="text-[#25D366]">
+            <div
+              :class="[
+                post.whatsappNumber ? 'text-[#25D366]' : 'text-gray-300',
+                'whatsapp-icon',
+              ]"
+            >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="24px"
@@ -220,7 +236,7 @@ const handleLike = async () => {
       $q.notify({
         message: 'Please login to like posts',
         color: 'warning',
-        position:'top-right'
+        position: 'top-right',
       });
       return;
     }
@@ -442,54 +458,21 @@ watch(showComments, async (newValue) => {
   }
 });
 
-const openWhatsApp = async () => {
-  try {
-    const whatsappNumber = props.post.whatsappNumber;
-
-    if (!whatsappNumber) {
-      $q.notify({
-        message: 'WhatsApp number not available',
-        color: 'warning',
-        position: 'top-right',
-      });
-      return;
-    }
-
-    const text = `Hi, I'm interested in your post on https://app.sosbharat.com/#/sos-bharat-community-post/${props.post.id} : ${props.post.title}`;
-    const encodedText = encodeURIComponent(text);
-
-    // Create both universal and app-specific URLs
-    const universalUrl = `https://wa.me/91${whatsappNumber}?text=${encodedText}`;
-    const appUrl = `whatsapp://send?phone=91${whatsappNumber}&text=${encodedText}`;
-
-    // Try to open WhatsApp app first
-    const openApp = async () => {
-      const a = document.createElement('a');
-      a.href = appUrl;
-      a.style.display = 'none';
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-    };
-
-    // Fallback to universal link after a short delay
-    try {
-      await openApp();
-      setTimeout(() => {
-        window.location.href = universalUrl;
-      }, 500);
-    } catch (e) {
-      // If app opening fails, use universal link
-      window.location.href = universalUrl;
-    }
-  } catch (error) {
-    console.error('Error opening WhatsApp:', error);
+const shareOnWhatsApp = () => {
+  if (!props.post.whatsappNumber) {
     $q.notify({
-      message: 'Unable to connect via WhatsApp',
-      color: 'negative',
-      position: 'top-right',
+      message: 'No WhatsApp number available',
+      color: 'warning',
+      position: 'top',
     });
+    return;
   }
+
+  const text = `Check out this post: ${props.post.title}\n${props.post.description}`;
+  const whatsappUrl = `https://wa.me/${
+    props.post.whatsappNumber
+  }?text=${encodeURIComponent(text)}`;
+  window.open(whatsappUrl, '_blank');
 };
 
 const showLikes = ref(false);
@@ -558,5 +541,27 @@ const showShareButton = computed(() => {
 .comments-list {
   overflow-y: auto;
   flex: 1;
+}
+
+.disabled-btn {
+  opacity: 0.35 !important;
+  pointer-events: none;
+  filter: grayscale(1);
+
+  &:hover {
+    cursor: not-allowed;
+  }
+
+  ::v-deep(.q-focus-helper) {
+    display: none;
+  }
+
+  .whatsapp-icon {
+    opacity: 0.5;
+  }
+}
+
+.whatsapp-icon {
+  transition: all 0.3s ease;
 }
 </style>
