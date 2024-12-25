@@ -30,6 +30,8 @@ export interface CommunityPost {
   likes: number;
   shares: number;
   comments?: Comment[];
+  isBusinessPost?: boolean;
+  businessCategory?: string;
 }
 
 export interface Post extends CommunityPost {

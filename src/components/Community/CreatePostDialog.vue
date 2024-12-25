@@ -166,6 +166,7 @@
             emit-value
             option-value="value"
             option-label="label"
+            map-options
             :filter="filterBusinessCategories"
             :rules="[(val) => !!val || 'Please select a category']"
           >
@@ -287,6 +288,7 @@ import { useQuasar } from 'quasar';
 import { useUserStore } from 'src/stores/user-store';
 import { Geolocation } from '@capacitor/geolocation';
 import LocationSelectorDialog from '../Location/LocationSelectorDialog.vue';
+import businessCategoriesData from 'src/jsondata/businessCategories.json';
 
 const userStore = useUserStore();
 
@@ -698,56 +700,7 @@ const hasBusinessLocation = computed(() => {
 const isBusinessPost = ref(false);
 
 const businessCategories = computed(() => {
-  const categories = [
-    {
-      group: 'Properties & Real Estate',
-      options: [
-        { label: 'Houses & Apartments for Sale', value: 'houses_sale' },
-        { label: 'Rental Properties & PG', value: 'rental' },
-        { label: 'Commercial Spaces & Offices', value: 'commercial' },
-        { label: 'Land & Plots', value: 'land' },
-      ],
-    },
-    {
-      group: 'Retail & Shopping',
-      options: [
-        { label: 'Store Updates & Offers', value: 'store_updates' },
-        { label: 'Electronics & Appliances', value: 'electronics' },
-        { label: 'Fashion & Lifestyle', value: 'fashion' },
-        { label: 'Grocery & Supermarket', value: 'grocery' },
-        { label: 'Home & Furniture', value: 'home_furniture' },
-        { label: 'Books & Stationery', value: 'books' },
-      ],
-    },
-    {
-      group: 'Food & Dining',
-      options: [
-        { label: 'Restaurant & Cafe', value: 'restaurant' },
-        { label: 'Home Food & Tiffin Services', value: 'home_food' },
-        { label: 'Food Stalls & Street Food', value: 'street_food' },
-        { label: 'Catering & Events', value: 'catering' },
-      ],
-    },
-    {
-      group: 'Professional Services',
-      options: [
-        { label: 'Home & Repair Services', value: 'home_services' },
-        { label: 'Legal & Financial Services', value: 'legal_financial' },
-        { label: 'Education & Training', value: 'education' },
-        { label: 'Healthcare & Medical', value: 'healthcare' },
-        { label: 'Beauty & Wellness', value: 'beauty' },
-      ],
-    },
-    {
-      group: 'Jobs & Careers',
-      options: [
-        { label: 'Full-time Jobs', value: 'fulltime' },
-        { label: 'Part-time & Freelance', value: 'parttime' },
-        { label: 'Internships & Training', value: 'internships' },
-        { label: 'Hiring & Recruitment', value: 'hiring' },
-      ],
-    },
-  ];
+  const categories = businessCategoriesData;
 
   // Transform the categories into a flat list with group headers and unique keys
   return categories.reduce((acc, category, categoryIndex) => {

@@ -72,35 +72,31 @@
               />
             </div>
             <q-input
-              v-model.trim="searchQuery"
+              v-model="displaySearchText"
               class="col post-input-btn"
               dense
-              placeholder="Search and Create new post!"
+              :placeholder="
+                searchQuery || searchCategory ? undefined : 'Search posts'
+              "
               bg-color="grey-2"
               rounded
               borderless
-              clearable
+              readonly
+              @click="showSearchDialog = true"
               style="border-radius: 20px; padding: 0 8px"
-              @keyup.enter="performSearch"
             >
-              <template #append>
+              <template v-slot:prepend v-if="searchQuery || searchCategory">
+                <q-icon name="search" size="sm" class="q-ml-sm" />
+              </template>
+              <template v-slot:append>
                 <q-btn
-                  v-if="searchQuery"
-                  color="primary"
-                  class="search-btn"
-                  style="margin-top: 5px"
-                  @click="performSearch"
-                  unelevated
-                  rounded
-                >
-                  <q-icon name="search" class="q-mr-xs" />
-                  <span
-                    class="text-capitalize"
-                    style="font-size: 14px; font-weight: 800"
-                  >
-                    Search
-                  </span>
-                </q-btn>
+                  v-if="searchQuery || searchCategory"
+                  dense
+                  flat
+                  round
+                  icon="close"
+                  @click.stop.prevent="clearSearch"
+                />
                 <q-btn
                   v-else
                   color="primary"
@@ -113,9 +109,8 @@
                   <span
                     style="font-size: 20px; font-weight: 800"
                     class="q-mr-xs"
+                    >+</span
                   >
-                    +
-                  </span>
                   <span
                     class="text-capitalize"
                     style="font-size: 14px; font-weight: 800"
@@ -465,6 +460,13 @@
     @post-created="handlePostCreated"
     v-if="isUserPermitted"
   />
+  <SearchPostDialog
+    v-model="showSearchDialog"
+    :initial-query="searchQuery"
+    :initial-category="searchCategory"
+    @search="performSearch"
+    @clear="clearSearch"
+  />
 </template>
 
 <script setup lang="ts">
@@ -480,6 +482,7 @@ import PostEngagement from 'src/pages/CommunityPosts/PostEngagement.vue';
 import { Dialog } from 'quasar';
 import LocationSelectionDialog from 'src/components/Location/LocationSelectionDialog.vue';
 import { Geolocation } from '@capacitor/geolocation';
+import SearchPostDialog from 'src/components/Community/SearchPostDialog.vue';
 
 // Add these type definitions at the top of the script section
 interface Post extends Omit<CommunityPost, 'liked'> {
@@ -550,7 +553,15 @@ const goToNotificationPage = () => {
 };
 
 // Function to handle search
-const performSearch = () => {
+const performSearch = (searchParams?: {
+  query: string;
+  businessCategory: string | null;
+}) => {
+  if (searchParams) {
+    searchQuery.value = searchParams.query;
+    searchCategory.value = searchParams.businessCategory;
+  }
+
   // Reset pagination
   page.value = 1;
   posts.value = [];
@@ -622,34 +633,30 @@ const userLocation = ref({
 });
 
 // Update the loadPosts function
-const loadPosts = async (loadMore = false, search = '') => {
+const loadPosts = async (loadMore = false) => {
   if (isLoading.value || (!loadMore && !hasMore.value)) return;
 
   try {
     isLoading.value = true;
 
-    // Use selectedLocation instead of getting current location
     const locationParams =
       selectedLocation.value.latitude && selectedLocation.value.longitude
         ? {
             latitude: selectedLocation.value.latitude,
             longitude: selectedLocation.value.longitude,
           }
-        : {}; // Empty object if no location selected
+        : {};
 
     const response = await api.get('/posts/community-posts', {
       params: {
         status: 'active',
-        prompt:
-          searchQuery.value && searchQuery.value.length > 0
-            ? searchQuery.value
-            : '',
-        isSearch:
-          searchQuery.value && searchQuery.value.length > 0 ? true : false,
+        prompt: searchQuery.value || '',
+        businessCategory: searchCategory.value || '',
+        isSearch: !!(searchQuery.value || searchCategory.value),
         userId: userStore.user?.id || null,
         page: page.value,
         limit: limit.value,
-        ...locationParams, // Spread location parameters
+        ...locationParams,
       },
     });
 
@@ -1520,6 +1527,29 @@ const getPostCardClass = (post: Post) => {
     default:
       return '';
   }
+};
+
+// Add these refs after other refs
+const showSearchDialog = ref(false);
+const searchCategory = ref<string | null>(null);
+
+// Add this computed property
+const displaySearchText = computed(() => {
+  const parts = [];
+  if (searchQuery.value) {
+    parts.push(searchQuery.value);
+  }
+  if (searchCategory.value) {
+    parts.push(`in ${searchCategory.value}`);
+  }
+  return parts.join(' ');
+});
+
+// Add this method to clear search
+const clearSearch = () => {
+  searchQuery.value = '';
+  searchCategory.value = null;
+  performSearch();
 };
 </script>
 <style scoped lang="scss">

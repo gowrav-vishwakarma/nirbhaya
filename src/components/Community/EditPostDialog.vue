@@ -154,6 +154,44 @@
             label="Show location on post"
             class="q-mb-md"
           />
+
+          <q-select
+            v-if="isBusinessPost"
+            v-model="form.businessCategory"
+            :options="businessCategories"
+            label="Select Business Category"
+            class="q-mb-md"
+            emit-value
+            map-options
+            :filter="filterBusinessCategories"
+            :rules="[(val) => !!val || 'Please select a category']"
+          >
+            <template v-slot:no-option>
+              <q-item>
+                <q-item-section class="text-grey">
+                  No results found
+                </q-item-section>
+              </q-item>
+            </template>
+            <template v-slot:option="scope">
+              <template v-if="scope.opt.group">
+                <q-item-label
+                  header
+                  class="text-weight-bold bg-grey-2 q-pa-sm"
+                  :key="scope.opt.id"
+                >
+                  {{ scope.opt.group }}
+                </q-item-label>
+              </template>
+              <template v-else>
+                <q-item v-bind="scope.itemProps" :key="scope.opt.id">
+                  <q-item-section>
+                    <q-item-label>{{ scope.opt.label }}</q-item-label>
+                  </q-item-section>
+                </q-item>
+              </template>
+            </template>
+          </q-select>
         </div>
 
         <!-- Image Management -->
@@ -271,6 +309,7 @@ import { useUserStore } from 'src/stores/user-store';
 import LocationSelectorDialog from '../Location/LocationSelectorDialog.vue';
 import type { CommunityPost } from 'src/types/CommunityPost';
 import { Geolocation } from '@capacitor/geolocation';
+import businessCategoriesData from 'src/jsondata/businessCategories.json';
 
 const props = defineProps<{
   modelValue: boolean;
@@ -305,6 +344,7 @@ const form = ref({
         coordinates: [props.post.location.x, props.post.location.y],
       }
     : null,
+  businessCategory: props.post.businessCategory || null, // Set default value here
 });
 
 const existingImages = ref(props.post.mediaUrls || []);
@@ -623,8 +663,13 @@ const submitUpdate = async () => {
     formData.append('deletedImages', JSON.stringify(deletedImages.value));
 
     // Add whatsappNumber if it's a business post
-    if (isBusinessPost.value && userStore.user?.whatsappNumber) {
-      formData.append('whatsappNumber', userStore.user.whatsappNumber);
+    if (isBusinessPost.value) {
+      formData.append(
+        'businessCategory',
+        form.value.businessCategory as string
+      );
+      if (userStore.user?.whatsappNumber)
+        formData.append('whatsappNumber', userStore.user.whatsappNumber);
     }
 
     // Append each new file
@@ -691,6 +736,64 @@ const locationOptions = computed(() => [
     : []),
   { id: -1, name: 'Select on Map' },
 ]);
+
+const businessCategories = computed(() => {
+  const categories = businessCategoriesData;
+
+  // Transform the categories into a flat list with group headers and unique keys
+  return categories.reduce((acc, category, categoryIndex) => {
+    return [
+      ...acc,
+      {
+        group: category.group,
+        id: `group_${categoryIndex}`,
+        value: `group_${categoryIndex}`,
+        label: `group_${categoryIndex}`,
+      },
+      ...category.options.map((opt, optIndex) => ({
+        ...opt,
+        groupName: category.group,
+        id: `${categoryIndex}_${optIndex}`,
+      })),
+    ];
+  }, [] as Array<any>);
+});
+
+const filterBusinessCategories = (
+  val: string,
+  update: (callback: () => void) => void
+) => {
+  if (val === '') {
+    update(() => {
+      // Return all categories when search is empty
+      return;
+    });
+    return;
+  }
+
+  update(() => {
+    const needle = val.toLowerCase();
+    const filtered = businessCategories.value.filter((item) => {
+      // Don't filter group headers
+      if (item.group) return true;
+
+      // Search in both label and group name
+      return (
+        item.label?.toLowerCase().includes(needle) ||
+        item.groupName?.toLowerCase().includes(needle)
+      );
+    });
+
+    // Make sure we keep group headers for any matching items
+    const groupsWithMatches = new Set(
+      filtered.filter((item) => !item.group).map((item) => item.groupName)
+    );
+
+    return filtered.filter(
+      (item) => !item.group || groupsWithMatches.has(item.group)
+    );
+  });
+};
 </script>
 
 <style scoped>
