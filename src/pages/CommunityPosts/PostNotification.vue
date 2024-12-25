@@ -58,10 +58,13 @@
             <!-- Image Column (40%) -->
             <div class="col-4 image-wrapper">
               <q-img 
-                v-if="post.mediaUrls.length > 0"
+                v-if="post.mediaUrls?.length > 0"
                 :src="imageCdn + post.mediaUrls[0]"
                 class="post-thumbnail"
               />
+              <div v-else class="post-title-fallback">
+                {{ post.title }}
+              </div>
             </div>
 
             <!-- Notifications Column (60%) -->
@@ -521,5 +524,19 @@ const navigateToPost = (postId: number) => {
 
 .text-weight-medium {
   font-weight: 500;
+}
+
+.post-title-fallback {
+  width: 100%;
+  height: 100%;
+  background-color: #f5f5f5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  text-align: center;
+  font-size: 12px;
+  color: #666;
+  border-radius: 0 50px 100px 0;
 }
 </style>
