@@ -55,8 +55,7 @@ import { ref, onMounted } from 'vue';
 import { Loader } from '@googlemaps/js-api-loader';
 import { timezones } from '../../../utils/timezones';
 import IndianBirthChart from '../../../components/IndianBirthChart.vue';
-import { api } from '../../../boot/axios';
-
+import { astroApi } from '../../../boot/astroaxios';
 const name = ref('');
 const email = ref('');
 const birthDate = ref('');
@@ -74,7 +73,7 @@ let marker: google.maps.Marker;
 onMounted(async () => {
   // Load user data
   try {
-    const response = await api.get('/auth/profile');
+    const response = await astroApi.get('/auth/profile');
     const userData = response.data;
 
     name.value = userData.name || '';
