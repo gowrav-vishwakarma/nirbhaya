@@ -21,7 +21,23 @@
     </div>
     
     <div v-else-if="notifications.length === 0" class="no-notifications">
-      <q-icon name="notifications_none" size="40px" color="grey-6" />
+      <div class="text-primary">
+
+        <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path>
+              <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+            </svg>
+      </div>
       <div class="text-grey-6 q-mt-sm">No notifications yet</div>
     </div>
     
