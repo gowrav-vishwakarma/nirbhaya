@@ -758,7 +758,7 @@ const getYouTubeEmbedUrl = (url: string) => {
 // Update getVideoUrl function
 const getVideoUrl = (postId: string, url: string) => {
   const baseUrl = getYouTubeEmbedUrl(url);
-  return `${baseUrl}?enablejsapi=1&rel=0&modestbranding=1&mute=1`;
+  return `${baseUrl}?enablejsapi=1&rel=0&modestbranding=1&mute=0`;
 };
 
 // Update the controlVideo function to be more reliable
