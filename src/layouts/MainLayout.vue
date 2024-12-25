@@ -254,6 +254,29 @@
         </q-btn>
 
         <q-btn
+          v-if="showAstroAiIcon"
+          style="padding-bottom: 0; width: 60px; margin-top: 2px"
+          flat
+          aria-label="AstroAI"
+          @click="goToAstroAiPage"
+          :disabled="!userStore.isLoggedIn"
+        >
+          <div>
+            <q-icon
+              name="psychology"
+              class="font-size-25"
+              style="font-size: 24px; margin-top: -2px"
+            ></q-icon>
+            <p
+              class="q-ma-none q-pa-none font-size-11"
+              style="margin-top: -5px"
+            >
+              AstroAI
+            </p>
+          </div>
+        </q-btn>
+
+        <q-btn
           style="padding-bottom: 0; width: 60px; margin-top: 2px"
           flat
           aria-label="Profile"
@@ -527,7 +550,8 @@ const isHeaderHide = computed(() => {
     '/my-posts',
     '/news',
     '/profile',
-    '/post-notifications'
+    '/post-notifications',
+    '/astro-ai',
   ];
 
   // If on iOS and path is /comunity-post, don't hide the header
@@ -635,6 +659,20 @@ const showSosIcon = computed(() => {
 const showCommunityIcon = computed(() => {
   return userStore.user.defaultApp !== 'community';
 });
+
+// Add new computed property for AstroAI icon visibility
+const showAstroAiIcon = computed(() => {
+  return (
+    process.env.ENABLE_ASTRO_APP === 'true' &&
+    userStore.user.defaultApp !== 'astroai'
+  );
+});
+
+// Add the navigation function in the script section
+const goToAstroAiPage = () => {
+  router.push('/astro-ai');
+  drawer.value = false;
+};
 
 // Add function to handle initial route on app mount
 const handleInitialRoute = () => {

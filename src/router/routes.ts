@@ -171,6 +171,12 @@ const routes: RouteRecordRaw[] = [
         component: LeaderboardPage,
         meta: { requiresAuth: true },
       },
+      {
+        path: 'astro-ai',
+        name: 'astro-ai',
+        component: () => import('pages/AstroAI/AstroAIPage.vue'),
+        meta: { requiresAuth: true },
+      },
     ],
   },
   {

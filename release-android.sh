@@ -18,6 +18,8 @@ sed -i.bak 's/^\s*#\(.*https:\/\/.*\)/\1/' .env && rm .env.bak
 sed -i.bak 's/^\s*\(API_BASE_URL=http:\/\/.*\)/#\1/' .env && rm .env.bak
 sed -i.bak 's/^\s*SHOW_INSTALL_PROMPT=.*/SHOW_INSTALL_PROMPT=false/' .env && rm .env.bak
 sed -i.bak 's/^\s*SHORTS_VISIBLE=.*/SHORTS_VISIBLE=false/' .env && rm .env.bak
+# Disable ENABLE_ASTRO_APP
+sed -i.bak 's/^\(ENABLE_ASTRO_APP=.*\)/ENABLE_ASTRO_APP=false/' .env && rm .env.bak
 
 # Build the app for Android
 npx quasar build -m capacitor -T android --ide
@@ -29,5 +31,7 @@ fi
 # Revert the changes in .env
 sed -i.bak 's/^\s*\(API_BASE_URL=https:\/\/.*\)/#\1/' .env && rm .env.bak
 sed -i.bak 's/^\s*#\(API_BASE_URL=http:\/\/.*\)/\1/' .env && rm .env.bak
+# Re-enable ENABLE_ASTRO_APP
+sed -i.bak 's/^\(ENABLE_ASTRO_APP=.*\)/ENABLE_ASTRO_APP=true/' .env && rm .env.bak
 
 echo "Android release successful!"
