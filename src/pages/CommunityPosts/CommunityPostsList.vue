@@ -9,6 +9,13 @@
     <div class="container" v-if="isUserPermitted">
       <!-- Header -->
       <div class="row items-center justify-between q-pa-md">
+       
+        <div>
+          <h4 class="text-h5 text-weight-bold q-my-none text-primary">
+            Community Posts
+          </h4>
+          <p class="text-grey-7 q-mt-sm">Stay connected with your community</p>
+        </div>
         <div class="NotifictionIcon" @click="goToNotificationPage">
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -24,12 +31,6 @@
             <path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path>
             <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
           </svg>
-        </div>
-        <div>
-          <h4 class="text-h5 text-weight-bold q-my-none text-primary">
-            Community Posts
-          </h4>
-          <p class="text-grey-7 q-mt-sm">Stay connected with your community</p>
         </div>
         <!-- <div class="text-right">
           <q-btn color="primary" class="" @click="goToCommunityPage" style="border-radius: 9px;margin-bottom: 10px">
@@ -2912,9 +2913,7 @@ const clearSearch = () => {
 .NotifictionIcon {
   width: 24px;
   height: 24px;
-  position: absolute;
-  top: 20px;
-  right: 10px;
   color: $primary;
+  margin-top: -40px;
 }
 </style>
