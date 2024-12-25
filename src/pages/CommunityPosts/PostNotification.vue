@@ -32,10 +32,15 @@
         :offset="250"
       >
         <!-- Loop through all notifications -->
-        <div v-for="post in notifications" :key="post.id" class="notification-card">
+        <div 
+          v-for="post in notifications" 
+          :key="post.id" 
+          class="notification-card cursor-pointer"
+          @click="navigateToPost(post.id)"
+        >
           <div class="row no-wrap full-height">
             <!-- Image Column (40%) -->
-            <div class="col-5 image-wrapper">
+            <div class="col-4 image-wrapper">
               <q-img 
                 v-if="post.mediaUrls.length > 0"
                 :src="imageCdn + post.mediaUrls[0]"
@@ -44,34 +49,42 @@
             </div>
 
             <!-- Notifications Column (60%) -->
-            <div class="col-7 q-pa-md">
+            <div class="col-8 q-pa-sm">
               <!-- Likes Row -->
               <div class="notification-section">
-                <div class="text-caption text-grey-8">{{post.likes.length}} User Likes Your Post</div>
-                <div class="avatars-container">
-                  <q-avatar
-                    v-for="(like, index) in post.likes.slice(0, 5)"
-                    :key="like.id"
-                    size="24px"
-                    class="overlapping-avatar"
-                    :style="`left: ${index * 14}px`"
-                  >
-                    <q-tooltip>{{ like.user.name }}</q-tooltip>
-                    <img :src="imageCdn+like.user?.profileImage || 'https://cdn.quasar.dev/img/avatar.png'" />
-                  </q-avatar>
-                  <div
-                    v-if="post.likes.length > 5"
-                    class="overlapping-avatar more-count"
-                    :style="`left: ${5 * 14}px`"
-                  >
-                    +{{ post.likes.length - 5 }}
-                  </div>
+                <span class="text-caption text-grey-8">
+                  <template v-if="post.likes.length > 0">
+                    <span class="text-weight-medium">{{ formatLikeNames(post.likes) }}</span> liked your post
+                  </template> 
+                </span>
+              </div>
+              
+              <div class="avatars-container">
+                <q-avatar
+                  v-for="(like, index) in post.likes.slice(0, 5)"
+                  :key="like.id"
+                  size="24px"
+                  class="overlapping-avatar"
+                  :style="`left: ${index * 14}px`"
+                >
+                  <q-tooltip>{{ like.user.name }}</q-tooltip>
+                  <img :src="imageCdn+like.user?.profileImage || 'https://cdn.quasar.dev/img/avatar.png'" />
+                </q-avatar>
+                <div
+                  v-if="post.likes.length > 5"
+                  class="overlapping-avatar more-count"
+                  :style="`left: ${5 * 14}px`"
+                >
+                  +{{ post.likes.length - 5 }}
                 </div>
               </div>
-
               <!-- Comments Row -->
               <div class="notification-section q-mt-md">
-                <div class="text-caption text-grey-8">{{post.comments.length}} User Commented On Your Post</div>
+                <div class="text-caption text-grey-8">
+                  <template v-if="post.comments.length > 0">
+                    <span class="text-weight-medium">{{ formatCommentNames(post.comments) }}</span> commented on your post
+                  </template>
+                </div>
                 <div class="avatars-container">
                   <q-avatar
                     v-for="(comment, index) in post.comments.slice(0, 5)"
@@ -234,13 +247,39 @@ const groupedNotifications = computed(() => {
 });
 
 const formatLikeNames = (likes: Like[]) => {
+  if (likes.length === 0) return '';
+  
+  // Get first names only
+  const getFirstName = (name: string) => name.split(' ')[0];
+  
   if (likes.length === 1) {
-    return likes[0].user.name;
+    return getFirstName(likes[0].user.name);
   }
   if (likes.length === 2) {
-    return `${likes[0].user.name} and ${likes[1].user.name}`;
+    return `${getFirstName(likes[0].user.name)} and ${getFirstName(likes[1].user.name)}`;
   }
-  return `${likes[0].user.name} and ${likes.length - 1} others`;
+  if (likes.length === 3) {
+    return `${getFirstName(likes[0].user.name)}, ${getFirstName(likes[1].user.name)} and ${getFirstName(likes[2].user.name)}`;
+  }
+  return `${getFirstName(likes[0].user.name)}, ${getFirstName(likes[1].user.name)} and ${likes.length - 2} others`;
+};
+
+const formatCommentNames = (comments: Comment[]) => {
+  if (comments.length === 0) return '';
+  
+  // Get first names only
+  const getFirstName = (name: string) => name.split(' ')[0];
+  
+  if (comments.length === 1) {
+    return getFirstName(comments[0].user.name);
+  }
+  if (comments.length === 2) {
+    return `${getFirstName(comments[0].user.name)} and ${getFirstName(comments[1].user.name)}`;
+  }
+  if (comments.length === 3) {
+    return `${getFirstName(comments[0].user.name)}, ${getFirstName(comments[1].user.name)} and ${getFirstName(comments[2].user.name)}`;
+  }
+  return `${getFirstName(comments[0].user.name)}, ${getFirstName(comments[1].user.name)} and ${comments.length - 2} others`;
 };
 
 const formatDateHeader = (dateStr: string) => {
@@ -322,6 +361,13 @@ const allLikes = computed(() => {
 const allComments = computed(() => {
   return notifications.value.flatMap(post => post.comments);
 });
+
+const $q = useQuasar();
+
+// Add navigation function
+const navigateToPost = (postId: number) => {
+  router.push(`/sos-bharat-community-post/${postId}`);
+};
 </script>
 
 <style scoped>
@@ -335,11 +381,12 @@ const allComments = computed(() => {
 
 .notification-card {
   background-color: white;
-  height: 120px;
+  height: 130px;
   box-shadow: 0 1px 3px rgba(0,0,0,0.05);
   overflow: hidden;
   display: flex;
   border: 1px solid #eee;
+  transition: background-color 0.2s ease; /* Add smooth transition */
 }
 
 .image-wrapper {
@@ -355,9 +402,9 @@ const allComments = computed(() => {
 }
 
 .notification-section {
-  position: relative;
-  min-height: 40px;
-  display: flex;
+  /* position: relative; */
+  min-height: 0px;
+  /* display: flex; */
   flex-direction: column;
   justify-content: center;
 }
@@ -366,7 +413,7 @@ const allComments = computed(() => {
   position: relative;
   height: 24px;
   margin-top: 2px;
-  display: flex;
+  /* display: flex; */
   align-items: center;
 }
 
@@ -397,9 +444,9 @@ const allComments = computed(() => {
 }
 
 .text-caption {
-  white-space: nowrap;
+  white-space: normal;
   font-size: 12px;
-  line-height: 1.2;
+  line-height: 1.4;
   margin-bottom: 4px;
 }
 
@@ -416,7 +463,7 @@ const allComments = computed(() => {
 }
 
 .notification-section.q-mt-md {
-  margin-top: 4px !important;
+  margin-top: 2px !important;
 }
 
 .col-7.q-pa-md {
@@ -439,8 +486,8 @@ const allComments = computed(() => {
 }
 
 .notification-card:hover {
-  background-color: white;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  background-color: #f5f5f5; /* Lighter background on hover */
+  cursor: pointer;
 }
 
 .text-center {
@@ -454,5 +501,9 @@ const allComments = computed(() => {
   justify-content: center;
   align-items: center;
   color: whitesmoke;
+}
+
+.text-weight-medium {
+  font-weight: 500;
 }
 </style>

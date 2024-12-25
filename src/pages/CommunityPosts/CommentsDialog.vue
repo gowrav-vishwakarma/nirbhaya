@@ -89,7 +89,7 @@
               : '/profile.png'
               " :alt="userStore.user.name + '\'s profile'" style="object-fit: cover" />
           </q-avatar>
-          <q-input v-model="newComment" class="col comment-input" placeholder="Add a comment..." maxlength="500" dense
+          <q-input :disable="!userStore.user.id" v-model="newComment" class="col comment-input" placeholder="Add a comment..." maxlength="500" dense
             borderless autogrow @keyup.enter="addComment">
             <template v-slot:after>
               <q-btn color="primary" flat round @click="addComment" :disable="!newComment.trim()">
