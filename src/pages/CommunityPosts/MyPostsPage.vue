@@ -1,5 +1,9 @@
 <template>
-  <q-page class="bg-grey-1" style="padding-top: env(safe-area-inset-top)">
+  <q-page
+    class="bg-grey-1"
+    style="padding-top: env(safe-area-inset-top)"
+    :key="userId"
+  >
     <div class="container q-pa-md" v-if="isUserPermitted">
       <!-- Header -->
       <div
@@ -189,11 +193,13 @@
 
             <!-- Post Content -->
             <q-card-section style="padding: 10px 10px 0px 10px">
-              <div
-                class="text-h5 text-weight-bold text-primary q-mb-sm"
-                style="font-size: 16px"
-              >
-                {{ post.title }}
+              <div class="post-header">
+                <div
+                  class="text-h5 text-weight-bold text-primary q-mb-sm"
+                  style="font-size: 16px"
+                >
+                  {{ post.title }}
+                </div>
               </div>
               <div class="text-body1 post-description">
                 <div
@@ -206,19 +212,25 @@
                     )
                   "
                 ></div>
-                <span
-                  v-if="
-                    post.description && post.description.split(' ').length > 10
-                  "
-                  @click="toggleDescription(post.id)"
-                  class="read-more-link"
-                >
-                  {{
-                    showFullDescription[post.id.toString()]
-                      ? 'Read Less'
-                      : 'Read More'
-                  }}
-                </span>
+                <div class="post-actions">
+                  <span
+                    v-if="
+                      post.description &&
+                      post.description.split(' ').length > 10
+                    "
+                    @click="toggleDescription(post.id)"
+                    class="read-more-link"
+                  >
+                    {{
+                      showFullDescription[post.id.toString()]
+                        ? 'Read Less'
+                        : 'Read More'
+                    }}
+                  </span>
+                  <div v-if="post.businessCategory" class="business-category">
+                    {{ formatBusinessCategory(post.businessCategory) }}
+                  </div>
+                </div>
               </div>
 
               <!-- Hashtags section -->
@@ -1350,22 +1362,23 @@ const confirmDelete = (postId: number | string) => {
 const route = useRoute();
 
 // Add this watcher after other refs and before onMounted
-// watch(
-//   () => route.params.id,
-//   async (newId) => {
-//     if (newId) {
-//       // Reset page state
-//       page.value = 1;
-//       posts.value = [];
-//       hasMore.value = true;
-//       loading.value = true;
+watch(
+  () => props.id,
+  async (newId) => {
+    if (newId) {
+      // Reset page state
+      page.value = 1;
+      posts.value = [];
+      hasMore.value = true;
+      loading.value = true;
 
-//       // Reload data with new user id
-//       await loadPosts();
-//       await getUserInteraction();
-//     }
-//   }
-// );
+      // Reload data with new user id
+      await loadPosts();
+      await getUserInteraction();
+    }
+  },
+  { immediate: true } // This will run the watcher immediately on component creation
+);
 
 // Also update the onMounted hook to use route.params.id
 onMounted(async () => {
@@ -1499,6 +1512,22 @@ const editPost = (post: Post) => {
 const handlePostUpdated = async () => {
   await loadPosts();
   selectedPost.value = null;
+};
+
+// Add this helper function near the top of the script section
+const formatBusinessCategory = (
+  category: string | undefined | null
+): string => {
+  if (!category) return '';
+
+  // Replace underscores with spaces
+  const withSpaces = category.replace(/_/g, ' ');
+
+  // Capitalize each word
+  return withSpaces
+    .split(' ')
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(' ');
 };
 </script>
 <style scoped lang="scss">
@@ -2738,6 +2767,41 @@ const handlePostUpdated = async () => {
     &.regular-post {
       border-left-width: 3px;
     }
+  }
+}
+
+.post-header {
+  position: relative;
+}
+
+.post-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.business-category {
+  display: inline-block;
+  background: rgba(255, 167, 38, 0.1);
+  color: #f57c00;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  border: 1px solid rgba(255, 167, 38, 0.2);
+
+  &:hover {
+    background: rgba(255, 167, 38, 0.15);
+  }
+}
+
+// Update the business-post class to include category styling
+.post-card.business-post {
+  .business-category {
+    background: rgba(255, 167, 38, 0.1);
+    color: #f57c00;
+    border-color: rgba(255, 167, 38, 0.2);
   }
 }
 </style>
