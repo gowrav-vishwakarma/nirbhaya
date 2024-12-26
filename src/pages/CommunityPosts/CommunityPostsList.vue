@@ -9,7 +9,6 @@
     <div class="container" v-if="isUserPermitted">
       <!-- Header -->
       <div class="row items-center justify-between q-pa-md">
-       
         <div>
           <h4 class="text-h5 text-weight-bold q-my-none text-primary">
             Community Posts
@@ -43,8 +42,8 @@
       </div>
 
       <!-- Create post container -->
-      <div 
-        class="create-post-container" 
+      <div
+        class="create-post-container"
         :class="{ 'create-post-hidden': !showCreatePostContainer }"
         v-if="userStore.user.canCreatePost"
       >
@@ -195,6 +194,7 @@
                         @click="openInGoogleMaps(post)"
                       />
                       <span
+                        v-if="post.distance"
                         class="cursor-pointer"
                         @click="openInGoogleMaps(post)"
                       >
@@ -1420,39 +1420,47 @@ const handleLocationSelected = async (location: {
 
 // Update the openInGoogleMaps function
 const openInGoogleMaps = async (post: Post) => {
-  if (post.location?.x && post.location?.y) {
-    try {
-      // Get current location
-      // const position = await Geolocation.getCurrentPosition({
-      //   enableHighAccuracy: true,
-      // });
+  if (!post.location?.x || !post.location?.y) {
+    $q.notify({
+      message: 'Location not available for this post',
+      color: 'warning',
+      position: 'top-right',
+    });
+    return;
+  }
 
-      // Create Google Maps directions URL with current location as start point
-      const url = `https://www.google.com/maps/dir/?api=1&destination=${post.location.y},${post.location.x}&travelmode=driving`;
-
-      window.open(url, '_blank');
-    } catch (error) {
-      // Fallback to simple location view if can't get current position
-      const url = `https://www.google.com/maps?q=${post.location.y},${post.location.x}`;
-      window.open(url, '_blank');
-
-      console.error('Error getting current location:', error);
-    }
-  } else {
+  try {
     const url = `https://www.google.com/maps?q=${post.location.y},${post.location.x}`;
     window.open(url, '_blank');
+  } catch (error) {
+    console.error('Error opening maps:', error);
+    $q.notify({
+      message: 'Could not open map location',
+      color: 'negative',
+      position: 'top-right',
+    });
   }
 };
 
 // Add this helper function to format distance
-const formatDistance = (distance: number) => {
-  if (distance < 1) {
-    // Convert to meters
-    const meters = Math.round(distance * 1000);
-    return `${meters}m away`;
-  } else {
-    // Round to 1 decimal place for kilometers
-    return `${distance.toFixed(1)}km away`;
+const formatDistance = (distance: number | undefined | null) => {
+  // Return empty string if distance is not available
+  if (distance === undefined || distance === null) {
+    return '';
+  }
+
+  try {
+    if (distance < 1) {
+      // Convert to meters
+      const meters = Math.round(distance * 1000);
+      return `${meters}m away`;
+    } else {
+      // Round to 1 decimal place for kilometers
+      return `${distance.toFixed(1)}km away`;
+    }
+  } catch (error) {
+    console.warn('Error formatting distance:', error);
+    return '';
   }
 };
 
@@ -1573,17 +1581,17 @@ const handleScroll = () => {
   const currentScrollPosition = window.scrollY;
   const scrollingUp = currentScrollPosition < lastScrollPosition.value;
   const scrollingDown = currentScrollPosition > lastScrollPosition.value;
-  
+
   // When scrolling up, show the container
   if (scrollingUp) {
     showCreatePostContainer.value = true;
   }
-  
+
   // When scrolling down past header height, hide the container
   if (scrollingDown && currentScrollPosition > headerHeight) {
     showCreatePostContainer.value = false;
   }
-  
+
   // Update last scroll position
   lastScrollPosition.value = currentScrollPosition;
 };
