@@ -208,11 +208,13 @@
 
             <!-- Post Content -->
             <q-card-section style="padding: 10px 10px 0px 10px">
-              <div
-                class="text-h5 text-weight-bold text-primary q-mb-sm"
-                style="font-size: 16px"
-              >
-                {{ post.title }}
+              <div class="post-header">
+                <div
+                  class="text-h5 text-weight-bold text-primary q-mb-sm"
+                  style="font-size: 16px"
+                >
+                  {{ post.title }}
+                </div>
               </div>
               <div class="text-body1 post-description">
                 <div
@@ -225,19 +227,25 @@
                     )
                   "
                 ></div>
-                <span
-                  v-if="
-                    post.description && post.description.split(' ').length > 10
-                  "
-                  @click="toggleDescription(post.id)"
-                  class="read-more-link"
-                >
-                  {{
-                    showFullDescription[post.id.toString()]
-                      ? 'Read Less'
-                      : 'Read More'
-                  }}
-                </span>
+                <div class="post-actions">
+                  <span
+                    v-if="
+                      post.description &&
+                      post.description.split(' ').length > 10
+                    "
+                    @click="toggleDescription(post.id)"
+                    class="read-more-link"
+                  >
+                    {{
+                      showFullDescription[post.id.toString()]
+                        ? 'Read Less'
+                        : 'Read More'
+                    }}
+                  </span>
+                  <div v-if="post.businessCategory" class="business-category">
+                    {{ formatBusinessCategory(post.businessCategory) }}
+                  </div>
+                </div>
               </div>
 
               <!-- Hashtags section -->
@@ -1605,6 +1613,22 @@ onMounted(() => {
 onUnmounted(() => {
   window.removeEventListener('scroll', handleScroll);
 });
+
+// Add this helper function near the top of the script section
+const formatBusinessCategory = (
+  category: string | undefined | null
+): string => {
+  if (!category) return '';
+
+  // Replace underscores with spaces
+  const withSpaces = category.replace(/_/g, ' ');
+
+  // Capitalize each word
+  return withSpaces
+    .split(' ')
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(' ');
+};
 </script>
 <style scoped lang="scss">
 .container {
@@ -1756,16 +1780,32 @@ onUnmounted(() => {
   color: #2563eb;
   cursor: pointer;
   font-weight: 500;
-  margin-left: 6px;
   text-decoration: none;
   transition: all 0.2s ease;
   padding: 2px 4px;
   border-radius: 4px;
+  font-size: 0.9rem;
+
+  &:hover {
+    color: #1d4ed8;
+    background-color: #eff6ff;
+  }
 }
 
-.read-more-link:hover {
-  color: #1d4ed8;
-  background-color: #eff6ff;
+.business-category {
+  display: inline-flex;
+  align-items: center;
+  background: rgba(255, 167, 38, 0.1);
+  color: #f57c00;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  border: 1px solid rgba(255, 167, 38, 0.2);
+
+  &:hover {
+    background: rgba(255, 167, 38, 0.15);
+  }
 }
 
 .post-image {
@@ -3017,6 +3057,42 @@ onUnmounted(() => {
 
   .create-post-container:not(.create-post-hidden) & {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  }
+}
+
+.business-category {
+  font-size: 0.9rem;
+  color: rgba(0, 0, 0, 0.6);
+  margin-top: 4px;
+}
+
+.post-header {
+  position: relative;
+}
+
+.business-category {
+  display: inline-block;
+  background: rgba(255, 167, 38, 0.1);
+  color: #f57c00;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  margin-top: -4px;
+  margin-bottom: 8px;
+  border: 1px solid rgba(255, 167, 38, 0.2);
+
+  &:hover {
+    background: rgba(255, 167, 38, 0.15);
+  }
+}
+
+// Update the business-post class to include category styling
+.post-card.business-post {
+  .business-category {
+    background: rgba(255, 167, 38, 0.1);
+    color: #f57c00;
+    border-color: rgba(255, 167, 38, 0.2);
   }
 }
 </style>
