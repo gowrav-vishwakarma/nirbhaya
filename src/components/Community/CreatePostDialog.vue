@@ -602,16 +602,12 @@ const getCurrentLocation = async () => {
           position.coords.latitude,
         ];
       }
-      if (!selectedLocationId.value) {
-        selectedLocationId.value = 0;
-      }
 
-      // Update form location based on selected location
-      const selectedLocation = savedLocations.value.find(
-        (loc) => loc.id === selectedLocationId.value
-      );
-      if (selectedLocation) {
-        form.value.location = selectedLocation.location;
+      // Only set current location if no location is currently selected
+      if (selectedLocationId.value === null) {
+        selectedLocationId.value = 0;
+        // Update form location only when setting to current location
+        form.value.location = savedLocations.value[0].location;
       }
     }
   } catch (error) {
