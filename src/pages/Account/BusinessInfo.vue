@@ -58,6 +58,11 @@
                 'Phone number must be 10 digits',
             ]"
             @input="validatePhoneNumber"
+            @keydown="(e) => {
+              if (businessData.whatsappNumber && businessData.whatsappNumber.toString().length >= 10 && e.key !== 'Backspace' && e.key !== 'Delete') {
+                e.preventDefault();
+              }
+            }"
             maxlength="10"
           />
         </div>
@@ -227,7 +232,7 @@ const validatePhoneNumber = (value: number | string) => {
   if (value) {
     const phoneStr = String(value).replace(/\D/g, '').trim(); // Remove non-digits and trim
     if (phoneStr.length > 10) {
-      businessData.whatsappNumber = Number(phoneStr.slice(0, 10));
+      businessData.whatsappNumber = Number(phoneStr.slice(0, 10)); // Limit to 10 digits
       $q.notify({
         type: 'warning',
         message: 'Phone number should be 10 digits',
@@ -235,10 +240,10 @@ const validatePhoneNumber = (value: number | string) => {
         timeout: 2000,
       });
     } else {
-      businessData.whatsappNumber = phoneStr ? Number(phoneStr) : null;
+      businessData.whatsappNumber = phoneStr ? Number(phoneStr) : null; // Update the value
     }
   } else {
-    businessData.whatsappNumber = null;
+    businessData.whatsappNumber = null; // Reset if no value
   }
 };
 
