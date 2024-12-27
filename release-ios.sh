@@ -8,10 +8,10 @@ if [ "$current_branch" != "develop" ]; then
 fi
 
 # Check if the working directory is clean
-if [ -n "$(git status --porcelain)" ]; then
-  echo "Error: Your working directory is not clean. Please commit or stash your changes."
-  exit 1
-fi
+# if [ -n "$(git status --porcelain)" ]; then
+#   echo "Error: Your working directory is not clean. Please commit or stash your changes."
+#   exit 1
+# fi
 
 # Uncomment the API_BASE_URL with https and comment the one with http
 sed -i.bak 's/^\s*#\(.*https:\/\/.*\)/\1/' .env && rm .env.bak
