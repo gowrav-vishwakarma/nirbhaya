@@ -468,7 +468,8 @@ const shareOnWhatsApp = () => {
     return;
   }
 
-  const text = `Check out this post: ${props.post.title}\n${props.post.description}`;
+  // Updated text with a link to the specific post
+  const text = `Hi, I'm interested in your post on https://app.sosbharat.com/#/sos-bharat-community-post/${props.post.id} : ${props.post.title}`;
   const whatsappUrl = `https://wa.me/${
     props.post.whatsappNumber
   }?text=${encodeURIComponent(text)}`;
