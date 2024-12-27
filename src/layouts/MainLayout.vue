@@ -404,7 +404,8 @@ const checkFirstTimeOpen = async () => {
 
 // Add beforeMount hook
 onBeforeMount(() => {
-  checkEmergencyContactsAndLocation();
+  console.log('skip checkEmergencyContactsAndLocation');
+  // checkEmergencyContactsAndLocation();
 });
 
 // Register all lifecycle hooks first

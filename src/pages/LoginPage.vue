@@ -190,6 +190,18 @@ onMounted(() => {
   if (referrer) {
     userStore.setReferrer(referrer.toString());
   }
+
+  if (userStore.isLoggedIn) {
+    if (userStore.userName) {
+      userStore.user.defaultApp === 'community'
+        ? router.push('comunity-post')
+        : userStore.user.defaultApp === 'news'
+        ? router.push('/news')
+        : router.push('/sos');
+    } else {
+      router.push('/profile');
+    }
+  }
 });
 
 interface FormValues {
@@ -263,7 +275,11 @@ callbacks.onSuccess = async (userData) => {
     userStore.setUser(userData);
     await userStore.sendTokenIfAvailable();
     if (userData.name) {
-      router.push('/sos');
+      userStore.user.defaultApp === 'community'
+        ? router.push('comunity-post')
+        : userStore.user.defaultApp === 'news'
+        ? router.push('/news')
+        : router.push('/sos');
     } else {
       router.push('/profile');
     }
@@ -327,7 +343,7 @@ const goToAboutUs = () => {
 };
 const goToTnc = () => {
   // Open SOS Bharat website in a new tab
-  window.open('https://sosbharat.com/', '_blank');
+  window.open('https://sosbharat.com/tnc.html', '_blank');
 };
 
 const isFormValid = computed(() => {
