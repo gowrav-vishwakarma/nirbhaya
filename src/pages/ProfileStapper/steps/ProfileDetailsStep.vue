@@ -168,6 +168,12 @@
               dense
               hide-bottom-space
               prefix="+91"
+              @keydown="(e: KeyboardEvent) => {
+              if (values.businessInfo.whatsappNumber && values.businessInfo.whatsappNumber.toString().length >= 10 && e.key !== 'Backspace' && e.key !== 'Delete') {
+                e.preventDefault();
+              }
+            }"
+              maxlength="10"
             />
           </div>
 
@@ -186,7 +192,7 @@
           </div>
 
           <div class="custom-input">
-            <div v-if="values.businessInfo.latitude && values.businessInfo.longitude" 
+            <div v-if="values.businessInfo.latitude && values.businessInfo.longitude"
                  class="location-display q-mt-sm">
               <div class="text-caption">
                 Lat: {{ values.businessInfo.latitude.toFixed(6) }}
@@ -211,7 +217,7 @@
     <div class="q-px-md q-px-md q-py-sm text-center" style="border:none !important;" >
       <q-btn
         :label="t('common.next')"
-        type="submit" 
+        type="submit"
         color="primary"
         class="next-button q-mt-xs"
         :disable="!isFormValid"
@@ -238,14 +244,14 @@ import SearchCity from 'src/components/SearchCity.vue'
 import { useUserStore } from 'src/stores/user-store'
 import type { QSelectFilterFn } from 'quasar'
 import { Geolocation } from '@capacitor/geolocation'
-    
+
 const $q = useQuasar()
 const { t } = useI18n()
 const userStore = useUserStore()
 
 interface City {
   officename: string
-  statename: string 
+  statename: string
   pincode: string
   city?: string
 }
@@ -404,7 +410,7 @@ const isFormValid = computed(() => {
 
   // Add business info validation if enabled
   if (values.value.showBusinessInfo && values.value.businessInfo) {
-    return baseValidation && 
+    return baseValidation &&
       !!values.value.businessInfo.businessName &&
       !!values.value.businessInfo.whatsappNumber &&
       String(values.value.businessInfo.whatsappNumber).length === 10 &&
@@ -434,7 +440,7 @@ callbacks.beforeSubmit = (data: FormValues) => {
   if (data.showBusinessInfo && data.businessInfo && 'longitude' in data.businessInfo) {
     processedData.businessName = data.businessInfo.businessName;
     processedData.whatsappNumber = data.businessInfo.whatsappNumber.toString();
-    
+
     const businessLocation: UserLocation = {
       name: data.businessInfo.locationName,
       location: {
@@ -515,7 +521,7 @@ const handleSubmit = async () => {
     }
   } else {
     $q.notify({
-      color: 'negative', 
+      color: 'negative',
       message: t('common.pleaseFixErrors'),
       icon: 'error',
       position: 'top-right',
@@ -526,7 +532,7 @@ const handleSubmit = async () => {
 callbacks.onSuccess = (data) => {
   // Prepare locations array
   const locations = userStore.user?.locations || [];
-  
+
   // Update the user store with the new data
   const updatedUserData = {
     ...userStore.user, // Keep existing user data
@@ -535,7 +541,7 @@ callbacks.onSuccess = (data) => {
     name: values.value.name,
     phoneNumber: values.value.phoneNumber,
     dob: values.value.dob,
-    state: values.value.state,  
+    state: values.value.state,
     city: values.value.city?.officename || '',
     pincode: values.value.pincode,
     userType: values.value.userType,
@@ -790,7 +796,7 @@ onMounted(() => {
 }
 
 .scrollable-inputs {
-  
+
   flex: 1;
   overflow-y: auto;
   padding-bottom: 10px;
@@ -839,7 +845,7 @@ onMounted(() => {
 
 .scrollable-inputs::-webkit-scrollbar-thumb:hover {
   background: #555;
-} 
+}
 
 /* Add this new style for custom border radius */
 :deep(.custom-radius) .q-field__control {
