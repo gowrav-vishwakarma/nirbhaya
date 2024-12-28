@@ -185,7 +185,7 @@
             <label>{{ t('common.businessLocation') }}</label>
             <q-input
               v-model="values.businessInfo.locationName"
-              :rules="[(val) => !!val || t('common.locationRequired')]"
+              :rules="[val => !!val || t('common.locationRequired')]"
               filled
               class="custom-radius"
               bg-color="pink-1"
@@ -196,28 +196,20 @@
           </div>
 
           <div class="custom-input">
-            <div
-              v-if="
-                values.businessInfo.latitude && values.businessInfo.longitude
-              "
-              class="location-display q-mt-sm"
-            >
-              <div class="text-caption">
-                Lat: {{ values.businessInfo.latitude.toFixed(6) }} Lng:
-                {{ values.businessInfo.longitude.toFixed(6) }}
-              </div>
-            </div>
             <q-btn
-              :loading="isLoadingLocation"
-              @click="getCurrentLocation"
               icon="my_location"
               color="primary"
               class="bg-pink-1 full-width q-mt-md"
-              flat
+              @click="showLocationSelector = true"
             >
-              {{ t('common.getCurrentLocation') }}
+              {{ t('common.setLocation') }}
             </q-btn>
           </div>
+
+          <LocationSelectorDialog
+            v-model="showLocationSelector"
+            @location-selected="handleLocationSelected"
+          />
         </template>
       </q-form>
     </div>
@@ -254,6 +246,7 @@ import SearchCity from 'src/components/SearchCity.vue';
 import { useUserStore } from 'src/stores/user-store';
 import type { QSelectFilterFn } from 'quasar';
 import { Geolocation } from '@capacitor/geolocation';
+import LocationSelectorDialog from 'src/components/Location/LocationSelectorDialog.vue';
 
 const $q = useQuasar();
 const { t } = useI18n();
@@ -823,6 +816,15 @@ watch(
     }
   }
 );
+
+const showLocationSelector = ref(false);
+
+const handleLocationSelected = (location) => {
+  values.value.businessInfo.locationName = location.name; // Assuming location has a name property
+  values.value.businessInfo.latitude = location.coordinates[1]; // Assuming coordinates are in [longitude, latitude] format
+  values.value.businessInfo.longitude = location.coordinates[0];
+  showLocationSelector.value = false; // Close the dialog
+};
 
 onMounted(() => {
   loadUserData();
