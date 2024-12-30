@@ -606,4 +606,6 @@ export default {
   news: 'Bulletin',
   community: 'Community',
   astroai: 'AstroAI',
+
+  caretext: 'Report abuse, safety concerns, or violations to',
 };

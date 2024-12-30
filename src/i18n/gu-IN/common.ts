@@ -384,4 +384,6 @@ export default {
   viewOnMap: 'મેપ પર જુઓ',
   awayFrom: 'દૂર',
   pending: 'બાકી',
+
+  caretext: 'દુરુપયોગ, સુરક્ષા સંબંધિત અથવા ઉલ્લંઘનની જાણ પર કરો',
 };
