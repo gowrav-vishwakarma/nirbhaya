@@ -78,7 +78,7 @@ export function useMediaPermissions() {
   };
 
   // Initialize the override when the composable is used
-  overrideGetUserMedia();
+  // overrideGetUserMedia();
 
   return {
     stopAllMediaStreams,

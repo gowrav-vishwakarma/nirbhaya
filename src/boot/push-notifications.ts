@@ -11,6 +11,58 @@ export default boot(async ({ router }) => {
   if (Capacitor.isNativePlatform()) {
     console.log('Running on native platform');
     try {
+      // if (Capacitor.getPlatform() === 'android') {
+      console.log(
+        'notification get channel after',
+        JSON.stringify(PushNotifications.listChannels(), null, 2)
+      );
+      await PushNotifications.createChannel({
+        // id: 'sosalertchannel',
+        id: 'fcm_fallback_notification_channel',
+        name: 'Default SOS alert',
+        description: 'Used for specific sos alert',
+        importance: 5,
+        visibility: 1,
+        sound: 'default',
+        vibration: true,
+      })
+        .then(() => {
+          console.log(
+            'push notification channel created fcm_fallback_notification_channel'
+          );
+        })
+        .catch((error) => {
+          console.log(
+            'push notification channel error fcm_fallback_notification_channel: ',
+            error
+          );
+        });
+
+      await PushNotifications.createChannel({
+        id: 'sosalertchannel',
+        name: 'SOS alert channel',
+        description: 'sosalertchannel used for only sos event',
+        importance: 5,
+        visibility: 1,
+        sound: 'sosalert.mp3',
+        vibration: true,
+        lights: true,
+      })
+        .then(() => {
+          console.log('push notification channel created sosalertchannel');
+        })
+        .catch((error) => {
+          console.log(
+            'push notification channel error sosalertchannel: ',
+            error
+          );
+        });
+      console.log(
+        'notification get channel after try 101',
+        JSON.stringify(PushNotifications.listChannels, null, 2)
+      );
+      // }
+
       const permissionStatus = await PushNotifications.requestPermissions();
       console.log('Push notification permission status:', permissionStatus);
 
@@ -26,8 +78,11 @@ export default boot(async ({ router }) => {
         PushNotifications.addListener(
           'pushNotificationReceived',
           (notification) => {
-            console.log('Push notification received: ', notification);
-            // Notification handling logic here (without showNotification)
+            console.log(
+              'Push notification received: native app ',
+              notification,
+              JSON.stringify(notification, null, 2)
+            );
           }
         );
 
@@ -76,8 +131,9 @@ export default boot(async ({ router }) => {
 
       onMessage(messaging, (payload) => {
         console.log('Message received:', payload);
-        const { title, body } = payload.notification;
-        const { sosEventId, location } = payload.data;
+        const { title = 'Default Title', body = 'Default Body' } =
+          payload.notification || {};
+        const { sosEventId = '', location = '' } = payload.data || {};
 
         if (Notification.permission === 'granted') {
           const notification = new Notification(title, {
@@ -85,10 +141,15 @@ export default boot(async ({ router }) => {
             data: { sosEventId, location },
           });
 
+          // Play sound manually
+          // const audio = new Audio('/mp3/sosalert.mp3');
+          // audio.play().catch((error) => {
+          //   console.log('Error playing notification sound:', error);
+          // });
           notification.onclick = () => {
             window.focus();
             router.push({
-              name: 'notifications', // Updated to point to the notifications page
+              name: 'notifications',
               params: { sosEventId, location },
             });
           };
