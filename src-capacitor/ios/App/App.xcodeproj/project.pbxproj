@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		1455C1AC2D22BE500064E746 /* sosalert.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 1455C1AB2D22BE4F0064E746 /* sosalert.mp3 */; };
+		1455C1AD2D22C07A0064E746 /* sosalert.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 1455C1AB2D22BE4F0064E746 /* sosalert.mp3 */; };
 		2FAD9763203C412B000D30F8 /* config.xml in Resources */ = {isa = PBXBuildFile; fileRef = 2FAD9762203C412B000D30F8 /* config.xml */; };
 		3D3C05A22CA3AE01001EF6FF /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 3D3C05A12CA3AE01001EF6FF /* GoogleService-Info.plist */; };
 		50379B232058CBB4000EE86E /* capacitor.config.json in Resources */ = {isa = PBXBuildFile; fileRef = 50379B222058CBB4000EE86E /* capacitor.config.json */; };
@@ -165,7 +165,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				1455C1AC2D22BE500064E746 /* sosalert.mp3 in Resources */,
+				1455C1AD2D22C07A0064E746 /* sosalert.mp3 in Resources */,
 				504EC3121FED79650016851F /* LaunchScreen.storyboard in Resources */,
 				50B271D11FEDC1A000F3C39B /* public in Resources */,
 				504EC30F1FED79650016851F /* Assets.xcassets in Resources */,
