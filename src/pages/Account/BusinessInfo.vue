@@ -58,11 +58,18 @@
                 'Phone number must be 10 digits',
             ]"
             @input="validatePhoneNumber"
-            @keydown="(e) => {
-              if (businessData.whatsappNumber && businessData.whatsappNumber.toString().length >= 10 && e.key !== 'Backspace' && e.key !== 'Delete') {
-                e.preventDefault();
+            @keydown="
+              (e) => {
+                if (
+                  businessData.whatsappNumber &&
+                  businessData.whatsappNumber.toString().length >= 10 &&
+                  e.key !== 'Backspace' &&
+                  e.key !== 'Delete'
+                ) {
+                  e.preventDefault();
+                }
               }
-            }"
+            "
             maxlength="10"
           />
         </div>
@@ -156,6 +163,13 @@
                   style="border-radius: 10px !important"
                   @click="confirmRemoveBusiness"
                 />
+                <q-btn
+                  class="manage-catalog-btn"
+                  flat
+                  label="Manage Catalog"
+                  style="border-radius: 10px !important"
+                  @click="openManageCatalogDialog"
+                />
               </div>
             </div>
           </q-card-section>
@@ -167,6 +181,7 @@
       v-model="showLocationSelector"
       @location-selected="handleLocationSelected"
     />
+    <ManageCatalogDialog v-model="showManageCatalogDialog" />
   </div>
 </template>
 
@@ -178,6 +193,7 @@ import { useI18n } from 'vue-i18n';
 import { api } from 'src/boot/axios';
 import { useUserStore } from 'src/stores/user-store';
 import LocationSelectorDialog from 'src/components/Location/LocationSelectorDialog.vue';
+import ManageCatalogDialog from 'src/components/ManageCatalogDialog.vue';
 
 const $q = useQuasar();
 const formRef = ref();
@@ -186,6 +202,7 @@ const isLoadingLocation = ref(false);
 const userStore = useUserStore();
 const showInputFields = ref(false);
 const showLocationSelector = ref(false);
+const showManageCatalogDialog = ref(false);
 const selectedLocation = ref<{ type: string; coordinates: number[] } | null>(
   null
 );
@@ -511,6 +528,10 @@ const handleLocationSelected = (location: {
   businessData.longitude = location.coordinates[0]; // longitude is first in GeoJSON
   showLocationSelector.value = false; // Close the dialog
 };
+
+const openManageCatalogDialog = () => {
+  showManageCatalogDialog.value = true;
+};
 </script>
 
 <style scoped>
@@ -583,5 +604,9 @@ input::-webkit-inner-spin-button {
 input[type='number'] {
   -moz-appearance: textfield;
   max-width: 100%;
+}
+
+.manage-catalog-btn {
+  margin-left: 10px;
 }
 </style>
