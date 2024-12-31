@@ -60,11 +60,17 @@ const addItem = () => {
   }
 };
 
-const placeOrder = async (items: { slideId: number; text: string }[]) => {
+const placeOrder = async (
+  items: { slideId: number; text: string; title: string }[]
+) => {
   try {
     await api.post('/community/orders', {
       businessUserId: props.businessUserId,
-      order: items,
+      order: items.map((item) => ({
+        slideId: item.slideId,
+        text: item.text,
+        title: item.title,
+      })),
     });
 
     $q.notify({
@@ -72,9 +78,7 @@ const placeOrder = async (items: { slideId: number; text: string }[]) => {
       message: 'Order placed successfully!',
     });
 
-    // Only proceed with WhatsApp if we have a valid number
     if (props.whatsappNumber?.length === 10) {
-      // Format order items for WhatsApp
       const formattedItems = items
         .map((item, index) => `${index + 1}. ${item.text}`)
         .join('\n');
@@ -82,12 +86,10 @@ const placeOrder = async (items: { slideId: number; text: string }[]) => {
       const text = `New Order:\n\n${formattedItems}\n\nPlease confirm my order.`;
       const encodedText = encodeURIComponent(text);
 
-      // Create both universal and app-specific URLs
       const universalUrl = `https://wa.me/91${props.whatsappNumber}?text=${encodedText}`;
       const appUrl = `whatsapp://send?phone=91${props.whatsappNumber}&text=${encodedText}`;
 
       try {
-        // Try to open WhatsApp app first
         const openApp = async () => {
           const a = document.createElement('a');
           a.href = appUrl;
@@ -97,7 +99,6 @@ const placeOrder = async (items: { slideId: number; text: string }[]) => {
           document.body.removeChild(a);
         };
 
-        // Fallback to universal link after a short delay
         await openApp();
         setTimeout(() => {
           window.location.href = universalUrl;
@@ -111,7 +112,6 @@ const placeOrder = async (items: { slideId: number; text: string }[]) => {
         });
       }
     } else {
-      // notify whatsapp number not found
       $q.notify({
         type: 'negative',
         message:

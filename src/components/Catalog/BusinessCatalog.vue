@@ -111,6 +111,7 @@
             <q-list>
               <q-item v-for="(item, index) in cartItems" :key="index">
                 <q-item-section>
+                  <div class="text-caption text-grey-8">{{ item.title }}</div>
                   <q-input v-model="item.text" dense outlined class="q-pa-sm" />
                 </q-item-section>
                 <q-item-section side>
@@ -157,6 +158,7 @@ interface CatalogItem {
 interface CartItem {
   slideId: number;
   text: string;
+  title: string;
 }
 
 const props = defineProps<{
@@ -377,9 +379,16 @@ const loadCatalogItems = async () => {
 };
 
 const addToCart = (itemText: string) => {
+  // Find the current catalog item
+  const currentItem = catalogItems.value.find(
+    (item) => item.id === slide.value
+  );
+  if (!currentItem) return;
+
   cartItems.value.push({
     slideId: slide.value,
     text: itemText,
+    title: currentItem.title,
   });
 };
 
