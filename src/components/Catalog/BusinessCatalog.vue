@@ -43,7 +43,7 @@
             arrows
             navigation
             infinite
-            swipeable
+            :swipeable="canSwipe"
             class="rounded-borders full-height"
             navigation-position="bottom"
           >
@@ -53,16 +53,34 @@
               :name="item.id"
               class="column no-wrap"
             >
-              <q-img
-                :src="imageCdn + item.imageUrl"
-                class="full-height"
-                fit="contain"
-                :draggable="false"
+              <div class="image-controls">
+                <q-btn-group flat>
+                  <q-btn flat round icon="add" @click="zoomIn" />
+                  <q-btn flat round icon="remove" @click="zoomOut" />
+                  <q-btn flat round icon="refresh" @click="resetZoom" />
+                </q-btn-group>
+              </div>
+
+              <div
+                class="image-container"
+                v-touch-pan.mouse.prevent="onPan"
+                @touchstart="onTouchStart"
+                @touchmove="onTouchMove"
+                @touchend="onTouchEnd"
               >
-                <div class="absolute-bottom custom-caption">
-                  <div class="text-h6">{{ item.title }}</div>
-                </div>
-              </q-img>
+                <q-img
+                  :src="imageCdn + item.imageUrl"
+                  class="catalog-image"
+                  :style="imageTransform"
+                  fit="contain"
+                  :draggable="false"
+                  @wheel.prevent="onWheel"
+                >
+                  <div class="absolute-bottom custom-caption">
+                    <div class="text-h6">{{ item.title }}</div>
+                  </div>
+                </q-img>
+              </div>
             </q-carousel-slide>
           </q-carousel>
         </div>
@@ -118,10 +136,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onBeforeUnmount } from 'vue';
+import { ref, computed, watch, onBeforeUnmount, reactive } from 'vue';
 import { api } from 'src/boot/axios';
 import CartInput from './CartInput.vue';
 import { useQuasar } from 'quasar';
+import { useDraggable } from '@vueuse/core';
 
 // Add CDN URL constant
 const imageCdn =
@@ -148,19 +167,7 @@ const props = defineProps<{
 
 const emit = defineEmits(['update:isOpen']);
 
-// Add these refs to store delivery information
-const doesDeliver = ref(false);
-const deliveryText = ref('');
-const catalogItems = ref<CatalogItem[]>([]);
-const whatsappNumber = ref('');
-const loading = ref(true);
-const slide = ref(1);
-const cartItems = ref<CartItem[]>([]);
-const showCartDialog = ref(false);
-const cartInputRef = ref();
-const $q = useQuasar();
-
-// Create a computed property for the dialog model
+// Move dialogModel definition here, before it's used in any watchers
 const dialogModel = computed({
   get: () => props.isOpen,
   set: (value) => {
@@ -183,6 +190,168 @@ const dialogModel = computed({
       emit('update:isOpen', value);
     }
   },
+});
+
+// Add these refs to store delivery information
+const doesDeliver = ref(false);
+const deliveryText = ref('');
+const catalogItems = ref<CatalogItem[]>([]);
+const whatsappNumber = ref('');
+const loading = ref(true);
+const slide = ref(1);
+const cartItems = ref<CartItem[]>([]);
+const showCartDialog = ref(false);
+const cartInputRef = ref();
+const $q = useQuasar();
+
+// Add new refs and reactive state for zoom/pan
+const zoom = ref(1);
+const positionX = ref(0);
+const positionY = ref(0);
+const isDragging = ref(false);
+
+// Zoom controls
+const MIN_ZOOM = 1;
+const MAX_ZOOM = 3;
+const ZOOM_STEP = 0.2;
+
+const zoomIn = () => {
+  zoom.value = Math.min(zoom.value + ZOOM_STEP, MAX_ZOOM);
+};
+
+const zoomOut = () => {
+  zoom.value = Math.max(zoom.value - ZOOM_STEP, MIN_ZOOM);
+};
+
+const resetZoom = () => {
+  zoom.value = 1;
+  positionX.value = 0;
+  positionY.value = 0;
+};
+
+// Add transform computed property for better performance
+const imageTransform = computed(() => {
+  return {
+    transform: `translate3d(${positionX.value}px, ${positionY.value}px, 0) scale(${zoom.value})`,
+    cursor:
+      zoom.value > 1 ? (isDragging.value ? 'grabbing' : 'grab') : 'default',
+    willChange: 'transform',
+    '-webkit-backface-visibility': 'hidden',
+    'backface-visibility': 'hidden',
+    '-webkit-transform-style': 'preserve-3d',
+    'transform-style': 'preserve-3d',
+  };
+});
+
+// Replace the onPan handler with this new implementation
+const onPan = (evt: any) => {
+  if (zoom.value <= 1) return;
+  isDragging.value = true;
+
+  const maxPanX = ((zoom.value - 1) * window.innerWidth) / 1.8;
+  const maxPanY = ((zoom.value - 1) * window.innerHeight) / 1.8;
+
+  // Use requestAnimationFrame for smooth updates
+  requestAnimationFrame(() => {
+    const newX = positionX.value + evt.delta.x;
+    const newY = positionY.value + evt.delta.y;
+
+    // Apply constraints with easing
+    positionX.value = Math.min(Math.max(newX, -maxPanX), maxPanX);
+    positionY.value = Math.min(Math.max(newY, -maxPanY), maxPanY);
+  });
+
+  if (evt.isFinal) {
+    isDragging.value = false;
+  }
+};
+
+// Mouse wheel zoom handler
+const onWheel = (evt: WheelEvent) => {
+  evt.preventDefault();
+  const delta = evt.deltaY > 0 ? -ZOOM_STEP : ZOOM_STEP;
+  const newZoom = zoom.value + delta;
+
+  if (newZoom >= MIN_ZOOM && newZoom <= MAX_ZOOM) {
+    zoom.value = newZoom;
+  }
+};
+
+// Add these variables for pinch tracking
+const initialDistance = ref(0);
+const initialZoom = ref(1);
+
+// Add this function to calculate distance between touch points
+const getDistance = (touches: TouchList) => {
+  if (touches.length < 2) return 0;
+  const dx = touches[0].clientX - touches[1].clientX;
+  const dy = touches[0].clientY - touches[1].clientY;
+  return Math.sqrt(dx * dx + dy * dy);
+};
+
+// Add a new ref to track pinch state
+const isPinching = ref(false);
+
+// Modify the canSwipe computed property to consider pinching state
+const canSwipe = computed(() => zoom.value <= 1 && !isPinching.value);
+
+// Update touch handlers to manage pinch state
+const onTouchStart = (evt: TouchEvent) => {
+  if (evt.touches.length === 2) {
+    isPinching.value = true;
+    initialDistance.value = getDistance(evt.touches);
+    initialZoom.value = zoom.value;
+    evt.preventDefault();
+  }
+};
+
+const onTouchMove = (evt: TouchEvent) => {
+  if (evt.touches.length === 2 && isPinching.value) {
+    const currentDistance = getDistance(evt.touches);
+    if (initialDistance.value > 0) {
+      const scale = currentDistance / initialDistance.value;
+      const newZoom = initialZoom.value * scale;
+
+      if (newZoom >= MIN_ZOOM && newZoom <= MAX_ZOOM) {
+        zoom.value = newZoom;
+
+        // Calculate center point of the pinch
+        const centerX = (evt.touches[0].clientX + evt.touches[1].clientX) / 2;
+        const centerY = (evt.touches[0].clientY + evt.touches[1].clientY) / 2;
+
+        // Adjust position based on pinch center
+        const maxPanX = ((zoom.value - 1) * window.innerWidth) / 1.8;
+        const maxPanY = ((zoom.value - 1) * window.innerHeight) / 1.8;
+
+        positionX.value = Math.min(
+          Math.max(positionX.value, -maxPanX),
+          maxPanX
+        );
+        positionY.value = Math.min(
+          Math.max(positionY.value, -maxPanY),
+          maxPanY
+        );
+      }
+    }
+    evt.preventDefault();
+  }
+};
+
+const onTouchEnd = () => {
+  isPinching.value = false;
+  initialDistance.value = 0;
+};
+
+// Reset zoom and position when slide changes
+watch(slide, () => {
+  resetZoom();
+});
+
+// Reset zoom and position when dialog closes
+watch(dialogModel, (newVal) => {
+  if (!newVal) {
+    resetZoom();
+  }
 });
 
 const loadCatalogItems = async () => {
@@ -263,7 +432,7 @@ onBeforeUnmount(() => {
 
 <style lang="scss" scoped>
 .catalog-container {
-  height: calc(100vh - 150px);
+  height: calc(100vh - 220px);
   position: relative;
 }
 
@@ -300,5 +469,65 @@ onBeforeUnmount(() => {
 
 :deep(.q-img) {
   height: 100%;
+}
+
+:deep(.q-img__content) {
+  background: transparent;
+}
+
+.image-container {
+  position: relative;
+  height: 100%;
+  overflow: hidden;
+  touch-action: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #000;
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+}
+
+.catalog-image {
+  transition: transform 0.1s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform;
+  max-width: 100%;
+  max-height: 100%;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  transform-style: preserve-3d;
+  perspective: 1000px;
+}
+
+.image-controls {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  z-index: 2;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 8px;
+  padding: 4px;
+
+  .q-btn {
+    color: white;
+    opacity: 0.8;
+    &:hover {
+      opacity: 1;
+    }
+  }
+}
+
+:deep(.cart-input-container) {
+  position: sticky;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 3;
+  background: white;
+  box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.q-carousel {
+  background: #000;
 }
 </style>

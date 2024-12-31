@@ -458,7 +458,7 @@ watch(showComments, async (newValue) => {
   }
 });
 
-const shareOnWhatsApp = () => {
+const shareOnWhatsApp = async () => {
   if (!props.post.whatsappNumber) {
     $q.notify({
       message: 'No WhatsApp number available',
@@ -468,12 +468,37 @@ const shareOnWhatsApp = () => {
     return;
   }
 
-  // Updated text with a link to the specific post
-  const text = `Hi, I'm interested in your post on https://app.sosbharat.com/#/sos-bharat-community-post/${props.post.id} : ${props.post.title}`;
-  const whatsappUrl = `https://wa.me/${
-    props.post.whatsappNumber
-  }?text=${encodeURIComponent(text)}`;
-  window.open(whatsappUrl, '_blank');
+  try {
+    const text = `Hi, I'm interested in your post on https://app.sosbharat.com/#/sos-bharat-community-post/${props.post.id} : ${props.post.title}`;
+    const encodedText = encodeURIComponent(text);
+
+    // Create both universal and app-specific URLs
+    const universalUrl = `https://wa.me/91${props.post.whatsappNumber}?text=${encodedText}`;
+    const appUrl = `whatsapp://send?phone=91${props.post.whatsappNumber}&text=${encodedText}`;
+
+    // Try to open WhatsApp app first
+    const openApp = async () => {
+      const a = document.createElement('a');
+      a.href = appUrl;
+      a.style.display = 'none';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    };
+
+    // Fallback to universal link after a short delay
+    await openApp();
+    setTimeout(() => {
+      window.location.href = universalUrl;
+    }, 500);
+  } catch (error) {
+    console.error('Error opening WhatsApp:', error);
+    $q.notify({
+      message: 'Unable to connect via WhatsApp',
+      color: 'negative',
+      position: 'top-right',
+    });
+  }
 };
 
 const showLikes = ref(false);

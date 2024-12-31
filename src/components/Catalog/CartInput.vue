@@ -1,36 +1,38 @@
 <template>
-  <div
-    class="cart-input-container row items-center justify-between q-px-md q-py-sm"
-  >
-    <q-btn
-      flat
-      round
-      color="primary"
-      class="q-mr-md"
-      @click="$emit('show-cart')"
+  <div class="cart-input-container">
+    <div
+      class="cart-input-container row items-center justify-between q-px-md q-py-sm"
     >
-      <q-icon name="shopping_cart" />
-      <q-badge color="red" floating>{{ itemCount }}</q-badge>
-    </q-btn>
+      <q-btn
+        flat
+        round
+        color="primary"
+        class="q-mr-md"
+        @click="$emit('show-cart')"
+      >
+        <q-icon name="shopping_cart" />
+        <q-badge color="red" floating>{{ itemCount }}</q-badge>
+      </q-btn>
 
-    <q-input
-      v-model="itemText"
-      dense
-      outlined
-      placeholder="Enter item name"
-      class="col"
-      @keyup.enter="addItem"
-    />
+      <q-input
+        v-model="itemText"
+        dense
+        outlined
+        placeholder="Enter item name"
+        class="col"
+        @keyup.enter="addItem"
+      />
 
-    <q-btn
-      flat
-      round
-      color="primary"
-      icon="add"
-      class="q-ml-md"
-      @click="addItem"
-      :disable="!itemText.trim()"
-    />
+      <q-btn
+        flat
+        round
+        color="primary"
+        icon="add"
+        class="q-ml-md"
+        @click="addItem"
+        :disable="!itemText.trim()"
+      />
+    </div>
   </div>
 </template>
 
@@ -43,7 +45,7 @@ const props = defineProps<{
   itemCount: number;
   currentSlide: number;
   businessUserId: number;
-  whatsappNumber: string;
+  whatsappNumber: string | null;
 }>();
 
 const emit = defineEmits(['add-item', 'show-cart', 'order-placed']);
@@ -78,14 +80,43 @@ const placeOrder = async (items: { slideId: number; text: string }[]) => {
         .join('\n');
 
       const text = `New Order:\n\n${formattedItems}\n\nPlease confirm my order.`;
-      const whatsappUrl = `https://wa.me/91${
-        props.whatsappNumber
-      }?text=${encodeURIComponent(text)}`;
+      const encodedText = encodeURIComponent(text);
 
-      // Open WhatsApp in new window
-      window.open(whatsappUrl, '_blank');
+      // Create both universal and app-specific URLs
+      const universalUrl = `https://wa.me/91${props.whatsappNumber}?text=${encodedText}`;
+      const appUrl = `whatsapp://send?phone=91${props.whatsappNumber}&text=${encodedText}`;
+
+      try {
+        // Try to open WhatsApp app first
+        const openApp = async () => {
+          const a = document.createElement('a');
+          a.href = appUrl;
+          a.style.display = 'none';
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+        };
+
+        // Fallback to universal link after a short delay
+        await openApp();
+        setTimeout(() => {
+          window.location.href = universalUrl;
+        }, 500);
+      } catch (error) {
+        console.error('Error opening WhatsApp:', error);
+        $q.notify({
+          message: 'Unable to connect via WhatsApp',
+          color: 'negative',
+          position: 'top-right',
+        });
+      }
     } else {
-      console.log('WhatsApp number is not set', props.whatsappNumber);
+      // notify whatsapp number not found
+      $q.notify({
+        type: 'negative',
+        message:
+          'WhatsApp number not found. Please add a WhatsApp number to your profile.',
+      });
     }
 
     emit('order-placed');
