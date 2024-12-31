@@ -19,7 +19,7 @@
       </q-card-section>
 
       <!-- Content -->
-      <q-card-section class="col q-pa-none scroll">
+      <q-card-section class="col q-pa-none">
         <div v-if="loading" class="full-width row flex-center q-pa-md">
           <q-spinner-dots color="primary" size="40px" />
         </div>
@@ -34,7 +34,7 @@
           </div>
         </div>
 
-        <div v-else>
+        <div v-else class="full-height">
           <!-- Image Carousel -->
           <q-carousel
             v-model="slide"
@@ -42,8 +42,7 @@
             arrows
             navigation
             infinite
-            height="400px"
-            class="q-mb-md rounded-borders"
+            class="q-mb-md rounded-borders full-height"
             navigation-position="bottom"
             padding
           >
@@ -51,14 +50,13 @@
               v-for="item in catalogItems"
               :key="item.id"
               :name="item.id"
-              class="column no-wrap"
+              class="column no-wrap full-height"
             >
               <div class="absolute-full custom-caption">
                 <div class="text-h6">{{ item.title }}</div>
               </div>
               <q-img
                 :src="imageCdn + item.imageUrl"
-                :ratio="16 / 9"
                 class="full-height"
                 fit="contain"
               />
@@ -68,7 +66,49 @@
       </q-card-section>
 
       <!-- Cart Input Component -->
-      <CartInput :item-count="cartItemCount" @add-item="addToCart" />
+      <CartInput
+        ref="cartInputRef"
+        :item-count="cartItems.length"
+        :current-slide="slide"
+        :business-user-id="userId"
+        @add-item="addToCart"
+        @show-cart="showCartDialog = true"
+        @order-placed="showCartDialog = false"
+      />
+
+      <!-- New Cart Dialog -->
+      <q-dialog v-model="showCartDialog">
+        <q-card style="min-width: 350px">
+          <q-card-section class="row items-center">
+            <div class="text-h6">Cart Items</div>
+            <q-space />
+            <q-btn icon="close" flat round dense v-close-popup />
+          </q-card-section>
+
+          <q-card-section class="q-pa-none">
+            <q-list>
+              <q-item v-for="(item, index) in cartItems" :key="index">
+                <q-item-section>
+                  <q-input v-model="item.text" dense outlined class="q-pa-sm" />
+                </q-item-section>
+                <q-item-section side>
+                  <q-btn
+                    flat
+                    round
+                    color="negative"
+                    icon="delete"
+                    @click="cartItems.splice(index, 1)"
+                  />
+                </q-item-section>
+              </q-item>
+            </q-list>
+          </q-card-section>
+
+          <q-card-actions align="right" class="bg-white">
+            <q-btn color="primary" label="Place Order" @click="placeOrder" />
+          </q-card-actions>
+        </q-card>
+      </q-dialog>
     </q-card>
   </q-dialog>
 </template>
@@ -77,6 +117,7 @@
 import { ref, computed, watch } from 'vue';
 import { api } from 'src/boot/axios';
 import CartInput from './CartInput.vue';
+import { useQuasar } from 'quasar';
 
 // Add CDN URL constant
 const imageCdn =
@@ -88,6 +129,11 @@ interface CatalogItem {
   imageUrl: string;
   sequence: number;
   // price and description are not in the API response, so removing them
+}
+
+interface CartItem {
+  slideId: number;
+  text: string;
 }
 
 const props = defineProps<{
@@ -103,7 +149,10 @@ const emit = defineEmits(['update:isOpen']);
 const catalogItems = ref<CatalogItem[]>([]);
 const loading = ref(true);
 const slide = ref(1);
-const cartItemCount = ref(0);
+const cartItems = ref<CartItem[]>([]);
+const showCartDialog = ref(false);
+const cartInputRef = ref();
+const $q = useQuasar();
 
 // Create a computed property for the dialog model
 const dialogModel = computed({
@@ -130,9 +179,24 @@ const loadCatalogItems = async () => {
 };
 
 const addToCart = (itemText: string) => {
-  // Implement cart functionality here
-  cartItemCount.value++;
-  // You might want to emit an event or call a store action here
+  cartItems.value.push({
+    slideId: slide.value,
+    text: itemText,
+  });
+};
+
+const placeOrder = async () => {
+  try {
+    await cartInputRef.value?.placeOrder(cartItems.value);
+    showCartDialog.value = false;
+    cartItems.value = [];
+  } catch (error) {
+    console.error('Error placing order:', error);
+    $q.notify({
+      type: 'negative',
+      message: 'Failed to place order. Please try again.',
+    });
+  }
 };
 
 // Load items when dialog opens
@@ -148,6 +212,12 @@ watch(
 </script>
 
 <style lang="scss" scoped>
+.q-carousel {
+  height: calc(
+    100vh - 150px
+  ); // Adjust this value based on your header and input row heights
+}
+
 .custom-caption {
   background: linear-gradient(
     to top,
