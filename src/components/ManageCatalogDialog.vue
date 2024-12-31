@@ -82,7 +82,7 @@
                     >
                       <q-item-section avatar>
                         <q-img
-                          :src="item.imageUrl"
+                          :src="item.imageUrl ? imageCdn + item.imageUrl : ''"
                           style="width: 100px; height: 100px"
                           fit="cover"
                         />
@@ -194,6 +194,10 @@ const saving = ref(false);
 const itemDialog = ref(false);
 const savingItem = ref(false);
 const editingItem = ref<any>(null);
+
+// Define the image CDN value
+const imageCdn =
+  'https://xavoc-technocrats-pvt-ltd.blr1.cdn.digitaloceanspaces.com/';
 
 const itemForm = ref({
   title: '',
