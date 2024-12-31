@@ -1710,7 +1710,7 @@ const selectedUser = ref<{ id: number; name: string } | null>(null);
     }
 
     .q-avatar {
-      border: 2px solid #ffa726;
+      outline: 2px solid #ffa726;
     }
   }
 
