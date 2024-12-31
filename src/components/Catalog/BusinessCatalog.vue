@@ -209,15 +209,17 @@ const placeOrder = async () => {
   }
 };
 
-// Load items when dialog opens
+// Replace the separate watchers with a single combined watcher
 watch(
-  () => props.isOpen,
-  (newValue) => {
-    if (newValue) {
+  // Watch both isOpen and userId together
+  [() => props.isOpen, () => props.userId],
+  ([isOpen, userId]) => {
+    console.log('Watch triggered:', { isOpen, userId }); // Add logging for debugging
+    if (isOpen && userId) {
       loadCatalogItems();
     }
   },
-  { immediate: true }
+  { immediate: true } // Add immediate option back to ensure it runs on mount
 );
 </script>
 
