@@ -118,7 +118,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue';
+import { ref, computed, watch, onBeforeUnmount } from 'vue';
 import { api } from 'src/boot/axios';
 import CartInput from './CartInput.vue';
 import { useQuasar } from 'quasar';
@@ -163,7 +163,26 @@ const $q = useQuasar();
 // Create a computed property for the dialog model
 const dialogModel = computed({
   get: () => props.isOpen,
-  set: (value) => emit('update:isOpen', value),
+  set: (value) => {
+    if (!value && cartItems.value.length > 0) {
+      $q.dialog({
+        title: 'Items in Cart',
+        message: 'You have items in your cart. Are you sure you want to leave?',
+        cancel: true,
+        persistent: true,
+      })
+        .onOk(() => {
+          cartItems.value = [];
+          emit('update:isOpen', false);
+        })
+        .onCancel(() => {
+          // Keep the dialog open
+          emit('update:isOpen', true);
+        });
+    } else {
+      emit('update:isOpen', value);
+    }
+  },
 });
 
 const loadCatalogItems = async () => {
@@ -221,6 +240,25 @@ watch(
   },
   { immediate: true } // Add immediate option back to ensure it runs on mount
 );
+
+// Add before component unmount handler
+onBeforeUnmount(() => {
+  if (cartItems.value.length > 0) {
+    $q.dialog({
+      title: 'Items in Cart',
+      message: 'You have items in your cart. Are you sure you want to leave?',
+      cancel: true,
+      persistent: true,
+    })
+      .onOk(() => {
+        cartItems.value = [];
+      })
+      .onCancel(() => {
+        // Keep the dialog open
+        dialogModel.value = true;
+      });
+  }
+});
 </script>
 
 <style lang="scss" scoped>
