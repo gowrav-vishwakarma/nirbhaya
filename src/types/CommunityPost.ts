@@ -36,4 +36,14 @@ export interface CommunityPost {
 
 export interface Post extends CommunityPost {
   userName: string;
+  wasLiked: boolean;
+  liked: boolean;
+  distance?: number;
+  location?: {
+    x: number;
+    y: number;
+  };
+  showLocation?: boolean;
+  whatsappNumber?: string;
+  hasCatalog?: boolean;
 }

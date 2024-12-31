@@ -169,16 +169,29 @@
                   />
                 </q-avatar>
                 <div class="q-ml-md">
-                  <div
-                    class="text-weight-bold text-capitalize"
-                    style="font-size: 16px"
-                    @click="router.push(`/my-posts/${post.userId}`)"
-                  >
-                    {{
-                      post.userName == 'SOS Bharat Community'
-                        ? 'SOS Bharat Community'
-                        : post.userName
-                    }}
+                  <div class="row items-center">
+                    <div
+                      class="text-weight-bold text-capitalize cursor-pointer"
+                      style="font-size: 16px"
+                      @click="router.push(`/my-posts/${post.userId}`)"
+                    >
+                      {{
+                        post.userName == 'SOS Bharat Community'
+                          ? 'SOS Bharat Community'
+                          : post.userName
+                      }}
+                    </div>
+                    <!-- Add catalog icon -->
+                    <q-icon
+                      v-if="post.hasCatalog"
+                      name="shopping_bag"
+                      size="18px"
+                      color="primary"
+                      class="q-ml-sm cursor-pointer"
+                      @click="openCatalog(post.userId)"
+                    >
+                      <q-tooltip>View Catalog</q-tooltip>
+                    </q-icon>
                   </div>
                   <div class="text-caption text-grey-7 row items-center">
                     <q-icon name="schedule" size="xs" class="q-mr-xs" />
@@ -480,6 +493,12 @@
     @search="performSearch"
     @clear="clearSearch"
   />
+  <BusinessCatalog
+    v-if="selectedUser"
+    :user-id="selectedUser.id"
+    :user-name="selectedUser.name"
+    v-model:is-open="showCatalog"
+  />
 </template>
 
 <script setup lang="ts">
@@ -496,6 +515,7 @@ import { Dialog } from 'quasar';
 import LocationSelectionDialog from 'src/components/Location/LocationSelectionDialog.vue';
 import { Geolocation } from '@capacitor/geolocation';
 import SearchPostDialog from 'src/components/Community/SearchPostDialog.vue';
+import BusinessCatalog from 'src/components/Catalog/BusinessCatalog.vue';
 
 // Add these type definitions at the top of the script section
 interface Post extends Omit<CommunityPost, 'liked'> {
@@ -1629,6 +1649,22 @@ const formatBusinessCategory = (
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
     .join(' ');
 };
+
+// Add this method to open the catalog
+const openCatalog = (userId: number) => {
+  const post = posts.value.find((p) => p.userId === userId);
+  if (post) {
+    selectedUser.value = {
+      id: userId,
+      name: post.userName,
+    };
+    showCatalog.value = true;
+  }
+};
+
+// Add these refs
+const showCatalog = ref(false);
+const selectedUser = ref<{ id: number; name: string } | null>(null);
 </script>
 <style scoped lang="scss">
 .container {
