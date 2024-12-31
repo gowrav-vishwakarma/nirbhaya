@@ -155,6 +155,28 @@
               <div class="text-caption">
                 Address: {{ businessLocation?.name }}
               </div>
+              <div class="col-12 q-mt-sm">
+                <q-btn
+                  class="manage-catalog-btn full-width"
+                  :label="
+                    userStore.user?.hasCatalog
+                      ? 'Manage Catalog'
+                      : 'Setup Catalog'
+                  "
+                  style="border-radius: 10px !important"
+                  color="primary"
+                  @click="openManageCatalogDialog"
+                >
+                  <q-icon
+                    :name="
+                      userStore.user?.hasCatalog
+                        ? 'inventory_2'
+                        : 'add_business'
+                    "
+                    class="q-mx-sm"
+                  />
+                </q-btn>
+              </div>
               <div class="col-auto">
                 <q-btn
                   class="remove-btn"
@@ -163,13 +185,6 @@
                   color="grey-7"
                   style="border-radius: 10px !important"
                   @click="confirmRemoveBusiness"
-                />
-                <q-btn
-                  class="manage-catalog-btn"
-                  label="Manage Catalog"
-                  style="border-radius: 10px !important"
-                  color="primary"
-                  @click="openManageCatalogDialog"
                 />
               </div>
             </div>
@@ -607,14 +622,11 @@ input[type='number'] {
 }
 
 .manage-catalog-btn {
-  position: absolute;
-  bottom: 10px;
-  right: 5px;
   border-radius: 10px;
-  margin-left: 10px;
   font-size: 12px;
   text-transform: capitalize;
   background-color: var(--q-primary);
   color: white;
+  height: 36px;
 }
 </style>

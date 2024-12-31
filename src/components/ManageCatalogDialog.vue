@@ -5,7 +5,7 @@
     persistent
     maximized
   >
-    <q-card>
+    <q-card class="dialog-card">
       <q-card-section class="row items-center">
         <div class="text-h6">Manage Catalog</div>
         <q-space />
@@ -98,6 +98,8 @@
                           :src="item.imageUrl ? imageCdn + item.imageUrl : ''"
                           style="width: 100px; height: 100px"
                           fit="cover"
+                          class="cursor-pointer"
+                          @click="showZoomImage(item.imageUrl)"
                         />
                       </q-item-section>
 
@@ -191,6 +193,19 @@
             @click="saveItem"
           />
         </q-card-actions>
+      </q-card>
+    </q-dialog>
+
+    <!-- Zoom Dialog -->
+    <q-dialog v-model="zoomDialog">
+      <q-card class="zoom-dialog">
+        <q-card-section class="row items-center">
+          <q-space />
+          <q-btn icon="close" flat round dense v-close-popup />
+        </q-card-section>
+        <q-card-section class="q-pa-none">
+          <q-img :src="zoomImageUrl" style="max-height: 90vh" fit="contain" />
+        </q-card-section>
       </q-card>
     </q-dialog>
   </q-dialog>
@@ -398,14 +413,50 @@ const confirmDelete = (item: CatalogItem) => {
   });
 };
 
+// Add new ref for zoom dialog
+const zoomDialog = ref(false);
+const zoomImageUrl = ref('');
+
+// Add new function to handle image zoom
+const showZoomImage = (imageUrl: string) => {
+  zoomImageUrl.value = imageCdn + imageUrl;
+  zoomDialog.value = true;
+};
+
 onMounted(() => {
   fetchCatalogData();
 });
 </script>
 
 <style scoped>
-.q-card {
+.dialog-card {
+  width: 100%;
   max-width: 1200px;
-  width: 90vw;
+  margin: 0 auto;
+}
+
+:deep(.q-card) {
+  overflow: hidden;
+}
+
+:deep(.q-img) {
+  max-width: 100%;
+}
+
+@media (max-width: 599px) {
+  .q-card-section {
+    padding: 16px;
+  }
+}
+
+.zoom-dialog {
+  min-width: 80vw;
+  min-height: 80vh;
+  background: rgba(0, 0, 0, 0.8);
+}
+
+.zoom-dialog :deep(.q-img) {
+  width: 100%;
+  height: 100%;
 }
 </style>
