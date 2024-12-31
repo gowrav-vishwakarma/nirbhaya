@@ -71,6 +71,7 @@
         :item-count="cartItems.length"
         :current-slide="slide"
         :business-user-id="userId"
+        :whatsapp-number="whatsappNumber"
         @add-item="addToCart"
         @show-cart="showCartDialog = true"
         @order-placed="showCartDialog = false"
@@ -147,6 +148,7 @@ const props = defineProps<{
 const emit = defineEmits(['update:isOpen']);
 
 const catalogItems = ref<CatalogItem[]>([]);
+const whatsappNumber = ref('');
 const loading = ref(true);
 const slide = ref(1);
 const cartItems = ref<CartItem[]>([]);
@@ -170,6 +172,7 @@ const loadCatalogItems = async () => {
     if (catalogItems.value.length > 0) {
       slide.value = catalogItems.value[0].id;
     }
+    whatsappNumber.value = response.data.whatsappNumber;
   } catch (error) {
     console.error('Error loading catalog items:', error);
     catalogItems.value = [];

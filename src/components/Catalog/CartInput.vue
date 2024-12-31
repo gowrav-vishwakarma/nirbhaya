@@ -19,6 +19,7 @@
       outlined
       placeholder="Enter item name"
       class="col"
+      @keyup.enter="addItem"
     />
 
     <q-btn
@@ -42,6 +43,7 @@ const props = defineProps<{
   itemCount: number;
   currentSlide: number;
   businessUserId: number;
+  whatsappNumber: string;
 }>();
 
 const emit = defineEmits(['add-item', 'show-cart', 'order-placed']);
@@ -67,6 +69,24 @@ const placeOrder = async (items: { slideId: number; text: string }[]) => {
       type: 'positive',
       message: 'Order placed successfully!',
     });
+
+    // Only proceed with WhatsApp if we have a valid number
+    if (props.whatsappNumber?.length === 10) {
+      // Format order items for WhatsApp
+      const formattedItems = items
+        .map((item, index) => `${index + 1}. ${item.text}`)
+        .join('\n');
+
+      const text = `New Order:\n\n${formattedItems}\n\nPlease confirm my order.`;
+      const whatsappUrl = `https://wa.me/91${
+        props.whatsappNumber
+      }?text=${encodeURIComponent(text)}`;
+
+      // Open WhatsApp in new window
+      window.open(whatsappUrl, '_blank');
+    } else {
+      console.log('WhatsApp number is not set', props.whatsappNumber);
+    }
 
     emit('order-placed');
   } catch (error) {
