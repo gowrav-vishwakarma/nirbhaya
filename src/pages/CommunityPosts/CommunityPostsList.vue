@@ -184,14 +184,35 @@
                     <!-- Add catalog icon -->
                     <q-space />
                     <q-icon
-                      v-if="post.hasCatalog"
+                      v-if="post.hasCatalog && isCatalogAccessible(post)"
                       name="shopping_bag"
                       size="18px"
                       color="primary"
                       class="q-ml-sm cursor-pointer"
                       @click="openCatalog(post.userId)"
                     >
-                      <q-tooltip>View Catalog</q-tooltip>
+                      <q-tooltip>
+                        {{
+                          hasCurrentLocation
+                            ? 'View Catalog'
+                            : 'Enable location to view catalog'
+                        }}
+                      </q-tooltip>
+                    </q-icon>
+                    <q-icon
+                      v-else-if="post.hasCatalog"
+                      name="shopping_bag"
+                      size="18px"
+                      color="grey"
+                      class="q-ml-sm"
+                    >
+                      <q-tooltip>
+                        {{
+                          hasCurrentLocation
+                            ? `Catalog not available - Outside delivery range (${post.deliveryRange}m)`
+                            : 'Enable location to view catalog'
+                        }}
+                      </q-tooltip>
                     </q-icon>
                   </div>
                   <div class="text-caption text-grey-7 row items-center">
@@ -1666,6 +1687,34 @@ const openCatalog = (userId: number) => {
 // Add these refs
 const showCatalog = ref(false);
 const selectedUser = ref<{ id: number; name: string } | null>(null);
+
+// Add this computed property after other computed properties
+const hasCurrentLocation = computed(() => {
+  return !!(
+    selectedLocation.value?.latitude && selectedLocation.value?.longitude
+  );
+});
+
+// Add this method to check if catalog is accessible
+const isCatalogAccessible = (post: Post) => {
+  // If no current location, catalog is not accessible
+  if (!hasCurrentLocation.value) {
+    return false;
+  }
+
+  // If post has no location or no delivery range, catalog is not accessible
+  if (!post.location || !post.deliveryRange) {
+    return false;
+  }
+
+  // Convert distance to meters (since it comes in km)
+  const distanceInMeters = (post.distance || 0) * 1000;
+
+  // Check if distance is within delivery range
+  return distanceInMeters <= post.deliveryRange;
+};
+
+// Update the template section where catalog icon is shown
 </script>
 <style scoped lang="scss">
 .container {
