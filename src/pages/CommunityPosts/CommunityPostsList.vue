@@ -152,7 +152,7 @@
           <q-card flat :class="['post-card', getPostCardClass(post)]">
             <!-- User Info Section -->
             <q-card-section class="q-pb-none">
-              <div class="row items-center full-width">
+              <div class="row items-center full-width" style="display: flex">
                 <q-avatar
                   size="48px"
                   class="shadow-2"
@@ -168,7 +168,7 @@
                     style="object-fit: cover"
                   />
                 </q-avatar>
-                <div class="q-ml-md">
+                <div class="q-ml-md" style="flex: 1">
                   <div class="row items-center">
                     <div
                       class="text-weight-bold text-capitalize cursor-pointer"
