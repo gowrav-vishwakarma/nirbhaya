@@ -41,8 +41,21 @@
                     v-model="catalogData.deliveryText"
                     label="Delivery Information"
                     filled
-                    type="textarea"
-                    hint="Describe your delivery terms, areas covered, minimum order value etc."
+                    hint="Delivery terms, minimum order value etc."
+                  />
+
+                  <q-input
+                    v-model.number="catalogData.deliveryRange"
+                    label="Delivery Range"
+                    filled
+                    type="number"
+                    suffix="meters"
+                    class="q-mt-sm"
+                    :rules="[
+                      (val) => val > 0 || 'Range must be greater than 0',
+                      (val) =>
+                        val <= 10000 || 'Maximum range is 10km (10000 meters)',
+                    ]"
                   />
                 </div>
 
@@ -208,13 +221,13 @@ const itemForm = ref({
 const selectedFile = ref<File | null>(null);
 const imagePreview = ref<string>('');
 
-defineProps<{
-  modelValue: boolean;
-}>();
-
-defineEmits<{
+const emit = defineEmits<{
   'update:modelValue': [value: boolean];
   close: [];
+}>();
+
+defineProps<{
+  modelValue: boolean;
 }>();
 
 interface CatalogItem {
@@ -228,6 +241,7 @@ interface CatalogData {
   hasCatalog: boolean;
   doesDelivery: boolean;
   deliveryText: string;
+  deliveryRange: number;
   catalogItems: CatalogItem[];
 }
 
@@ -235,6 +249,7 @@ const catalogData = ref<CatalogData>({
   hasCatalog: false,
   doesDelivery: false,
   deliveryText: '',
+  deliveryRange: 1000,
   catalogItems: [],
 });
 
@@ -265,8 +280,8 @@ const saveCatalogSettings = async () => {
       position: 'top',
     });
 
-    // Close the dialog
     emit('update:modelValue', false);
+    emit('close');
   } catch (error) {
     $q.notify({
       type: 'negative',

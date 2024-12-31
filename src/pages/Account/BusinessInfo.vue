@@ -160,14 +160,15 @@
                   class="remove-btn"
                   flat
                   label="Remove"
+                  color="grey-7"
                   style="border-radius: 10px !important"
                   @click="confirmRemoveBusiness"
                 />
                 <q-btn
                   class="manage-catalog-btn"
-                  flat
                   label="Manage Catalog"
                   style="border-radius: 10px !important"
+                  color="primary"
                   @click="openManageCatalogDialog"
                 />
               </div>
@@ -585,13 +586,12 @@ const openManageCatalogDialog = () => {
   position: absolute;
   top: 10px;
   right: 5px;
-  background-color: black;
   align-self: flex-end;
   border-radius: 10px;
   margin-left: 10px;
-  color: white;
   font-size: 12px;
   text-transform: capitalize;
+  opacity: 0.7;
 }
 
 /* Hide number input spinners */
@@ -607,6 +607,14 @@ input[type='number'] {
 }
 
 .manage-catalog-btn {
+  position: absolute;
+  bottom: 10px;
+  right: 5px;
+  border-radius: 10px;
   margin-left: 10px;
+  font-size: 12px;
+  text-transform: capitalize;
+  background-color: var(--q-primary);
+  color: white;
 }
 </style>
