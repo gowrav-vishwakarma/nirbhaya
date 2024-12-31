@@ -152,7 +152,7 @@
           <q-card flat :class="['post-card', getPostCardClass(post)]">
             <!-- User Info Section -->
             <q-card-section class="q-pb-none">
-              <div class="row items-center">
+              <div class="row items-center full-width">
                 <q-avatar
                   size="48px"
                   class="shadow-2"
@@ -182,6 +182,7 @@
                       }}
                     </div>
                     <!-- Add catalog icon -->
+                    <q-space />
                     <q-icon
                       v-if="post.hasCatalog"
                       name="shopping_bag"

@@ -11,7 +11,9 @@
               :color="doesDeliver ? 'positive' : 'negative'"
               size="xs"
             />
-            <span class="q-ml-sm">{{ deliveryText }}</span>
+            <span class="q-ml-sm">{{
+              doesDeliver ? deliveryText : 'Do not deliver'
+            }}</span>
           </div>
         </div>
         <q-space />
@@ -34,32 +36,33 @@
           </div>
         </div>
 
-        <div v-else class="full-height">
-          <!-- Image Carousel -->
+        <div v-else class="catalog-container">
           <q-carousel
             v-model="slide"
             animated
             arrows
             navigation
             infinite
-            class="q-mb-md rounded-borders full-height"
+            swipeable
+            class="rounded-borders full-height"
             navigation-position="bottom"
-            padding
           >
             <q-carousel-slide
               v-for="item in catalogItems"
               :key="item.id"
               :name="item.id"
-              class="column no-wrap full-height"
+              class="column no-wrap"
             >
-              <div class="absolute-full custom-caption">
-                <div class="text-h6">{{ item.title }}</div>
-              </div>
               <q-img
                 :src="imageCdn + item.imageUrl"
                 class="full-height"
                 fit="contain"
-              />
+                :draggable="false"
+              >
+                <div class="absolute-bottom custom-caption">
+                  <div class="text-h6">{{ item.title }}</div>
+                </div>
+              </q-img>
             </q-carousel-slide>
           </q-carousel>
         </div>
@@ -141,12 +144,13 @@ const props = defineProps<{
   userId: number;
   userName: string;
   isOpen: boolean;
-  doesDeliver: boolean;
-  deliveryText: string;
 }>();
 
 const emit = defineEmits(['update:isOpen']);
 
+// Add these refs to store delivery information
+const doesDeliver = ref(false);
+const deliveryText = ref('');
 const catalogItems = ref<CatalogItem[]>([]);
 const whatsappNumber = ref('');
 const loading = ref(true);
@@ -168,11 +172,14 @@ const loadCatalogItems = async () => {
     const response = await api.get(
       `/community/business-catalog/${props.userId}`
     );
-    catalogItems.value = response.data.catalogItems || []; // Changed from items to catalogItems
+    catalogItems.value = response.data.catalogItems || [];
     if (catalogItems.value.length > 0) {
       slide.value = catalogItems.value[0].id;
     }
     whatsappNumber.value = response.data.whatsappNumber;
+    // Set delivery information from API response
+    doesDeliver.value = response.data.doesDelivery;
+    deliveryText.value = response.data.deliveryText;
   } catch (error) {
     console.error('Error loading catalog items:', error);
     catalogItems.value = [];
@@ -215,10 +222,13 @@ watch(
 </script>
 
 <style lang="scss" scoped>
+.catalog-container {
+  height: calc(100vh - 150px);
+  position: relative;
+}
+
 .q-carousel {
-  height: calc(
-    100vh - 150px
-  ); // Adjust this value based on your header and input row heights
+  height: 100%;
 }
 
 .custom-caption {
@@ -231,5 +241,24 @@ watch(
   color: white;
   display: flex;
   align-items: flex-end;
+}
+
+:deep(.q-carousel__navigation) {
+  background: rgba(0, 0, 0, 0.3);
+  padding: 4px 0;
+}
+
+:deep(.q-carousel__arrow) {
+  background: rgba(0, 0, 0, 0.3);
+  opacity: 0.7;
+  transition: opacity 0.3s;
+
+  &:hover {
+    opacity: 1;
+  }
+}
+
+:deep(.q-img) {
+  height: 100%;
 }
 </style>
