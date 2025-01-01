@@ -910,7 +910,7 @@ const calculateAge = (dob: string | Date): number => {
   return age;
 };
 
-// Update onMounted to be async
+// Update the onMounted section where location is initialized
 onMounted(async () => {
   const dob = userStore.user?.dob;
   if (dob) {
@@ -919,42 +919,60 @@ onMounted(async () => {
     isUserPermitted.value = false;
   }
 
-  // Get initial location
+  // Get initial location with timeout
   try {
-    // First check location store
-    const storedLocation = locationStore.getLocation;
-    if (storedLocation?.latitude && storedLocation?.longitude) {
-      selectedLocation.value = {
-        type: 'current',
-        latitude: storedLocation.latitude,
-        longitude: storedLocation.longitude,
-        name: 'Current Location',
-        address: 'Current Location',
+    // First check location store with 1 second timeout
+    const locationPromise = new Promise((resolve) => {
+      const checkStore = () => {
+        const storedLocation = locationStore.getLocation;
+        if (storedLocation?.latitude && storedLocation?.longitude) {
+          resolve({
+            type: 'current',
+            latitude: storedLocation.latitude,
+            longitude: storedLocation.longitude,
+            name: 'Current Location',
+            address: 'Current Location',
+          });
+        }
       };
-    }
-    // If no stored location, check volunteering locations
-    else if (userStore.user?.locations && userStore.user.locations.length) {
-      handleLocationSelected({
-        type: 'Point',
-        latitude: userStore.user.locations[0].location.coordinates[1],
-        longitude: userStore.user.locations[0].location.coordinates[0],
-        name: userStore.user.locations[0].name,
-      });
-    }
-    // Finally try getting current location
-    else {
-      const position = await Geolocation.getCurrentPosition({
-        enableHighAccuracy: true,
-        timeout: 10000,
-      });
 
-      selectedLocation.value = {
-        type: 'current',
-        latitude: position.coords.latitude,
-        longitude: position.coords.longitude,
-        name: 'Current Location',
-        address: 'Current Location',
-      };
+      // Check immediately
+      checkStore();
+
+      // Check again after a small delay in case store is being populated
+      setTimeout(checkStore, 100);
+    });
+
+    const timeoutPromise = new Promise((_, reject) =>
+      setTimeout(() => reject('timeout'), 1000)
+    );
+
+    try {
+      const location = await Promise.race([locationPromise, timeoutPromise]);
+      selectedLocation.value = location as any;
+    } catch (timeoutError) {
+      // If timeout or no stored location, check volunteering locations
+      if (userStore.user?.locations && userStore.user.locations.length) {
+        handleLocationSelected({
+          type: 'Point',
+          latitude: userStore.user.locations[0].location.coordinates[1],
+          longitude: userStore.user.locations[0].location.coordinates[0],
+          name: userStore.user.locations[0].name,
+        });
+      } else {
+        const position = await Geolocation.getCurrentPosition({
+          enableHighAccuracy: true,
+          timeout: 10000,
+        });
+
+        selectedLocation.value = {
+          type: 'current',
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+          name: 'Current Location',
+          address: 'Current Location',
+        };
+      }
     }
   } catch (error) {
     console.warn('Could not get initial location:', error);
