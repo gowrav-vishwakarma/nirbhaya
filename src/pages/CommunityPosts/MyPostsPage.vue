@@ -18,23 +18,39 @@
         > -->
       </div>
       <!-- <hr style="border: 1px solid #e0e0e0; margin: 10px 0" /> -->
-      <div class="row items-center justify-between q-pa-md q-pt-none">
-        <div>
+      <div
+        class="row items-center justify-between q-pa-md q-pt-none full-width"
+      >
+        <div class="col-12">
           <h4
-            class="text-h5 text-weight-bold q-my-none text-primary"
+            class="text-h5 text-weight-bold q-my-none text-primary full-width"
             v-if="findUserData"
           >
             {{ findUserData.name }}
-            <p
-              style="font-size: 15px"
-              v-if="findUserData?.businessName"
-              class="text-grey-7 q-mt-none q-mb-none"
-            >
-              <span style="font-size: 12px; font-weight: 400"
-                >Business Name</span
+            <div class="business-info" v-if="findUserData?.businessName">
+              <p
+                style="font-size: 15px"
+                class="text-grey-7 q-mt-none q-mb-none"
               >
-              {{ findUserData.businessName }}
-            </p>
+                <span style="font-size: 12px; font-weight: 400"
+                  >Business Name :
+                </span>
+                {{ findUserData.businessName }}
+                <q-space />
+                <q-btn
+                  v-if="findUserData.hasCatalog"
+                  flat
+                  round
+                  dense
+                  icon="shopping_bag"
+                  color="primary"
+                  class="catalog-btn q-ml-sm"
+                  @click="openCatalog(findUserData.id)"
+                >
+                  <q-tooltip>View Catalog</q-tooltip>
+                </q-btn>
+              </p>
+            </div>
           </h4>
           <p class="text-grey-7 q-mt-none">
             Stay connected with your community
@@ -464,6 +480,13 @@
     :post="selectedPost"
     @post-updated="handlePostUpdated"
   />
+  <!-- Add BusinessCatalog component at the bottom of the template -->
+  <BusinessCatalog
+    v-if="selectedUser"
+    :user-id="selectedUser.id"
+    :user-name="selectedUser.name"
+    v-model:is-open="showCatalog"
+  />
 </template>
 
 <script setup lang="ts">
@@ -479,6 +502,7 @@ import PostEngagement from 'src/pages/CommunityPosts/PostEngagement.vue';
 import { Dialog } from 'quasar';
 import { Geolocation } from '@capacitor/geolocation';
 import EditPostDialog from 'src/components/Community/EditPostDialog.vue';
+import BusinessCatalog from 'src/components/Catalog/BusinessCatalog.vue';
 
 const props = defineProps<{
   id: string;
@@ -505,6 +529,7 @@ interface UserData {
   id: number;
   name: string;
   businessName?: string;
+  hasCatalog?: boolean;
   // Add other user properties as needed
 }
 
@@ -1528,6 +1553,19 @@ const formatBusinessCategory = (
     .split(' ')
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
     .join(' ');
+};
+
+const selectedUser = ref<{ id: number; name: string } | null>(null);
+const showCatalog = ref(false);
+
+const openCatalog = (userId: number) => {
+  if (findUserData.value) {
+    selectedUser.value = {
+      id: userId,
+      name: findUserData.value.businessName || findUserData.value.name,
+    };
+    showCatalog.value = true;
+  }
 };
 </script>
 <style scoped lang="scss">
@@ -2802,6 +2840,28 @@ const formatBusinessCategory = (
     background: rgba(255, 167, 38, 0.1);
     color: #f57c00;
     border-color: rgba(255, 167, 38, 0.2);
+  }
+}
+
+.business-info {
+  // display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: space-between;
+  width: 100%;
+
+  p {
+    display: flex;
+    align-items: center;
+  }
+}
+
+.catalog-btn {
+  margin-top: -4px;
+  transition: transform 0.2s ease;
+
+  &:hover {
+    transform: scale(1.1);
   }
 }
 </style>
