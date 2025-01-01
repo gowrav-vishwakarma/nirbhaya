@@ -320,6 +320,8 @@ import { useI18n } from 'vue-i18n';
 import { useMediaPermissions } from 'src/composables/useMediaPermissions';
 import { api } from 'src/boot/axios';
 import { StatusBar } from '@capacitor/status-bar';
+import { Geolocation } from '@capacitor/geolocation';
+import { useLocationStore } from 'src/stores/location-store';
 // import { Platform } from 'quasar';
 // import { version } from '../../package.json';
 import VersionChecker from 'src/components/VersionChecker.vue';
@@ -348,6 +350,8 @@ const isShortsVisible = process.env.SHORTS_VISIBLE === 'true';
 const ReloadKey = ref(8877);
 
 const { stopAllMediaStreams } = useMediaPermissions();
+
+const locationStore = useLocationStore();
 
 const isAppOpenedToday = () => {
   const lastOpenedDate = localStorage.getItem('lastAppOpenedDate');
@@ -413,6 +417,11 @@ onMounted(() => {
   window.addEventListener('scroll', handleScroll);
   locale.value = userStore.language;
   checkFirstTimeOpen();
+
+  // Add location check
+  if (!locationStore.getLocation) {
+    getCurrentLocation();
+  }
 
   if ($q.platform.is.capacitor || $q.platform.is.nativeMobile) {
     StatusBar.setBackgroundColor({ color: '#db1b5d' });
@@ -679,6 +688,27 @@ const goToAstroAiPage = () => {
 const handleInitialRoute = () => {
   if (userStore.isLoggedIn && router.currentRoute.value.path === '/') {
     router.push(userStore.defaultAppRoute);
+  }
+};
+
+const getCurrentLocation = async () => {
+  try {
+    const coordinates = await Geolocation.getCurrentPosition({
+      enableHighAccuracy: true,
+      timeout: 5000,
+    });
+
+    if (coordinates) {
+      locationStore.setLocation({
+        type: 'Point',
+        latitude: coordinates.coords.latitude,
+        longitude: coordinates.coords.longitude,
+        name: 'Current Location',
+        source: 'current',
+      });
+    }
+  } catch (error) {
+    console.error('Error getting location:', error);
   }
 };
 </script>

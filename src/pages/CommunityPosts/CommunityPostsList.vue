@@ -538,6 +538,7 @@ import LocationSelectionDialog from 'src/components/Location/LocationSelectionDi
 import { Geolocation } from '@capacitor/geolocation';
 import SearchPostDialog from 'src/components/Community/SearchPostDialog.vue';
 import BusinessCatalog from 'src/components/Catalog/BusinessCatalog.vue';
+import { useLocationStore } from 'src/stores/location-store';
 
 // Add these type definitions at the top of the script section
 interface Post extends Omit<CommunityPost, 'liked'> {
@@ -564,6 +565,7 @@ interface UserInteractionLimits {
 }
 
 const userStore = useUserStore();
+const locationStore = useLocationStore();
 
 const imageCdn =
   'https://xavoc-technocrats-pvt-ltd.blr1.cdn.digitaloceanspaces.com/';
@@ -919,14 +921,28 @@ onMounted(async () => {
 
   // Get initial location
   try {
-    if (userStore.user?.locations && userStore.user.locations.length) {
+    // First check location store
+    const storedLocation = locationStore.getLocation;
+    if (storedLocation?.latitude && storedLocation?.longitude) {
+      selectedLocation.value = {
+        type: 'current',
+        latitude: storedLocation.latitude,
+        longitude: storedLocation.longitude,
+        name: 'Current Location',
+        address: 'Current Location',
+      };
+    }
+    // If no stored location, check volunteering locations
+    else if (userStore.user?.locations && userStore.user.locations.length) {
       handleLocationSelected({
         type: 'Point',
         latitude: userStore.user.locations[0].location.coordinates[1],
         longitude: userStore.user.locations[0].location.coordinates[0],
         name: userStore.user.locations[0].name,
       });
-    } else {
+    }
+    // Finally try getting current location
+    else {
       const position = await Geolocation.getCurrentPosition({
         enableHighAccuracy: true,
         timeout: 10000,
