@@ -185,7 +185,7 @@
             <label>{{ t('common.businessLocation') }}</label>
             <q-input
               v-model="values.businessInfo.locationName"
-              :rules="[val => !!val || t('common.locationRequired')]"
+              :rules="[(val) => !!val || t('common.locationRequired')]"
               filled
               class="custom-radius"
               bg-color="pink-1"
@@ -198,12 +198,20 @@
           <div class="custom-input">
             <q-btn
               icon="my_location"
-              color="primary"
+              :color="isLocationSet ? 'primary' : 'grey'"
               class="bg-pink-1 full-width q-mt-md"
               @click="showLocationSelector = true"
             >
-              {{ t('common.setLocation') }}
+              {{
+                isLocationSet
+                  ? t('common.updateLocation')
+                  : t('common.setLocation')
+              }}
             </q-btn>
+            <div v-if="isLocationSet" class="location-display q-mt-sm">
+              <q-icon name="place" size="xs" class="q-mr-xs" />
+              {{ formattedCoordinates }}
+            </div>
           </div>
 
           <LocationSelectorDialog
@@ -800,31 +808,60 @@ const getCurrentLocation = async () => {
   }
 };
 
-// Add this watch to initialize businessInfo when checkbox is checked
+// Update the watch for showBusinessInfo
 watch(
   () => values.value.showBusinessInfo,
   (newValue) => {
-    if (newValue && !values.value.businessInfo) {
-      // Initialize businessInfo when checkbox is checked
-      values.value.businessInfo = {
-        businessName: '',
-        whatsappNumber: '',
-        locationName: '',
-        latitude: 0,
-        longitude: 0,
-      };
+    if (newValue) {
+      // Only initialize if businessInfo doesn't exist
+      if (!values.value.businessInfo) {
+        values.value.businessInfo = {
+          businessName: '',
+          whatsappNumber: '',
+          locationName: '',
+          latitude: 0,
+          longitude: 0,
+        };
+      }
     }
   }
 );
 
 const showLocationSelector = ref(false);
 
-const handleLocationSelected = (location) => {
-  values.value.businessInfo.locationName = location.name; // Assuming location has a name property
-  values.value.businessInfo.latitude = location.coordinates[1]; // Assuming coordinates are in [longitude, latitude] format
-  values.value.businessInfo.longitude = location.coordinates[0];
-  showLocationSelector.value = false; // Close the dialog
+const handleLocationSelected = (location: {
+  type: string;
+  coordinates: number[];
+}) => {
+  if (values.value.businessInfo) {
+    values.value.businessInfo.latitude = location.coordinates[1];
+    values.value.businessInfo.longitude = location.coordinates[0];
+
+    // Get the formatted address or a default location name
+    const locationName =
+      values.value.businessInfo.locationName || 'Business Location';
+    values.value.businessInfo.locationName = locationName;
+  }
+  showLocationSelector.value = false;
 };
+
+// Add a computed property to check if location is set
+const isLocationSet = computed(() => {
+  if (!values.value.businessInfo) return false;
+  return !!(
+    values.value.businessInfo.latitude &&
+    values.value.businessInfo.longitude &&
+    values.value.businessInfo.locationName
+  );
+});
+
+// Add a computed property for formatted coordinates
+const formattedCoordinates = computed(() => {
+  if (!values.value.businessInfo) return '';
+  const { latitude, longitude } = values.value.businessInfo;
+  if (!latitude || !longitude) return '';
+  return `${latitude.toFixed(6)}, ${longitude.toFixed(6)}`;
+});
 
 onMounted(() => {
   loadUserData();
@@ -909,8 +946,15 @@ onMounted(() => {
 
 .location-display {
   background: #f5f5f5;
-  padding: 8px;
-  border-radius: 4px;
+  padding: 6px 12px;
+  border-radius: 8px;
+  margin-top: 8px;
+  font-size: 0.8rem;
+  color: #666;
   text-align: center;
+  border: 1px solid #e0e0e0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 </style>

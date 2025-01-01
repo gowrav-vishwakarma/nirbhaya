@@ -225,7 +225,7 @@ export default {
   // Volunteering
   notificationLocations: 'Notification Locations',
   notificationLocationsHelp:
-    "Add locations where you'd like to receive SOS notifications",
+    "Add locations where you'd like to receive SOS notifications or See Community posts",
   locationName: 'Location Name',
   useCurrentLocation: 'Use Current Location',
   addNotificationLocation: 'Add Notification Location',
@@ -242,7 +242,7 @@ export default {
   searchRadius: 'Search Radius',
   volunteersFound: 'Volunteers available within',
   distance: 'distance',
-  volunteeringSettings: 'Volunteering Preferences',
+  volunteeringSettings: 'Location Preferences',
   availabilitySettings: 'Availability Preferences',
   // Misc
   noLocationSet: 'No location set',
@@ -594,6 +594,7 @@ export default {
   businessLocationHelp:
     'Add your business information to promote your business.',
   setLocation: 'Set Location',
+  updateLocation: 'Update Location',
 
   userNotRegisteredInApp: 'This phone number is not registered in the app',
 
