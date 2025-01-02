@@ -102,22 +102,39 @@
       <q-dialog v-model="showCartDialog">
         <q-card style="min-width: 350px">
           <q-card-section class="row items-center">
-            <div class="text-h6">Cart Items</div>
+            <div class="text-h6">
+              Cart Items
+              <span
+                v-if="cartItems.length > 0"
+                class="text-caption text-grey-7 q-ml-sm"
+              >
+                ({{ cartItems.length }}
+                {{ cartItems.length === 1 ? 'item' : 'items' }})
+              </span>
+            </div>
             <q-space />
             <q-btn icon="close" flat round dense v-close-popup />
           </q-card-section>
 
           <q-card-section class="q-pa-none">
-            <q-list>
-              <q-item v-for="(item, index) in cartItems" :key="index">
+            <q-list dense>
+              <q-item dense v-for="(item, index) in cartItems" :key="index">
                 <q-item-section>
-                  <div class="text-caption text-grey-8">{{ item.title }}</div>
-                  <q-input v-model="item.text" dense outlined class="q-pa-sm" />
+                  <q-input
+                    v-model="item.text"
+                    dense
+                    outlined
+                    :hint="`Ref image: ${item.title}`"
+                    class="q-my-xs"
+                    style="min-height: 40px"
+                  >
+                  </q-input>
                 </q-item-section>
                 <q-item-section side>
                   <q-btn
                     flat
                     round
+                    dense
                     color="negative"
                     icon="delete"
                     @click="cartItems.splice(index, 1)"
