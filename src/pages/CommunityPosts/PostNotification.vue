@@ -1,63 +1,63 @@
 <template>
-  <div class="notifications-container"  style="padding-top: env(safe-area-inset-top)">
-    <div
-        class="row items-center"
-        style="padding-top: 5px; padding-left: 10px"
-      >
-        <q-btn size="sm" flat class="back-button" @click="router.go(-1)">
-          <i style="font-size: 14px" class="fa-solid fa-arrow-left-long"></i>
-        </q-btn>
-        <!-- <span class="text-weight-bold text-primary q-ml-sm text-h4"
+  <div
+    class="notifications-container"
+    style="padding-top: env(safe-area-inset-top)"
+  >
+    <div class="row items-center" style="padding-top: 5px; padding-left: 10px">
+      <q-btn size="sm" flat class="back-button" @click="router.go(-1)">
+        <i style="font-size: 14px" class="fa-solid fa-arrow-left-long"></i>
+      </q-btn>
+      <!-- <span class="text-weight-bold text-primary q-ml-sm text-h4"
           >Profile Page</span
         > -->
-      </div>
+    </div>
 
-    <div class="q-pa-sm q-pt-sm q-mb-sm"  >
-      <h4 class="q-ma-none text-primary" style="font-size:20px;font-weight:900">Post Notifications</h4>
+    <div class="q-pa-sm q-pt-sm q-mb-sm">
+      <h4
+        class="q-ma-none text-primary"
+        style="font-size: 20px; font-weight: 900"
+      >
+        Post Notifications
+      </h4>
     </div>
 
     <div v-if="loading && !notifications.length" class="loading">
       <q-spinner-dots color="primary" size="40px" />
     </div>
-    
+
     <div v-else-if="notifications.length === 0" class="no-notifications">
       <div class="text-primary">
-
         <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path>
-              <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
-            </svg>
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path>
+          <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+        </svg>
       </div>
       <div class="text-grey-6 q-mt-sm">No notifications yet</div>
     </div>
-    
+
     <div v-else>
-      <div 
-        class="notification-list"
-        v-infinite-scroll="loadMore"
-        :offset="250"
-      >
+      <div class="notification-list" v-infinite-scroll="loadMore" :offset="250">
         <!-- Loop through all notifications -->
-        <div 
-          v-for="post in notifications" 
-          :key="post.id" 
+        <div
+          v-for="post in notifications"
+          :key="post.id"
           class="notification-card cursor-pointer"
           @click="navigateToPost(post.id)"
         >
           <div class="row no-wrap full-height">
             <!-- Image Column (40%) -->
             <div class="col-4 image-wrapper">
-              <q-img 
+              <q-img
                 v-if="post.mediaUrls?.length > 0"
                 :src="imageCdn + post.mediaUrls[0]"
                 class="post-thumbnail"
@@ -73,11 +73,14 @@
               <div class="notification-section">
                 <span class="text-caption text-grey-8">
                   <template v-if="post.likes.length > 0">
-                    <span class="text-weight-medium">{{ formatLikeNames(post.likes) }}</span> liked your post
-                  </template> 
+                    <span class="text-weight-medium">{{
+                      formatLikeNames(post.likes)
+                    }}</span>
+                    liked your post
+                  </template>
                 </span>
               </div>
-              
+
               <div class="avatars-container">
                 <q-avatar
                   v-for="(like, index) in post.likes.slice(0, 5)"
@@ -87,7 +90,13 @@
                   :style="`left: ${index * 14}px`"
                 >
                   <q-tooltip>{{ like.user.name }}</q-tooltip>
-                  <img :src="imageCdn+like.user?.profileImage || 'https://cdn.quasar.dev/img/avatar.png'" />
+                  <img
+                    :src="
+                      like.user?.profileImage
+                        ? imageCdn + like.user.profileImage
+                        : 'https://cdn.quasar.dev/img/avatar.png'
+                    "
+                  />
                 </q-avatar>
                 <div
                   v-if="post.likes.length > 5"
@@ -101,7 +110,10 @@
               <div class="notification-section q-mt-md">
                 <div class="text-caption text-grey-8">
                   <template v-if="post.comments.length > 0">
-                    <span class="text-weight-medium">{{ formatCommentNames(post.comments) }}</span> commented on your post
+                    <span class="text-weight-medium">{{
+                      formatCommentNames(post.comments)
+                    }}</span>
+                    commented on your post
                   </template>
                 </div>
                 <div class="avatars-container">
@@ -113,7 +125,12 @@
                     :style="`left: ${index * 14}px`"
                   >
                     <q-tooltip>{{ comment.user.name }}</q-tooltip>
-                    <img :src="imageCdn+comment.user?.profileImage || 'https://cdn.quasar.dev/img/avatar.png'" />
+                    <img
+                      :src="
+                        imageCdn + comment.user?.profileImage ||
+                        'https://cdn.quasar.dev/img/avatar.png'
+                      "
+                    />
                   </q-avatar>
                   <div
                     v-if="post.comments.length > 5"
@@ -135,7 +152,11 @@
       </div>
 
       <!-- No more data indicator -->
-      <div style="background-color: #eef2f6;" v-if="!hasMorePages && notifications.length > 0" class="text-center q-pa-sm   text-grey-6">
+      <div
+        style="background-color: #eef2f6"
+        v-if="!hasMorePages && notifications.length > 0"
+        class="text-center q-pa-sm text-grey-6"
+      >
         No more notifications
       </div>
     </div>
@@ -214,11 +235,11 @@ const hasMorePages = ref(true);
 const pageSize = 10; // Number of items per page
 
 const groupedNotifications = computed(() => {
-  const groups: { [key: string]: { likes: any[], comments: any[] } } = {};
-  
-  notifications.value.forEach(post => {
+  const groups: { [key: string]: { likes: any[]; comments: any[] } } = {};
+
+  notifications.value.forEach((post) => {
     // Group likes
-    post.likes.forEach(like => {
+    post.likes.forEach((like) => {
       const dateKey = date.formatDate(like.createdAt, 'YYYY-MM-DD');
       if (!groups[dateKey]) {
         groups[dateKey] = { likes: [], comments: [] };
@@ -231,13 +252,13 @@ const groupedNotifications = computed(() => {
           id: like.userId,
           name: post.userName,
           email: null,
-          profileImage: null
-        }
+          profileImage: null,
+        },
       });
     });
 
     // Group comments
-    post.comments.forEach(comment => {
+    post.comments.forEach((comment) => {
       const dateKey = date.formatDate(comment.createdAt, 'YYYY-MM-DD');
       if (!groups[dateKey]) {
         groups[dateKey] = { likes: [], comments: [] };
@@ -250,8 +271,8 @@ const groupedNotifications = computed(() => {
           id: comment.userId,
           name: post.userName,
           email: null,
-          profileImage: null
-        }
+          profileImage: null,
+        },
       });
     });
   });
@@ -262,43 +283,55 @@ const groupedNotifications = computed(() => {
     .reduce((acc, key) => {
       acc[key] = groups[key];
       return acc;
-    }, {} as { [key: string]: { likes: any[], comments: any[] } });
+    }, {} as { [key: string]: { likes: any[]; comments: any[] } });
 });
 
 const formatLikeNames = (likes: Like[]) => {
   if (likes.length === 0) return '';
-  
+
   // Get first names only
   const getFirstName = (name: string) => name.split(' ')[0];
-  
+
   if (likes.length === 1) {
     return getFirstName(likes[0].user.name);
   }
   if (likes.length === 2) {
-    return `${getFirstName(likes[0].user.name)} and ${getFirstName(likes[1].user.name)}`;
+    return `${getFirstName(likes[0].user.name)} and ${getFirstName(
+      likes[1].user.name
+    )}`;
   }
   if (likes.length === 3) {
-    return `${getFirstName(likes[0].user.name)}, ${getFirstName(likes[1].user.name)} and ${getFirstName(likes[2].user.name)}`;
+    return `${getFirstName(likes[0].user.name)}, ${getFirstName(
+      likes[1].user.name
+    )} and ${getFirstName(likes[2].user.name)}`;
   }
-  return `${getFirstName(likes[0].user.name)}, ${getFirstName(likes[1].user.name)} and ${likes.length - 2} others`;
+  return `${getFirstName(likes[0].user.name)}, ${getFirstName(
+    likes[1].user.name
+  )} and ${likes.length - 2} others`;
 };
 
 const formatCommentNames = (comments: Comment[]) => {
   if (comments.length === 0) return '';
-  
+
   // Get first names only
   const getFirstName = (name: string) => name.split(' ')[0];
-  
+
   if (comments.length === 1) {
     return getFirstName(comments[0].user.name);
   }
   if (comments.length === 2) {
-    return `${getFirstName(comments[0].user.name)} and ${getFirstName(comments[1].user.name)}`;
+    return `${getFirstName(comments[0].user.name)} and ${getFirstName(
+      comments[1].user.name
+    )}`;
   }
   if (comments.length === 3) {
-    return `${getFirstName(comments[0].user.name)}, ${getFirstName(comments[1].user.name)} and ${getFirstName(comments[2].user.name)}`;
+    return `${getFirstName(comments[0].user.name)}, ${getFirstName(
+      comments[1].user.name
+    )} and ${getFirstName(comments[2].user.name)}`;
   }
-  return `${getFirstName(comments[0].user.name)}, ${getFirstName(comments[1].user.name)} and ${comments.length - 2} others`;
+  return `${getFirstName(comments[0].user.name)}, ${getFirstName(
+    comments[1].user.name
+  )} and ${comments.length - 2} others`;
 };
 
 const formatDateHeader = (dateStr: string) => {
@@ -307,10 +340,16 @@ const formatDateHeader = (dateStr: string) => {
   const yesterday = new Date(today);
   yesterday.setDate(yesterday.getDate() - 1);
 
-  if (date.formatDate(notificationDate, 'YYYY-MM-DD') === date.formatDate(today, 'YYYY-MM-DD')) {
+  if (
+    date.formatDate(notificationDate, 'YYYY-MM-DD') ===
+    date.formatDate(today, 'YYYY-MM-DD')
+  ) {
     return 'Today';
   }
-  if (date.formatDate(notificationDate, 'YYYY-MM-DD') === date.formatDate(yesterday, 'YYYY-MM-DD')) {
+  if (
+    date.formatDate(notificationDate, 'YYYY-MM-DD') ===
+    date.formatDate(yesterday, 'YYYY-MM-DD')
+  ) {
     return 'Yesterday';
   }
   return date.formatDate(notificationDate, 'MMM D, YYYY');
@@ -319,14 +358,14 @@ const formatDateHeader = (dateStr: string) => {
 const fetchNotifications = async (page: number) => {
   try {
     loading.value = true;
-    const response = await api.get(`/posts/post-notifications`, {
+    const response = await api.get('/posts/post-notifications', {
       params: {
         page: page,
         limit: pageSize,
-        postId: props.postId
-      }
+        postId: props.postId,
+      },
     });
-    
+
     // Append new posts to existing ones
     if (page === 1) {
       notifications.value = response.data.posts;
@@ -336,12 +375,11 @@ const fetchNotifications = async (page: number) => {
 
     // Check if we have more pages
     hasMorePages.value = response.data.posts.length === pageSize;
-
   } catch (error) {
     console.error('Error fetching notifications:', error);
     $q.notify({
       type: 'negative',
-      message: 'Failed to load notifications'
+      message: 'Failed to load notifications',
     });
   } finally {
     loading.value = false;
@@ -361,24 +399,31 @@ onMounted(() => {
 });
 
 // Reset and reload when postId changes
-watch(() => props.postId, () => {
-  currentPage.value = 1;
-  hasMorePages.value = true;
-  notifications.value = [];
-  fetchNotifications(1);
-});
+watch(
+  () => props.postId,
+  () => {
+    currentPage.value = 1;
+    hasMorePages.value = true;
+    notifications.value = [];
+    fetchNotifications(1);
+  }
+);
 
-watch(notifications, (newVal) => {
-  console.log('Notifications updated:', newVal);
-  console.log('Grouped notifications:', groupedNotifications.value);
-}, { deep: true });
+watch(
+  notifications,
+  (newVal) => {
+    console.log('Notifications updated:', newVal);
+    console.log('Grouped notifications:', groupedNotifications.value);
+  },
+  { deep: true }
+);
 
 const allLikes = computed(() => {
-  return notifications.value.flatMap(post => post.likes);
+  return notifications.value.flatMap((post) => post.likes);
 });
 
 const allComments = computed(() => {
-  return notifications.value.flatMap(post => post.comments);
+  return notifications.value.flatMap((post) => post.comments);
 });
 
 const $q = useQuasar();
@@ -401,7 +446,7 @@ const navigateToPost = (postId: number) => {
 .notification-card {
   background-color: white;
   height: 130px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
   overflow: hidden;
   display: flex;
   border: 1px solid #eee;

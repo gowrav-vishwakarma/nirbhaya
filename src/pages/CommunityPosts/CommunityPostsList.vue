@@ -183,12 +183,12 @@
                     </div>
                     <!-- Add catalog icon -->
                     <q-space />
-                    <q-icon
+
+                    <q-badge
                       v-if="post.hasCatalog && isCatalogAccessible(post)"
-                      name="shopping_bag"
-                      size="18px"
                       color="primary"
-                      class="q-ml-sm cursor-pointer"
+                      class="q-ml-sm catalog-badge cursor-pointer"
+                      align="middle"
                       @click="openCatalog(post.userId)"
                     >
                       <q-tooltip>
@@ -198,7 +198,13 @@
                             : 'Enable location to view catalog'
                         }}
                       </q-tooltip>
-                    </q-icon>
+                      <q-icon
+                        name="shopping_cart"
+                        size="18px"
+                        class="q-mr-xs"
+                      />
+                      <!-- Catalog -->
+                    </q-badge>
                     <q-icon
                       v-else-if="post.hasCatalog"
                       name="shopping_bag"
@@ -277,7 +283,12 @@
                         : 'Read More'
                     }}
                   </span>
-                  <div v-if="post.businessCategory" class="business-category">
+                  <div
+                    v-if="
+                      post.businessCategory && post.businessCategory != 'null'
+                    "
+                    class="business-category"
+                  >
                     {{ formatBusinessCategory(post.businessCategory) }}
                   </div>
                 </div>
@@ -3215,4 +3226,30 @@ const isCatalogAccessible = (post: Post) => {
     border-color: rgba(255, 167, 38, 0.2);
   }
 }
+
+.catalog-badge {
+  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 500;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+// ... rest of your existing styles
 </style>

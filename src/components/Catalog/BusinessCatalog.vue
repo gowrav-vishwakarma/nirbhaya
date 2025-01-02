@@ -5,7 +5,7 @@
       <q-card-section class="row items-center q-pb-none">
         <div>
           <div class="text-h6">{{ userName }}'s Catalog</div>
-          <div class="text-caption q-mt-sm">
+          <div class="text-caption q-mb-sm">
             <q-icon
               :name="doesDeliver ? 'local_shipping' : 'close'"
               :color="doesDeliver ? 'positive' : 'negative'"
@@ -100,8 +100,16 @@
 
       <!-- New Cart Dialog -->
       <q-dialog v-model="showCartDialog">
-        <q-card style="min-width: 350px">
-          <q-card-section class="row items-center">
+        <q-card
+          style="
+            min-width: 350px;
+            max-height: 80vh;
+            display: flex;
+            flex-direction: column;
+          "
+        >
+          <!-- Fixed Header -->
+          <q-card-section class="row items-center q-pb-none">
             <div class="text-h6">
               Cart Items
               <span
@@ -116,7 +124,8 @@
             <q-btn icon="close" flat round dense v-close-popup />
           </q-card-section>
 
-          <q-card-section class="q-pa-none">
+          <!-- Scrollable Content -->
+          <q-card-section class="scroll" style="flex: 1; overflow: auto">
             <q-list dense>
               <q-item dense v-for="(item, index) in cartItems" :key="index">
                 <q-item-section>
@@ -130,7 +139,7 @@
                   >
                   </q-input>
                 </q-item-section>
-                <q-item-section side>
+                <q-item-section side class="items-start">
                   <q-btn
                     flat
                     round
@@ -143,8 +152,9 @@
               </q-item>
             </q-list>
           </q-card-section>
-
-          <q-card-actions align="right" class="bg-white">
+          <q-separator />
+          <!-- Fixed Footer -->
+          <q-card-actions align="right" class="bg-white q-pa-md">
             <q-btn color="primary" label="Place Order" @click="placeOrder" />
           </q-card-actions>
         </q-card>
