@@ -153,13 +153,10 @@
             :rules="[(val) => !!val || 'Title is required']"
           />
 
-          <div class="q-mt-md">
-            <q-img
-              v-if="imagePreview"
-              :src="imagePreview"
-              style="height: 200px; max-width: 300px"
-              class="q-mb-sm"
-            />
+          <div class="q-mt-md image-upload-container">
+            <div v-if="imagePreview" class="preview-container">
+              <q-img :src="imagePreview" class="preview-image" fit="contain" />
+            </div>
 
             <q-file
               v-model="selectedFile"
@@ -199,9 +196,17 @@
     <!-- Zoom Dialog -->
     <q-dialog v-model="zoomDialog">
       <q-card class="zoom-dialog">
-        <q-card-section class="row items-center">
+        <q-card-section class="zoom-header">
           <q-space />
-          <q-btn icon="close" flat round dense v-close-popup />
+          <q-btn
+            icon="close"
+            flat
+            round
+            dense
+            color="white"
+            v-close-popup
+            class="zoom-close-btn"
+          />
         </q-card-section>
         <q-card-section class="q-pa-none">
           <q-img :src="zoomImageUrl" style="max-height: 90vh" fit="contain" />
@@ -320,7 +325,7 @@ const openItemDialog = (item?: CatalogItem) => {
   if (item) {
     editingItem.value = item;
     itemForm.value = { ...item };
-    imagePreview.value = item.imageUrl;
+    imagePreview.value = item.imageUrl ? imageCdn + item.imageUrl : '';
   } else {
     editingItem.value = null;
     itemForm.value = {
@@ -452,11 +457,53 @@ onMounted(() => {
 .zoom-dialog {
   min-width: 80vw;
   min-height: 80vh;
-  background: rgba(0, 0, 0, 0.8);
+  background: rgba(0, 0, 0, 0.9);
+}
+
+.zoom-header {
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 1;
+  padding: 8px;
+}
+
+.zoom-close-btn {
+  background: rgba(0, 0, 0, 0.5);
+  &:hover {
+    background: rgba(0, 0, 0, 0.7);
+  }
 }
 
 .zoom-dialog :deep(.q-img) {
   width: 100%;
   height: 100%;
+}
+
+.image-upload-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.preview-container {
+  width: 100%;
+  height: 250px;
+  background: #f5f5f5;
+  border-radius: 8px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.preview-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+:deep(.q-img__content) {
+  background: transparent;
 }
 </style>
