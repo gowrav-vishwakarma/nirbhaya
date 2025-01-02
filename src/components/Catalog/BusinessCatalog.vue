@@ -92,6 +92,7 @@
         :item-count="cartItems.length"
         :current-slide="slide"
         :business-user-id="userId"
+        :business-name="userName"
         :whatsapp-number="whatsappNumber"
         @add-item="addToCart"
         @show-cart="showCartDialog = true"

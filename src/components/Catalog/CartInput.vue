@@ -45,6 +45,7 @@ const props = defineProps<{
   itemCount: number;
   currentSlide: number;
   businessUserId: number;
+  businessName: string;
   whatsappNumber: string | null;
 }>();
 
@@ -83,7 +84,7 @@ const placeOrder = async (
         .map((item, index) => `${index + 1}. ${item.text}`)
         .join('\n');
 
-      const text = `New Order:\n\n${formattedItems}\n\nPlease confirm my order.`;
+      const text = `\n\nHi ${props.businessName},\n\nYou have a new order from the user of SOSBharat app! Here’s the list of items:\n\n${formattedItems}\n\n----\n\nPlease check and confirm the order and prepare the items for delivery.\n\n Thanks You \n\n Team SOSBharat\n\n----`;
       const encodedText = encodeURIComponent(text);
 
       const universalUrl = `https://wa.me/91${props.whatsappNumber}?text=${encodedText}`;

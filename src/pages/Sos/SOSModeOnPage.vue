@@ -418,39 +418,39 @@ const threats = [
     color: '#000000',
     icon: 'emergency',
     threatName: 'domesticViolence',
-    visibleThreat: 'Violence',
+    visibleThreat: 'common.domesticViolence',
   },
   {
     color: '#FF0000',
     icon: 'diversity_3',
     threatName: 'attemptedKidnapping',
-    visibleThreat: 'Kidnapping',
+    visibleThreat: 'common.attemptedKidnapping',
   },
 
   {
     color: '#808000',
     icon: 'touch_app',
     threatName: 'physicalThreat',
-    visibleThreat: 'Physical Threat',
+    visibleThreat: 'common.physicalThreat',
   },
   {
     color: '#641e16',
     icon: 'pan_tool',
     threatName: 'sexualAssault',
-    visibleThreat: 'Sexual Assault',
+    visibleThreat: 'common.sexualAssault',
   },
   {
     color: '#FF00FF',
     icon: 'gesture',
     threatName: 'followedBySomeone',
-    visibleThreat: 'Someone Followed',
+    visibleThreat: 'common.followedBySomeone',
   },
 
   {
     color: '#008080',
     icon: 'record_voice_over',
     threatName: 'verbalHarassment',
-    visibleThreat: 'Verbal Harassment',
+    visibleThreat: 'common.verbalHarassment',
   },
 
   // 'common.followedBySomeone',
@@ -1278,7 +1278,7 @@ const updateNearByAlso = () => {
     darken(rgb(255, 255, 255), 0%)
   ) !important;
   border: 1px solid rgba(221, 218, 218, 0.418) !important;
-  width: 180px;
+  min-width: 200px;
   margin-bottom: 5px;
   margin-left: 5px;
   // display: flex;

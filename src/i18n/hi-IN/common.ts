@@ -419,4 +419,18 @@ export default {
   locationRequired: 'स्थान आवश्यक है',
   locationCaptured: 'स्थान सफलतापूर्वक कैप्चर किया गया',
   caretext: 'दुरुपयोग, सुरक्षा संबंधी या उल्लंघनों की रिपोर्ट करें',
+
+  businessInformation: 'व्यवसाय जानकारी',
+  addBusinessInformation: 'व्यवसाय जानकारी जोड़ें',
+  businessLocationHelp:
+    'अपने व्यवसाय को बढ़ावा देने के लिए अपनी व्यवसाय जानकारी जोड़ें।',
+  setLocation: 'स्थान सेट करें',
+  updateLocation: 'स्थान अपडेट करें',
+
+  userNotRegisteredInApp: 'यह फोन नंबर ऐप में पंजीकृत नहीं है',
+
+  fillRequiredFields: 'कृपया सभी आवश्यक फ़ील्ड भरें',
+  emergencyContactsUpdated: 'आपातकालीन संपर्क सफलतापूर्वक अपडेट किए गए',
+  emergencyContactsUpdateError: 'आपातकालीन संपर्क अपडेट करने में त्रुटि',
+  locationUpdateSuccess: 'स्थान सफलतापूर्वक अपडेट किया गया',
 };

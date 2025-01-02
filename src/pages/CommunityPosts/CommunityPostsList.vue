@@ -1762,6 +1762,8 @@ const isCatalogAccessible = (post: Post) => {
 // Update the template section where catalog icon is shown
 </script>
 <style scoped lang="scss">
+@use 'sass:color';
+
 .container {
   max-width: 1200px;
   margin: 0 auto;
@@ -2921,7 +2923,8 @@ const isCatalogAccessible = (post: Post) => {
   color: white;
 
   &:hover {
-    background: darken($primary, 5%);
+    // background: darken($primary, 5%);
+    background: color.adjust($primary, $lightness: -5%);
   }
 }
 

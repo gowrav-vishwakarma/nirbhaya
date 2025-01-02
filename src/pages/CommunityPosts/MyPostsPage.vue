@@ -37,18 +37,16 @@
                 </span>
                 {{ findUserData.businessName }}
                 <q-space />
-                <q-btn
+                <q-badge
                   v-if="findUserData.hasCatalog"
-                  flat
-                  round
-                  dense
-                  icon="shopping_bag"
                   color="primary"
-                  class="catalog-btn q-ml-sm"
+                  class="q-ml-sm catalog-badge cursor-pointer"
+                  align="middle"
                   @click="openCatalog(findUserData.id)"
                 >
                   <q-tooltip>View Catalog</q-tooltip>
-                </q-btn>
+                  <q-icon name="shopping_cart" size="18px" class="q-mr-xs" />
+                </q-badge>
               </p>
             </div>
           </h4>
@@ -1569,6 +1567,7 @@ const openCatalog = (userId: number) => {
 };
 </script>
 <style scoped lang="scss">
+@use 'sass:color';
 .container {
   max-width: 1200px;
   margin: 0 auto;
@@ -2693,7 +2692,8 @@ const openCatalog = (userId: number) => {
   color: white;
 
   &:hover {
-    background: darken($primary, 5%);
+    // background: darken($primary, 5%);
+    background: color.adjust($primary, $lightness: -5%);
   }
 }
 
