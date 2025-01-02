@@ -156,6 +156,46 @@
             label="Show location on post"
             class="q-mb-md"
           />
+
+          <q-select
+            v-if="isBusinessPost"
+            v-model="form.businessCategory"
+            :options="businessCategories"
+            label="Select Business Category"
+            class="q-mb-md"
+            emit-value
+            option-value="value"
+            option-label="label"
+            map-options
+            :filter="filterBusinessCategories"
+            :rules="[(val) => !!val || 'Please select a category']"
+          >
+            <template v-slot:no-option>
+              <q-item>
+                <q-item-section class="text-grey">
+                  No results found
+                </q-item-section>
+              </q-item>
+            </template>
+            <template v-slot:option="scope">
+              <template v-if="scope.opt.group">
+                <q-item-label
+                  header
+                  class="text-weight-bold bg-grey-2 q-pa-sm"
+                  :key="scope.opt.id"
+                >
+                  {{ scope.opt.group }}
+                </q-item-label>
+              </template>
+              <template v-else>
+                <q-item v-bind="scope.itemProps" :key="scope.opt.id">
+                  <q-item-section>
+                    <q-item-label>{{ scope.opt.label }}</q-item-label>
+                  </q-item-section>
+                </q-item>
+              </template>
+            </template>
+          </q-select>
         </div>
 
         <div class="row q-mt-lg">
@@ -248,6 +288,7 @@ import { useQuasar } from 'quasar';
 import { useUserStore } from 'src/stores/user-store';
 import { Geolocation } from '@capacitor/geolocation';
 import LocationSelectorDialog from '../Location/LocationSelectorDialog.vue';
+import businessCategoriesData from 'src/jsondata/businessCategories.json';
 
 const userStore = useUserStore();
 
@@ -279,6 +320,7 @@ const form = ref({
     coordinates: [0, 0],
   },
   showLocation: false,
+  businessCategory: null as string | null,
 });
 
 const tagInput = ref('');
@@ -464,7 +506,7 @@ const handleMediaUpload = () => {
             color: 'negative',
             message: 'Error processing images',
             icon: 'error',
-            position:'top-right'
+            position: 'top-right',
           });
         } finally {
           isProcessingImages.value = false;
@@ -560,16 +602,12 @@ const getCurrentLocation = async () => {
           position.coords.latitude,
         ];
       }
-      if (!selectedLocationId.value) {
-        selectedLocationId.value = 0;
-      }
 
-      // Update form location based on selected location
-      const selectedLocation = savedLocations.value.find(
-        (loc) => loc.id === selectedLocationId.value
-      );
-      if (selectedLocation) {
-        form.value.location = selectedLocation.location;
+      // Only set current location if no location is currently selected
+      if (selectedLocationId.value === null) {
+        selectedLocationId.value = 0;
+        // Update form location only when setting to current location
+        form.value.location = savedLocations.value[0].location;
       }
     }
   } catch (error) {
@@ -607,6 +645,7 @@ watch(
           coordinates: [0, 0],
         },
         showLocation: false,
+        businessCategory: null,
       };
 
       // Reset files and previews
@@ -656,6 +695,27 @@ const hasBusinessLocation = computed(() => {
 
 const isBusinessPost = ref(false);
 
+const businessCategories = computed(() => {
+  const categories = businessCategoriesData;
+
+  // Transform the categories into a flat list with group headers and unique keys
+  return categories.reduce((acc, category, categoryIndex) => {
+    return [
+      ...acc,
+      {
+        group: category.group,
+        id: `group_${categoryIndex}`,
+        value: `group_${categoryIndex}`,
+      },
+      ...category.options.map((opt, optIndex) => ({
+        ...opt,
+        groupName: category.group,
+        id: `${categoryIndex}_${optIndex}`,
+      })),
+    ];
+  }, [] as Array<any>);
+});
+
 const submitPost = async () => {
   try {
     isSubmitting.value = true;
@@ -687,6 +747,10 @@ const submitPost = async () => {
       formData.append(`media_${index}`, file);
     });
 
+    if (isBusinessPost.value && form.value.businessCategory) {
+      formData.append('businessCategory', form.value.businessCategory);
+    }
+
     await api.post('/posts/post-create', formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
@@ -705,6 +769,7 @@ const submitPost = async () => {
         coordinates: [0, 0],
       },
       showLocation: true,
+      businessCategory: null,
     };
     selectedFiles.value = [];
     previewUrls.value.forEach((url) => URL.revokeObjectURL(url));
@@ -767,6 +832,52 @@ const handleLocationSelected = (location: {
   savedLocations.value = [...savedLocations.value, newLocation];
   selectedLocationId.value = newLocation.id;
   form.value.location = location;
+};
+
+// Add to your watch for isBusinessPost:
+watch(
+  () => isBusinessPost.value,
+  (newValue) => {
+    if (!newValue) {
+      form.value.businessCategory = null;
+    }
+  }
+);
+
+const filterBusinessCategories = (
+  val: string,
+  update: (callback: () => void) => void
+) => {
+  if (val === '') {
+    update(() => {
+      // Return all categories when search is empty
+      return;
+    });
+    return;
+  }
+
+  update(() => {
+    const needle = val.toLowerCase();
+    const filtered = businessCategories.value.filter((item) => {
+      // Don't filter group headers
+      if (item.group) return true;
+
+      // Search in both label and group name
+      return (
+        item.label?.toLowerCase().includes(needle) ||
+        item.groupName?.toLowerCase().includes(needle)
+      );
+    });
+
+    // Make sure we keep group headers for any matching items
+    const groupsWithMatches = new Set(
+      filtered.filter((item) => !item.group).map((item) => item.groupName)
+    );
+
+    return filtered.filter(
+      (item) => !item.group || groupsWithMatches.has(item.group)
+    );
+  });
 };
 </script>
 

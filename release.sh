@@ -33,6 +33,8 @@ git push origin develop
 # Uncomment the API_BASE_URL with https and comment the one with http
 sed -i.bak 's/^#\(.*https:\/\/.*\)/\1/' .env && rm .env.bak
 sed -i.bak 's/^\(API_BASE_URL=http:\/\/.*\)/#\1/' .env && rm .env.bak
+# Disable ENABLE_ASTRO_APP
+sed -i.bak 's/^\(ENABLE_ASTRO_APP=.*\)/ENABLE_ASTRO_APP=false/' .env && rm .env.bak
 
 # Build the app in develop
 npx quasar build -m pwa
@@ -88,5 +90,7 @@ git checkout develop
 # Revert the changes in .env
 sed -i.bak 's/^\(API_BASE_URL=https:\/\/.*\)/#\1/' .env && rm .env.bak
 sed -i.bak 's/^#\(API_BASE_URL=http:\/\/.*\)/\1/' .env && rm .env.bak
+# Re-enable ENABLE_ASTRO_APP
+sed -i.bak 's/^\(ENABLE_ASTRO_APP=.*\)/ENABLE_ASTRO_APP=true/' .env && rm .env.bak
 
 echo "Release of version ${new_version} successful!"

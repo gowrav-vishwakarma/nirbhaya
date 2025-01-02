@@ -47,6 +47,7 @@ export interface User {
   businessName: string;
   whatsappNumber: string;
   profileImage: '';
+  defaultApp: 'sos' | 'news' | 'community' | 'astroai';
 }
 
 interface NewsPreferences {
@@ -83,6 +84,7 @@ const defaultUser: User = {
   businessName: '',
   whatsappNumber: '',
   profileImage: '',
+  defaultApp: 'sos',
 };
 
 export const useUserStore = defineStore('userStore', {
@@ -164,6 +166,19 @@ export const useUserStore = defineStore('userStore', {
     isLoggedIn: (state) => !!state.user.token,
     userName: (state) => state.user.name ?? '',
     userMobileNumber: (state) => state.user.phoneNumber ?? '',
+    defaultAppRoute: (state) => {
+      switch (state.user.defaultApp) {
+        case 'news':
+          return '/news';
+        case 'community':
+          return '/comunity-post';
+        case 'astroai':
+          return process.env.ENABLE_ASTRO_APP === 'true' ? '/astro-ai' : '/';
+        case 'sos':
+        default:
+          return '/';
+      }
+    },
   },
   persist: {
     key: 'sos-user',

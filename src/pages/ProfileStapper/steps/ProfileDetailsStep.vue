@@ -7,7 +7,7 @@
           <label>{{ t('common.name') }}</label>
           <q-input
             v-model="values.name"
-            :rules="[val => !!val || t('common.nameRequired')]"
+            :rules="[(val) => !!val || t('common.nameRequired')]"
             :error="!!errors.name"
             :error-message="errors.name?.join('; ')"
             filled
@@ -44,7 +44,10 @@
             bg-color="pink-1"
             dense
             hide-bottom-space
+            :max="maxDobDate"
           />
+
+          <!-- :max-date="maxDobDate" -->
         </div>
 
         <div class="custom-input">
@@ -64,6 +67,7 @@
             :error-message="errors.state?.join('; ')"
             @update:model-value="handleStateChange"
             hide-bottom-space
+            behavior="menu"
           />
         </div>
 
@@ -144,7 +148,7 @@
             <label>{{ t('common.businessName') }}</label>
             <q-input
               v-model="values.businessInfo.businessName"
-              :rules="[val => !!val || t('common.businessNameRequired')]"
+              :rules="[(val) => !!val || t('common.businessNameRequired')]"
               filled
               class="custom-radius"
               bg-color="pink-1"
@@ -159,8 +163,8 @@
               v-model="values.businessInfo.whatsappNumber"
               type="number"
               :rules="[
-                val => !!val || t('common.whatsappRequired'),
-                val => String(val).length === 10 || t('common.phoneLength')
+                (val) => !!val || t('common.whatsappRequired'),
+                (val) => String(val).length === 10 || t('common.phoneLength'),
               ]"
               filled
               class="custom-radius"
@@ -168,6 +172,12 @@
               dense
               hide-bottom-space
               prefix="+91"
+              @keydown="(e: KeyboardEvent) => {
+              if (values.businessInfo.whatsappNumber && values.businessInfo.whatsappNumber.toString().length >= 10 && e.key !== 'Backspace' && e.key !== 'Delete') {
+                e.preventDefault();
+              }
+            }"
+              maxlength="10"
             />
           </div>
 
@@ -175,7 +185,7 @@
             <label>{{ t('common.businessLocation') }}</label>
             <q-input
               v-model="values.businessInfo.locationName"
-              :rules="[val => !!val || t('common.locationRequired')]"
+              :rules="[(val) => !!val || t('common.locationRequired')]"
               filled
               class="custom-radius"
               bg-color="pink-1"
@@ -186,38 +196,44 @@
           </div>
 
           <div class="custom-input">
-            <div v-if="values.businessInfo.latitude && values.businessInfo.longitude" 
-                 class="location-display q-mt-sm">
-              <div class="text-caption">
-                Lat: {{ values.businessInfo.latitude.toFixed(6) }}
-                Lng: {{ values.businessInfo.longitude.toFixed(6) }}
-              </div>
-            </div>
             <q-btn
-              :loading="isLoadingLocation"
-              @click="getCurrentLocation"
               icon="my_location"
-              color="primary"
+              :color="isLocationSet ? 'primary' : 'grey'"
               class="bg-pink-1 full-width q-mt-md"
-              flat
+              @click="showLocationSelector = true"
             >
-              {{ t('common.getCurrentLocation') }}
+              {{
+                isLocationSet
+                  ? t('common.updateLocation')
+                  : t('common.setLocation')
+              }}
             </q-btn>
-
+            <div v-if="isLocationSet" class="location-display q-mt-sm">
+              <q-icon name="place" size="xs" class="q-mr-xs" />
+              {{ formattedCoordinates }}
+            </div>
           </div>
+
+          <LocationSelectorDialog
+            v-model="showLocationSelector"
+            @location-selected="handleLocationSelected"
+          />
         </template>
       </q-form>
     </div>
-    <div class="q-px-md q-px-md q-py-sm text-center" style="border:none !important;" >
+    <div
+      class="q-px-md q-px-md q-py-sm text-center"
+      style="border: none !important"
+    >
       <q-btn
         :label="t('common.next')"
-        type="submit" 
+        type="submit"
         color="primary"
         class="next-button q-mt-xs"
         :disable="!isFormValid"
         :loading="isLoading"
         @click="handleSubmit"
-        style="border-radius: 10px !important; height: 40px;"
+        style="border-radius: 10px !important; height: 40px"
       >
         <template v-slot:loading>
           <q-spinner-dots />
@@ -229,31 +245,32 @@
 </template>
 
 <script lang="ts" setup>
-import { onMounted, computed, ref, watch, nextTick } from 'vue'
-import { useQuasar } from 'quasar'
-import { useI18n } from 'vue-i18n'
-import { api } from 'src/boot/axios'
-import { useForm } from 'src/qnatk/composibles/use-form'
-import SearchCity from 'src/components/SearchCity.vue'
-import { useUserStore } from 'src/stores/user-store'
-import type { QSelectFilterFn } from 'quasar'
-import { Geolocation } from '@capacitor/geolocation'
-    
-const $q = useQuasar()
-const { t } = useI18n()
-const userStore = useUserStore()
+import { onMounted, computed, ref, watch, nextTick } from 'vue';
+import { useQuasar } from 'quasar';
+import { useI18n } from 'vue-i18n';
+import { api } from 'src/boot/axios';
+import { useForm } from 'src/qnatk/composibles/use-form';
+import SearchCity from 'src/components/SearchCity.vue';
+import { useUserStore } from 'src/stores/user-store';
+import type { QSelectFilterFn } from 'quasar';
+import { Geolocation } from '@capacitor/geolocation';
+import LocationSelectorDialog from 'src/components/Location/LocationSelectorDialog.vue';
+
+const $q = useQuasar();
+const { t } = useI18n();
+const userStore = useUserStore();
 
 interface City {
-  officename: string
-  statename: string 
-  pincode: string
-  city?: string
+  officename: string;
+  statename: string;
+  pincode: string;
+  city?: string;
 }
 
 interface UserLocation {
   name: string;
   location: {
-    type: "Point";
+    type: 'Point';
     coordinates: [number, number];
   };
   isBusinessLocation?: boolean;
@@ -268,27 +285,33 @@ interface BusinessInfo {
 }
 
 interface FormValues {
-  name: string
-  phoneNumber: string
-  dob: string
-  state: string
-  city: City | null
-  userType: string
-  profession: string
-  referredBy: string
-  pincode: string
-  showBusinessInfo: boolean
-  businessInfo: BusinessInfo | null
-  locations?: UserLocation[]
-  whatsappNumber?: string
-  businessName?: string
+  name: string;
+  phoneNumber: string;
+  dob: string;
+  state: string;
+  city: City | null;
+  userType: string;
+  profession: string;
+  referredBy: string;
+  pincode: string;
+  showBusinessInfo: boolean;
+  businessInfo: BusinessInfo | null;
+  locations?: UserLocation[];
+  whatsappNumber?: string;
+  businessName?: string;
 }
 
 // const props = defineProps<{
 //   userData: FormValues
 // }>()
 
-const emit = defineEmits(['update-profile', 'next-step'])
+const emit = defineEmits(['update-profile', 'next-step']);
+
+const maxDobDate = ref(
+  new Date(new Date().setFullYear(new Date().getFullYear() - 4))
+    .toISOString()
+    .split('T')[0]
+);
 
 const originalStateOptions = [
   'Andhra Pradesh',
@@ -327,11 +350,20 @@ const originalStateOptions = [
   'Chandigarh',
   'Pondicherry',
   'Andaman and Nico.In.',
-  'West Bengal'
+  'West Bengal',
 ];
 
 const stateOptions = ref([...originalStateOptions]);
-const userTypes = ['Girl', 'Child', 'Elder Woman', 'Elder Man', 'Youth'];
+const userTypes = [
+  'Girl/Woman (18-35)',
+  'Woman (35+)',
+  'Senior Woman (60+)',
+  'Boy/Man (18-35)',
+  'Man (35+)',
+  'Senior Man (60+)',
+  'Child (Under 18)',
+  'Prefer not to say',
+];
 
 const professionOptions = [
   { label: t('common.hospital'), value: 'hospital' },
@@ -353,7 +385,10 @@ const professionOptions = [
   { label: t('common.skilledTradesWorker'), value: 'skilledTradesWorker' },
   { label: t('common.shopOwner'), value: 'shopOwner' },
   { label: t('common.techITProfessional'), value: 'techITProfessional' },
-  { label: t('common.healthcareMedicalWorker'), value: 'healthcareMedicalWorker' },
+  {
+    label: t('common.healthcareMedicalWorker'),
+    value: 'healthcareMedicalWorker',
+  },
   { label: t('common.socialWorker'), value: 'socialWorker' },
   { label: t('common.privateSectorEmployee'), value: 'privateSectorEmployee' },
   { label: t('common.governmentEmployee'), value: 'governmentEmployee' },
@@ -368,10 +403,8 @@ const isReferralIdStored = computed(() => {
   return !!userStore.user.referredBy;
 });
 
-const { values, errors, isLoading, validateAndSubmit, callbacks } = useForm<FormValues>(
-  api,
-  'user/user-profile-update',
-  {
+const { values, errors, isLoading, validateAndSubmit, callbacks } =
+  useForm<FormValues>(api, 'user/user-profile-update', {
     name: '',
     phoneNumber: '',
     city: null,
@@ -386,12 +419,11 @@ const { values, errors, isLoading, validateAndSubmit, callbacks } = useForm<Form
     broadcastAudioOnSos: false,
     referredBy: '',
     showBusinessInfo: false,
-    businessInfo: null
-  }
-)
+    businessInfo: null,
+  });
 
 const isFormValid = computed(() => {
-  const baseValidation = (
+  const baseValidation =
     !!values.value.name &&
     !!values.value.phoneNumber &&
     !!values.value.dob &&
@@ -399,18 +431,19 @@ const isFormValid = computed(() => {
     !!values.value.city &&
     !!values.value.userType &&
     !!values.value.profession &&
-    Object.keys(errors.value).length === 0
-  );
+    Object.keys(errors.value).length === 0;
 
   // Add business info validation if enabled
   if (values.value.showBusinessInfo && values.value.businessInfo) {
-    return baseValidation && 
+    return (
+      baseValidation &&
       !!values.value.businessInfo.businessName &&
       !!values.value.businessInfo.whatsappNumber &&
       String(values.value.businessInfo.whatsappNumber).length === 10 &&
       !!values.value.businessInfo.locationName &&
       !!values.value.businessInfo.latitude &&
-      !!values.value.businessInfo.longitude;
+      !!values.value.businessInfo.longitude
+    );
   }
 
   return baseValidation;
@@ -421,7 +454,7 @@ callbacks.beforeSubmit = (data: FormValues) => {
     ...data,
     dob: data.dob || '',
     state: data.state || '',
-    pincode: data.pincode || ''
+    pincode: data.pincode || '',
   };
 
   if (data.city && typeof data.city === 'object') {
@@ -431,24 +464,28 @@ callbacks.beforeSubmit = (data: FormValues) => {
     processedData.city = cityData.officename;
   }
 
-  if (data.showBusinessInfo && data.businessInfo && 'longitude' in data.businessInfo) {
+  if (
+    data.showBusinessInfo &&
+    data.businessInfo &&
+    'longitude' in data.businessInfo
+  ) {
     processedData.businessName = data.businessInfo.businessName;
     processedData.whatsappNumber = data.businessInfo.whatsappNumber.toString();
-    
+
     const businessLocation: UserLocation = {
       name: data.businessInfo.locationName,
       location: {
         type: 'Point',
-        coordinates: [data.businessInfo.longitude, data.businessInfo.latitude]
+        coordinates: [data.businessInfo.longitude, data.businessInfo.latitude],
       },
-      isBusinessLocation: true
+      isBusinessLocation: true,
     };
 
     processedData.locations = [
       ...(userStore.user?.locations || []).filter(
         (loc: UserLocation) => !loc.isBusinessLocation
       ),
-      businessLocation
+      businessLocation,
     ];
   }
 
@@ -461,16 +498,22 @@ const handleSubmit = async () => {
       // If business info is enabled, handle it first
       if (values.value.showBusinessInfo && values.value.businessInfo) {
         // First make the API call for business information
-        await api.post('/user/add-business-information', values.value.businessInfo);
+        await api.post(
+          '/user/add-business-information',
+          values.value.businessInfo
+        );
 
         // After successful API call, update the store with business info
         const businessLocation: UserLocation = {
           name: values.value.businessInfo.locationName,
           location: {
             type: 'Point',
-            coordinates: [values.value.businessInfo.longitude, values.value.businessInfo.latitude]
+            coordinates: [
+              values.value.businessInfo.longitude,
+              values.value.businessInfo.latitude,
+            ],
           },
-          isBusinessLocation: true
+          isBusinessLocation: true,
         };
 
         // Update store with business details and location
@@ -478,14 +521,14 @@ const handleSubmit = async () => {
           ...(userStore.user?.locations || []).filter(
             (loc: UserLocation) => !loc.isBusinessLocation
           ),
-          businessLocation
+          businessLocation,
         ];
 
         userStore.updateUser({
           ...userStore.user,
           businessName: values.value.businessInfo.businessName,
           whatsappNumber: values.value.businessInfo.whatsappNumber.toString(),
-          locations: updatedLocations
+          locations: updatedLocations,
         });
       }
 
@@ -503,7 +546,6 @@ const handleSubmit = async () => {
       // Emit events
       emit('update-profile', { ...values.value });
       emit('next-step');
-
     } catch (error) {
       console.error('Error in form submission:', error);
       $q.notify({
@@ -515,7 +557,7 @@ const handleSubmit = async () => {
     }
   } else {
     $q.notify({
-      color: 'negative', 
+      color: 'negative',
       message: t('common.pleaseFixErrors'),
       icon: 'error',
       position: 'top-right',
@@ -526,7 +568,7 @@ const handleSubmit = async () => {
 callbacks.onSuccess = (data) => {
   // Prepare locations array
   const locations = userStore.user?.locations || [];
-  
+
   // Update the user store with the new data
   const updatedUserData = {
     ...userStore.user, // Keep existing user data
@@ -535,13 +577,13 @@ callbacks.onSuccess = (data) => {
     name: values.value.name,
     phoneNumber: values.value.phoneNumber,
     dob: values.value.dob,
-    state: values.value.state,  
+    state: values.value.state,
     city: values.value.city?.officename || '',
     pincode: values.value.pincode,
     userType: values.value.userType,
     profession: values.value.profession,
     referredBy: values.value.referredBy,
-    locations: locations // Preserve the locations array
+    locations: locations, // Preserve the locations array
   };
 
   // Update the store
@@ -556,10 +598,13 @@ callbacks.onError = (error: any) => {
     icon: 'error',
     position: 'top-right',
   });
-  return error
+  return error;
 };
 
-const filterStates: QSelectFilterFn = (val: string, update: (fn: () => void) => void) => {
+const filterStates: QSelectFilterFn = (
+  val: string,
+  update: (fn: () => void) => void
+) => {
   if (val === '') {
     update(() => {
       stateOptions.value = originalStateOptions;
@@ -610,7 +655,9 @@ const handleCitySelection = (selectedCity: City | null) => {
 const lastCheckedReferralId = ref('');
 
 // Replace the debounce utility with properly typed version
-type DebouncedFunction<T extends (...args: any[]) => any> = (...args: Parameters<T>) => void;
+type DebouncedFunction<T extends (...args: any[]) => any> = (
+  ...args: Parameters<T>
+) => void;
 
 const debounce = <T extends (...args: any[]) => any>(
   fn: T,
@@ -665,7 +712,7 @@ const loadUserData = async () => {
   if (userData) {
     // Set initial values
     values.value = {
-      ...userData
+      ...userData,
     };
 
     // Create city object if city data exists
@@ -673,7 +720,7 @@ const loadUserData = async () => {
       values.value.city = {
         officename: userData.city,
         statename: userData.state,
-        pincode: userData.pincode
+        pincode: userData.pincode,
       };
     }
 
@@ -688,7 +735,7 @@ const loadUserData = async () => {
         whatsappNumber: userData.whatsappNumber || '',
         locationName: '',
         latitude: 0,
-        longitude: 0
+        longitude: 0,
       };
 
       // Get business location from locations array
@@ -697,8 +744,10 @@ const loadUserData = async () => {
       );
       if (businessLocation) {
         values.value.businessInfo.locationName = businessLocation.name;
-        values.value.businessInfo.longitude = businessLocation.location.coordinates[0];
-        values.value.businessInfo.latitude = businessLocation.location.coordinates[1];
+        values.value.businessInfo.longitude =
+          businessLocation.location.coordinates[0];
+        values.value.businessInfo.latitude =
+          businessLocation.location.coordinates[1];
       }
     }
   }
@@ -759,22 +808,60 @@ const getCurrentLocation = async () => {
   }
 };
 
-// Add this watch to initialize businessInfo when checkbox is checked
+// Update the watch for showBusinessInfo
 watch(
   () => values.value.showBusinessInfo,
   (newValue) => {
-    if (newValue && !values.value.businessInfo) {
-      // Initialize businessInfo when checkbox is checked
-      values.value.businessInfo = {
-        businessName: '',
-        whatsappNumber: '',
-        locationName: '',
-        latitude: 0,
-        longitude: 0
-      };
+    if (newValue) {
+      // Only initialize if businessInfo doesn't exist
+      if (!values.value.businessInfo) {
+        values.value.businessInfo = {
+          businessName: '',
+          whatsappNumber: '',
+          locationName: '',
+          latitude: 0,
+          longitude: 0,
+        };
+      }
     }
   }
 );
+
+const showLocationSelector = ref(false);
+
+const handleLocationSelected = (location: {
+  type: string;
+  coordinates: number[];
+}) => {
+  if (values.value.businessInfo) {
+    values.value.businessInfo.latitude = location.coordinates[1];
+    values.value.businessInfo.longitude = location.coordinates[0];
+
+    // Get the formatted address or a default location name
+    const locationName =
+      values.value.businessInfo.locationName || 'Business Location';
+    values.value.businessInfo.locationName = locationName;
+  }
+  showLocationSelector.value = false;
+};
+
+// Add a computed property to check if location is set
+const isLocationSet = computed(() => {
+  if (!values.value.businessInfo) return false;
+  return !!(
+    values.value.businessInfo.latitude &&
+    values.value.businessInfo.longitude &&
+    values.value.businessInfo.locationName
+  );
+});
+
+// Add a computed property for formatted coordinates
+const formattedCoordinates = computed(() => {
+  if (!values.value.businessInfo) return '';
+  const { latitude, longitude } = values.value.businessInfo;
+  if (!latitude || !longitude) return '';
+  return `${latitude.toFixed(6)}, ${longitude.toFixed(6)}`;
+});
 
 onMounted(() => {
   loadUserData();
@@ -790,7 +877,6 @@ onMounted(() => {
 }
 
 .scrollable-inputs {
-  
   flex: 1;
   overflow-y: auto;
   padding-bottom: 10px;
@@ -808,8 +894,8 @@ onMounted(() => {
 }
 
 .button-container-main {
-  background-color:white;
-  height: 60px  ;
+  background-color: white;
+  height: 60px;
   width: 100%;
   position: absolute;
   bottom: 0;
@@ -839,7 +925,7 @@ onMounted(() => {
 
 .scrollable-inputs::-webkit-scrollbar-thumb:hover {
   background: #555;
-} 
+}
 
 /* Add this new style for custom border radius */
 :deep(.custom-radius) .q-field__control {
@@ -860,9 +946,15 @@ onMounted(() => {
 
 .location-display {
   background: #f5f5f5;
-  padding: 8px;
-  border-radius: 4px;
+  padding: 6px 12px;
+  border-radius: 8px;
+  margin-top: 8px;
+  font-size: 0.8rem;
+  color: #666;
   text-align: center;
+  border: 1px solid #e0e0e0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 </style>
-

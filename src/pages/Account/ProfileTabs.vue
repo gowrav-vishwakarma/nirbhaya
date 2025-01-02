@@ -3,8 +3,11 @@
     <!-- Enhanced Profile Header -->
     <div class="profile-header">
       <div class="cover-image">
-        <img src="https://img.freepik.com/premium-vector/line-drawing-children-holding-hands_904506-140.jpg?w=826"
-          alt="Cover" class="cover-img"/>
+        <img
+          src="https://img.freepik.com/premium-vector/line-drawing-children-holding-hands_904506-140.jpg?w=826"
+          alt="Cover"
+          class="cover-img"
+        />
         <div class="overlay"></div>
         <!-- <q-btn round flat color="dark" icon="edit" size="sm" class="edit-cover-btn" @click="handleCoverUpload" /> -->
       </div>
@@ -12,33 +15,43 @@
         <div class="profile-main">
           <div class="profile-image-container">
             <div class="profile-image">
-           
-            <img :src="'https://xavoc-technocrats-pvt-ltd.blr1.cdn.digitaloceanspaces.com/' + userStore.user.profileImage" v-if="userStore.user.profileImage"/>
-            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS59s6qBOFlkS5LN4Z0U3G71nCWWg3SuHGVMw&s" v-else/>
-              <div style="margin-left:138px; margin-top: -175px;">
-          <q-btn
-            round
-            size="sm"
-            style="background-color: rgba(0, 0, 0, 0.2)"
-            @click="openFileSelector"
-             :loading="isProcessingImages"
-          >
-            <q-icon class="text-white" name="edit"></q-icon>
-          </q-btn>
-          <input
-            ref="fileInput"
-            type="file"
-            style="display: none"
-            @change="handleFileChange"
-          />
-        </div>
+              <img
+                :src="
+                  'https://xavoc-technocrats-pvt-ltd.blr1.cdn.digitaloceanspaces.com/' +
+                  userStore.user.profileImage
+                "
+                v-if="userStore.user.profileImage"
+              />
+              <img
+                src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS59s6qBOFlkS5LN4Z0U3G71nCWWg3SuHGVMw&s"
+                v-else
+              />
+              <div style="margin-left: 138px; margin-top: -175px">
+                <q-btn
+                  round
+                  size="sm"
+                  style="background-color: rgba(0, 0, 0, 0.2)"
+                  @click="openFileSelector"
+                  :loading="isProcessingImages"
+                >
+                  <q-icon class="text-white" name="edit"></q-icon>
+                </q-btn>
+                <input
+                  ref="fileInput"
+                  type="file"
+                  style="display: none"
+                  @change="handleFileChange"
+                />
+              </div>
               <div class="online-status"></div>
             </div>
-            <q-btn v-if="$q.screen.lg || $q.screen.xl || $q.screen.md" flat
-              @click="router.push(`/my-posts/${userStore.user.id}`)" class="text-center my-posts-btn1">
-              <span style="font-size: 13px">
-                My Posts
-              </span>
+            <q-btn
+              v-if="$q.screen.lg || $q.screen.xl || $q.screen.md"
+              flat
+              @click="router.push(`/my-posts/${userStore.user.id}`)"
+              class="text-center my-posts-btn1"
+            >
+              <span style="font-size: 13px"> My Posts </span>
             </q-btn>
             <!-- <q-btn round color="primary" icon="edit" size="sm" class="edit-avatar-btn" @click="handleImageUpload" /> -->
           </div>
@@ -50,11 +63,13 @@
               </h2>
             </div>
             <!-- My Posts -->
-            <q-btn flat @click="router.push(`/my-posts/${userStore.user.id}`)" class="text-center my-posts-btn"
-              v-if="$q.screen.sm || $q.screen.xs">
-              <span style="font-size: 13px">
-                My Posts
-              </span>
+            <q-btn
+              flat
+              @click="router.push(`/my-posts/${userStore.user.id}`)"
+              class="text-center my-posts-btn"
+              v-if="$q.screen.sm || $q.screen.xs"
+            >
+              <span style="font-size: 13px"> My Posts </span>
             </q-btn>
           </div>
         </div>
@@ -64,53 +79,85 @@
     <div class="main-content">
       <div class="expansion-container">
         <q-list separator>
-
           <!-- Account Details -->
-          <q-expansion-item v-model="expandedItems.profile" group="profile-tabs" v-ripple icon="person"
-            :label="t('common.myProfile')" header-class="glass-effect" 
-             >
+          <q-expansion-item
+            v-model="expandedItems.profile"
+            group="profile-tabs"
+            v-ripple
+            icon="person"
+            :label="t('common.myProfile')"
+            header-class="glass-effect"
+          >
             <q-card>
               <ProfilePage :reload-components="reloadComponents" />
             </q-card>
           </q-expansion-item>
 
           <!-- EmergencyContactPage -->
-          <q-expansion-item  v-if="userStore.user.name" v-model="expandedItems.emergencyContact" group="profile-tabs"
-            icon="mdi-human-greeting-proximity" :label="t('common.emergencyContact')">
+          <q-expansion-item
+            v-if="userStore.user.name"
+            v-model="expandedItems.emergencyContact"
+            group="profile-tabs"
+            icon="mdi-human-greeting-proximity"
+            :label="t('common.emergencyContact')"
+          >
             <EmergencyContactPage :reload-components="reloadComponents" />
           </q-expansion-item>
 
           <!-- Volunteers Section -->
-          <q-expansion-item  v-if="userStore.user.name" v-model="expandedItems.volunteers" group="profile-tabs"
-            icon="volunteer_activism" :label="t('common.beVolunteers')">
+          <q-expansion-item
+            v-if="userStore.user.name"
+            v-model="expandedItems.volunteers"
+            group="profile-tabs"
+            icon="volunteer_activism"
+            :label="t('common.beVolunteers')"
+          >
             <q-card>
               <VolunteeringPage @reload-components="reloadComponents" />
             </q-card>
           </q-expansion-item>
 
-
-
           <!-- Community Impact -->
-          <q-expansion-item v-if="userStore.user.name" v-model="expandedItems.community" group="profile-tabs"
-            icon="people" :label="t('common.communityImpact')">
+          <q-expansion-item
+            v-if="userStore.user.name"
+            v-model="expandedItems.community"
+            group="profile-tabs"
+            icon="people"
+            :label="t('common.communityImpact')"
+          >
             <CommunityImpactPage :reload-components="reloadComponents" />
           </q-expansion-item>
 
           <!-- Feedback Impact -->
-          <q-expansion-item v-if="userStore.user.name" v-model="expandedItems.feedback" group="profile-tabs"
-            icon="fas fa-history" :label="t('common.sosHistory')">
+          <q-expansion-item
+            v-if="userStore.user.name"
+            v-model="expandedItems.feedback"
+            group="profile-tabs"
+            icon="fas fa-history"
+            :label="t('common.sosHistory')"
+          >
             <SosHistoryPage :reload-components="reloadComponents" />
           </q-expansion-item>
 
           <!-- Feedback Impact -->
-          <q-expansion-item v-if="userStore.user.name" v-model="expandedItems.settings" group="profile-tabs"
-            icon="mdi-cog" :label="t('common.sosSetting')">
+          <q-expansion-item
+            v-if="userStore.user.name"
+            v-model="expandedItems.settings"
+            group="profile-tabs"
+            icon="mdi-cog"
+            :label="t('common.sosSetting')"
+          >
             <ProfileAppPermission :reload-components="reloadComponents" />
           </q-expansion-item>
 
           <!-- Feedback Impact -->
-          <q-expansion-item v-if="userStore.user.name" v-model="expandedItems.business" group="profile-tabs"
-            icon="mdi-google-my-business" label="Business">
+          <q-expansion-item
+            v-if="userStore.user.name"
+            v-model="expandedItems.business"
+            group="profile-tabs"
+            icon="mdi-google-my-business"
+            label="Business"
+          >
             <BusinessInfo :reload-components="reloadComponents" />
           </q-expansion-item>
 
@@ -125,11 +172,30 @@
 
       <!-- Logout Button -->
       <div class="logout-section q-pb-md">
-        <q-btn style="width: 90%; margin: auto" label="Logout" @click="logout" class="logout-btn" icon="logout" />
+        <q-btn
+          style="width: 90%; margin: auto"
+          label="Logout"
+          @click="logout"
+          class="logout-btn"
+          icon="logout"
+        />
       </div>
-      <div class="text-center text-subtitle1 versiontextcolor text-weight-thin" style="font-weight: 600">
+      <div
+        class="text-center text-subtitle1 versiontextcolor text-weight-thin"
+        style="font-weight: 600"
+      >
         <span style="font-size: 13px">App version : </span>
         <span style="font-size: 13px">{{ appVersion }}</span>
+      </div>
+      <div class="text-center text-subtitle1 text-weight-light pa-md">
+        <a
+          href="mailto:care@sosbharat.com"
+          class="report-link"
+          style="font-size: 13px"
+        >
+          {{ t('common.caretext') }}<br />
+          care@sosbharat.com
+        </a>
       </div>
     </div>
   </div>
@@ -153,8 +219,7 @@ import { api } from 'src/boot/axios';
 import { useI18n } from 'vue-i18n';
 import { useUserForm } from 'src/composables/use-user-form';
 const fileInput = ref<HTMLInputElement | null>(null);
-const isProcessingImages = ref(false)
-
+const isProcessingImages = ref(false);
 
 const { t } = useI18n();
 const userStore = useUserStore();
@@ -167,11 +232,14 @@ const reloadComponents = () => {
   reloadKey.value++;
 };
 
-const {values,validateAndSubmit,callbacks} = useUserForm('qnatk/User/actionExecuteWithFiles/profileChange/true',{
-  url:null,
-  userId:userStore.user.id,
-  referralId:userStore.user.referralId
-})
+const { values, validateAndSubmit, callbacks } = useUserForm(
+  'qnatk/User/actionExecuteWithFiles/profileChange/true',
+  {
+    url: null,
+    userId: userStore.user.id,
+    referralId: userStore.user.referralId,
+  }
+);
 
 callbacks.onSuccess = (data) => {
   console.log('data..........', data);
@@ -187,7 +255,7 @@ const openFileSelector = () => {
   }
 };
 
-const handleFileChange = async(event: Event) => {
+const handleFileChange = async (event: Event) => {
   isProcessingImages.value = true;
   const file = (event.target as HTMLInputElement).files?.[0];
   if (file) {
@@ -197,7 +265,7 @@ const handleFileChange = async(event: Event) => {
           color: 'negative',
           message: 'Only image files are allowed',
           icon: 'error',
-          position: 'top-right'
+          position: 'top-right',
         });
         isProcessingImages.value = false;
         return;
@@ -213,7 +281,7 @@ const handleFileChange = async(event: Event) => {
         color: 'negative',
         message: 'Error processing images',
         icon: 'error',
-        position:'top-right'
+        position: 'top-right',
       });
     } finally {
       isProcessingImages.value = false;
@@ -221,10 +289,10 @@ const handleFileChange = async(event: Event) => {
   }
 };
 
-const goToStapper=(stap:number)=>{
-  console.log('stap....',stap);
-  router.push({ name: 'stapper', query: { stap: stap }})
-}
+const goToStapper = (stap: number) => {
+  console.log('stap....', stap);
+  router.push({ name: 'stapper', query: { stap: stap } });
+};
 
 const resizeImage = (file: File): Promise<Blob> => {
   return new Promise<Blob>((resolve, reject) => {
@@ -310,7 +378,6 @@ const logout = async () => {
     await api.post('/auth/logout');
     userStore.logout(); // This will clear both in-memory and persisted state
     router.push('/login');
-
   } catch (error) {
     console.error('Error logging out', error);
   }
@@ -325,7 +392,7 @@ const expandedItems = ref({
   rating: false,
   settings: false,
   emergencyContact: false,
-  business: false
+  business: false,
 });
 </script>
 <style lang="scss" scoped>
@@ -416,9 +483,11 @@ const expandedItems = ref({
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(to bottom,
-      rgba(0, 0, 0, 0.2),
-      rgba(0, 0, 0, 0.5));
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.2),
+    rgba(0, 0, 0, 0.5)
+  );
   pointer-events: none;
 }
 
@@ -799,11 +868,13 @@ const expandedItems = ref({
 
 .shimmer {
   animation: shimmer 1s linear infinite;
-  background: linear-gradient(to right,
-      #f6f7f8 0%,
-      #edeef1 20%,
-      #f6f7f8 40%,
-      #f6f7f8 100%);
+  background: linear-gradient(
+    to right,
+    #f6f7f8 0%,
+    #edeef1 20%,
+    #f6f7f8 40%,
+    #f6f7f8 100%
+  );
   background-size: 800px 104px;
 }
 
@@ -879,7 +950,7 @@ const expandedItems = ref({
 }
 
 /* Additional specificity for icon containers */
-:deep(.q-item__section--avatar)>.q-icon {
+:deep(.q-item__section--avatar) > .q-icon {
   color: #8b8888e8 !important;
 }
 
@@ -907,5 +978,15 @@ const expandedItems = ref({
 
 .versiontextcolor {
   color: rgb(206, 204, 204);
+}
+
+.report-link {
+  color: inherit;
+  text-decoration: none;
+  transition: color 0.2s ease;
+
+  &:hover {
+    color: $primary;
+  }
 }
 </style>

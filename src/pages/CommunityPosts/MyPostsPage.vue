@@ -1,5 +1,9 @@
 <template>
-  <q-page class="bg-grey-1" style="padding-top: env(safe-area-inset-top)">
+  <q-page
+    class="bg-grey-1"
+    style="padding-top: env(safe-area-inset-top)"
+    :key="userId"
+  >
     <div class="container q-pa-md" v-if="isUserPermitted">
       <!-- Header -->
       <div
@@ -14,23 +18,37 @@
         > -->
       </div>
       <!-- <hr style="border: 1px solid #e0e0e0; margin: 10px 0" /> -->
-      <div class="row items-center justify-between q-pa-md q-pt-none">
-        <div>
+      <div
+        class="row items-center justify-between q-pa-md q-pt-none full-width"
+      >
+        <div class="col-12">
           <h4
-            class="text-h5 text-weight-bold q-my-none text-primary"
+            class="text-h5 text-weight-bold q-my-none text-primary full-width"
             v-if="findUserData"
           >
             {{ findUserData.name }}
-            <p
-              style="font-size: 15px"
-              v-if="findUserData?.businessName"
-              class="text-grey-7 q-mt-none q-mb-none"
-            >
-              <span style="font-size: 12px; font-weight: 400"
-                >Business Name</span
+            <div class="business-info" v-if="findUserData?.businessName">
+              <p
+                style="font-size: 15px"
+                class="text-grey-7 q-mt-none q-mb-none"
               >
-              {{ findUserData.businessName }}
-            </p>
+                <span style="font-size: 12px; font-weight: 400"
+                  >Business Name :
+                </span>
+                {{ findUserData.businessName }}
+                <q-space />
+                <q-badge
+                  v-if="findUserData.hasCatalog"
+                  color="primary"
+                  class="q-ml-sm catalog-badge cursor-pointer"
+                  align="middle"
+                  @click="openCatalog(findUserData.id)"
+                >
+                  <q-tooltip>View Catalog</q-tooltip>
+                  <q-icon name="shopping_cart" size="18px" class="q-mr-xs" />
+                </q-badge>
+              </p>
+            </div>
           </h4>
           <p class="text-grey-7 q-mt-none">
             Stay connected with your community
@@ -173,39 +191,60 @@
                 >
                   <q-tooltip>Delete Post</q-tooltip>
                 </q-btn>
+                <q-btn
+                  flat
+                  round
+                  color="primary"
+                  icon="edit"
+                  size="sm"
+                  @click="editPost(post)"
+                  v-if="Number(userStore.user?.id) == Number(props.id)"
+                >
+                  <q-tooltip>Edit Post</q-tooltip>
+                </q-btn>
               </div>
             </q-card-section>
 
             <!-- Post Content -->
             <q-card-section style="padding: 10px 10px 0px 10px">
-              <div
-                class="text-h5 text-weight-bold text-primary q-mb-sm"
-                style="font-size: 16px"
-              >
-                {{ post.title }}
+              <div class="post-header">
+                <div
+                  class="text-h5 text-weight-bold text-primary q-mb-sm"
+                  style="font-size: 16px"
+                >
+                  {{ post.title }}
+                </div>
               </div>
               <div class="text-body1 post-description">
                 <div
                   v-html="
                     makeLinksClickable(
                       showFullDescription[post.id.toString()]
-                        ? post.description
-                        : truncateText(post.description, 15),
+                        ? post.description || ''
+                        : truncateText(post.description || '', 15),
                       post.priority
                     )
                   "
                 ></div>
-                <span
-                  v-if="post.description.split(' ').length > 10"
-                  @click="toggleDescription(post.id)"
-                  class="read-more-link"
-                >
-                  {{
-                    showFullDescription[post.id.toString()]
-                      ? 'Read Less'
-                      : 'Read More'
-                  }}
-                </span>
+                <div class="post-actions">
+                  <span
+                    v-if="
+                      post.description &&
+                      post.description.split(' ').length > 10
+                    "
+                    @click="toggleDescription(post.id)"
+                    class="read-more-link"
+                  >
+                    {{
+                      showFullDescription[post.id.toString()]
+                        ? 'Read Less'
+                        : 'Read More'
+                    }}
+                  </span>
+                  <div v-if="post.businessCategory" class="business-category">
+                    {{ formatBusinessCategory(post.businessCategory) }}
+                  </div>
+                </div>
               </div>
 
               <!-- Hashtags section -->
@@ -433,6 +472,19 @@
     @post-created="handlePostCreated"
     v-if="isUserPermitted"
   />
+  <EditPostDialog
+    v-if="selectedPost"
+    v-model="showEditDialog"
+    :post="selectedPost"
+    @post-updated="handlePostUpdated"
+  />
+  <!-- Add BusinessCatalog component at the bottom of the template -->
+  <BusinessCatalog
+    v-if="selectedUser"
+    :user-id="selectedUser.id"
+    :user-name="selectedUser.name"
+    v-model:is-open="showCatalog"
+  />
 </template>
 
 <script setup lang="ts">
@@ -447,6 +499,8 @@ import type { CommunityPost } from 'src/types/CommunityPost';
 import PostEngagement from 'src/pages/CommunityPosts/PostEngagement.vue';
 import { Dialog } from 'quasar';
 import { Geolocation } from '@capacitor/geolocation';
+import EditPostDialog from 'src/components/Community/EditPostDialog.vue';
+import BusinessCatalog from 'src/components/Catalog/BusinessCatalog.vue';
 
 const props = defineProps<{
   id: string;
@@ -473,6 +527,7 @@ interface UserData {
   id: number;
   name: string;
   businessName?: string;
+  hasCatalog?: boolean;
   // Add other user properties as needed
 }
 
@@ -639,7 +694,7 @@ const loadPosts = async (loadMore = false) => {
       color: 'negative',
       message: 'Failed to load posts',
       icon: 'error',
-      position:'top-right'
+      position: 'top-right',
     });
   } finally {
     isLoading.value = false;
@@ -1287,7 +1342,7 @@ const handleLocationSelected = async (location: {
       color: 'negative',
       message: 'Failed to load posts for selected location',
       icon: 'error',
-      position:'top-right'
+      position: 'top-right',
     });
   } finally {
     loading.value = false;
@@ -1312,7 +1367,7 @@ const confirmDelete = (postId: number | string) => {
         color: 'black',
         message: 'Post deleted successfully',
         icon: 'check',
-        position:'top-right'
+        position: 'top-right',
       });
     } catch (error) {
       console.error('Error deleting post:', error);
@@ -1320,7 +1375,7 @@ const confirmDelete = (postId: number | string) => {
         color: 'negative',
         message: 'Failed to delete post',
         icon: 'error',
-        position:'top-right'
+        position: 'top-right',
       });
     }
   });
@@ -1330,22 +1385,23 @@ const confirmDelete = (postId: number | string) => {
 const route = useRoute();
 
 // Add this watcher after other refs and before onMounted
-// watch(
-//   () => route.params.id,
-//   async (newId) => {
-//     if (newId) {
-//       // Reset page state
-//       page.value = 1;
-//       posts.value = [];
-//       hasMore.value = true;
-//       loading.value = true;
+watch(
+  () => props.id,
+  async (newId) => {
+    if (newId) {
+      // Reset page state
+      page.value = 1;
+      posts.value = [];
+      hasMore.value = true;
+      loading.value = true;
 
-//       // Reload data with new user id
-//       await loadPosts();
-//       await getUserInteraction();
-//     }
-//   }
-// );
+      // Reload data with new user id
+      await loadPosts();
+      await getUserInteraction();
+    }
+  },
+  { immediate: true } // This will run the watcher immediately on component creation
+);
 
 // Also update the onMounted hook to use route.params.id
 onMounted(async () => {
@@ -1467,8 +1523,51 @@ const getPostCardClass = (post: Post) => {
       return '';
   }
 };
+
+const showEditDialog = ref(false);
+const selectedPost = ref<Post | null>(null);
+
+const editPost = (post: Post) => {
+  selectedPost.value = post;
+  showEditDialog.value = true;
+};
+
+const handlePostUpdated = async () => {
+  await loadPosts();
+  selectedPost.value = null;
+};
+
+// Add this helper function near the top of the script section
+const formatBusinessCategory = (
+  category: string | undefined | null
+): string => {
+  if (!category) return '';
+
+  // Replace underscores with spaces
+  const withSpaces = category.replace(/_/g, ' ');
+
+  // Capitalize each word
+  return withSpaces
+    .split(' ')
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(' ');
+};
+
+const selectedUser = ref<{ id: number; name: string } | null>(null);
+const showCatalog = ref(false);
+
+const openCatalog = (userId: number) => {
+  if (findUserData.value) {
+    selectedUser.value = {
+      id: userId,
+      name: findUserData.value.businessName || findUserData.value.name,
+    };
+    showCatalog.value = true;
+  }
+};
 </script>
 <style scoped lang="scss">
+@use 'sass:color';
 .container {
   max-width: 1200px;
   margin: 0 auto;
@@ -2593,7 +2692,8 @@ const getPostCardClass = (post: Post) => {
   color: white;
 
   &:hover {
-    background: darken($primary, 5%);
+    // background: darken($primary, 5%);
+    background: color.adjust($primary, $lightness: -5%);
   }
 }
 
@@ -2705,6 +2805,63 @@ const getPostCardClass = (post: Post) => {
     &.regular-post {
       border-left-width: 3px;
     }
+  }
+}
+
+.post-header {
+  position: relative;
+}
+
+.post-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.business-category {
+  display: inline-block;
+  background: rgba(255, 167, 38, 0.1);
+  color: #f57c00;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  border: 1px solid rgba(255, 167, 38, 0.2);
+
+  &:hover {
+    background: rgba(255, 167, 38, 0.15);
+  }
+}
+
+// Update the business-post class to include category styling
+.post-card.business-post {
+  .business-category {
+    background: rgba(255, 167, 38, 0.1);
+    color: #f57c00;
+    border-color: rgba(255, 167, 38, 0.2);
+  }
+}
+
+.business-info {
+  // display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: space-between;
+  width: 100%;
+
+  p {
+    display: flex;
+    align-items: center;
+  }
+}
+
+.catalog-btn {
+  margin-top: -4px;
+  transition: transform 0.2s ease;
+
+  &:hover {
+    transform: scale(1.1);
   }
 }
 </style>

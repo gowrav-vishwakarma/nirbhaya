@@ -6,6 +6,18 @@
       padding-bottom: env(safe-area-inset-bottom);
     "
   >
+  <div
+        class="row items-center"
+        style="padding-top: 5px; padding-left: 10px"
+        v-if="userStore.user.id"
+      >
+        <q-btn size="sm" flat class="back-button" @click="router.go(-1)">
+          <i style="font-size: 14px" class="fa-solid fa-arrow-left-long"></i>
+        </q-btn>
+        <!-- <span class="text-weight-bold text-primary q-ml-sm text-h4"
+          >Profile Page</span
+        > -->
+      </div>
     <div class="container q-pa-md">
       <!-- Add Suggestion Button -->
       <!-- <div class="suggestion-button-container q-mb-md">
@@ -402,7 +414,7 @@ import { api } from 'src/boot/axios';
 import { useRouter, useRoute } from 'vue-router';
 import { useUserStore } from 'src/stores/user-store';
 import type { CommunityPost } from 'src/types/CommunityPost';
-import PostEngagement from 'src/pages/CommunityPosts/PostEngagementOpenRoute.vue';
+import PostEngagement from 'src/pages/CommunityPosts/PostEngagement.vue';
 const route = useRoute();
 const router = useRouter();
 
@@ -2246,4 +2258,13 @@ watch(
   color: white !important;
   border-radius: 10px !important;
 }
+.back-button {
+  background-color: rgba(102, 100, 102, 0.459);
+  border-radius: 20px;
+  height: 15px !important;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: whitesmoke;
+} 
 </style>

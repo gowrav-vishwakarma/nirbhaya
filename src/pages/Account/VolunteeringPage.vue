@@ -45,7 +45,7 @@
           class="full-width custom-radius q-mb-md"
           @click="showInputFields = !showInputFields"
           :label="$t('common.addNotificationLocation')"
-          style="border-radius: 10px !important;"
+          style="border-radius: 10px !important"
           :disable="!values.availableForCommunity"
         />
 
@@ -67,15 +67,18 @@
             <q-btn
               flat
               color="white"
-              style="border-radius: 10px !important;"
+              style="border-radius: 10px !important"
               icon="my_location"
               class="full-width custom-radius bg-primary"
-              @click="getCurrentLocationForNew"
+              @click="showLocationSelector = true"
               :loading="newLocationLoading"
             >
-              {{ $t('common.useCurrentLocation') }}
+              {{ $t('common.setLocation') }}
             </q-btn>
-            <div v-if="newLocation.location?.coordinates[0]" class="text-caption q-mt-sm">
+            <div
+              v-if="newLocation.location?.coordinates[0]"
+              class="text-caption q-mt-sm"
+            >
               {{ getLocationCoordinates(newLocation) }}
             </div>
           </div>
@@ -85,7 +88,7 @@
               <q-btn
                 label="Cancel"
                 color="black"
-                style="border-radius: 10px !important;"
+                style="border-radius: 10px !important"
                 class="full-width custom-radius"
                 @click="clearInputFields"
               />
@@ -94,7 +97,7 @@
               <q-btn
                 label="Add"
                 color="primary"
-                style="border-radius: 10px !important;"
+                style="border-radius: 10px !important"
                 class="full-width custom-radius"
                 @click="addNewLocation"
                 :disabled="!isNewLocationValid"
@@ -107,11 +110,20 @@
 
         <!-- Location Cards -->
         <div class="contact-cards q-mt-md" v-if="hasLocations">
-          <q-card v-for="(location, index) in values.locations" :key="index" flat bordered class="contact-card q-mb-sm">
-            <q-card-section class="row items-center" style="width: 100%;">
+          <q-card
+            v-for="(location, index) in values.locations"
+            :key="index"
+            flat
+            bordered
+            class="contact-card q-mb-sm"
+          >
+            <q-card-section class="row items-center" style="width: 100%">
               <div class="col-auto">
                 <q-avatar>
-                  <img src='https://static.vecteezy.com/system/resources/thumbnails/051/222/604/small/3d-pink-location-pin-on-map-icon-png.png' alt='/profile.png' />
+                  <img
+                    src="https://static.vecteezy.com/system/resources/thumbnails/051/222/604/small/3d-pink-location-pin-on-map-icon-png.png"
+                    alt="/profile.png"
+                  />
                 </q-avatar>
               </div>
               <div class="col q-pl-sm">
@@ -139,7 +151,7 @@
                     class="remove-btn"
                     flat
                     label="Remove"
-                    style="border-radius: 10px !important;"
+                    style="border-radius: 10px !important"
                     @click="removeNotificationLocation(index)"
                   />
                 </div>
@@ -148,11 +160,19 @@
           </q-card>
         </div>
 
-        <p v-if="!hasLocations && values.availableForCommunity" class="text-negative q-mt-sm">
+        <p
+          v-if="!hasLocations && values.availableForCommunity"
+          class="text-negative q-mt-sm"
+        >
           No location Added
         </p>
       </div>
     </div>
+
+    <LocationSelectorDialog
+      v-model="showLocationSelector"
+      @location-selected="handleLocationSelected"
+    />
   </q-page>
 </template>
 
@@ -165,6 +185,7 @@ import { Geolocation } from '@capacitor/geolocation';
 import { useUserStore } from 'src/stores/user-store';
 import { api } from 'src/boot/axios';
 import { useForm } from 'src/qnatk/composibles/use-form';
+import LocationSelectorDialog from 'src/components/Location/LocationSelectorDialog.vue';
 
 const { t } = useI18n();
 const $q = useQuasar();
@@ -230,12 +251,12 @@ const removeNotificationLocation = async (index: number) => {
   try {
     const updatedLocations = [...values.value.locations];
     updatedLocations.splice(index, 1);
-    
+
     values.value.locations = updatedLocations;
     locationLoading.value.splice(index, 1);
 
     await validateAndSubmit(false);
-    
+
     props.reloadComponents?.();
     emit('reloadComponents');
   } catch (error) {
@@ -245,7 +266,7 @@ const removeNotificationLocation = async (index: number) => {
       color: 'negative',
       message: t('common.errorRemovingLocation'),
       icon: 'error',
-      position: 'top-right'
+      position: 'top-right',
     });
   }
 };
@@ -277,12 +298,12 @@ const updateLocationCoordinates = async (index: number) => {
   try {
     const position = await Geolocation.getCurrentPosition({
       enableHighAccuracy: true,
-      timeout: 10000
+      timeout: 10000,
     });
 
     const newLat = position.coords.latitude;
     const newLon = position.coords.longitude;
-    
+
     // Check distance with all existing locations
     const tooClose = values.value.locations.some((loc, idx) => {
       if (idx === index || !isLocationValid(loc)) return false;
@@ -307,7 +328,7 @@ const updateLocationCoordinates = async (index: number) => {
         color: 'negative',
         message: t('common.locationTooClose'),
         icon: 'error',
-        position: 'top-right'
+        position: 'top-right',
       });
       return;
     }
@@ -315,7 +336,7 @@ const updateLocationCoordinates = async (index: number) => {
     // Update coordinates if location is valid
     values.value.locations[index].location.coordinates = [
       position.coords.longitude,
-      position.coords.latitude
+      position.coords.latitude,
     ];
 
     await validateAndSubmit(false);
@@ -325,7 +346,7 @@ const updateLocationCoordinates = async (index: number) => {
       color: 'negative',
       message: t('common.locationError'),
       icon: 'error',
-      position: 'top-right'
+      position: 'top-right',
     });
   } finally {
     locationLoading.value[index] = false;
@@ -454,8 +475,8 @@ const newLocation = ref<UserLocation>({
   name: '',
   location: {
     type: 'Point',
-    coordinates: [null, null]
-  }
+    coordinates: [null, null],
+  },
 });
 const newLocationLoading = ref(false);
 const isAddingLocation = ref(false);
@@ -463,9 +484,11 @@ const isAddingLocation = ref(false);
 // Add these computed properties
 const hasLocations = computed(() => values.value.locations.length > 0);
 const isNewLocationValid = computed(() => {
-  return newLocation.value.name.trim() !== '' && 
-         newLocation.value.location.coordinates[0] !== null && 
-         newLocation.value.location.coordinates[1] !== null;
+  return (
+    newLocation.value.name.trim() !== '' &&
+    newLocation.value.location.coordinates[0] !== null &&
+    newLocation.value.location.coordinates[1] !== null
+  );
 });
 
 // Add these methods
@@ -480,7 +503,7 @@ const handleAvailabilityToggle = async () => {
       color: 'negative',
       message: t('common.updateError'),
       icon: 'error',
-      position: 'top-right'
+      position: 'top-right',
     });
   }
 };
@@ -490,66 +513,23 @@ const clearInputFields = () => {
     name: '',
     location: {
       type: 'Point',
-      coordinates: [null, null]
-    }
+      coordinates: [null, null],
+    },
   };
   showInputFields.value = false;
 };
 
-const getCurrentLocationForNew = async () => {
-  newLocationLoading.value = true;
-  try {
-    const position = await Geolocation.getCurrentPosition({
-      enableHighAccuracy: true,
-      timeout: 10000
-    });
+const showLocationSelector = ref(false);
 
-    const newLat = position.coords.latitude;
-    const newLon = position.coords.longitude;
-
-    // Check distance with existing locations
-    const tooClose = values.value.locations.some((loc) => {
-      if (!isLocationValid(loc)) return false;
-
-      const [existingLon, existingLat] = loc.location.coordinates;
-      if (!existingLat || !existingLon) return false;
-
-      const distance = calculateDistance(newLat, newLon, existingLat, existingLon);
-      return distance < 500; // Less than 500 meters
-    });
-
-    if (tooClose) {
-      newLocation.value = {
-        name: '',
-        location: {
-          type: 'Point',
-          coordinates: [null, null]
-        }
-      };
-      
-      $q.notify({
-        color: 'negative',
-        message: t('common.locationTooClose'),
-        icon: 'error',
-        position: 'top-right'
-      });
-      return;
-    }
-
-    newLocation.value.location.coordinates = [position.coords.longitude, position.coords.latitude];
-
-   
-  } catch (error) {
-    console.error('Error getting location', error);
-    $q.notify({
-      color: 'negative',
-      message: t('common.locationError'),
-      icon: 'error',
-      position: 'top-right'
-    });
-  } finally {
-    newLocationLoading.value = false;
-  }
+const handleLocationSelected = (location: {
+  type: string;
+  coordinates: number[];
+}) => {
+  newLocation.value.location = {
+    type: 'Point',
+    coordinates: [location.coordinates[0], location.coordinates[1]],
+  };
+  showLocationSelector.value = false;
 };
 
 const addNewLocation = async () => {
@@ -558,7 +538,7 @@ const addNewLocation = async () => {
       color: 'negative',
       message: t('common.pleaseSelectLocation'),
       icon: 'error',
-      position: 'top-right'
+      position: 'top-right',
     });
     return;
   }
@@ -566,11 +546,14 @@ const addNewLocation = async () => {
   isAddingLocation.value = true;
 
   try {
-    const updatedLocations = [...values.value.locations, { ...newLocation.value }];
+    const updatedLocations = [
+      ...values.value.locations,
+      { ...newLocation.value },
+    ];
     values.value.locations = updatedLocations;
     await validateAndSubmit(false);
     clearInputFields();
-    
+
     props.reloadComponents?.();
     emit('reloadComponents');
   } catch (error) {
@@ -580,7 +563,7 @@ const addNewLocation = async () => {
       color: 'negative',
       message: t('common.errorAddingLocation'),
       icon: 'error',
-      position: 'top-right'
+      position: 'top-right',
     });
   } finally {
     isAddingLocation.value = false;
