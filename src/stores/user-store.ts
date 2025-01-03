@@ -15,6 +15,7 @@ export interface UserLocation {
     type: 'Point';
     coordinates: [number, number]; // [longitude, latitude]
   };
+  isBusinessLocation: boolean;
 }
 
 export interface User {
@@ -44,10 +45,11 @@ export interface User {
   isAmbassador: boolean;
   avatar?: string;
   canCreatePost: boolean;
-  businessName: string;
+  businessName: string | null;
   whatsappNumber: string;
   profileImage: '';
   defaultApp: 'sos' | 'news' | 'community' | 'astroai';
+  businessCategory?: string;
 }
 
 interface NewsPreferences {

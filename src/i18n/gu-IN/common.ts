@@ -386,4 +386,5 @@ export default {
   pending: 'બાકી',
 
   caretext: 'દુરુપયોગ, સુરક્ષા સંબંધિત અથવા ઉલ્લંઘનની જાણ પર કરો',
+  businessCategory: 'વ્યવસાયની શ્રેણી',
 };

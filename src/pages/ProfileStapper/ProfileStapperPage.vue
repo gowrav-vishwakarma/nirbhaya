@@ -1,83 +1,127 @@
 <template>
-  <div class="profile-stepper" style="padding-top: env(safe-area-inset-top);padding-bottom: env(safe-area-inset-bottom);">
-    <div v-if='isShowBackButton' class="q-ma-none q-pa-none">
-      <q-btn flat color="primary" style="border-radius:20px" to="/">
+  <div
+    class="profile-stepper"
+    style="
+      padding-top: env(safe-area-inset-top);
+      padding-bottom: env(safe-area-inset-bottom);
+    "
+  >
+    <div v-if="isShowBackButton" class="q-ma-none q-pa-none">
+      <q-btn flat color="primary" style="border-radius: 20px" to="/">
         <q-icon name="mdi-keyboard-backspace"></q-icon>
       </q-btn>
     </div>
     <!-- Stepper Header -->
-     <div :style="{padding: '20px', height: '20v', marginTop:isShowBackButton?'-20px':'0px'}">
-       <h6 style="margin:0px; font-weight: 800;" class="q-mx-sm text-primary">Profile Details</h6>
-       <div class="stepper-header q-px-sm" style="margin:0px;padding: 0px;">
-         <div class="step-item" :class="{ 'active': currentStep === 1 }">
-           <div class="step-label" 
-                :class="{
-                  'active-label': currentStep === 1,
-                  'completed-label': completedSteps.includes(1),
-                  'inactive-label': currentStep !== 1 && !completedSteps.includes(1)
-                }">
-             Profile Details
-           </div>
-           <div class="step-label" 
-                :class="{
-                  'active': currentStep === 1,
-                  'completed': completedSteps.includes(1),
-                  'inactive': currentStep !== 1 && !completedSteps.includes(1)
-                }" 
-                style="width: 100px; height: 4px; margin: auto; border-radius: 20px; margin-top: 3px;">
-           </div>
-         </div>
-   
-         <div class="step-item" :class="{ 'active': currentStep === 2 }">
-           <div class="step-label" 
-                :class="{
-                  'active-label': currentStep === 2,
-                  'completed-label': completedSteps.includes(2),
-                  'inactive-label': currentStep !== 2 && !completedSteps.includes(2)
-                }">
-             Emergency Cont.
-           </div>
-           <div class="step-label" 
-                :class="{
-                  'active': currentStep === 2,
-                  'completed': completedSteps.includes(2),
-                  'inactive': currentStep !== 2 && !completedSteps.includes(2)
-                }" 
-                style="width: 100px; height: 4px; margin: auto; border-radius: 20px; margin-top: 3px;">
-           </div>
-         </div>
-   
-         <div class="step-item" :class="{ 'active': currentStep === 3 }">
-           <div class="step-label" 
-                :class="{
-                  'active-label': currentStep === 3,
-                  'completed-label': completedSteps.includes(3),
-                  'inactive-label': currentStep !== 3 && !completedSteps.includes(3)
-                }">
-             Volunteer
-           </div>
-           <div class="step-label" 
-                :class="{
-                  'active': currentStep === 3,
-                  'completed': completedSteps.includes(3),
-                  'inactive': currentStep !== 3 && !completedSteps.includes(3)
-                }" 
-                style="width: 100px; height: 4px; margin: auto; border-radius: 20px; margin-top: 3px;">
-           </div>
-         </div>
-       </div>
-     </div>
+    <div
+      :style="{
+        padding: '20px',
+        height: '20v',
+        marginTop: isShowBackButton ? '-20px' : '0px',
+      }"
+    >
+      <h6 style="margin: 0px; font-weight: 800" class="q-mx-sm text-primary">
+        Profile Details
+      </h6>
+      <div class="stepper-header q-px-sm" style="margin: 0px; padding: 0px">
+        <div class="step-item" :class="{ active: currentStep === 1 }">
+          <div
+            class="step-label"
+            :class="{
+              'active-label': currentStep === 1,
+              'completed-label': completedSteps.includes(1),
+              'inactive-label':
+                currentStep !== 1 && !completedSteps.includes(1),
+            }"
+          >
+            Profile Details
+          </div>
+          <div
+            class="step-label"
+            :class="{
+              active: currentStep === 1,
+              completed: completedSteps.includes(1),
+              inactive: currentStep !== 1 && !completedSteps.includes(1),
+            }"
+            style="
+              width: 100px;
+              height: 4px;
+              margin: auto;
+              border-radius: 20px;
+              margin-top: 3px;
+            "
+          ></div>
+        </div>
+
+        <div class="step-item" :class="{ active: currentStep === 2 }">
+          <div
+            class="step-label"
+            :class="{
+              'active-label': currentStep === 2,
+              'completed-label': completedSteps.includes(2),
+              'inactive-label':
+                currentStep !== 2 && !completedSteps.includes(2),
+            }"
+          >
+            Emergency Cont.
+          </div>
+          <div
+            class="step-label"
+            :class="{
+              active: currentStep === 2,
+              completed: completedSteps.includes(2),
+              inactive: currentStep !== 2 && !completedSteps.includes(2),
+            }"
+            style="
+              width: 100px;
+              height: 4px;
+              margin: auto;
+              border-radius: 20px;
+              margin-top: 3px;
+            "
+          ></div>
+        </div>
+
+        <div class="step-item" :class="{ active: currentStep === 3 }">
+          <div
+            class="step-label"
+            :class="{
+              'active-label': currentStep === 3,
+              'completed-label': completedSteps.includes(3),
+              'inactive-label':
+                currentStep !== 3 && !completedSteps.includes(3),
+            }"
+          >
+            Volunteer
+          </div>
+          <div
+            class="step-label"
+            :class="{
+              active: currentStep === 3,
+              completed: completedSteps.includes(3),
+              inactive: currentStep !== 3 && !completedSteps.includes(3),
+            }"
+            style="
+              width: 100px;
+              height: 4px;
+              margin: auto;
+              border-radius: 20px;
+              margin-top: 3px;
+            "
+          ></div>
+        </div>
+      </div>
+    </div>
 
     <!-- Content Section -->
-    <div class="bottom-dialog" style=" border-radius: 20px 20px 0 0 !important;">
-      <ProfileDetailsStep 
+    <div class="bottom-dialog" style="border-radius: 20px 20px 0 0 !important">
+      <ProfileDetailsStep
         v-if="currentStep === 1"
         :userData="userData"
         @update-profile="handleProfileUpdate"
         @next-step="handleNextStep"
-      />    
+      />
 
-      <EmergencyContactsStep 
+      <EmergencyContactsStep
         v-if="currentStep === 2"
         :contacts="emergencyContacts"
         @update-contacts="handleContactsUpdate"
@@ -96,92 +140,97 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, reactive, watch, onMounted } from 'vue'
-import { useQuasar } from 'quasar'
-import { useI18n } from 'vue-i18n'
-import { useRouter, useRoute } from 'vue-router'
-import ProfileDetailsStep from './steps/ProfileDetailsStep.vue'
-import EmergencyContactsStep from './steps/EmergencyContactsStep.vue'
-import VolunteerLocationStep from './steps/VolnteerLocationStep.vue'
+import { ref, reactive, watch, onMounted } from 'vue';
+import { useQuasar } from 'quasar';
+import { useI18n } from 'vue-i18n';
+import { useRouter, useRoute } from 'vue-router';
+import ProfileDetailsStep from './steps/ProfileDetailsStep.vue';
+import EmergencyContactsStep from './steps/EmergencyContactsStep.vue';
+import VolunteerLocationStep from './steps/VolnteerLocationStep.vue';
 
-const $q = useQuasar()
-const { t } = useI18n()
-const router = useRouter()
-const route = useRoute()
+const $q = useQuasar();
+const { t } = useI18n();
+const router = useRouter();
+const route = useRoute();
 
-const currentStep = ref(1)
-const completedSteps = ref<number[]>([])
+const currentStep = ref(1);
+const completedSteps = ref<number[]>([]);
 
 const userData = reactive({
   fullName: '',
   email: '',
   phone: '',
   address: '',
-  bloodGroup: ''
-})
-const emergencyContacts = ref([])
+  bloodGroup: '',
+});
+const emergencyContacts = ref([]);
 
 const volunteerLocation = ref({
   name: '',
   latitude: null,
-  longitude: null
-})
+  longitude: null,
+});
 
-const setCurrentStep = (step: number) => {
-  const maxAllowedStep = Math.max(...completedSteps.value, 1) + 1
-  if (step <= maxAllowedStep) {
-    currentStep.value = step
+const formatDate = (date: string) => {
+  if (!date) return null;
+  // Replace slashes with dashes and ensure yyyy-MM-dd format
+  return date.replace(/\//g, '-');
+};
+
+const handleProfileUpdate = (data: any) => {
+  if (data.dob) {
+    data.dob = formatDate(data.dob);
   }
-}
+  Object.assign(userData, data);
+};
 
 const handleNextStep = () => {
   if (currentStep.value === 1) {
     if (!completedSteps.value.includes(1)) {
-      completedSteps.value.push(1)
+      completedSteps.value.push(1);
     }
-    currentStep.value = 2
+    currentStep.value = 2;
   } else if (currentStep.value === 2) {
     if (!completedSteps.value.includes(2)) {
-      completedSteps.value.push(2)
+      completedSteps.value.push(2);
     }
-    currentStep.value = 3
+    currentStep.value = 3;
   } else if (currentStep.value === 3) {
     if (!completedSteps.value.includes(3)) {
-      completedSteps.value.push(3)
+      completedSteps.value.push(3);
     }
-    router.push('/volunteer')
+    router.push('/volunteer');
   }
-}
+};
 
 const handlePreviousStep = () => {
   if (currentStep.value === 2) {
-    currentStep.value = 1
+    currentStep.value = 1;
   } else if (currentStep.value === 3) {
-    currentStep.value = 2
+    currentStep.value = 2;
   }
-}
-
-const handleProfileUpdate = (data: any) => {
-  Object.assign(userData, data)
-}
+};
 
 const handleContactsUpdate = (contacts: Array<any>) => {
-  emergencyContacts.value = contacts
-}
+  emergencyContacts.value = contacts;
+};
 
 const handleLocationUpdate = (locationData: any) => {
-  volunteerLocation.value = locationData
-}
+  volunteerLocation.value = locationData;
+};
 
 const handleSubmit = async () => {
   try {
     const submitData = {
-      profile: userData,
+      profile: {
+        ...userData,
+        dob: userData.dob ? formatDate(userData.dob) : null,
+      },
       emergencyContacts: emergencyContacts.value,
-      volunteerLocation: volunteerLocation.value
-    }
+      volunteerLocation: volunteerLocation.value,
+    };
 
-    console.log('Submitting data:', submitData)
+    console.log('Submitting data:', submitData);
 
     // await api.post('user/complete-profile', submitData)
 
@@ -189,53 +238,55 @@ const handleSubmit = async () => {
       color: 'black',
       message: t('common.profileCompleted'),
       icon: 'check',
-      position:'top-right'
-    })
+      position: 'top-right',
+    });
 
-    router.push('/dashboard')
+    router.push('/dashboard');
   } catch (error) {
-    console.error('Error submitting data:', error)
+    console.error('Error submitting data:', error);
     $q.notify({
       color: 'negative',
       message: t('common.errorSavingProfile'),
       icon: 'error',
-      position:'top-right'
-
-    })
+      position: 'top-right',
+    });
   }
-}
+};
 
-watch([userData, emergencyContacts, volunteerLocation], ([newUserData, newContacts, newLocation]) => {
-  if (Object.values(newUserData).every(value => !!value)) {
-    if (!completedSteps.value.includes(1)) {
-      completedSteps.value.push(1)
+watch(
+  [userData, emergencyContacts, volunteerLocation],
+  ([newUserData, newContacts, newLocation]) => {
+    if (Object.values(newUserData).every((value) => !!value)) {
+      if (!completedSteps.value.includes(1)) {
+        completedSteps.value.push(1);
+      }
+    }
+
+    if (newContacts.length > 0) {
+      if (!completedSteps.value.includes(2)) {
+        completedSteps.value.push(2);
+      }
+    }
+
+    if (newLocation.latitude && newLocation.longitude) {
+      if (!completedSteps.value.includes(3)) {
+        completedSteps.value.push(3);
+      }
     }
   }
+);
 
-  if (newContacts.length > 0) {
-    if (!completedSteps.value.includes(2)) {
-      completedSteps.value.push(2)
-    }
-  }
-
-  if (newLocation.latitude && newLocation.longitude) {
-    if (!completedSteps.value.includes(3)) {
-      completedSteps.value.push(3)
-    }
-  }
-})
-
-const isShowBackButton=ref(false)
+const isShowBackButton = ref(false);
 
 onMounted(() => {
-  const stepFromQuery = Number(route.query.stap)
-  console.log('stepFromQuery....',route.query);
-  
+  const stepFromQuery = Number(route.query.stap);
+  console.log('stepFromQuery....', route.query);
+
   if (stepFromQuery && stepFromQuery >= 1 && stepFromQuery <= 3) {
- isShowBackButton.value=true
-    currentStep.value = stepFromQuery
+    isShowBackButton.value = true;
+    currentStep.value = stepFromQuery;
   }
-})
+});
 </script>
 
 <style>
@@ -256,16 +307,16 @@ onMounted(() => {
 
 .back-button-container {
   position: absolute;
-  top:    0px;
+  top: 0px;
   left: 50%;
   transform: translateX(-50%);
   width: 100%;
   max-width: 800px;
   background-color: #f8f8f8;
   z-index: 3002;
-  }
-.btn-cless{
-  height: 25px;   
+}
+.btn-cless {
+  height: 25px;
   width: 50px;
   border-radius: 20px;
   font-weight: 800;
@@ -308,7 +359,7 @@ onMounted(() => {
   height: 32px;
   border-radius: 50%;
   /* background-color: #fbf8f8; */
-  background-color:  rgba(212, 206, 206, 0.858);
+  background-color: rgba(212, 206, 206, 0.858);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -338,7 +389,7 @@ onMounted(() => {
   z-index: 2500;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 12px 12px rgba(0,0,0,0.1);
+  box-shadow: 0 12px 12px rgba(0, 0, 0, 0.1);
   overflow: hidden;
   transition: all 0.3s ease;
 }
@@ -367,7 +418,7 @@ onMounted(() => {
     top: 30px;
     padding: 15px;
   }
-  
+
   .bottom-dialog {
     border-radius: 20px 20px 0 0 !important;
   }
@@ -397,24 +448,27 @@ onMounted(() => {
 }
 
 .active-label {
-  color:  #f9387bd5;/* Color for active step label */
+  color: #f9387bd5; /* Color for active step label */
   font-weight: 700;
-
 }
 
-.inactive-label { 
+.inactive-label {
   color: rgba(212, 206, 206, 0.858); /* Color for inactive step label */
   font-weight: 700;
-
 }
 
 .step-label.active {
-  background-color:  #f9387bd5; /* Color for active lower div */
+  background-color: #f9387bd5; /* Color for active lower div */
   font-weight: 700;
 }
 
 .step-label.inactive {
-  background-color:  rgba(212, 206, 206, 0.858); /* Color for inactive lower div */
+  background-color: rgba(
+    212,
+    206,
+    206,
+    0.858
+  ); /* Color for inactive lower div */
 }
 
 .completed-label {
@@ -450,5 +504,4 @@ onMounted(() => {
 .step-label {
   transition: all 0.3s ease;
 }
-
 </style>

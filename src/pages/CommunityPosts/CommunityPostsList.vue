@@ -185,7 +185,11 @@
                     <q-space />
 
                     <q-badge
-                      v-if="post.hasCatalog && isCatalogAccessible(post)"
+                      v-if="
+                        post.hasCatalog &&
+                        post.isBusinessPost &&
+                        isCatalogAccessible(post)
+                      "
                       color="primary"
                       class="q-ml-sm catalog-badge cursor-pointer"
                       align="middle"
@@ -206,7 +210,7 @@
                       <!-- Catalog -->
                     </q-badge>
                     <q-icon
-                      v-else-if="post.hasCatalog"
+                      v-else-if="post.hasCatalog && post.isBusinessPost"
                       name="shopping_bag"
                       size="18px"
                       color="grey"
@@ -1050,7 +1054,9 @@ const createPost = () => {
 const showCreatePostDialog = ref(false);
 
 // Add this method to handle successful post creation
-const handlePostCreated = async () => {
+const handlePostCreated = async (newPost: Post) => {
+  posts.value.unshift(newPost); // Prepend the new post to the list
+
   page.value = 1;
   await loadPosts(true);
   // window.location.reload()

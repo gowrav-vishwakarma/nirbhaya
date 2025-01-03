@@ -21,7 +21,7 @@
         icon="add"
         color="primary"
         class="full-width custom-radius q-mb-md"
-        @click="showInputFields = !showInputFields"
+        @click="showAddOrEditForm(false)"
         label="Add Business Information"
         style="border-radius: 10px !important"
       />
@@ -89,6 +89,47 @@
         </div>
 
         <div class="custom-input">
+          <label>{{ t('common.businessCategory') }}</label>
+          <q-select
+            v-model="businessData.businessCategory"
+            :options="businessCategories"
+            filled
+            class="custom-radius"
+            bg-color="pink-1"
+            dense
+            hide-bottom-space
+            option-value="value"
+            option-label="label"
+            map-options
+            :filter="filterBusinessCategories"
+            :rules="[(val) => !!val || 'Business category is required']"
+            emit-value
+          >
+            <template v-slot:no-option>
+              <q-item>
+                <q-item-section class="text-grey">
+                  No results found
+                </q-item-section>
+              </q-item>
+            </template>
+            <template v-slot:option="scope">
+              <template v-if="scope.opt.group">
+                <q-item-label header class="text-weight-bold bg-grey-2 q-pa-sm">
+                  {{ scope.opt.group }}
+                </q-item-label>
+              </template>
+              <template v-else>
+                <q-item v-bind="scope.itemProps">
+                  <q-item-section>
+                    <q-item-label>{{ scope.opt.label }}</q-item-label>
+                  </q-item-section>
+                </q-item>
+              </template>
+            </template>
+          </q-select>
+        </div>
+
+        <div class="custom-input">
           <q-btn
             flat
             color="white"
@@ -112,16 +153,16 @@
         <div class="row q-col-gutter-sm">
           <div class="col-6">
             <q-btn
-              label="Cancel"
+              :label="isEditMode ? 'Cancel' : 'Cancel'"
               color="black"
               style="border-radius: 10px !important"
               class="full-width custom-radius"
-              @click="showInputFields = false"
+              @click="(showInputFields = false), (isEditMode = false)"
             />
           </div>
           <div class="col-6">
             <q-btn
-              label="Add"
+              :label="isEditMode ? 'Update' : 'Add'"
               color="primary"
               style="border-radius: 10px !important"
               class="full-width custom-radius"
@@ -133,7 +174,10 @@
         </div>
       </div>
 
-      <div class="contact-cards q-mt-md" v-if="userStore.user?.businessName">
+      <div
+        class="contact-cards q-mt-md"
+        v-if="!isEditMode && userStore.user?.businessName"
+      >
         <q-card flat bordered class="contact-card q-mb-sm">
           <q-card-section class="row items-center" style="width: 100%">
             <div class="col-auto q-pa-none q-ma-none">
@@ -179,9 +223,17 @@
               </div>
               <div class="col-auto">
                 <q-btn
+                  flat
+                  icon="edit"
+                  color="primary"
+                  class="edit-btn"
+                  style="border-radius: 10px !important"
+                  @click="showAddOrEditForm(true)"
+                />
+                <q-btn
                   class="remove-btn"
                   flat
-                  label="Remove"
+                  icon="delete"
                   color="grey-7"
                   style="border-radius: 10px !important"
                   @click="confirmRemoveBusiness"
@@ -195,6 +247,7 @@
 
     <LocationSelectorDialog
       v-model="showLocationSelector"
+      @update:modelValue="showLocationSelector = $event"
       @location-selected="handleLocationSelected"
     />
     <ManageCatalogDialog v-model="showManageCatalogDialog" />
@@ -210,6 +263,7 @@ import { api } from 'src/boot/axios';
 import { useUserStore } from 'src/stores/user-store';
 import LocationSelectorDialog from 'src/components/Location/LocationSelectorDialog.vue';
 import ManageCatalogDialog from 'src/components/ManageCatalogDialog.vue';
+import businessCategoriesData from 'src/jsondata/businessCategories.json';
 
 const $q = useQuasar();
 const formRef = ref();
@@ -235,6 +289,7 @@ interface BusinessData {
   locationName: string;
   latitude: number | null;
   longitude: number | null;
+  businessCategory: string | null;
 }
 
 interface LocationPoint {
@@ -253,12 +308,18 @@ interface UserLocation {
   isBusinessLocation: boolean;
 }
 
+interface Location {
+  type: string;
+  coordinates: number[];
+}
+
 const businessData = reactive<BusinessData>({
   businessName: '',
   whatsappNumber: null,
   locationName: '',
   latitude: null,
   longitude: null,
+  businessCategory: null,
 });
 
 const validatePhoneNumber = (value: number | string) => {
@@ -339,6 +400,7 @@ const handleSubmit = async () => {
         locationName: businessData.locationName,
         latitude: businessData.latitude,
         longitude: businessData.longitude,
+        businessCategory: businessData.businessCategory,
       };
 
       const response = await api.post(
@@ -374,11 +436,14 @@ const handleSubmit = async () => {
         userStore.updateUser({
           ...userStore.user,
           businessName: businessData.businessName,
+          businessCategory: businessData.businessCategory || '',
           whatsappNumber: businessData.whatsappNumber?.toString(),
           locations: currentLocations,
         });
 
         showInputFields.value = false;
+        isEditMode.value = false;
+        resetForm();
 
         $q.notify({
           color: 'black',
@@ -424,6 +489,14 @@ const handleSubmit = async () => {
   }
 };
 
+const resetForm = () => {
+  businessData.businessName = '';
+  businessData.whatsappNumber = null;
+  businessData.locationName = '';
+  businessData.latitude = null;
+  businessData.longitude = null;
+};
+
 const fetchExistingBusinessInfo = () => {
   const user = userStore.user;
   if (user) {
@@ -433,24 +506,19 @@ const fetchExistingBusinessInfo = () => {
     if (user.whatsappNumber) {
       businessData.whatsappNumber = parseInt(user.whatsappNumber, 10);
     }
+    if (user.businessCategory) {
+      businessData.businessCategory = user.businessCategory;
+    }
 
     // Get the business location from user's locations
     const locations = user.locations as UserLocation[];
     if (locations && locations.length > 0) {
-      // Filter for business locations and get the most recent one
       const businessLocations = locations.filter(
         (loc) => loc.isBusinessLocation
       );
 
       if (businessLocations.length > 0) {
-        const mostRecentLocation = businessLocations.sort((a, b) => {
-          if (!a.timestamp) return 1;
-          if (!b.timestamp) return -1;
-          return (
-            new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
-          );
-        })[0];
-
+        const mostRecentLocation = businessLocations[0];
         businessData.locationName = mostRecentLocation.name;
         businessData.longitude = mostRecentLocation.location.coordinates[0];
         businessData.latitude = mostRecentLocation.location.coordinates[1];
@@ -536,17 +604,102 @@ const businessLocation = computed(() => {
   return userStore.user?.locations?.find((loc) => loc.isBusinessLocation);
 });
 
-const handleLocationSelected = (location: {
-  type: string;
-  coordinates: number[];
-}) => {
-  businessData.latitude = location.coordinates[1]; // latitude is second in GeoJSON
-  businessData.longitude = location.coordinates[0]; // longitude is first in GeoJSON
-  showLocationSelector.value = false; // Close the dialog
+const handleLocationSelected = (location: Location) => {
+  if (location && location.coordinates) {
+    businessData.latitude = location.coordinates[1]; // latitude is second in GeoJSON
+    businessData.longitude = location.coordinates[0]; // longitude is first in GeoJSON
+    showLocationSelector.value = false; // Close the dialog
+  }
 };
 
 const openManageCatalogDialog = () => {
   showManageCatalogDialog.value = true;
+};
+
+// Add a new ref for tracking edit mode
+const isEditMode = ref(false);
+
+// Modify the showInputFields logic to handle edit mode
+const showAddOrEditForm = (editMode = false) => {
+  showInputFields.value = true;
+  isEditMode.value = editMode;
+
+  if (editMode) {
+    // Pre-fill the form with existing data
+    const user = userStore.user;
+    if (user) {
+      businessData.businessName = user.businessName || '';
+      businessData.whatsappNumber = user.whatsappNumber
+        ? parseInt(user.whatsappNumber, 10)
+        : null;
+
+      const businessLoc = businessLocation.value;
+      if (businessLoc) {
+        businessData.locationName = businessLoc.name;
+        businessData.longitude = businessLoc.location.coordinates[0];
+        businessData.latitude = businessLoc.location.coordinates[1];
+      }
+    }
+  } else {
+    // Reset form for add mode
+    businessData.businessName = '';
+    businessData.whatsappNumber = null;
+    businessData.locationName = '';
+    businessData.latitude = null;
+    businessData.longitude = null;
+  }
+};
+
+const businessCategories = computed(() => {
+  const categories = businessCategoriesData;
+
+  // Transform the categories into a flat list with group headers
+  return categories.reduce((acc, category, categoryIndex) => {
+    return [
+      ...acc,
+      {
+        group: category.group,
+        id: `group_${categoryIndex}`,
+        value: `group_${categoryIndex}`,
+      },
+      ...category.options.map((opt, optIndex) => ({
+        ...opt,
+        groupName: category.group,
+        id: `${categoryIndex}_${optIndex}`,
+      })),
+    ];
+  }, [] as Array<any>);
+});
+
+const filterBusinessCategories = (
+  val: string,
+  update: (callback: () => void) => void
+) => {
+  if (val === '') {
+    update(() => {
+      return;
+    });
+    return;
+  }
+
+  update(() => {
+    const needle = val.toLowerCase();
+    const filtered = businessCategories.value.filter((item) => {
+      if (item.group) return true;
+      return (
+        item.label?.toLowerCase().includes(needle) ||
+        item.groupName?.toLowerCase().includes(needle)
+      );
+    });
+
+    const groupsWithMatches = new Set(
+      filtered.filter((item) => !item.group).map((item) => item.groupName)
+    );
+
+    return filtered.filter(
+      (item) => !item.group || groupsWithMatches.has(item.group)
+    );
+  });
 };
 </script>
 
@@ -628,5 +781,17 @@ input[type='number'] {
   background-color: var(--q-primary);
   color: white;
   height: 36px;
+}
+
+.edit-btn {
+  position: absolute;
+  top: 10px;
+  right: 70px;
+  align-self: flex-end;
+  border-radius: 10px;
+  margin-left: 10px;
+  font-size: 12px;
+  text-transform: capitalize;
+  opacity: 0.7;
 }
 </style>
