@@ -15,6 +15,7 @@ export interface UserLocation {
     type: 'Point';
     coordinates: [number, number]; // [longitude, latitude]
   };
+  isBusinessLocation: boolean;
 }
 
 export interface User {

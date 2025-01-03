@@ -226,6 +226,29 @@
             @location-selected="handleLocationSelected"
           />
         </template>
+
+        <div class="row q-col-gutter-md q-mt-md">
+          <div v-for="(url, index) in previewUrls" :key="index" class="col-6">
+            <q-img
+              :src="url"
+              class="rounded-borders"
+              style="aspect-ratio: 1; object-fit: cover"
+            >
+              <div class="absolute-top-right q-pa-xs">
+                <q-btn
+                  round
+                  dense
+                  flat
+                  icon="close"
+                  color="grey-8"
+                  size="sm"
+                  class="bg-white"
+                  @click="removeImage(index)"
+                />
+              </div>
+            </q-img>
+          </div>
+        </div>
       </q-form>
     </div>
     <div

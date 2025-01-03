@@ -396,6 +396,7 @@ export default {
   astroai: 'एस्ट्रोएआई',
 
   // Business Info related translations
+  business: 'व्यवसाय',
   addBusinessInfo: 'व्यवसाय जानकारी जोड़ें',
   businessInfo: 'व्यवसाय जानकारी',
   businessDetails: 'व्यवसाय विवरण',

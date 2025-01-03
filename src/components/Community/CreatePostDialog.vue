@@ -15,7 +15,7 @@
       <q-separator class="q-my-md" />
 
       <q-card-section class="col q-pt-none scroll">
-        <div class="row items-center q-mb-md">
+        <!-- <div class="row items-center q-mb-md">
           <q-avatar size="40px">
             <img src="/sos_logo_1080_1080.png" />
           </q-avatar>
@@ -29,9 +29,9 @@
               label="Public"
             />
           </div>
-        </div>
+        </div> -->
 
-        <q-input
+        <!-- <q-input
           v-model="form.title"
           label="Title"
           class="q-mb-md"
@@ -41,18 +41,16 @@
           ]"
         >
           <template v-slot:hint> {{ titleCharCount }}/50 characters </template>
-        </q-input>
+        </q-input> -->
 
         <q-input
-          outlined
           v-model="form.description"
           type="textarea"
-          label="Description"
-          placeholder="What do you want to share?"
+          placeholder="What's on your mind?"
           autogrow
           class="description-input q-mb-md"
           :input-style="{
-            minHeight: '150px',
+            minHeight: '200px',
             fontSize: '16px',
             lineHeight: '1.5',
           }"
@@ -68,136 +66,40 @@
           </template>
         </q-input>
 
-        <!-- Tags Input -->
-        <q-input
-          v-model="tagInput"
-          label="Add tags (press Enter to add)"
-          @keyup.enter="addTag"
-          class="q-mt-md"
-          :disable="!canAddMoreTags"
-          :hint="
-            canAddMoreTags ? 'Add up to 5 tags' : 'Maximum tags limit reached'
-          "
-        >
-          <template v-slot:append>
-            <q-btn
-              round
-              dense
-              flat
-              icon="add"
-              @click="addTag"
-              :disable="!canAddMoreTags"
-            />
-          </template>
-        </q-input>
-
-        <!-- Tags Display -->
-        <div class="q-mt-sm row q-gutter-xs">
-          <q-chip
-            v-for="tag in form.tags"
-            :key="tag"
-            removable
-            @remove="removeTag(tag)"
-            color="primary"
-            text-color="white"
+        <!-- Image Preview Section -->
+        <!-- :class="{
+              'col-6': previewUrls.length <= 2,
+              'col-4': previewUrls.length === 3,
+              'col-3': previewUrls.length === 4,
+            }"
+            :style="{
+              'max-width': previewUrls.length === 1 ? '300px' : 'none',
+            }"
+            -->
+        <div v-if="previewUrls.length > 0" class="row q-mt-md">
+          <div
+            v-for="(url, index) in previewUrls"
+            :key="index"
+            class="col-3 relative-position q-pa-xs"
           >
-            #{{ tag }}
-          </q-chip>
-          <div v-if="form.tags.length === 0" class="text-grey-6">
-            No tags added yet
+            <q-img
+              :src="url"
+              class="rounded-borders"
+              style="aspect-ratio: 1; object-fit: cover"
+            >
+              <div class="absolute-top-right" style="padding: 2px">
+                <q-btn
+                  round
+                  dense
+                  color="grey-7"
+                  icon="close"
+                  size="sm"
+                  @click="removeImage(index)"
+                />
+              </div>
+            </q-img>
           </div>
         </div>
-
-        <div class="q-mt-md">
-          <q-select
-            v-model="selectedLocationId"
-            :options="[
-              ...savedLocations,
-              { id: -1, name: 'Select on Map', location: null },
-            ]"
-            option-value="id"
-            option-label="name"
-            label="Select Location (to primarily display this post)"
-            emit-value
-            map-options
-            class="q-mb-md"
-            :loading="isLoadingLocations"
-            :disable="isLoadingLocations"
-          >
-            <template v-slot:prepend>
-              <q-icon name="location_on" />
-            </template>
-            <template v-slot:option="scope">
-              <q-item v-bind="scope.itemProps">
-                <q-item-section>
-                  <q-item-label>{{ scope.opt.name }}</q-item-label>
-                  <q-item-label caption v-if="scope.opt.location">
-                    {{ scope.opt.location.coordinates.join(', ') }}
-                  </q-item-label>
-                </q-item-section>
-              </q-item>
-            </template>
-          </q-select>
-
-          <LocationSelectorDialog
-            v-model="showLocationSelector"
-            :zoom="17"
-            @location-selected="handleLocationSelected"
-          />
-
-          <q-checkbox
-            v-model="isBusinessPost"
-            label="Business Post"
-            v-if="hasBusinessLocation"
-            class="q-mb-md"
-          />
-          <q-checkbox
-            v-model="form.showLocation"
-            label="Show location on post"
-            class="q-mb-md"
-          />
-
-          <q-select
-            v-if="isBusinessPost"
-            v-model="form.businessCategory"
-            :options="businessCategories"
-            label="Select Business Category"
-            class="q-mb-md"
-            emit-value
-            option-value="value"
-            option-label="label"
-            map-options
-            :filter="filterBusinessCategories"
-            :rules="[(val) => !!val || 'Please select a category']"
-          >
-            <template v-slot:no-option>
-              <q-item>
-                <q-item-section class="text-grey">
-                  No results found
-                </q-item-section>
-              </q-item>
-            </template>
-            <template v-slot:option="scope">
-              <template v-if="scope.opt.group">
-                <q-item-label
-                  header
-                  class="text-weight-bold bg-grey-2 q-pa-sm"
-                  :key="scope.opt.id"
-                >
-                  {{ scope.opt.group }}
-                </q-item-label>
-              </template>
-              <template v-else>
-                <q-item v-bind="scope.itemProps" :key="scope.opt.id">
-                  <q-item-section>
-                    <q-item-label>{{ scope.opt.label }}</q-item-label>
-                  </q-item-section>
-                </q-item>
-              </template>
-            </template>
-          </q-select>
-        </div>
-
         <div class="row q-mt-lg">
           <q-btn
             flat
@@ -206,6 +108,7 @@
             @click="handleMediaUpload"
             :loading="isProcessingImages"
             :disable="isProcessingImages || !canAddMoreImages"
+            :style="{ display: canAddMoreImages ? 'block' : 'none' }"
           >
             <div class="row items-center">
               <q-icon name="far fa-image" size="24px" class="q-mr-sm" />
@@ -217,38 +120,148 @@
             </div>
           </q-btn>
         </div>
+        <q-toggle
+          v-model="showMoreOptions"
+          checked-icon="check"
+          label="more options"
+          unchecked-icon="clear"
+          class="q-mt-lg"
+          size="md"
+        />
 
-        <!-- Image Preview Section -->
-        <div v-if="previewUrls.length > 0" class="row q-mt-md q-gutter-x-sm">
-          <div
-            v-for="(url, index) in previewUrls"
-            :key="index"
-            :class="{
-              'col-6': previewUrls.length <= 2,
-              'col-4': previewUrls.length === 3,
-              'col-3': previewUrls.length === 4,
-            }"
-            class="relative-position"
-            :style="{
-              'max-width': previewUrls.length === 1 ? '300px' : 'none',
-            }"
-          >
-            <q-img
-              :src="url"
-              class="rounded-borders"
-              style="aspect-ratio: 1; object-fit: cover"
+        <div v-if="showMoreOptions" class="">
+          <!-- Tags Input -->
+          <!--
+          <div class="tag-wrapper">
+            <q-input
+              v-model="tagInput"
+              label="Add tags (press Enter to add)"
+              @keyup.enter="addTag"
+              class="q-mt-md"
+              :disable="!canAddMoreTags"
+              :hint="
+                canAddMoreTags
+                  ? 'Add up to 5 tags'
+                  : 'Maximum tags limit reached'
+              "
             >
-              <div class="absolute-top-right q-pa-xs">
+              <template v-slot:append>
                 <q-btn
                   round
                   dense
-                  color="grey-7"
-                  icon="close"
-                  size="sm"
-                  @click="removeImage(index)"
+                  flat
+                  icon="add"
+                  @click="addTag"
+                  :disable="!canAddMoreTags"
                 />
+              </template>
+            </q-input>
+            <div class="q-mt-sm row q-gutter-xs">
+              <q-chip
+                v-for="tag in form.tags"
+                :key="tag"
+                removable
+                @remove="removeTag(tag)"
+                color="primary"
+                text-color="white"
+              >
+                #{{ tag }}
+              </q-chip>
+              <div v-if="form.tags.length === 0" class="text-grey-6">
+                No tags added yet
               </div>
-            </q-img>
+            </div>
+          </div>
+           -->
+
+          <div class="businesspost-wrapper q-mt-md">
+            <q-checkbox
+              v-model="isBusinessPost"
+              label="Business Post"
+              v-if="hasBusinessLocation"
+            />
+
+            <q-select
+              v-if="isBusinessPost"
+              v-model="form.businessCategory"
+              :options="businessCategories"
+              label="Select Business Category"
+              class="q-mb-md"
+              emit-value
+              option-value="value"
+              option-label="label"
+              map-options
+              :filter="filterBusinessCategories"
+              :rules="[(val) => !!val || 'Please select a category']"
+            >
+              <template v-slot:no-option>
+                <q-item>
+                  <q-item-section class="text-grey">
+                    No results found
+                  </q-item-section>
+                </q-item>
+              </template>
+              <template v-slot:option="scope">
+                <template v-if="scope.opt.group">
+                  <q-item-label
+                    header
+                    class="text-weight-bold bg-grey-2 q-pa-sm"
+                    :key="scope.opt.id"
+                  >
+                    {{ scope.opt.group }}
+                  </q-item-label>
+                </template>
+                <template v-else>
+                  <q-item v-bind="scope.itemProps" :key="scope.opt.id">
+                    <q-item-section>
+                      <q-item-label>{{ scope.opt.label }}</q-item-label>
+                    </q-item-section>
+                  </q-item>
+                </template>
+              </template>
+            </q-select>
+          </div>
+          <div class="location-wrapper">
+            <q-checkbox
+              v-model="form.showLocation"
+              label="Show location on post"
+            />
+
+            <q-select
+              v-model="selectedLocationId"
+              :options="[
+                ...savedLocations,
+                { id: -1, name: 'Select on Map', location: null },
+              ]"
+              option-value="id"
+              option-label="name"
+              label="Select Location (to primarily display this post)"
+              emit-value
+              map-options
+              class="q-mb-md"
+              :loading="isLoadingLocations"
+              :disable="isLoadingLocations"
+            >
+              <template v-slot:prepend>
+                <q-icon name="location_on" />
+              </template>
+              <template v-slot:option="scope">
+                <q-item v-bind="scope.itemProps">
+                  <q-item-section>
+                    <q-item-label>{{ scope.opt.name }}</q-item-label>
+                    <q-item-label caption v-if="scope.opt.location">
+                      {{ scope.opt.location.coordinates.join(', ') }}
+                    </q-item-label>
+                  </q-item-section>
+                </q-item>
+              </template>
+            </q-select>
+
+            <LocationSelectorDialog
+              v-model="showLocationSelector"
+              :zoom="17"
+              @location-selected="handleLocationSelected"
+            />
           </div>
         </div>
       </q-card-section>
@@ -319,9 +332,11 @@ const form = ref({
     type: 'Point',
     coordinates: [0, 0],
   },
-  showLocation: false,
+  showLocation: true,
   businessCategory: null as string | null,
 });
+
+const showMoreOptions = ref(false);
 
 const tagInput = ref('');
 
@@ -542,6 +557,7 @@ interface SavedLocation {
     coordinates: number[];
   };
   timestamp: string | null;
+  isBusinessLocation: boolean;
 }
 
 const selectedLocationId = ref<number | null>(null);
@@ -644,7 +660,7 @@ watch(
           type: 'Point',
           coordinates: [0, 0],
         },
-        showLocation: false,
+        showLocation: true,
         businessCategory: null,
       };
 
@@ -665,6 +681,12 @@ watch(
         selectedLocationId.value = 0; // Current location has id 0
       }
     }
+  }
+);
+watch(
+  () => showMoreOptions.value,
+  async () => {
+    isBusinessPost.value = hasBusinessLocation.value;
   }
 );
 
@@ -751,11 +773,14 @@ const submitPost = async () => {
       formData.append('businessCategory', form.value.businessCategory);
     }
 
-    await api.post('/posts/post-create', formData, {
+    const response = await api.post('/posts/post-create', formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
     });
+
+    // Emit the newly created post data
+    emit('post-created', response.data); // Emit the post data
 
     // Reset form and images
     form.value = {
@@ -771,12 +796,12 @@ const submitPost = async () => {
       showLocation: true,
       businessCategory: null,
     };
+    showMoreOptions.value = false;
     selectedFiles.value = [];
     previewUrls.value.forEach((url) => URL.revokeObjectURL(url));
     previewUrls.value = [];
 
     isOpen.value = false;
-    emit('post-created');
   } catch (error) {
     console.error('Error creating post:', error);
     // $q.notify({
@@ -794,6 +819,7 @@ watch(
   () => isBusinessPost.value,
   (newValue) => {
     if (newValue) {
+      form.value.businessCategory = userStore.user.businessCategory || null;
       // Find first business location
       const businessLocation = savedLocations.value.find(
         (loc) => loc.isBusinessLocation
@@ -879,6 +905,14 @@ const filterBusinessCategories = (
     );
   });
 };
+
+// Add onMounted hook
+// onMounted(() => {
+//   //   if (hasBusinessLocation.value) isBusinessPost.value = true;
+//   if (savedLocations.value.some((loc) => loc.isBusinessLocation)) {
+//     isBusinessPost.value = true;
+//   }
+// });
 </script>
 
 <style scoped>

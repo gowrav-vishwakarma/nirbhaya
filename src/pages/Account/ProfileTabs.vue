@@ -156,7 +156,7 @@
             v-model="expandedItems.business"
             group="profile-tabs"
             icon="mdi-google-my-business"
-            label="Business"
+            :label="t('common.businessInfo')"
           >
             <BusinessInfo :reload-components="reloadComponents" />
           </q-expansion-item>
