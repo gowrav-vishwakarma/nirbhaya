@@ -171,15 +171,8 @@
       </div>
 
       <!-- Logout Button -->
-      <div class="logout-section q-pb-md">
-        <q-btn
-          style="width: 90%; margin: auto"
-          label="Logout"
-          @click="logout"
-          class="logout-btn"
-          icon="logout"
-        />
-      </div>
+
+      <q-separator size="20" class="q-mt-lg" />
       <div
         class="text-center text-subtitle1 versiontextcolor text-weight-thin"
         style="font-weight: 600"
@@ -196,6 +189,15 @@
           {{ t('common.caretext') }}<br />
           care@sosbharat.com
         </a>
+      </div>
+      <div class="logout-section q-pb-md">
+        <q-btn
+          style="width: 90%; margin: auto"
+          label="Logout"
+          @click="logout"
+          class="logout-btn"
+          icon="logout"
+        />
       </div>
     </div>
   </div>
@@ -218,6 +220,7 @@ import { useUserStore } from 'src/stores/user-store';
 import { api } from 'src/boot/axios';
 import { useI18n } from 'vue-i18n';
 import { useUserForm } from 'src/composables/use-user-form';
+import { col } from 'sequelize';
 const fileInput = ref<HTMLInputElement | null>(null);
 const isProcessingImages = ref(false);
 

@@ -89,6 +89,47 @@
         </div>
 
         <div class="custom-input">
+          <label>{{ t('common.businessCategory') }}</label>
+          <q-select
+            v-model="businessData.businessCategory"
+            :options="businessCategories"
+            filled
+            class="custom-radius"
+            bg-color="pink-1"
+            dense
+            hide-bottom-space
+            option-value="value"
+            option-label="label"
+            map-options
+            :filter="filterBusinessCategories"
+            :rules="[(val) => !!val || 'Business category is required']"
+            emit-value
+          >
+            <template v-slot:no-option>
+              <q-item>
+                <q-item-section class="text-grey">
+                  No results found
+                </q-item-section>
+              </q-item>
+            </template>
+            <template v-slot:option="scope">
+              <template v-if="scope.opt.group">
+                <q-item-label header class="text-weight-bold bg-grey-2 q-pa-sm">
+                  {{ scope.opt.group }}
+                </q-item-label>
+              </template>
+              <template v-else>
+                <q-item v-bind="scope.itemProps">
+                  <q-item-section>
+                    <q-item-label>{{ scope.opt.label }}</q-item-label>
+                  </q-item-section>
+                </q-item>
+              </template>
+            </template>
+          </q-select>
+        </div>
+
+        <div class="custom-input">
           <q-btn
             flat
             color="white"
@@ -222,6 +263,7 @@ import { api } from 'src/boot/axios';
 import { useUserStore } from 'src/stores/user-store';
 import LocationSelectorDialog from 'src/components/Location/LocationSelectorDialog.vue';
 import ManageCatalogDialog from 'src/components/ManageCatalogDialog.vue';
+import businessCategoriesData from 'src/jsondata/businessCategories.json';
 
 const $q = useQuasar();
 const formRef = ref();
@@ -247,6 +289,7 @@ interface BusinessData {
   locationName: string;
   latitude: number | null;
   longitude: number | null;
+  businessCategory: string | null;
 }
 
 interface LocationPoint {
@@ -276,6 +319,7 @@ const businessData = reactive<BusinessData>({
   locationName: '',
   latitude: null,
   longitude: null,
+  businessCategory: null,
 });
 
 const validatePhoneNumber = (value: number | string) => {
@@ -356,6 +400,7 @@ const handleSubmit = async () => {
         locationName: businessData.locationName,
         latitude: businessData.latitude,
         longitude: businessData.longitude,
+        businessCategory: businessData.businessCategory,
       };
 
       const response = await api.post(
@@ -391,6 +436,7 @@ const handleSubmit = async () => {
         userStore.updateUser({
           ...userStore.user,
           businessName: businessData.businessName,
+          businessCategory: businessData.businessCategory || '',
           whatsappNumber: businessData.whatsappNumber?.toString(),
           locations: currentLocations,
         });
@@ -460,24 +506,19 @@ const fetchExistingBusinessInfo = () => {
     if (user.whatsappNumber) {
       businessData.whatsappNumber = parseInt(user.whatsappNumber, 10);
     }
+    if (user.businessCategory) {
+      businessData.businessCategory = user.businessCategory;
+    }
 
     // Get the business location from user's locations
     const locations = user.locations as UserLocation[];
     if (locations && locations.length > 0) {
-      // Filter for business locations and get the most recent one
       const businessLocations = locations.filter(
         (loc) => loc.isBusinessLocation
       );
 
       if (businessLocations.length > 0) {
-        const mostRecentLocation = businessLocations.sort((a, b) => {
-          if (!a.timestamp) return 1;
-          if (!b.timestamp) return -1;
-          return (
-            new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
-          );
-        })[0];
-
+        const mostRecentLocation = businessLocations[0];
         businessData.locationName = mostRecentLocation.name;
         businessData.longitude = mostRecentLocation.location.coordinates[0];
         businessData.latitude = mostRecentLocation.location.coordinates[1];
@@ -607,6 +648,58 @@ const showAddOrEditForm = (editMode = false) => {
     businessData.latitude = null;
     businessData.longitude = null;
   }
+};
+
+const businessCategories = computed(() => {
+  const categories = businessCategoriesData;
+
+  // Transform the categories into a flat list with group headers
+  return categories.reduce((acc, category, categoryIndex) => {
+    return [
+      ...acc,
+      {
+        group: category.group,
+        id: `group_${categoryIndex}`,
+        value: `group_${categoryIndex}`,
+      },
+      ...category.options.map((opt, optIndex) => ({
+        ...opt,
+        groupName: category.group,
+        id: `${categoryIndex}_${optIndex}`,
+      })),
+    ];
+  }, [] as Array<any>);
+});
+
+const filterBusinessCategories = (
+  val: string,
+  update: (callback: () => void) => void
+) => {
+  if (val === '') {
+    update(() => {
+      return;
+    });
+    return;
+  }
+
+  update(() => {
+    const needle = val.toLowerCase();
+    const filtered = businessCategories.value.filter((item) => {
+      if (item.group) return true;
+      return (
+        item.label?.toLowerCase().includes(needle) ||
+        item.groupName?.toLowerCase().includes(needle)
+      );
+    });
+
+    const groupsWithMatches = new Set(
+      filtered.filter((item) => !item.group).map((item) => item.groupName)
+    );
+
+    return filtered.filter(
+      (item) => !item.group || groupsWithMatches.has(item.group)
+    );
+  });
 };
 </script>
 
