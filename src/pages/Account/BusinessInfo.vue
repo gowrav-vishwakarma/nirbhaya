@@ -75,20 +75,6 @@
         </div>
 
         <div class="custom-input">
-          <label>{{ t('common.businessLocation') }}</label>
-          <q-input
-            v-model="businessData.locationName"
-            filled
-            class="custom-radius"
-            bg-color="pink-1"
-            dense
-            hide-bottom-space
-            :rules="[(val) => !!val || 'Location name is required']"
-            placeholder="e.g., Shop No. 123, Building Name"
-          />
-        </div>
-
-        <div class="custom-input">
           <label>{{ t('common.businessCategory') }}</label>
           <q-select
             v-model="businessData.businessCategory"
@@ -127,6 +113,20 @@
               </template>
             </template>
           </q-select>
+        </div>
+
+        <div class="custom-input">
+          <label>{{ t('common.businessLocation') }}</label>
+          <q-input
+            v-model="businessData.locationName"
+            filled
+            class="custom-radius"
+            bg-color="pink-1"
+            dense
+            hide-bottom-space
+            :rules="[(val) => !!val || 'Location name is required']"
+            placeholder="e.g., Shop No. 123, Building Name"
+          />
         </div>
 
         <div class="custom-input">
