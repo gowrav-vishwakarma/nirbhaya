@@ -21,7 +21,7 @@
         icon="add"
         color="primary"
         class="full-width custom-radius q-mb-md"
-        @click="showInputFields = !showInputFields"
+        @click="showAddOrEditForm(false)"
         label="Add Business Information"
         style="border-radius: 10px !important"
       />
@@ -112,16 +112,16 @@
         <div class="row q-col-gutter-sm">
           <div class="col-6">
             <q-btn
-              label="Cancel"
+              :label="isEditMode ? 'Cancel' : 'Cancel'"
               color="black"
               style="border-radius: 10px !important"
               class="full-width custom-radius"
-              @click="showInputFields = false"
+              @click="(showInputFields = false), (isEditMode = false)"
             />
           </div>
           <div class="col-6">
             <q-btn
-              label="Add"
+              :label="isEditMode ? 'Update' : 'Add'"
               color="primary"
               style="border-radius: 10px !important"
               class="full-width custom-radius"
@@ -133,7 +133,10 @@
         </div>
       </div>
 
-      <div class="contact-cards q-mt-md" v-if="userStore.user?.businessName">
+      <div
+        class="contact-cards q-mt-md"
+        v-if="!isEditMode && userStore.user?.businessName"
+      >
         <q-card flat bordered class="contact-card q-mb-sm">
           <q-card-section class="row items-center" style="width: 100%">
             <div class="col-auto q-pa-none q-ma-none">
@@ -179,9 +182,17 @@
               </div>
               <div class="col-auto">
                 <q-btn
+                  flat
+                  icon="edit"
+                  color="primary"
+                  class="edit-btn"
+                  style="border-radius: 10px !important"
+                  @click="showAddOrEditForm(true)"
+                />
+                <q-btn
                   class="remove-btn"
                   flat
-                  label="Remove"
+                  icon="delete"
                   color="grey-7"
                   style="border-radius: 10px !important"
                   @click="confirmRemoveBusiness"
@@ -195,6 +206,7 @@
 
     <LocationSelectorDialog
       v-model="showLocationSelector"
+      @update:modelValue="showLocationSelector = $event"
       @location-selected="handleLocationSelected"
     />
     <ManageCatalogDialog v-model="showManageCatalogDialog" />
@@ -251,6 +263,11 @@ interface UserLocation {
   };
   timestamp: string | null;
   isBusinessLocation: boolean;
+}
+
+interface Location {
+  type: string;
+  coordinates: number[];
 }
 
 const businessData = reactive<BusinessData>({
@@ -379,6 +396,8 @@ const handleSubmit = async () => {
         });
 
         showInputFields.value = false;
+        isEditMode.value = false;
+        resetForm();
 
         $q.notify({
           color: 'black',
@@ -422,6 +441,14 @@ const handleSubmit = async () => {
     // If WhatsApp number is provided, submit directly
     await submitBusinessInfo();
   }
+};
+
+const resetForm = () => {
+  businessData.businessName = '';
+  businessData.whatsappNumber = null;
+  businessData.locationName = '';
+  businessData.latitude = null;
+  businessData.longitude = null;
 };
 
 const fetchExistingBusinessInfo = () => {
@@ -536,17 +563,50 @@ const businessLocation = computed(() => {
   return userStore.user?.locations?.find((loc) => loc.isBusinessLocation);
 });
 
-const handleLocationSelected = (location: {
-  type: string;
-  coordinates: number[];
-}) => {
-  businessData.latitude = location.coordinates[1]; // latitude is second in GeoJSON
-  businessData.longitude = location.coordinates[0]; // longitude is first in GeoJSON
-  showLocationSelector.value = false; // Close the dialog
+const handleLocationSelected = (location: Location) => {
+  if (location && location.coordinates) {
+    businessData.latitude = location.coordinates[1]; // latitude is second in GeoJSON
+    businessData.longitude = location.coordinates[0]; // longitude is first in GeoJSON
+    showLocationSelector.value = false; // Close the dialog
+  }
 };
 
 const openManageCatalogDialog = () => {
   showManageCatalogDialog.value = true;
+};
+
+// Add a new ref for tracking edit mode
+const isEditMode = ref(false);
+
+// Modify the showInputFields logic to handle edit mode
+const showAddOrEditForm = (editMode = false) => {
+  showInputFields.value = true;
+  isEditMode.value = editMode;
+
+  if (editMode) {
+    // Pre-fill the form with existing data
+    const user = userStore.user;
+    if (user) {
+      businessData.businessName = user.businessName || '';
+      businessData.whatsappNumber = user.whatsappNumber
+        ? parseInt(user.whatsappNumber, 10)
+        : null;
+
+      const businessLoc = businessLocation.value;
+      if (businessLoc) {
+        businessData.locationName = businessLoc.name;
+        businessData.longitude = businessLoc.location.coordinates[0];
+        businessData.latitude = businessLoc.location.coordinates[1];
+      }
+    }
+  } else {
+    // Reset form for add mode
+    businessData.businessName = '';
+    businessData.whatsappNumber = null;
+    businessData.locationName = '';
+    businessData.latitude = null;
+    businessData.longitude = null;
+  }
 };
 </script>
 
@@ -628,5 +688,17 @@ input[type='number'] {
   background-color: var(--q-primary);
   color: white;
   height: 36px;
+}
+
+.edit-btn {
+  position: absolute;
+  top: 10px;
+  right: 70px;
+  align-self: flex-end;
+  border-radius: 10px;
+  margin-left: 10px;
+  font-size: 12px;
+  text-transform: capitalize;
+  opacity: 0.7;
 }
 </style>
