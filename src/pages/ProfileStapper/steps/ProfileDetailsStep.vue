@@ -44,10 +44,17 @@
             bg-color="pink-1"
             dense
             hide-bottom-space
-            :max="maxDobDate"
-          />
-
-          <!-- :max-date="maxDobDate" -->
+            :rules="[(val) => !!val || 'Date of birth is required']"
+            :mask="'####-##-##'"
+            :fill-mask="true"
+            input-class="text-left"
+            :min="minDate"
+            :max="maxDate"
+          >
+            <template v-slot:prepend>
+              <q-icon name="event" />
+            </template>
+          </q-input>
         </div>
 
         <div class="custom-input">
@@ -255,6 +262,7 @@ import { useUserStore } from 'src/stores/user-store';
 import type { QSelectFilterFn } from 'quasar';
 import { Geolocation } from '@capacitor/geolocation';
 import LocationSelectorDialog from 'src/components/Location/LocationSelectorDialog.vue';
+import businessCategoriesData from 'src/jsondata/businessCategories.json';
 
 const $q = useQuasar();
 const { t } = useI18n();
@@ -282,6 +290,7 @@ interface BusinessInfo {
   locationName: string;
   latitude: number;
   longitude: number;
+  businessCategory: string | null;
 }
 
 interface FormValues {
@@ -442,7 +451,8 @@ const isFormValid = computed(() => {
       String(values.value.businessInfo.whatsappNumber).length === 10 &&
       !!values.value.businessInfo.locationName &&
       !!values.value.businessInfo.latitude &&
-      !!values.value.businessInfo.longitude
+      !!values.value.businessInfo.longitude &&
+      !!values.value.businessInfo.businessCategory
     );
   }
 
@@ -498,10 +508,10 @@ const handleSubmit = async () => {
       // If business info is enabled, handle it first
       if (values.value.showBusinessInfo && values.value.businessInfo) {
         // First make the API call for business information
-        await api.post(
-          '/user/add-business-information',
-          values.value.businessInfo
-        );
+        await api.post('/user/add-business-information', {
+          ...values.value.businessInfo,
+          businessCategory: values.value.businessInfo.businessCategory,
+        });
 
         // After successful API call, update the store with business info
         const businessLocation: UserLocation = {
@@ -528,6 +538,7 @@ const handleSubmit = async () => {
           ...userStore.user,
           businessName: values.value.businessInfo.businessName,
           whatsappNumber: values.value.businessInfo.whatsappNumber.toString(),
+          businessCategory: values.value.businessInfo.businessCategory,
           locations: updatedLocations,
         });
       }
@@ -736,6 +747,7 @@ const loadUserData = async () => {
         locationName: '',
         latitude: 0,
         longitude: 0,
+        businessCategory: userData.businessCategory || null,
       };
 
       // Get business location from locations array
@@ -813,7 +825,6 @@ watch(
   () => values.value.showBusinessInfo,
   (newValue) => {
     if (newValue) {
-      // Only initialize if businessInfo doesn't exist
       if (!values.value.businessInfo) {
         values.value.businessInfo = {
           businessName: '',
@@ -821,6 +832,7 @@ watch(
           locationName: '',
           latitude: 0,
           longitude: 0,
+          businessCategory: null,
         };
       }
     }
@@ -863,9 +875,82 @@ const formattedCoordinates = computed(() => {
   return `${latitude.toFixed(6)}, ${longitude.toFixed(6)}`;
 });
 
+const minDate = computed(() => {
+  const date = new Date();
+  date.setFullYear(date.getFullYear() - 100); // 100 years ago
+  return date.toISOString().split('T')[0];
+});
+
+const maxDate = computed(() => {
+  const date = new Date();
+  date.setFullYear(date.getFullYear() - 13); // Must be at least 13 years old
+  return date.toISOString().split('T')[0];
+});
+
+const businessCategories = computed(() => {
+  const categories = businessCategoriesData;
+  return categories.reduce((acc, category, categoryIndex) => {
+    return [
+      ...acc,
+      {
+        group: category.group,
+        id: `group_${categoryIndex}`,
+        value: `group_${categoryIndex}`,
+      },
+      ...category.options.map((opt, optIndex) => ({
+        ...opt,
+        groupName: category.group,
+        id: `${categoryIndex}_${optIndex}`,
+      })),
+    ];
+  }, [] as Array<any>);
+});
+
+const filterBusinessCategories = (
+  val: string,
+  update: (callback: () => void) => void
+) => {
+  if (val === '') {
+    update(() => {
+      return;
+    });
+    return;
+  }
+
+  update(() => {
+    const needle = val.toLowerCase();
+    const filtered = businessCategories.value.filter((item) => {
+      if (item.group) return true;
+      return (
+        item.label?.toLowerCase().includes(needle) ||
+        item.groupName?.toLowerCase().includes(needle)
+      );
+    });
+
+    const groupsWithMatches = new Set(
+      filtered.filter((item) => !item.group).map((item) => item.groupName)
+    );
+
+    return filtered.filter(
+      (item) => !item.group || groupsWithMatches.has(item.group)
+    );
+  });
+};
+
 onMounted(() => {
   loadUserData();
+  if (values.value?.dob) {
+    // Ensure the date is in yyyy-MM-dd format
+    values.value.dob = new Date(values.value.dob).toISOString().split('T')[0];
+  }
 });
+
+const emitUpdate = () => {
+  emit('update-profile', {
+    ...values.value,
+    dob: values.value.dob ? values.value.dob : null, // Date will already be in yyyy-MM-dd format
+  });
+};
 </script>
 
 <style scoped>
@@ -956,5 +1041,29 @@ onMounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+/* Add these styles to ensure the date input looks consistent */
+:deep(.q-field__native) {
+  font-size: 14px;
+  padding-left: 8px;
+}
+
+:deep(.q-field__control) {
+  height: 45px;
+}
+
+/* Hide the native date picker icon in some browsers */
+:deep(input[type='date']::-webkit-calendar-picker-indicator) {
+  background: transparent;
+  bottom: 0;
+  color: transparent;
+  cursor: pointer;
+  height: auto;
+  left: 0;
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: auto;
 }
 </style>

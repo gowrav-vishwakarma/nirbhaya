@@ -400,7 +400,7 @@ export default {
   businessInfo: 'व्यवसाय जानकारी',
   businessDetails: 'व्यवसाय विवरण',
   businessName: 'व्यवसाय का नाम',
-  businessLocation: 'व्यवसाय का स्थान',
+  businessLocation: 'व्यवसाय का पता',
   businessNameRequired: 'व्यवसाय का नाम आवश्यक है',
   addBusinessDetails: 'व्यवसाय विवरण जोड़ें',
   whatsappNumber: 'व्यवसाय व्हाट्सएप (WhatsApp) नंबर',
@@ -433,4 +433,5 @@ export default {
   emergencyContactsUpdated: 'आपातकालीन संपर्क सफलतापूर्वक अपडेट किए गए',
   emergencyContactsUpdateError: 'आपातकालीन संपर्क अपडेट करने में त्रुटि',
   locationUpdateSuccess: 'स्थान सफलतापूर्वक अपडेट किया गया',
+  businessCategory: 'व्यवसाय की श्रेणी',
 };
