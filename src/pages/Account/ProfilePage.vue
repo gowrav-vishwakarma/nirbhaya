@@ -41,35 +41,24 @@
               <!-- DOB Input -->
               <div class="col-12 col-sm-6 q-py-none custom-input">
                 <label>{{ $t('common.dob') }}</label>
+                {{ minDate }} {{ maxDate }}
                 <q-input
                   v-model="values.dob"
-                  mask="date"
+                  type="date"
+                  :error="!!errors.dob"
+                  :error-message="errors.dob?.join('; ')"
                   filled
                   class="custom-radius"
                   bg-color="pink-1"
                   dense
                   hide-bottom-space
+                  :rules="[(val) => !!val || 'Date of birth is required']"
+                  :mask="'####-##-##'"
+                  :fill-mask="true"
+                  input-class="text-left"
+                  :max="maxDate"
                 >
-                  <template v-slot:append>
-                    <q-icon name="event" class="cursor-pointer">
-                      <q-popup-proxy
-                        cover
-                        transition-show="scale"
-                        transition-hide="scale"
-                      >
-                        <q-date v-model="values.dob">
-                          <div class="row items-center justify-end">
-                            <q-btn
-                              v-close-popup
-                              label="ok"
-                              color="primary"
-                              flat
-                            />
-                          </div>
-                        </q-date>
-                      </q-popup-proxy>
-                    </q-icon>
-                  </template>
+                  <!-- :min="minDate" -->
                 </q-input>
               </div>
 
@@ -628,6 +617,18 @@ watch(
 // Add a computed property to check if referral ID is stored
 const isReferralIdStored = computed(() => {
   return !!userStore.user.referredBy;
+});
+
+const minDate = computed(() => {
+  const date = new Date();
+  date.setFullYear(date.getFullYear() - 100); // 100 years ago
+  return date.toISOString().split('T')[0];
+});
+
+const maxDate = computed(() => {
+  const date = new Date();
+  date.setFullYear(date.getFullYear() - 13); // Must be at least 13 years old
+  return date.toISOString().split('T')[0];
 });
 </script>
 
