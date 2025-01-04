@@ -478,7 +478,7 @@ export default {
   businessInfoDeleteCancel: 'No, Keep',
 
   // Business Location related translations
-  businessLocation: 'Business Location',
+  businessLocation: 'Business Location name',
   addBusinessLocation: 'Add Business Location',
   editBusinessLocation: 'Edit Business Location',
   removeBusinessLocation: 'Remove Business Location',

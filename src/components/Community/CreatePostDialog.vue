@@ -687,6 +687,25 @@ watch(
   () => showMoreOptions.value,
   async () => {
     isBusinessPost.value = hasBusinessLocation.value;
+    if (isBusinessPost.value) {
+      form.value.businessCategory = userStore.user.businessCategory || null;
+      // Find first business location
+      const businessLocation = savedLocations.value.find(
+        (loc) => loc.isBusinessLocation
+      );
+      if (businessLocation) {
+        selectedLocationId.value = businessLocation.id;
+        form.value.showLocation = true;
+      }
+    } else {
+      // Find first non-business location
+      const nonBusinessLocation = savedLocations.value.find(
+        (loc) => !loc.isBusinessLocation
+      );
+      if (nonBusinessLocation) {
+        selectedLocationId.value = nonBusinessLocation.id;
+      }
+    }
   }
 );
 
