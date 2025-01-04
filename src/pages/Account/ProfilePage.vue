@@ -42,33 +42,42 @@
               <div class="col-12 col-sm-6 q-py-none custom-input">
                 <label>{{ $t('common.dob') }}</label>
                 <q-input
+                  filled
                   v-model="values.dob"
                   mask="date"
-                  filled
+                  :error="!!errors.dob"
+                  :error-message="errors.dob?.join('; ')"
                   class="custom-radius"
                   bg-color="pink-1"
                   dense
                   hide-bottom-space
+                  :rules="[(val) => !!val || 'Date of birth is required']"
+                  :fill-mask="true"
+                  input-class="text-left"
                 >
                   <template v-slot:append>
-                    <q-icon name="event" class="cursor-pointer">
-                      <q-popup-proxy
-                        cover
-                        transition-show="scale"
-                        transition-hide="scale"
+                    <q-icon name="event" class="cursor-pointer" />
+                    <q-popup-proxy
+                      cover
+                      transition-show="scale"
+                      transition-hide="scale"
+                    >
+                      <q-date
+                        v-model="values.dob"
+                        :navigation-min-year-month="minDate"
+                        :navigation-max-year-month="maxDate"
+                        :default-year-month="maxDate"
                       >
-                        <q-date v-model="values.dob">
-                          <div class="row items-center justify-end">
-                            <q-btn
-                              v-close-popup
-                              label="ok"
-                              color="primary"
-                              flat
-                            />
-                          </div>
-                        </q-date>
-                      </q-popup-proxy>
-                    </q-icon>
+                        <div class="row items-center justify-end">
+                          <q-btn
+                            v-close-popup
+                            label="ok"
+                            color="primary"
+                            flat
+                          />
+                        </div>
+                      </q-date>
+                    </q-popup-proxy>
                   </template>
                 </q-input>
               </div>
@@ -629,6 +638,24 @@ watch(
 const isReferralIdStored = computed(() => {
   return !!userStore.user.referredBy;
 });
+
+const minDate = computed(() => {
+  const date = new Date();
+  date.setFullYear(date.getFullYear() - 150); // 100 years ago
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-based
+  return `${year}/${month}`;
+});
+
+const maxDate = computed(() => {
+  const date = new Date();
+  date.setFullYear(date.getFullYear() - 13); // Must be at least 13 years old
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-based
+  return `${year}/${month}`;
+});
+
+// const showDatePicker = ref(false);
 </script>
 
 <style lang="scss" scoped>

@@ -35,24 +35,40 @@
         <div class="custom-input">
           <label>{{ t('common.dob') }}</label>
           <q-input
+            filled
             v-model="values.dob"
-            type="date"
+            mask="date"
             :error="!!errors.dob"
             :error-message="errors.dob?.join('; ')"
-            filled
             class="custom-radius"
             bg-color="pink-1"
             dense
             hide-bottom-space
             :rules="[(val) => !!val || 'Date of birth is required']"
-            :mask="'####-##-##'"
             :fill-mask="true"
             input-class="text-left"
-            :min="minDate"
-            :max="maxDate"
+            readonly
           >
-            <template v-slot:prepend>
-              <q-icon name="event" />
+            <template v-slot:append>
+              <q-icon name="event" class="cursor-pointer">
+                <q-popup-proxy
+                  cover
+                  transition-show="scale"
+                  transition-hide="scale"
+                >
+                  <!-- v-model="datePickerVisible" -->
+                  <q-date
+                    v-model="values.dob"
+                    :navigation-min-year-month="minDate"
+                    :navigation-max-year-month="maxDate"
+                    :default-year-month="maxDate"
+                  >
+                    <div class="row items-center justify-end">
+                      <q-btn v-close-popup label="ok" color="primary" flat />
+                    </div>
+                  </q-date>
+                </q-popup-proxy>
+              </q-icon>
             </template>
           </q-input>
         </div>
@@ -357,11 +373,7 @@ interface FormValues {
 
 const emit = defineEmits(['update-profile', 'next-step']);
 
-const maxDobDate = ref(
-  new Date(new Date().setFullYear(new Date().getFullYear() - 4))
-    .toISOString()
-    .split('T')[0]
-);
+// const datePickerVisible = ref(false);
 
 const originalStateOptions = [
   'Andhra Pradesh',
@@ -918,14 +930,18 @@ const formattedCoordinates = computed(() => {
 
 const minDate = computed(() => {
   const date = new Date();
-  date.setFullYear(date.getFullYear() - 100); // 100 years ago
-  return date.toISOString().split('T')[0];
+  date.setFullYear(date.getFullYear() - 150); // 100 years ago
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-based
+  return `${year}/${month}`;
 });
 
 const maxDate = computed(() => {
   const date = new Date();
   date.setFullYear(date.getFullYear() - 13); // Must be at least 13 years old
-  return date.toISOString().split('T')[0];
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-based
+  return `${year}/${month}`;
 });
 
 const businessCategories = computed(() => {
