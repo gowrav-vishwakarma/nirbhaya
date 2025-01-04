@@ -187,6 +187,49 @@
               maxlength="10"
             />
           </div>
+          <div class="custom-input">
+            <label>{{ t('common.businessCategory') }}</label>
+            <q-select
+              v-model="values.businessInfo.businessCategory"
+              :options="businessCategories"
+              filled
+              class="custom-radius"
+              bg-color="pink-1"
+              dense
+              hide-bottom-space
+              option-value="value"
+              option-label="label"
+              map-options
+              :filter="filterBusinessCategories"
+              :rules="[(val) => !!val || 'Business category is required']"
+              emit-value
+            >
+              <template v-slot:no-option>
+                <q-item>
+                  <q-item-section class="text-grey">
+                    No results found
+                  </q-item-section>
+                </q-item>
+              </template>
+              <template v-slot:option="scope">
+                <template v-if="scope.opt.group">
+                  <q-item-label
+                    header
+                    class="text-weight-bold bg-grey-2 q-pa-sm"
+                  >
+                    {{ scope.opt.group }}
+                  </q-item-label>
+                </template>
+                <template v-else>
+                  <q-item v-bind="scope.itemProps">
+                    <q-item-section>
+                      <q-item-label>{{ scope.opt.label }}</q-item-label>
+                    </q-item-section>
+                  </q-item>
+                </template>
+              </template>
+            </q-select>
+          </div>
 
           <div class="custom-input">
             <label>{{ t('common.businessLocation') }}</label>
@@ -200,13 +243,11 @@
               hide-bottom-space
               placeholder="e.g., Shop No. 123, Building Name"
             />
-          </div>
 
-          <div class="custom-input">
             <q-btn
               icon="my_location"
               :color="isLocationSet ? 'primary' : 'grey'"
-              class="bg-pink-1 full-width q-mt-md"
+              class="full-width q-mt-md"
               @click="showLocationSelector = true"
             >
               {{
@@ -215,7 +256,7 @@
                   : t('common.setLocation')
               }}
             </q-btn>
-            <div v-if="isLocationSet" class="location-display q-mt-sm">
+            <div v-if="isLocationSet" class="location-display">
               <q-icon name="place" size="xs" class="q-mr-xs" />
               {{ formattedCoordinates }}
             </div>
@@ -226,29 +267,6 @@
             @location-selected="handleLocationSelected"
           />
         </template>
-
-        <div class="row q-col-gutter-md q-mt-md">
-          <div v-for="(url, index) in previewUrls" :key="index" class="col-6">
-            <q-img
-              :src="url"
-              class="rounded-borders"
-              style="aspect-ratio: 1; object-fit: cover"
-            >
-              <div class="absolute-top-right q-pa-xs">
-                <q-btn
-                  round
-                  dense
-                  flat
-                  icon="close"
-                  color="grey-8"
-                  size="sm"
-                  class="bg-white"
-                  @click="removeImage(index)"
-                />
-              </div>
-            </q-img>
-          </div>
-        </div>
       </q-form>
     </div>
     <div
