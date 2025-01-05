@@ -1,6 +1,8 @@
 <template>
   <div class="emergency-contacts-step">
-    <h5 class="text-h6 q-mb-sm q-px-md q-mt-md q-ma-none">Emergency Contacts</h5>
+    <h5 class="text-h6 q-mb-sm q-px-md q-mt-md q-ma-none">
+      Emergency Contacts
+    </h5>
     <p class="q-px-md q-ma-none q-mb-sm">Add Your emergency contacts below.</p>
 
     <div class="scrollable-inputs q-px-md">
@@ -10,15 +12,15 @@
         class="full-width custom-radius q-mb-md"
         @click="showInputFields = !showInputFields"
         :label="t('common.addEmergencyContact')"
-        style="border-radius: 10px !important;"
+        style="border-radius: 10px !important"
       />
-      
+
       <div v-if="showInputFields" class="input-fields">
         <div class="custom-input">
           <label>{{ t('common.name') }}</label>
           <q-input
             v-model="newContact.name"
-            :rules="[val => !!val || t('common.nameRequired')]"
+            :rules="[(val) => !!val || t('common.nameRequired')]"
             filled
             class="custom-radius"
             bg-color="pink-1"
@@ -32,9 +34,12 @@
           <q-input
             v-model="newContact.phone"
             :rules="[
-              val => !!val || t('common.phoneRequired'),
-              val => val.length === 10 || t('common.invalidPhoneNumberLength')
+              (val) => !!val || t('common.phoneRequired'),
+              (val) =>
+                val.length === 10 || t('common.invalidPhoneNumberLength'),
             ]"
+            :error="!!phoneError"
+            :error-message="phoneError"
             filled
             class="custom-radius"
             bg-color="pink-1"
@@ -42,16 +47,23 @@
             type="tel"
             mask="##########"
             hide-bottom-space
+            @blur="handlePhoneBlur"
           />
         </div>
 
-        <div class="row q-col-gutter-sm"> 
+        <div class="custom-input">
+          <q-checkbox
+            v-model="newContact.is_primary"
+            label="Set as primary contact"
+          />
+        </div>
+
+        <div class="row q-col-gutter-sm">
           <div class="col-6">
             <q-btn
               label="Cancel"
               color="black"
-              style="border-radius: 10px !important;"
-
+              style="border-radius: 10px !important"
               class="full-width custom-radius"
               @click="clearInputFields"
             />
@@ -60,7 +72,7 @@
             <q-btn
               label="Add"
               color="primary"
-              style="border-radius: 10px !important;"
+              style="border-radius: 10px !important"
               class="full-width custom-radius"
               @click="addNewContact"
             />
@@ -70,26 +82,48 @@
       <q-separator v-if="showInputFields" class="q-mt-md" />
 
       <div class="contact-cards q-mt-md" v-if="hasEmergencyContacts">
-        <q-card v-for="(contact, index) in contacts" :key="index" flat bordered class="contact-card q-mb-sm">
-          <q-card-section class="row items-center" style="  width: 100%;" >
+        <q-card
+          v-for="(contact, index) in contacts"
+          :key="index"
+          flat
+          bordered
+          class="contact-card q-mb-sm"
+        >
+          <q-card-section class="row items-center" style="width: 100%">
             <div class="col-auto">
               <!-- {{contact}} -->
               <q-avatar>
-                <img src='/profile.png' alt='/profile.png' />
+                <img src="/profile.png" alt="/profile.png" />
               </q-avatar>
             </div>
             <div class="col">
-              <div class="text-subtitle2">{{ contact.name }}</div>
+              <div class="text-subtitle2 row items-center">
+                {{ contact.name }}
+                <q-icon
+                  v-if="contact.is_primary"
+                  name="check_circle"
+                  color="positive"
+                  size="xs"
+                  class="q-ml-sm"
+                >
+                  <q-tooltip>Primary Contact</q-tooltip>
+                </q-icon>
+              </div>
               <div class="text-caption">{{ contact.phone }}</div>
-              <div>Approval Status: ({{ contact.consentGiven?'Approve':'Pending' }})</div>
+              <div class="row items-center">
+                <div>
+                  Approval Status: ({{
+                    contact.consentGiven ? 'Approve' : 'Pending'
+                  }})
+                </div>
+              </div>
             </div>
             <div class="col-auto q-ml-auto">
               <q-btn
-                class="remove-btn"  
+                class="remove-btn"
                 flat
                 label="Remove"
-                style="border-radius: 10px !important;"
-
+                style="border-radius: 10px !important"
                 @click="confirmRemoveContact(index)"
               />
             </div>
@@ -110,8 +144,7 @@
             flat
             class="full-width custom-radius"
             @click="$emit('previous-step')"
-            style="border-radius: 10px !important;"
-
+            style="border-radius: 10px !important"
           />
         </div>
         <div class="col-6">
@@ -121,8 +154,7 @@
             class="full-width custom-radius"
             :loading="isLoading"
             @click="handleSubmit"
-            style="border-radius: 10px !important; height: 40px;"
-
+            style="border-radius: 10px !important; height: 40px"
           >
             <template v-slot:loading>
               <q-spinner-dots />
@@ -136,260 +168,301 @@
 </template>
 
 <script lang="ts" setup>
-import { defineProps, defineEmits, ref, onMounted, computed } from 'vue'
-import { useUserStore } from 'src/stores/user-store'
-import { api } from 'src/boot/axios'
-import { useQuasar } from 'quasar'
-import { useI18n } from 'vue-i18n'
+import { defineProps, defineEmits, ref, onMounted, computed } from 'vue';
+import { useUserStore } from 'src/stores/user-store';
+import { api } from 'src/boot/axios';
+import { useQuasar } from 'quasar';
+import { useI18n } from 'vue-i18n';
 
-const { t } = useI18n()
+const { t } = useI18n();
 
 interface Contact {
-  name: string
-  phone: string
-  relationship: string | undefined
-  avatar?: string
-  consentGiven?: boolean
+  name: string;
+  phone: string;
+  relationship: string | undefined;
+  avatar?: string;
+  consentGiven?: boolean;
+  is_primary?: boolean;
 }
 
 const props = defineProps<{
-  contacts: Contact[]
-}>()
+  contacts: Contact[];
+}>();
 
-const emit = defineEmits(['update-contacts', 'previous-step', 'submit', 'next-step'])
-const $q = useQuasar()
-const userStore = useUserStore()
+const emit = defineEmits([
+  'update-contacts',
+  'previous-step',
+  'submit',
+  'next-step',
+]);
+const $q = useQuasar();
+const userStore = useUserStore();
 
-const contacts = ref<Contact[]>(props.contacts.length ? [...props.contacts] : [])
-const relationshipOptions = ['Parent', 'Spouse', 'Sibling', 'Friend', 'Relative', 'Other']
+const contacts = ref<Contact[]>(
+  props.contacts.length ? [...props.contacts] : []
+);
+const relationshipOptions = [
+  'Parent',
+  'Spouse',
+  'Sibling',
+  'Friend',
+  'Relative',
+  'Neighbor',
+  'Other',
+];
 
-const isLoading = ref(false)
+const isLoading = ref(false);
 
 interface NewContact {
-  name: string
-  phone: string
-  relationship: string | undefined
-  avatar?: string
+  name: string;
+  phone: string;
+  relationship: string | undefined;
+  avatar?: string;
+  is_primary?: boolean;
 }
 
-const newContact = ref<NewContact>({ 
-  name: '', 
-  phone: '', 
+const newContact = ref<NewContact>({
+  name: '',
+  phone: '',
   relationship: undefined,
-  avatar: ''
-})
+  avatar: '',
+  is_primary: false,
+});
 
-const showInputFields = ref(false)
+const showInputFields = ref(false);
+const phoneError = ref('');
+
+const handlePhoneBlur = async () => {
+  if (newContact.value.phone) {
+    await validatePhoneNumber(newContact.value.phone);
+  }
+};
 
 const validatePhoneNumber = async (phoneNumber: string): Promise<boolean> => {
   try {
     if (phoneNumber === userStore.user.phoneNumber) {
+      phoneError.value = t('common.cantAddOwnNumber');
       $q.notify({
         color: 'negative',
-        message: 'You cannot add your own number as emergency contact',
+        message: t('common.cantAddOwnNumber'),
         icon: 'error',
-        position:'top-right'
-      })
-      return false
+        position: 'top-right',
+      });
+      return false;
     }
 
-    const response = await api.post('auth/validate-phone', { phoneNumber })
+    const response = await api.post('auth/validate-phone', { phoneNumber });
     if (!response.data.isValid) {
+      phoneError.value = t('common.userNotRegisteredInApp');
       $q.notify({
         color: 'negative',
-        message: 'Phone number is not registered in the system',
+        message: t('common.userNotRegisteredInApp'),
         icon: 'error',
-        position:'top-right'
-      })
-      return false
+        position: 'top-right',
+      });
+      return false;
     }
-    return true
+    phoneError.value = '';
+    return true;
   } catch (error) {
-    console.error('Error validating phone number:', error)
-    return false
+    console.error('Error validating phone number:', error);
+    phoneError.value = t('common.phoneValidationError');
+    return false;
   }
-}
+};
 
 const addNewContact = async () => {
   if (newContact.value.name && newContact.value.phone) {
     const isDuplicate = contacts.value.some(
-      contact => contact.phone === newContact.value.phone
-    )
+      (contact) => contact.phone === newContact.value.phone
+    );
 
     if (isDuplicate) {
+      phoneError.value = t('common.phoneNumberAlreadyExists');
       $q.notify({
         color: 'negative',
         message: t('common.phoneNumberAlreadyExists'),
         icon: 'error',
-        position:'top-right'
-
-      })
-      return
+        position: 'top-right',
+      });
+      return;
     }
 
-    const isValid = await validatePhoneNumber(newContact.value.phone)
+    const isValid = await validatePhoneNumber(newContact.value.phone);
     if (!isValid) {
-      return
+      return;
     }
 
     try {
       // Add contact to API first
       await api.post('user/emergency-contacts-add', {
-        emergencyContacts: [{
-          contactName: newContact.value.name,
-          contactPhone: newContact.value.phone,
-          relationship: newContact.value.relationship,
-          isAppUser: true,
-          priority: 0,
-          consentGiven: false
-        }]
-      })
+        emergencyContacts: [
+          {
+            contactName: newContact.value.name,
+            contactPhone: newContact.value.phone,
+            relationship: newContact.value.relationship,
+            isAppUser: true,
+            priority: 0,
+            consentGiven: false,
+            is_primary: newContact.value.is_primary,
+          },
+        ],
+      });
 
       // Add to local contacts
-      contacts.value.push({ ...newContact.value })
+      contacts.value.push({
+        name: newContact.value.name,
+        phone: newContact.value.phone,
+        relationship: newContact.value.relationship,
+        avatar: newContact.value.avatar,
+        consentGiven: false,
+        is_primary: newContact.value.is_primary,
+      });
 
       // Update store
       userStore.updateUser({
         ...userStore.user,
-        emergencyContacts: contacts.value.map(contact => ({
+        emergencyContacts: contacts.value.map((contact) => ({
           contactName: contact.name,
           contactPhone: contact.phone,
           relationship: contact.relationship,
           isAppUser: true,
           priority: 0,
-          consentGiven: contact.consentGiven || false
-        }))
-      })
+          consentGiven: contact.consentGiven || false,
+          is_primary: contact.is_primary || false,
+        })),
+      });
 
-      // Clear input and show success message
-      clearInputFields()
-      $q.notify({
-        color: 'Black',
-        message: t('common.emergencyContactAdded'),
-        icon: 'check',
-        position:'top-right'
+      // Clear error on success
+      phoneError.value = '';
+      clearInputFields();
 
-      })
-
-      // Reload contacts data
-      await loadContactsData()
+      // No need to reload contacts data as we already have the correct state
     } catch (error) {
-      console.error('Error adding emergency contact:', error)
+      console.error('Error adding emergency contact:', error);
+      phoneError.value = t('common.errorAddingContact');
       $q.notify({
         color: 'negative',
         message: t('common.errorAddingContact'),
         icon: 'error',
-        position:'top-right'
-
-      })
+        position: 'top-right',
+      });
     }
   } else {
     $q.notify({
       color: 'negative',
       message: t('common.fillRequiredFields'),
       icon: 'error',
-      position:'top-right'
-
-    })
+      position: 'top-right',
+    });
   }
-}
+};
 
 const clearInputFields = () => {
-  newContact.value = { name: '', phone: '', relationship: undefined, avatar: '' }
-  showInputFields.value = false
-}
+  newContact.value = {
+    name: '',
+    phone: '',
+    relationship: undefined,
+    avatar: '',
+    is_primary: false,
+  };
+  phoneError.value = '';
+  showInputFields.value = false;
+};
 
 const confirmRemoveContact = async (index: number) => {
   try {
     // if (confirm(t('common.confirmDeleteContact'))) {
-      const contactToDelete = contacts.value[index]
-      
-      // Delete from API
-      await api.post('/user/emergency-contact', {
-        userId: userStore.user.id,
-        contactPhone: contactToDelete.phone
-      })
+    const contactToDelete = contacts.value[index];
 
-      // Remove from local contacts
-      contacts.value.splice(index, 1)
-      
-      // Update store
-      userStore.updateUser({
-        ...userStore.user,
-        emergencyContacts: contacts.value.map(contact => ({
-          contactName: contact.name,
-          contactPhone: contact.phone,
-          relationship: contact.relationship,
-          isAppUser: true,
-          priority: 0,
-          consentGiven: contact.consentGiven || false
-        }))
-      })
+    // Delete from API
+    await api.post('/user/emergency-contact', {
+      userId: userStore.user.id,
+      contactPhone: contactToDelete.phone,
+    });
 
-      $q.notify({
-        color: 'black',
-        message: t('common.contactDeletedSuccessfully'),
-        icon: 'check',
-        position:'top-right'
+    // Remove from local contacts
+    contacts.value.splice(index, 1);
 
-      })
+    // Update store
+    userStore.updateUser({
+      ...userStore.user,
+      emergencyContacts: contacts.value.map((contact) => ({
+        contactName: contact.name,
+        contactPhone: contact.phone,
+        relationship: contact.relationship,
+        isAppUser: true,
+        priority: 0,
+        consentGiven: contact.consentGiven || false,
+        is_primary: contact.is_primary || false,
+      })),
+    });
 
-      // Reload contacts data
-      await loadContactsData()
+    $q.notify({
+      color: 'black',
+      message: t('common.contactDeletedSuccessfully'),
+      icon: 'check',
+      position: 'top-right',
+    });
+
+    // Reload contacts data
+    await loadContactsData();
     // }
   } catch (error) {
-    console.error('Error deleting emergency contact:', error)
+    console.error('Error deleting emergency contact:', error);
     $q.notify({
       color: 'negative',
       message: t('common.errorDeletingContact'),
       icon: 'error',
 
-      position:'top-right'
-
-    })
+      position: 'top-right',
+    });
   }
-}
+};
 
 const handleSubmit = async () => {
   try {
-    isLoading.value = true
-    const isValid = contacts.value.every(contact => contact.name && contact.phone)
+    isLoading.value = true;
+    const isValid = contacts.value.every(
+      (contact) => contact.name && contact.phone
+    );
     if (!isValid) {
       $q.notify({
         color: 'negative',
         message: t('common.fillRequiredFields'),
         icon: 'error',
-        position:'top-right'
-
-      })
-      return
+        position: 'top-right',
+      });
+      return;
     }
 
     await api.post('user/emergency-contacts-add', {
-      emergencyContacts: contacts.value.map(contact => ({
+      emergencyContacts: contacts.value.map((contact) => ({
         contactName: contact.name,
         contactPhone: contact.phone,
         relationship: contact.relationship || undefined,
         isAppUser: true,
         priority: 0,
-        consentGiven: contact.consentGiven || false
-      }))
-    })
+        consentGiven: contact.consentGiven || false,
+        is_primary: contact.is_primary || false,
+      })),
+    });
 
     userStore.updateUser({
       ...userStore.user,
-      emergencyContacts: contacts.value.map(contact => ({
+      emergencyContacts: contacts.value.map((contact) => ({
         contactName: contact.name,
         contactPhone: contact.phone,
         relationship: contact.relationship || undefined,
         isAppUser: true,
         priority: 0,
-        consentGiven: contact.consentGiven || false
-      }))
-    })
+        consentGiven: contact.consentGiven || false,
+        is_primary: contact.is_primary || false,
+      })),
+    });
 
-    emit('update-contacts', contacts.value)
-    emit('submit')
+    emit('update-contacts', contacts.value);
+    emit('submit');
 
     // $q.notify({
     //   color: 'black',
@@ -398,58 +471,61 @@ const handleSubmit = async () => {
     //   position:'top-right'
 
     // })
-    
-    // Navigate to volunteer page
-    emit('next-step')
 
+    // Navigate to volunteer page
+    emit('next-step');
   } catch (error) {
-    console.error('Error updating emergency contacts:', error)
+    console.error('Error updating emergency contacts:', error);
     $q.notify({
       color: 'negative',
       message: t('common.emergencyContactsUpdateError'),
-      icon: 'error'
-    })
+      icon: 'error',
+    });
   } finally {
-    isLoading.value = false
+    isLoading.value = false;
   }
-}
+};
 
 const initializeContacts = () => {
-  const userEmergencyContacts = userStore.user.emergencyContacts || []
-  contacts.value = userEmergencyContacts.map(contact => ({
+  const userEmergencyContacts = userStore.user.emergencyContacts || [];
+  contacts.value = userEmergencyContacts.map((contact) => ({
     name: contact.contactName,
     phone: contact.contactPhone,
     relationship: contact.relationship,
-    consentGiven: contact.consentGiven
-  }))
-}
+    consentGiven: contact.consentGiven,
+    is_primary: contact.is_primary,
+  }));
+};
 
 const loadContactsData = async () => {
   try {
     // Initialize contacts from store
-    initializeContacts()
-    
+    initializeContacts();
+
     // Fetch latest status
-    const response = await api.get('/user/emergency-contacts-status')
-    const contactsStatus = response.data
-    
-    contacts.value = contacts.value.map(contact => {
-      const status = contactsStatus.find((c: any) => c.contactPhone === contact.phone)
+    const response = await api.get('/user/emergency-contacts-status');
+    const contactsStatus = response.data;
+
+    contacts.value = contacts.value.map((contact) => {
+      const status = contactsStatus.find(
+        (c: any) => c.contactPhone === contact.phone
+      );
       return {
         ...contact,
-        consentGiven: status ? status.consentGiven : false
-      }
-    })
+        consentGiven: status ? status.consentGiven : false,
+        is_primary: status ? status.is_primary : false,
+      };
+    });
   } catch (error) {
-    console.error('Error loading contacts data:', error)
+    console.error('Error loading contacts data:', error);
   }
-}
+};
 
 onMounted(async () => {
-  await loadContactsData()
-})
+  await loadContactsData();
+});
 
-const hasEmergencyContacts = computed(() => contacts.value.length > 0)
+const hasEmergencyContacts = computed(() => contacts.value.length > 0);
 </script>
 
 <style scoped>
@@ -527,14 +603,20 @@ const hasEmergencyContacts = computed(() => contacts.value.length > 0)
   border-radius: 10px;
   display: flex;
   align-items: center;
+  border-left: 3px solid transparent;
 }
-    .remove-btn{
-      background-color:black;
-      align-self: flex-end;
-      border-radius: 10px;
-      margin-left: 10px;
-      color:white;
-      font-size: 12px;
-      text-transform: capitalize;
-    }
-</style> 
+
+.contact-card:has(.q-icon[name='check_circle']) {
+  border-left-color: var(--q-positive);
+}
+
+.remove-btn {
+  background-color: black;
+  align-self: flex-end;
+  border-radius: 10px;
+  margin-left: 10px;
+  color: white;
+  font-size: 12px;
+  text-transform: capitalize;
+}
+</style>

@@ -7,6 +7,7 @@ export interface EmergencyContact {
   relationship?: string;
   isAppUser: boolean;
   priority?: number;
+  is_primary?: boolean;
 }
 
 export interface UserLocation {
