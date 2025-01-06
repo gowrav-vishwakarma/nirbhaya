@@ -1,6 +1,6 @@
 <template>
   <div class="profile-details-step">
-    <h5 class="text-h6 q-mb-md q-px-md q-mt-md q-ma-none">Profile Details</h5>
+    <!-- <h5 class="text-h6 q-mb-md q-px-md q-mt-md q-ma-none">Profile Details</h5> -->
     <div class="scrollable-inputs q-px-md">
       <q-form @submit.prevent="handleSubmit" class="q-gutter-md">
         <div class="custom-input">
@@ -535,20 +535,20 @@ callbacks.beforeSubmit = (data: FormValues) => {
     processedData.businessName = data.businessInfo.businessName;
     processedData.whatsappNumber = data.businessInfo.whatsappNumber.toString();
 
-    const businessLocation: UserLocation = {
-      name: data.businessInfo.locationName,
-      location: {
-        type: 'Point',
-        coordinates: [data.businessInfo.longitude, data.businessInfo.latitude],
-      },
-      isBusinessLocation: true,
-    };
+    // const businessLocation: UserLocation = {
+    //   name: data.businessInfo.locationName,
+    //   location: {
+    //     type: 'Point',
+    //     coordinates: [data.businessInfo.longitude, data.businessInfo.latitude],
+    //   },
+    //   isBusinessLocation: true,
+    // };
 
     processedData.locations = [
       ...(userStore.user?.locations || []).filter(
         (loc: UserLocation) => !loc.isBusinessLocation
       ),
-      businessLocation,
+      // businessLocation,
     ];
   }
 
