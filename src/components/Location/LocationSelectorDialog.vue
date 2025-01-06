@@ -152,6 +152,8 @@ const showSearchResults = ref(false);
 const initMap = async (center: { lat: number; lng: number }) => {
   if (!mapContainer.value) return;
 
+  console.log('locationPicker ');
+
   try {
     const loader = new Loader({
       apiKey: process.env.GOOGLE_MAPS_API_KEY!,
@@ -257,10 +259,17 @@ const initMap = async (center: { lat: number; lng: number }) => {
 };
 
 const updateMarker = (position: google.maps.LatLng) => {
-  if (!map.value) return;
+  if (!map.value) {
+    console.error('Map is not initialized');
+    return;
+  }
 
   // Remove all existing markers
-  markers.value.forEach((marker) => marker.setMap(null));
+  markers.value.forEach((marker) => {
+    if (marker) {
+      marker.setMap(null);
+    }
+  });
   markers.value = [];
 
   // Create new marker
@@ -306,18 +315,29 @@ const getUserLocation = async () => {
 };
 
 const centerOnUserLocation = async () => {
-  isLoading.value = true;
+  // isLoading.value = true;
+  console.log('location picker centerOnUserLocation');
+
   const location = await getUserLocation();
+  console.log(location);
+  // Check if location is valid before proceeding
   if (location && map.value) {
     const position = {
       lat: location.latitude,
       lng: location.longitude,
     };
+    console.log(position);
     map.value.setCenter(position);
     map.value.setZoom(defaultZoom.value);
-    updateMarker(new google.maps.LatLng(position.lat, position.lng));
+    await updateMarker(new google.maps.LatLng(position.lat, position.lng));
+  } else {
+    console.error('Unable to get user location or map is not initialized');
   }
-  isLoading.value = false;
+
+  // Ensure isLoading is set to false only if the component is still mounted
+  if (isOpen.value) {
+    isLoading.value = false;
+  }
 };
 
 const zoomIn = () => {

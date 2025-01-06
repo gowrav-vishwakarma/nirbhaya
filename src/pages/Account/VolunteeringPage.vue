@@ -180,12 +180,13 @@
 import { onMounted, ref, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useQuasar } from 'quasar';
-import { Capacitor } from '@capacitor/core';
+// import { Capacitor } from '@capacitor/core';
 import { Geolocation } from '@capacitor/geolocation';
 import { useUserStore } from 'src/stores/user-store';
 import { api } from 'src/boot/axios';
 import { useForm } from 'src/qnatk/composibles/use-form';
 import LocationSelectorDialog from 'src/components/Location/LocationSelectorDialog.vue';
+// import { ConfigService } from '@nestjs/config';
 
 const { t } = useI18n();
 const $q = useQuasar();
@@ -403,13 +404,14 @@ callbacks.onSuccess = (data) => {
   userStore.updateUser(data.user);
   loadUserData(); // Reload user data from the store
   // Emit reloadComponents
-
   $q.notify({
-    color: 'black',
+    color: 'green',
     message: t('common.volunteeringUpdateSuccess'),
     icon: 'check',
     position: 'top-right',
   });
+  console.log('success dialog updated');
+  clearInputFields();
 };
 
 callbacks.onError = async (error: any) => {
