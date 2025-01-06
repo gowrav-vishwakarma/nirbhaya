@@ -227,6 +227,7 @@ export default {
   locationName: 'स्थान नाम',
   useCurrentLocation: 'वर्तमान स्थान का उपयोग करें',
   addNotificationLocation: 'सूचना स्थान जोड़ें',
+  addLocation: 'स्थान जोड़ें',
   availableForCommunity: 'समुदाय सहायता के लिए उपलब्ध',
   availableForCommunityDescription:
     'आपातकाल में दूसरों की मदद करने के लिए अपनी उपलब्धत दर्शाने के लिए इसे टॉगल करें',
@@ -435,4 +436,5 @@ export default {
   emergencyContactsUpdateError: 'आपातकालीन संपर्क अपडेट करने में त्रुटि',
   locationUpdateSuccess: 'स्थान सफलतापूर्वक अपडेट किया गया',
   businessCategory: 'व्यवसाय की श्रेणी',
+  selectFromMapLocation: 'स्थान मानचित्र से चुनें',
 };

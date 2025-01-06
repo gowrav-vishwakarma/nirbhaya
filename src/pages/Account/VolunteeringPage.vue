@@ -43,7 +43,10 @@
           icon="add"
           color="primary"
           class="full-width custom-radius q-mb-md"
-          @click="showInputFields = !showInputFields"
+          @click="
+            (showInputFields = !showInputFields),
+              (showLocationSelector = showInputFields)
+          "
           :label="$t('common.addNotificationLocation')"
           style="border-radius: 10px !important"
           :disable="!values.availableForCommunity"

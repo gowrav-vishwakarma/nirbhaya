@@ -228,7 +228,9 @@ export default {
     "Add locations where you'd like to receive SOS notifications or See Community posts",
   locationName: 'Location Name',
   useCurrentLocation: 'Use Current Location',
+  selectFromMapLocation: 'Select Location From Map',
   addNotificationLocation: 'Add Notification Location',
+  addLocation: 'Add Location',
   availableForCommunity: 'Available for Community Assistance',
   availableForCommunityDescription:
     'Toggle this to indicate your availability to help others in emergencies',

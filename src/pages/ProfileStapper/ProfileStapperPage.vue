@@ -285,6 +285,13 @@ onMounted(() => {
   if (stepFromQuery && stepFromQuery >= 1 && stepFromQuery <= 3) {
     isShowBackButton.value = true;
     currentStep.value = stepFromQuery;
+
+    // Update completedSteps based on the current step
+    for (let i = 1; i < stepFromQuery; i++) {
+      if (!completedSteps.value.includes(i)) {
+        completedSteps.value.push(i);
+      }
+    }
   }
 });
 </script>
@@ -477,7 +484,7 @@ onMounted(() => {
 }
 
 .step-label.completed {
-  background-color: #f9387bd5 !important; /* Use your theme color for completed steps */
+  background-color: #115e07d5 !important; /* Use your theme color for completed steps */
 }
 
 .step-item:last-child .step-label.active {

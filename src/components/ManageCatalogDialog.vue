@@ -269,7 +269,7 @@ const catalogData = ref<CatalogData>({
   hasCatalog: false,
   doesDelivery: false,
   deliveryText: '',
-  deliveryRange: 1000,
+  deliveryRange: 5000,
   catalogItems: [],
 });
 
