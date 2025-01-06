@@ -680,34 +680,40 @@ watch(
       if (savedLocations.value.length > 0) {
         selectedLocationId.value = 0; // Current location has id 0
       }
+      await loadBusinessInformation();
     }
   }
 );
 watch(
   () => showMoreOptions.value,
   async () => {
-    isBusinessPost.value = hasBusinessLocation.value;
-    if (isBusinessPost.value) {
-      form.value.businessCategory = userStore.user.businessCategory || null;
-      // Find first business location
-      const businessLocation = savedLocations.value.find(
-        (loc) => loc.isBusinessLocation
-      );
-      if (businessLocation) {
-        selectedLocationId.value = businessLocation.id;
-        form.value.showLocation = true;
-      }
-    } else {
-      // Find first non-business location
-      const nonBusinessLocation = savedLocations.value.find(
-        (loc) => !loc.isBusinessLocation
-      );
-      if (nonBusinessLocation) {
-        selectedLocationId.value = nonBusinessLocation.id;
-      }
-    }
+    await loadBusinessInformation();
   }
 );
+const loadBusinessInformation = async () => {
+  isBusinessPost.value = savedLocations.value.some(
+    (loc) => loc.isBusinessLocation
+  );
+  if (isBusinessPost.value) {
+    form.value.businessCategory = userStore.user.businessCategory || null;
+    // Find first business location
+    const businessLocation = savedLocations.value.find(
+      (loc) => loc.isBusinessLocation
+    );
+    if (businessLocation) {
+      selectedLocationId.value = businessLocation.id;
+      form.value.showLocation = true;
+    }
+  } else {
+    // Find first non-business location
+    const nonBusinessLocation = savedLocations.value.find(
+      (loc) => !loc.isBusinessLocation
+    );
+    if (nonBusinessLocation) {
+      selectedLocationId.value = nonBusinessLocation.id;
+    }
+  }
+};
 
 // Add a watch for selectedLocationId to update form location when selection changes
 watch(
@@ -926,12 +932,6 @@ const filterBusinessCategories = (
 };
 
 // Add onMounted hook
-// onMounted(() => {
-//   //   if (hasBusinessLocation.value) isBusinessPost.value = true;
-//   if (savedLocations.value.some((loc) => loc.isBusinessLocation)) {
-//     isBusinessPost.value = true;
-//   }
-// });
 </script>
 
 <style scoped>
