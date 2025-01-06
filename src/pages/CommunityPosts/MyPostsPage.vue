@@ -135,8 +135,8 @@
                 <q-avatar size="48px" class="shadow-2">
                   <img
                     :src="
-                      post.userId == 1
-                        ? '/sos_logo_1080_1080.png'
+                      findUserData.profileImage
+                        ? imageCdn + findUserData.profileImage
                         : '/profile.png'
                     "
                     style="object-fit: cover"
@@ -191,7 +191,7 @@
                 >
                   <q-tooltip>Delete Post</q-tooltip>
                 </q-btn>
-                <q-btn
+                <!-- <q-btn
                   flat
                   round
                   color="primary"
@@ -201,7 +201,7 @@
                   v-if="Number(userStore.user?.id) == Number(props.id)"
                 >
                   <q-tooltip>Edit Post</q-tooltip>
-                </q-btn>
+                </q-btn> -->
               </div>
             </q-card-section>
 
@@ -501,6 +501,7 @@ import { Dialog } from 'quasar';
 import { Geolocation } from '@capacitor/geolocation';
 import EditPostDialog from 'src/components/Community/EditPostDialog.vue';
 import BusinessCatalog from 'src/components/Catalog/BusinessCatalog.vue';
+import { date } from 'quasar'; // Import Quasar date utilities
 
 const props = defineProps<{
   id: string;
@@ -583,41 +584,49 @@ const isUserPermitted = ref(false);
 const router = useRouter();
 
 // Update the formatDate helper function
-const formatDate = (date: string | null) => {
-  console.log('date.......', date);
+const formatDate = (dateString: string | null) => {
+  if (!dateString) return 'Recent';
 
-  if (!date) return 'Recent';
+  console.log('Input date:', dateString); // Log the input date
 
   try {
-    const postDate = new Date(date);
-    if (isNaN(postDate.getTime())) return 'Invalid date';
+    // Extract the date using Quasar's extractDate method
+    const parsedDate = date.extractDate(dateString, 'YYYY-MM-DD HH:mm:ss');
 
-    const now = new Date();
-    const diffInMs = now.getTime() - postDate.getTime();
+    // Check if the date is valid
+    if (!parsedDate || isNaN(parsedDate.getTime())) {
+      console.error('Invalid date after parsing:', parsedDate); // Log invalid date
+      return 'Invalid date';
+    }
+
+    // Get the current time in UTC
+    const nowUTC = new Date();
+
+    const diffInMs = nowUTC.getTime() - parsedDate.getTime();
     const diffInSeconds = Math.floor(diffInMs / 1000);
     const diffInMinutes = Math.floor(diffInSeconds / 60);
     const diffInHours = Math.floor(diffInMinutes / 60);
     const diffInDays = Math.floor(diffInHours / 24);
 
     // Less than a minute
-    if (diffInSeconds < 60) {
+    if (diffInSeconds < 60 && diffInSeconds >= 0) {
       return 'Just now';
     }
 
     // Less than an hour
-    if (diffInMinutes < 60) {
+    if (diffInMinutes < 60 && diffInMinutes >= 0) {
       return `${diffInMinutes} ${
         diffInMinutes === 1 ? 'minute' : 'minutes'
       } ago`;
     }
 
     // Less than a day
-    if (diffInHours < 24) {
+    if (diffInHours < 24 && diffInHours >= 0) {
       return `${diffInHours} ${diffInHours === 1 ? 'hour' : 'hours'} ago`;
     }
 
     // Less than a week
-    if (diffInDays < 7) {
+    if (diffInDays < 7 && diffInDays >= 0) {
       return `${diffInDays} ${diffInDays === 1 ? 'day' : 'days'} ago`;
     }
 
@@ -631,7 +640,7 @@ const formatDate = (date: string | null) => {
       hour12: true,
     };
 
-    return new Intl.DateTimeFormat('en-US', options).format(postDate);
+    return date.formatDate(parsedDate, 'YYYY-MM-DDTHH:mm:ss.SSSZ'); // Format the date for display
   } catch (error) {
     console.error('Error formatting date:', error);
     return 'Date error';
@@ -1610,7 +1619,7 @@ const openCatalog = (userId: number) => {
       color: #f57c00 !important;
     }
 
-    .q-avatar {
+    .q-avatar img {
       border: 2px solid #ffa726;
     }
   }

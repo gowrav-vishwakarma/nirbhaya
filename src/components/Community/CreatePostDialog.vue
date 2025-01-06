@@ -804,6 +804,8 @@ const submitPost = async () => {
       },
     });
 
+    if (response.data && response.data.createdAt)
+      delete response.data.createdAt;
     // Emit the newly created post data
     emit('post-created', response.data); // Emit the post data
 
