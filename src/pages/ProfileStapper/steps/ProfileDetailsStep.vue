@@ -262,7 +262,7 @@
 
             <q-btn
               icon="my_location"
-              :color="isLocationSet ? 'primary' : 'grey'"
+              :color="!isLocationSet ? 'primary' : 'grey'"
               class="full-width q-mt-md"
               @click="showLocationSelector = true"
             >
