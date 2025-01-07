@@ -42,10 +42,7 @@
               <div class="col-12 col-sm-6 q-py-none custom-input">
                 <label>{{ $t('common.dob') }}</label>
                 <q-input
-<<<<<<< HEAD
-=======
                   filled
->>>>>>> develop
                   v-model="values.dob"
                   mask="date"
                   :error="!!errors.dob"
@@ -59,7 +56,6 @@
                   input-class="text-left"
                 >
                   <template v-slot:append>
-<<<<<<< HEAD
                     <q-icon name="event" class="cursor-pointer">
                       <q-popup-proxy
                         cover
@@ -78,7 +74,6 @@
                         </q-date>
                       </q-popup-proxy>
                     </q-icon>
-=======
                     <q-icon name="event" class="cursor-pointer" />
                     <q-popup-proxy
                       cover
@@ -101,7 +96,6 @@
                         </div>
                       </q-date>
                     </q-popup-proxy>
->>>>>>> develop
                   </template>
                 </q-input>
               </div>
@@ -411,10 +405,7 @@ const { values, errors, isLoading, validateAndSubmit, callbacks } =
     streamAudioVideoOnSos: false,
     broadcastAudioOnSos: false,
     referredBy: '',
-<<<<<<< HEAD
-=======
     defaultApp: 'sos',
->>>>>>> develop
   });
 callbacks.beforeSubmit = (data) => {
   console.log('data before processing...', data);
@@ -469,10 +460,7 @@ const loadUserData = async () => {
     streamAudioVideoOnSos: userData.streamAudioVideoOnSos || false,
     broadcastAudioOnSos: userData.broadcastAudioOnSos || false,
     referredBy: userData.referredBy || '',
-<<<<<<< HEAD
-=======
     defaultApp: userData.defaultApp || 'sos',
->>>>>>> develop
   });
 
   lastCheckedReferralId.value = values.value.referredBy;
