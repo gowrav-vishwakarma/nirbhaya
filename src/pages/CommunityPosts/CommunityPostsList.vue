@@ -6,13 +6,7 @@
       padding-bottom: env(safe-area-inset-bottom);
     "
   >
-    <div class="container q-pa-md" v-if="isUserPermitted">
-      <!-- Add Suggestion Button -->
-      <!-- <div class="suggestion-button-container q-mb-md">
-        <q-btn color="primary" icon="add_circle" label="Add Suggestion" class="suggestion-btn"
-          @click="goToCommunityPage" />
-      </div> -->
-
+    <div class="container" v-if="isUserPermitted">
       <!-- Header -->
       <div class="row items-center justify-between q-pa-md">
         <div>
@@ -20,6 +14,22 @@
             Community Posts
           </h4>
           <p class="text-grey-7 q-mt-sm">Stay connected with your community</p>
+        </div>
+        <div class="NotifictionIcon" @click="goToNotificationPage">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path>
+            <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+          </svg>
         </div>
         <!-- <div class="text-right">
           <q-btn color="primary" class="" @click="goToCommunityPage" style="border-radius: 9px;margin-bottom: 10px">
@@ -31,10 +41,11 @@
         </div> -->
       </div>
 
+      <!-- Create post container -->
       <div
-        class="q-mb-lg"
+        class="create-post-container"
+        :class="{ 'create-post-hidden': !showCreatePostContainer }"
         v-if="userStore.user.canCreatePost"
-        style="margin-top: -15px"
       >
         <q-card class="create-post-card q-pa-md">
           <div class="row items-center no-wrap">
@@ -65,35 +76,31 @@
               />
             </div>
             <q-input
-              v-model.trim="searchQuery"
+              v-model="displaySearchText"
               class="col post-input-btn"
               dense
-              placeholder="Search and Create new post!"
+              :placeholder="
+                searchQuery || searchCategory ? undefined : 'Search posts'
+              "
               bg-color="grey-2"
               rounded
               borderless
-              clearable
+              readonly
+              @click="showSearchDialog = true"
               style="border-radius: 20px; padding: 0 8px"
-              @keyup.enter="performSearch"
             >
-              <template #append>
+              <template v-slot:prepend v-if="searchQuery || searchCategory">
+                <q-icon name="search" size="sm" class="q-ml-sm" />
+              </template>
+              <template v-slot:append>
                 <q-btn
-                  v-if="searchQuery"
-                  color="primary"
-                  class="search-btn"
-                  style="margin-top: 5px"
-                  @click="performSearch"
-                  unelevated
-                  rounded
-                >
-                  <q-icon name="search" class="q-mr-xs" />
-                  <span
-                    class="text-capitalize"
-                    style="font-size: 14px; font-weight: 800"
-                  >
-                    Search
-                  </span>
-                </q-btn>
+                  v-if="searchQuery || searchCategory"
+                  dense
+                  flat
+                  round
+                  icon="close"
+                  @click.stop.prevent="clearSearch"
+                />
                 <q-btn
                   v-else
                   color="primary"
@@ -106,9 +113,8 @@
                   <span
                     style="font-size: 20px; font-weight: 800"
                     class="q-mr-xs"
+                    >+</span
                   >
-                    +
-                  </span>
                   <span
                     class="text-capitalize"
                     style="font-size: 14px; font-weight: 800"
@@ -136,7 +142,7 @@
       </div>
 
       <!-- Posts List -->
-      <div v-else class="row q-col-gutter-y-md" style="margin-top: -30px">
+      <div v-else class="row q-col-gutter-y-md" style="margin-top: -20px">
         <div
           v-for="(post, index) in posts"
           :key="post.id"
@@ -146,33 +152,78 @@
           <q-card flat :class="['post-card', getPostCardClass(post)]">
             <!-- User Info Section -->
             <q-card-section class="q-pb-none">
-              <div class="row items-center">
+              <div class="row items-center full-width" style="display: flex">
                 <q-avatar
                   size="48px"
-                  class="shadow-2"
                   @click="router.push(`/my-posts/${post.userId}`)"
+                  class="profileimg-avatar shadow-2"
                 >
                   <img
                     :src="
-                      post.userId == 1
-                        ? '/sos_logo_1080_1080.png'
+                      post.user && post.user.profileImage
+                        ? imageCdn + post.user.profileImage
                         : '/profile.png'
                     "
                     :alt="post.userName + '\'s profile'"
                     style="object-fit: cover"
                   />
                 </q-avatar>
-                <div class="q-ml-md">
-                  <div
-                    class="text-weight-bold text-capitalize"
-                    style="font-size: 16px"
-                    @click="router.push(`/my-posts/${post.userId}`)"
-                  >
-                    {{
-                      post.userName == 'SOS Bharat Community'
-                        ? 'SOS Bharat Community'
-                        : post.userName
-                    }}
+                <div class="q-ml-md" style="flex: 1">
+                  <div class="row items-center">
+                    <div
+                      class="text-weight-bold text-capitalize cursor-pointer"
+                      style="font-size: 16px"
+                      @click="router.push(`/my-posts/${post.userId}`)"
+                    >
+                      {{
+                        post.userName == 'SOS Bharat Community'
+                          ? 'SOS Bharat Community'
+                          : post.userName
+                      }}
+                    </div>
+                    <!-- Add catalog icon -->
+                    <q-space />
+
+                    <q-badge
+                      v-if="
+                        post.hasCatalog &&
+                        post.isBusinessPost &&
+                        isCatalogAccessible(post)
+                      "
+                      color="primary"
+                      class="q-ml-sm catalog-badge cursor-pointer"
+                      align="middle"
+                      @click="openCatalog(post.userId)"
+                    >
+                      <q-tooltip>
+                        {{
+                          hasCurrentLocation
+                            ? 'View Catalog'
+                            : 'Enable location to view catalog'
+                        }}
+                      </q-tooltip>
+                      <q-icon
+                        name="shopping_cart"
+                        size="18px"
+                        class="q-mr-xs"
+                      />
+                      <!-- Catalog -->
+                    </q-badge>
+                    <q-icon
+                      v-else-if="post.hasCatalog && post.isBusinessPost"
+                      name="shopping_bag"
+                      size="18px"
+                      color="grey"
+                      class="q-ml-sm"
+                    >
+                      <q-tooltip>
+                        {{
+                          hasCurrentLocation
+                            ? `Catalog not available - Outside delivery range (${post.deliveryRange}m)`
+                            : 'Enable location to view catalog'
+                        }}
+                      </q-tooltip>
+                    </q-icon>
                   </div>
                   <div class="text-caption text-grey-7 row items-center">
                     <q-icon name="schedule" size="xs" class="q-mr-xs" />
@@ -188,6 +239,7 @@
                         @click="openInGoogleMaps(post)"
                       />
                       <span
+                        v-if="post.distance"
                         class="cursor-pointer"
                         @click="openInGoogleMaps(post)"
                       >
@@ -201,34 +253,49 @@
 
             <!-- Post Content -->
             <q-card-section style="padding: 10px 10px 0px 10px">
-              <div
-                class="text-h5 text-weight-bold text-primary q-mb-sm"
-                style="font-size: 16px"
-              >
-                {{ post.title }}
+              <div class="post-header">
+                <div
+                  class="text-h5 text-weight-bold text-primary q-mb-sm"
+                  style="font-size: 16px"
+                >
+                  {{ post.title }}
+                </div>
               </div>
               <div class="text-body1 post-description">
                 <div
                   v-html="
                     makeLinksClickable(
                       showFullDescription[post.id.toString()]
-                        ? post.description
-                        : truncateText(post.description, 15),
+                        ? post.description || ''
+                        : truncateText(post.description || '', 15),
                       post.priority
                     )
                   "
                 ></div>
-                <span
-                  v-if="post.description.split(' ').length > 10"
-                  @click="toggleDescription(post.id)"
-                  class="read-more-link"
-                >
-                  {{
-                    showFullDescription[post.id.toString()]
-                      ? 'Read Less'
-                      : 'Read More'
-                  }}
-                </span>
+                <div class="post-actions">
+                  <span
+                    v-if="
+                      post.description &&
+                      post.description.split(' ').length > 10
+                    "
+                    @click="toggleDescription(post.id)"
+                    class="read-more-link"
+                  >
+                    {{
+                      showFullDescription[post.id.toString()]
+                        ? 'Read Less'
+                        : 'Read More'
+                    }}
+                  </span>
+                  <div
+                    v-if="
+                      post.businessCategory && post.businessCategory != 'null'
+                    "
+                    class="business-category"
+                  >
+                    {{ formatBusinessCategory(post.businessCategory) }}
+                  </div>
+                </div>
               </div>
 
               <!-- Hashtags section -->
@@ -456,6 +523,19 @@
     @post-created="handlePostCreated"
     v-if="isUserPermitted"
   />
+  <SearchPostDialog
+    v-model="showSearchDialog"
+    :initial-query="searchQuery"
+    :initial-category="searchCategory"
+    @search="performSearch"
+    @clear="clearSearch"
+  />
+  <BusinessCatalog
+    v-if="selectedUser"
+    :user-id="selectedUser.id"
+    :user-name="selectedUser.name"
+    v-model:is-open="showCatalog"
+  />
 </template>
 
 <script setup lang="ts">
@@ -471,6 +551,10 @@ import PostEngagement from 'src/pages/CommunityPosts/PostEngagement.vue';
 import { Dialog } from 'quasar';
 import LocationSelectionDialog from 'src/components/Location/LocationSelectionDialog.vue';
 import { Geolocation } from '@capacitor/geolocation';
+import SearchPostDialog from 'src/components/Community/SearchPostDialog.vue';
+import BusinessCatalog from 'src/components/Catalog/BusinessCatalog.vue';
+import { useLocationStore } from 'src/stores/location-store';
+import { date } from 'quasar'; // Import Quasar date utilities
 
 // Add these type definitions at the top of the script section
 interface Post extends Omit<CommunityPost, 'liked'> {
@@ -497,6 +581,7 @@ interface UserInteractionLimits {
 }
 
 const userStore = useUserStore();
+const locationStore = useLocationStore();
 
 const imageCdn =
   'https://xavoc-technocrats-pvt-ltd.blr1.cdn.digitaloceanspaces.com/';
@@ -536,8 +621,20 @@ const isUserPermitted = ref(false);
 
 const router = useRouter();
 
+const goToNotificationPage = () => {
+  router.push('/post-notifications');
+};
+
 // Function to handle search
-const performSearch = () => {
+const performSearch = (searchParams?: {
+  query: string;
+  businessCategory: string | null;
+}) => {
+  if (searchParams) {
+    searchQuery.value = searchParams.query;
+    searchCategory.value = searchParams.businessCategory;
+  }
+
   // Reset pagination
   page.value = 1;
   posts.value = [];
@@ -547,41 +644,49 @@ const performSearch = () => {
 };
 
 // Update the formatDate helper function
-const formatDate = (date: string | null) => {
-  // console.log('date.......', date);
+const formatDate = (dateString: string | null) => {
+  if (!dateString) return 'Recent';
 
-  if (!date) return 'Recent';
+  console.log('Input date:', dateString); // Log the input date
 
   try {
-    const postDate = new Date(date);
-    if (isNaN(postDate.getTime())) return 'Invalid date';
+    // Extract the date using Quasar's extractDate method
+    const parsedDate = date.extractDate(dateString, 'YYYY-MM-DD HH:mm:ss');
 
-    const now = new Date();
-    const diffInMs = now.getTime() - postDate.getTime();
+    // Check if the date is valid
+    if (!parsedDate || isNaN(parsedDate.getTime())) {
+      console.error('Invalid date after parsing:', parsedDate); // Log invalid date
+      return 'Invalid date';
+    }
+
+    // Get the current time in UTC
+    const nowUTC = new Date();
+
+    const diffInMs = nowUTC.getTime() - parsedDate.getTime();
     const diffInSeconds = Math.floor(diffInMs / 1000);
     const diffInMinutes = Math.floor(diffInSeconds / 60);
     const diffInHours = Math.floor(diffInMinutes / 60);
     const diffInDays = Math.floor(diffInHours / 24);
 
     // Less than a minute
-    if (diffInSeconds < 60) {
+    if (diffInSeconds < 60 && diffInSeconds >= 0) {
       return 'Just now';
     }
 
     // Less than an hour
-    if (diffInMinutes < 60) {
+    if (diffInMinutes < 60 && diffInMinutes >= 0) {
       return `${diffInMinutes} ${
         diffInMinutes === 1 ? 'minute' : 'minutes'
       } ago`;
     }
 
     // Less than a day
-    if (diffInHours < 24) {
+    if (diffInHours < 24 && diffInHours >= 0) {
       return `${diffInHours} ${diffInHours === 1 ? 'hour' : 'hours'} ago`;
     }
 
     // Less than a week
-    if (diffInDays < 7) {
+    if (diffInDays < 7 && diffInDays >= 0) {
       return `${diffInDays} ${diffInDays === 1 ? 'day' : 'days'} ago`;
     }
 
@@ -595,7 +700,7 @@ const formatDate = (date: string | null) => {
       hour12: true,
     };
 
-    return new Intl.DateTimeFormat('en-US', options).format(postDate);
+    return date.formatDate(parsedDate, 'YYYY-MM-DDTHH:mm:ss.SSSZ'); // Format the date for display
   } catch (error) {
     console.error('Error formatting date:', error);
     return 'Date error';
@@ -609,34 +714,30 @@ const userLocation = ref({
 });
 
 // Update the loadPosts function
-const loadPosts = async (loadMore = false, search = '') => {
+const loadPosts = async (loadMore = false) => {
   if (isLoading.value || (!loadMore && !hasMore.value)) return;
 
   try {
     isLoading.value = true;
 
-    // Use selectedLocation instead of getting current location
     const locationParams =
       selectedLocation.value.latitude && selectedLocation.value.longitude
         ? {
             latitude: selectedLocation.value.latitude,
             longitude: selectedLocation.value.longitude,
           }
-        : {}; // Empty object if no location selected
+        : {};
 
     const response = await api.get('/posts/community-posts', {
       params: {
         status: 'active',
-        prompt:
-          searchQuery.value && searchQuery.value.length > 0
-            ? searchQuery.value
-            : '',
-        isSearch:
-          searchQuery.value && searchQuery.value.length > 0 ? true : false,
+        prompt: searchQuery.value || '',
+        businessCategory: searchCategory.value || '',
+        isSearch: !!(searchQuery.value || searchCategory.value),
         userId: userStore.user?.id || null,
         page: page.value,
         limit: limit.value,
-        ...locationParams, // Spread location parameters
+        ...locationParams,
       },
     });
 
@@ -738,7 +839,7 @@ const getYouTubeEmbedUrl = (url: string) => {
 // Update getVideoUrl function
 const getVideoUrl = (postId: string, url: string) => {
   const baseUrl = getYouTubeEmbedUrl(url);
-  return `${baseUrl}?enablejsapi=1&rel=0&modestbranding=1&mute=1`;
+  return `${baseUrl}?enablejsapi=1&rel=0&modestbranding=1&mute=0`;
 };
 
 // Update the controlVideo function to be more reliable
@@ -833,7 +934,7 @@ const calculateAge = (dob: string | Date): number => {
   return age;
 };
 
-// Update onMounted to be async
+// Update the onMounted section where location is initialized
 onMounted(async () => {
   const dob = userStore.user?.dob;
   if (dob) {
@@ -842,28 +943,60 @@ onMounted(async () => {
     isUserPermitted.value = false;
   }
 
-  // Get initial location
+  // Get initial location with timeout
   try {
-    if (userStore.user?.locations && userStore.user.locations.length) {
-      handleLocationSelected({
-        type: 'Point',
-        latitude: userStore.user.locations[0].location.coordinates[1],
-        longitude: userStore.user.locations[0].location.coordinates[0],
-        name: userStore.user.locations[0].name,
-      });
-    } else {
-      const position = await Geolocation.getCurrentPosition({
-        enableHighAccuracy: true,
-        timeout: 10000,
-      });
-
-      selectedLocation.value = {
-        type: 'current',
-        latitude: position.coords.latitude,
-        longitude: position.coords.longitude,
-        name: 'Current Location',
-        address: 'Current Location',
+    // First check location store with 1 second timeout
+    const locationPromise = new Promise((resolve) => {
+      const checkStore = () => {
+        const storedLocation = locationStore.getLocation;
+        if (storedLocation?.latitude && storedLocation?.longitude) {
+          resolve({
+            type: 'current',
+            latitude: storedLocation.latitude,
+            longitude: storedLocation.longitude,
+            name: 'Current Location',
+            address: 'Current Location',
+          });
+        }
       };
+
+      // Check immediately
+      checkStore();
+
+      // Check again after a small delay in case store is being populated
+      setTimeout(checkStore, 100);
+    });
+
+    const timeoutPromise = new Promise((_, reject) =>
+      setTimeout(() => reject('timeout'), 1000)
+    );
+
+    try {
+      const location = await Promise.race([locationPromise, timeoutPromise]);
+      selectedLocation.value = location as any;
+    } catch (timeoutError) {
+      // If timeout or no stored location, check volunteering locations
+      if (userStore.user?.locations && userStore.user.locations.length) {
+        handleLocationSelected({
+          type: 'Point',
+          latitude: userStore.user.locations[0].location.coordinates[1],
+          longitude: userStore.user.locations[0].location.coordinates[0],
+          name: userStore.user.locations[0].name,
+        });
+      } else {
+        const position = await Geolocation.getCurrentPosition({
+          enableHighAccuracy: true,
+          timeout: 10000,
+        });
+
+        selectedLocation.value = {
+          type: 'current',
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+          name: 'Current Location',
+          address: 'Current Location',
+        };
+      }
     }
   } catch (error) {
     console.warn('Could not get initial location:', error);
@@ -884,6 +1017,9 @@ onMounted(async () => {
 
   // Then load posts
   await loadPosts();
+
+  // Add scroll event listener
+  window.addEventListener('scroll', handleScroll);
 });
 
 // Clean up on component unmount
@@ -891,6 +1027,9 @@ onUnmounted(() => {
   if (currentlyPlayingVideo.value !== null) {
     controlVideo(currentlyPlayingVideo.value, 'pause');
   }
+
+  // Remove scroll event listener
+  window.removeEventListener('scroll', handleScroll);
 });
 
 // Replace dialog methods with navigation method
@@ -924,7 +1063,9 @@ const createPost = () => {
 const showCreatePostDialog = ref(false);
 
 // Add this method to handle successful post creation
-const handlePostCreated = async () => {
+const handlePostCreated = async (newPost: Post) => {
+  posts.value.unshift(newPost); // Prepend the new post to the list
+
   page.value = 1;
   await loadPosts(true);
   // window.location.reload()
@@ -1389,39 +1530,47 @@ const handleLocationSelected = async (location: {
 
 // Update the openInGoogleMaps function
 const openInGoogleMaps = async (post: Post) => {
-  if (post.location?.x && post.location?.y) {
-    try {
-      // Get current location
-      // const position = await Geolocation.getCurrentPosition({
-      //   enableHighAccuracy: true,
-      // });
+  if (!post.location?.x || !post.location?.y) {
+    $q.notify({
+      message: 'Location not available for this post',
+      color: 'warning',
+      position: 'top-right',
+    });
+    return;
+  }
 
-      // Create Google Maps directions URL with current location as start point
-      const url = `https://www.google.com/maps/dir/?api=1&destination=${post.location.y},${post.location.x}&travelmode=driving`;
-
-      window.open(url, '_blank');
-    } catch (error) {
-      // Fallback to simple location view if can't get current position
-      const url = `https://www.google.com/maps?q=${post.location.y},${post.location.x}`;
-      window.open(url, '_blank');
-
-      console.error('Error getting current location:', error);
-    }
-  } else {
+  try {
     const url = `https://www.google.com/maps?q=${post.location.y},${post.location.x}`;
     window.open(url, '_blank');
+  } catch (error) {
+    console.error('Error opening maps:', error);
+    $q.notify({
+      message: 'Could not open map location',
+      color: 'negative',
+      position: 'top-right',
+    });
   }
 };
 
 // Add this helper function to format distance
-const formatDistance = (distance: number) => {
-  if (distance < 1) {
-    // Convert to meters
-    const meters = Math.round(distance * 1000);
-    return `${meters}m away`;
-  } else {
-    // Round to 1 decimal place for kilometers
-    return `${distance.toFixed(1)}km away`;
+const formatDistance = (distance: number | undefined | null) => {
+  // Return empty string if distance is not available
+  if (distance === undefined || distance === null) {
+    return '';
+  }
+
+  try {
+    if (distance < 1) {
+      // Convert to meters
+      const meters = Math.round(distance * 1000);
+      return `${meters}m away`;
+    } else {
+      // Round to 1 decimal place for kilometers
+      return `${distance.toFixed(1)}km away`;
+    }
+  } catch (error) {
+    console.warn('Error formatting distance:', error);
+    return '';
   }
 };
 
@@ -1508,13 +1657,132 @@ const getPostCardClass = (post: Post) => {
       return '';
   }
 };
+
+// Add these refs after other refs
+const showSearchDialog = ref(false);
+const searchCategory = ref<string | null>(null);
+
+// Add this computed property
+const displaySearchText = computed(() => {
+  const parts = [];
+  if (searchQuery.value) {
+    parts.push(searchQuery.value);
+  }
+  if (searchCategory.value) {
+    parts.push(`in ${searchCategory.value}`);
+  }
+  return parts.join(' ');
+});
+
+// Add this method to clear search
+const clearSearch = () => {
+  searchQuery.value = '';
+  searchCategory.value = null;
+  performSearch();
+};
+
+// Add these refs after other refs
+const lastScrollPosition = ref(0);
+const showCreatePostContainer = ref(true);
+const headerHeight = 100; // Adjust this value based on your header height
+
+// Add this method to handle scroll events
+const handleScroll = () => {
+  const currentScrollPosition = window.scrollY;
+  const scrollingUp = currentScrollPosition < lastScrollPosition.value;
+  const scrollingDown = currentScrollPosition > lastScrollPosition.value;
+
+  // When scrolling up, show the container
+  if (scrollingUp) {
+    showCreatePostContainer.value = true;
+  }
+
+  // When scrolling down past header height, hide the container
+  if (scrollingDown && currentScrollPosition > headerHeight) {
+    showCreatePostContainer.value = false;
+  }
+
+  // Update last scroll position
+  lastScrollPosition.value = currentScrollPosition;
+};
+
+// Add scroll event listener on mount
+onMounted(() => {
+  window.addEventListener('scroll', handleScroll);
+});
+
+// Remove scroll event listener on unmount
+onUnmounted(() => {
+  window.removeEventListener('scroll', handleScroll);
+});
+
+// Add this helper function near the top of the script section
+const formatBusinessCategory = (
+  category: string | undefined | null
+): string => {
+  if (!category) return '';
+
+  // Replace underscores with spaces
+  const withSpaces = category.replace(/_/g, ' ');
+
+  // Capitalize each word
+  return withSpaces
+    .split(' ')
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(' ');
+};
+
+// Add this method to open the catalog
+const openCatalog = (userId: number) => {
+  const post = posts.value.find((p) => p.userId === userId);
+  if (post) {
+    selectedUser.value = {
+      id: userId,
+      name: post.userName,
+    };
+    showCatalog.value = true;
+  }
+};
+
+// Add these refs
+const showCatalog = ref(false);
+const selectedUser = ref<{ id: number; name: string } | null>(null);
+
+// Add this computed property after other computed properties
+const hasCurrentLocation = computed(() => {
+  return !!(
+    selectedLocation.value?.latitude && selectedLocation.value?.longitude
+  );
+});
+
+// Add this method to check if catalog is accessible
+const isCatalogAccessible = (post: Post) => {
+  // If no current location, catalog is not accessible
+  if (!hasCurrentLocation.value) {
+    return false;
+  }
+
+  // If post has no location or no delivery range, catalog is not accessible
+  if (!post.location || !post.deliveryRange) {
+    return false;
+  }
+
+  // Convert distance to meters (since it comes in km)
+  const distanceInMeters = (post.distance || 0) * 1000;
+
+  // Check if distance is within delivery range
+  return distanceInMeters <= post.deliveryRange;
+};
+
+// Update the template section where catalog icon is shown
 </script>
 <style scoped lang="scss">
+@use 'sass:color';
+
 .container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0px;
-  //background: linear-gradient(135deg, $primary, darken($primary, 20%));
+  padding: 0;
 }
 
 .post-card {
@@ -1552,7 +1820,8 @@ const getPostCardClass = (post: Post) => {
       color: #f57c00 !important;
     }
 
-    .q-avatar {
+    .q-avatar img {
+      // outline: 2px solid #ffa726;
       border: 2px solid #ffa726;
     }
   }
@@ -1660,16 +1929,32 @@ const getPostCardClass = (post: Post) => {
   color: #2563eb;
   cursor: pointer;
   font-weight: 500;
-  margin-left: 6px;
   text-decoration: none;
   transition: all 0.2s ease;
   padding: 2px 4px;
   border-radius: 4px;
+  font-size: 0.9rem;
+
+  &:hover {
+    color: #1d4ed8;
+    background-color: #eff6ff;
+  }
 }
 
-.read-more-link:hover {
-  color: #1d4ed8;
-  background-color: #eff6ff;
+.business-category {
+  display: inline-flex;
+  align-items: center;
+  background: rgba(255, 167, 38, 0.1);
+  color: #f57c00;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  border: 1px solid rgba(255, 167, 38, 0.2);
+
+  &:hover {
+    background: rgba(255, 167, 38, 0.15);
+  }
 }
 
 .post-image {
@@ -1755,10 +2040,17 @@ const getPostCardClass = (post: Post) => {
 }
 
 .create-post-card {
+  width: 100%;
   background: white;
-  border-radius: 0px;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   padding: 8px;
+  transition: all 0.3s ease;
+
+  /* Modify shadow when sticky */
+  .create-post-container:not(:first-child) & {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  }
 }
 
 .post-input-btn {
@@ -2647,7 +2939,8 @@ const getPostCardClass = (post: Post) => {
   color: white;
 
   &:hover {
-    background: darken($primary, 5%);
+    // background: darken($primary, 5%);
+    background: color.adjust($primary, $lightness: -5%);
   }
 }
 
@@ -2779,6 +3072,10 @@ const getPostCardClass = (post: Post) => {
   }
 }
 
+// .profileimg-avatar img {
+//   border: 2px solid var(--q-grey);
+// }
+
 .relative-position {
   position: relative;
   z-index: 2000;
@@ -2815,4 +3112,168 @@ const getPostCardClass = (post: Post) => {
   margin-right: 0;
   flex-shrink: 0; // Prevent avatar from shrinking
 }
+
+/* Add these styles for better sticky behavior */
+.create-post-sticky {
+  z-index: 2000;
+  background: #eef2f6;
+  width: 100%;
+}
+
+/* Add these styles for sticky behavior */
+.create-post-container {
+  position: sticky;
+  top: 0;
+  z-index: 2000;
+  width: 100%;
+  background: #eef2f6;
+  margin-bottom: 16px;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+  transform: translateY(0);
+  opacity: 1;
+  will-change: transform, opacity;
+
+  &.create-post-hidden {
+    transform: translateY(-100%);
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 100%;
+    background: #eef2f6;
+    z-index: -1;
+  }
+}
+
+.create-post-card {
+  width: 100%;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 8px;
+  transition: all 0.3s ease;
+
+  .create-post-container:not(.create-post-hidden) & {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  }
+}
+
+.NotifictionIcon {
+  width: 24px;
+  height: 24px;
+  color: $primary;
+  margin-top: -40px;
+}
+
+.create-post-container {
+  position: sticky;
+  top: 0;
+  z-index: 2000;
+  width: 100%;
+  background: #eef2f6;
+  margin-bottom: 16px;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+  transform: translateY(0);
+  opacity: 1;
+
+  &.create-post-hidden {
+    transform: translateY(-100%);
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 100%;
+    background: #eef2f6;
+    z-index: -1;
+  }
+}
+
+// Update existing create-post-card styles
+.create-post-card {
+  width: 100%;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 8px;
+  transition: all 0.3s ease;
+
+  .create-post-container:not(.create-post-hidden) & {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  }
+}
+
+.business-category {
+  font-size: 0.9rem;
+  color: rgba(0, 0, 0, 0.6);
+  margin-top: 4px;
+}
+
+.post-header {
+  position: relative;
+}
+
+.business-category {
+  display: inline-block;
+  background: rgba(255, 167, 38, 0.1);
+  color: #f57c00;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  margin-top: -4px;
+  margin-bottom: 8px;
+  border: 1px solid rgba(255, 167, 38, 0.2);
+
+  &:hover {
+    background: rgba(255, 167, 38, 0.15);
+  }
+}
+
+// Update the business-post class to include category styling
+.post-card.business-post {
+  .business-category {
+    background: rgba(255, 167, 38, 0.1);
+    color: #f57c00;
+    border-color: rgba(255, 167, 38, 0.2);
+  }
+}
+
+.catalog-badge {
+  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 500;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+// ... rest of your existing styles
 </style>

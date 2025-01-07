@@ -8,16 +8,18 @@ if [ "$current_branch" != "develop" ]; then
 fi
 
 # Check if the working directory is clean
-if [ -n "$(git status --porcelain)" ]; then
-  echo "Error: Your working directory is not clean. Please commit or stash your changes."
-  exit 1
-fi
+# if [ -n "$(git status --porcelain)" ]; then
+#   echo "Error: Your working directory is not clean. Please commit or stash your changes."
+#   exit 1
+# fi
 
 # Uncomment the API_BASE_URL with https and comment the one with http
 sed -i.bak 's/^\s*#\(.*https:\/\/.*\)/\1/' .env && rm .env.bak
 sed -i.bak 's/^\s*\(API_BASE_URL=http:\/\/.*\)/#\1/' .env && rm .env.bak
 sed -i.bak 's/^\s*SHOW_INSTALL_PROMPT=.*/SHOW_INSTALL_PROMPT=false/' .env && rm .env.bak
 sed -i.bak 's/^\s*SHORTS_VISIBLE=.*/SHORTS_VISIBLE=false/' .env && rm .env.bak
+# Disable ENABLE_ASTRO_APP
+sed -i.bak 's/^\(ENABLE_ASTRO_APP=.*\)/ENABLE_ASTRO_APP=false/' .env && rm .env.bak
 
 
 # Build the app for IOS
@@ -30,5 +32,7 @@ fi
 Revert the changes in .env
 sed -i.bak 's/^\s*\(API_BASE_URL=https:\/\/.*\)/#\1/' .env && rm .env.bak
 sed -i.bak 's/^\s*#\(API_BASE_URL=http:\/\/.*\)/\1/' .env && rm .env.bak
+# Re-enable ENABLE_ASTRO_APP
+sed -i.bak 's/^\(ENABLE_ASTRO_APP=.*\)/ENABLE_ASTRO_APP=true/' .env && rm .env.bak
 
 echo "IOS release successful!"

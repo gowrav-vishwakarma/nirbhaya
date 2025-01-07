@@ -42,15 +42,24 @@
               <div class="col-12 col-sm-6 q-py-none custom-input">
                 <label>{{ $t('common.dob') }}</label>
                 <q-input
+<<<<<<< HEAD
+=======
+                  filled
+>>>>>>> develop
                   v-model="values.dob"
                   mask="date"
-                  filled
+                  :error="!!errors.dob"
+                  :error-message="errors.dob?.join('; ')"
                   class="custom-radius"
                   bg-color="pink-1"
                   dense
                   hide-bottom-space
+                  :rules="[(val) => !!val || 'Date of birth is required']"
+                  :fill-mask="true"
+                  input-class="text-left"
                 >
                   <template v-slot:append>
+<<<<<<< HEAD
                     <q-icon name="event" class="cursor-pointer">
                       <q-popup-proxy
                         cover
@@ -69,6 +78,30 @@
                         </q-date>
                       </q-popup-proxy>
                     </q-icon>
+=======
+                    <q-icon name="event" class="cursor-pointer" />
+                    <q-popup-proxy
+                      cover
+                      transition-show="scale"
+                      transition-hide="scale"
+                    >
+                      <q-date
+                        v-model="values.dob"
+                        :navigation-min-year-month="minDate"
+                        :navigation-max-year-month="maxDate"
+                        :default-year-month="maxDate"
+                      >
+                        <div class="row items-center justify-end">
+                          <q-btn
+                            v-close-popup
+                            label="ok"
+                            color="primary"
+                            flat
+                          />
+                        </div>
+                      </q-date>
+                    </q-popup-proxy>
+>>>>>>> develop
                   </template>
                 </q-input>
               </div>
@@ -158,6 +191,24 @@
                   hide-bottom-space
                 />
               </div>
+
+              <!-- Default App Input -->
+              <div class="col-12 q-py-none custom-input">
+                <label>{{ $t('common.defaultApp') }}</label>
+                <q-select
+                  v-model="values.defaultApp"
+                  :options="defaultAppOptions"
+                  filled
+                  class="custom-radius"
+                  bg-color="pink-1"
+                  dense
+                  map-options
+                  emit-value
+                  option-value="value"
+                  option-label="label"
+                  hide-bottom-space
+                />
+              </div>
             </div>
 
             <!-- Submit Button -->
@@ -207,7 +258,16 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits(['reloadComponents']);
-const userTypeOptions = ['Girl', 'Child', 'Elder Woman', 'Elder Man', 'Youth'];
+const userTypeOptions = [
+  'Girl/Woman (18-35)',
+  'Woman (35+)',
+  'Senior Woman (60+)',
+  'Boy/Man (18-35)',
+  'Man (35+)',
+  'Senior Man (60+)',
+  'Child (Under 18)',
+  'Prefer not to say',
+];
 
 const originalStateOptions = [
   'Andhra Pradesh',
@@ -289,6 +349,21 @@ const professionOptions = [
   { label: t('common.other'), value: 'other' },
 ];
 
+// Add defaultApp options
+const defaultAppOptions = computed(() => {
+  const options = [
+    { label: t('common.sos'), value: 'sos' },
+    { label: t('common.news'), value: 'news' },
+    { label: t('common.community'), value: 'community' },
+  ];
+
+  if (process.env.ENABLE_ASTRO_APP === 'true') {
+    options.push({ label: t('common.astroai'), value: 'astroai' });
+  }
+
+  return options;
+});
+
 interface EmergencyContact {
   contactName: string;
   contactPhone: string;
@@ -318,6 +393,7 @@ interface FormValues {
   streamAudioVideoOnSos: boolean;
   broadcastAudioOnSos: boolean;
   referredBy: string;
+  defaultApp: 'sos' | 'news' | 'community' | 'astroai';
 }
 
 const { values, errors, isLoading, validateAndSubmit, callbacks } =
@@ -335,6 +411,10 @@ const { values, errors, isLoading, validateAndSubmit, callbacks } =
     streamAudioVideoOnSos: false,
     broadcastAudioOnSos: false,
     referredBy: '',
+<<<<<<< HEAD
+=======
+    defaultApp: 'sos',
+>>>>>>> develop
   });
 callbacks.beforeSubmit = (data) => {
   console.log('data before processing...', data);
@@ -389,6 +469,10 @@ const loadUserData = async () => {
     streamAudioVideoOnSos: userData.streamAudioVideoOnSos || false,
     broadcastAudioOnSos: userData.broadcastAudioOnSos || false,
     referredBy: userData.referredBy || '',
+<<<<<<< HEAD
+=======
+    defaultApp: userData.defaultApp || 'sos',
+>>>>>>> develop
   });
 
   lastCheckedReferralId.value = values.value.referredBy;
@@ -584,6 +668,24 @@ watch(
 const isReferralIdStored = computed(() => {
   return !!userStore.user.referredBy;
 });
+
+const minDate = computed(() => {
+  const date = new Date();
+  date.setFullYear(date.getFullYear() - 150); // 100 years ago
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-based
+  return `${year}/${month}`;
+});
+
+const maxDate = computed(() => {
+  const date = new Date();
+  date.setFullYear(date.getFullYear() - 13); // Must be at least 13 years old
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-based
+  return `${year}/${month}`;
+});
+
+// const showDatePicker = ref(false);
 </script>
 
 <style lang="scss" scoped>

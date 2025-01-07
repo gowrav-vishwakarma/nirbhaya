@@ -30,8 +30,20 @@ export interface CommunityPost {
   likes: number;
   shares: number;
   comments?: Comment[];
+  isBusinessPost?: boolean;
+  businessCategory?: string;
 }
 
 export interface Post extends CommunityPost {
   userName: string;
+  wasLiked: boolean;
+  liked: boolean;
+  distance?: number;
+  location?: {
+    x: number;
+    y: number;
+  };
+  showLocation?: boolean;
+  whatsappNumber?: string;
+  hasCatalog?: boolean;
 }

@@ -26,17 +26,40 @@
         <category android:name="android.intent.category.LAUNCHER" />
       </intent-filter>
 
-      <intent-filter android:autoVerify="true">
-        <action android:name="android.intent.action.VIEW" />
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths"></meta-data>
+        </provider>
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_color"
+            android:resource="@color/colorAccent" />
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_channel_id"
+            android:value="@string/default_notification_channel_id" />
+        <!-- <meta-data
+            android:name="com.google.firebase.messaging.fcm_fallback_notification_channel"
+            android:value="fcm_fallback_notification_channel" /> -->
+        <meta-data
+            android:name="com.google.firebase.messaging.sosalertchannel"
+            android:value="sosalertchannel" />
 
-        <category android:name="android.intent.category.DEFAULT" />
-        <category android:name="android.intent.category.BROWSABLE" />
-
+        <intent-filter android:autoVerify="true">
+          <action android:name="android.intent.action.VIEW" />
         <data
           android:scheme="https"
           android:host="sosbharat.com"
           android:pathPrefix="/link" />
       </intent-filter>
+    </application>
+
+
+        <category android:name="android.intent.category.DEFAULT" />
+        <category android:name="android.intent.category.BROWSABLE" />
 
     </activity>
 
@@ -70,6 +93,4 @@
 
   <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
   <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-
-
 </manifest>

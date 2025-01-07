@@ -35,6 +35,7 @@
               v-ripple
               class="location-item"
               :class="{ selected: selectedLocationId === 'current' }"
+              :active="selectedLocationId === 'current'"
             >
               <q-item-section avatar>
                 <q-icon
@@ -66,6 +67,7 @@
               v-ripple
               class="location-item"
               :class="{ selected: selectedLocationId === 'map' }"
+              :active="selectedLocationId === 'map'"
             >
               <q-item-section avatar>
                 <q-icon name="map" color="primary" size="24px" />
@@ -73,6 +75,9 @@
               <q-item-section>
                 <q-item-label>Select on Map</q-item-label>
                 <q-item-label caption>Choose a custom location</q-item-label>
+              </q-item-section>
+              <q-item-section side v-if="selectedLocationId === 'map'">
+                <q-icon name="check" color="primary" />
               </q-item-section>
             </q-item>
           </div>
@@ -85,8 +90,9 @@
             v-ripple
             class="location-item"
             :class="{
-              selected: selectedLocationId === location.id?.toString(),
+              selected: selectedLocationId == location.id?.toString(),
             }"
+            :active="selectedLocationId == location.id?.toString()"
           >
             <div
               @click="handleLocationSelect('stored', location)"
@@ -100,16 +106,22 @@
                   location.name ? location.name : 'Location'
                 }}</q-item-label>
 
-                <q-item-label caption>Saved Location</q-item-label>
+                <q-item-label caption>
+                  {{
+                    location.isBusinessLocation
+                      ? 'Your Business Location'
+                      : 'Saved Location'
+                  }}
+                </q-item-label>
               </q-item-section>
 
-              <q-item-section
-                side
-                v-if="selectedLocationId === location.id?.toString()"
-              >
-                <q-icon name="check" color="primary" />
+              <q-item-section side>
+                <q-icon
+                  v-if="selectedLocationId == location.id?.toString()"
+                  name="check"
+                  color="primary"
+                />
               </q-item-section>
-              <q-separator spaced />
             </div>
           </q-item>
 
@@ -216,6 +228,7 @@ const handleLocationSelect = async (
 ) => {
   try {
     if (locationType === 'current') {
+      selectedLocationId.value = 'current';
       // Just emit with source='current' and close dialog immediately
       emit('location-selected', {
         type: 'Point',
@@ -234,6 +247,7 @@ const handleLocationSelect = async (
         name: storedLocation.name,
         source: 'stored' as const,
       });
+      selectedLocationId.value = storedLocation.id;
       isOpen.value = false;
     }
   } catch (error) {

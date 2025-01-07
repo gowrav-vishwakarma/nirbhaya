@@ -126,6 +126,7 @@ export default {
   privateSectorEmployee: 'Private Sector Employee',
   governmentEmployee: 'Government Employee',
   businessOwner: 'Business Owner',
+  business: 'Business',
   housewife: 'Housewife',
   retired: 'Retired',
   unemployed: 'Unemployed',
@@ -224,10 +225,12 @@ export default {
   // Volunteering
   notificationLocations: 'Notification Locations',
   notificationLocationsHelp:
-    "Add locations where you'd like to receive SOS notifications",
+    "Add locations where you'd like to receive SOS notifications or See Community posts",
   locationName: 'Location Name',
   useCurrentLocation: 'Use Current Location',
+  selectFromMapLocation: 'Select Location From Map',
   addNotificationLocation: 'Add Notification Location',
+  addLocation: 'Add Location',
   availableForCommunity: 'Available for Community Assistance',
   availableForCommunityDescription:
     'Toggle this to indicate your availability to help others in emergencies',
@@ -241,7 +244,7 @@ export default {
   searchRadius: 'Search Radius',
   volunteersFound: 'Volunteers available within',
   distance: 'distance',
-  volunteeringSettings: 'Volunteering Preferences',
+  volunteeringSettings: 'Location Preferences',
   availabilitySettings: 'Availability Preferences',
   // Misc
   noLocationSet: 'No location set',
@@ -395,7 +398,6 @@ export default {
   errorFetchingLeaderboard: 'Error fetching leaderboard data',
   score: 'Score',
   you: 'You',
-  country: 'Country',
   noVolunteeringLocations: 'No volunteering locations found',
   yourScore: 'Your Score',
   totalScore: 'Total Score',
@@ -480,11 +482,10 @@ export default {
   businessInfoDeleteCancel: 'No, Keep',
 
   // Business Location related translations
-  businessLocation: 'Business Location',
+  businessLocation: 'Business Location name',
   addBusinessLocation: 'Add Business Location',
   editBusinessLocation: 'Edit Business Location',
   removeBusinessLocation: 'Remove Business Location',
-  businessLocationName: 'Business Location Name',
   businessLocationAddress: 'Business Location Address',
   // businessLocationRequired: 'Business location is required',
   businessLocationNameRequired: 'Location name is required',
@@ -596,6 +597,20 @@ export default {
   addBusinessInformation: 'Add Business Information',
   businessLocationHelp:
     'Add your business information to promote your business.',
+  setLocation: 'Set Location',
+  updateLocation: 'Update Location',
 
   userNotRegisteredInApp: 'This phone number is not registered in the app',
+
+  fillRequiredFields: 'Please fill in all required fields',
+  emergencyContactsUpdated: 'Emergency contacts updated successfully',
+  emergencyContactsUpdateError: 'Error updating emergency contacts',
+  locationUpdateSuccess: 'Location updated successfully',
+  defaultApp: 'Default App',
+  sos: 'SOS',
+  news: 'Bulletin',
+  community: 'Community',
+  astroai: 'AstroAI',
+
+  caretext: 'Report abuse, safety concerns, or violations to',
 };

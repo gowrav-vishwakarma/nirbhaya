@@ -137,6 +137,11 @@ const routes: RouteRecordRaw[] = [
         component: CommunityPostsList,
       },
       {
+        path: 'post-notifications',
+        component: () => import('src/pages/CommunityPosts/PostNotification.vue'),
+        meta: { requiresAuth: true },
+      },
+      {
         path: '/feed',
         name: 'feed',
         component: Feed,
@@ -164,6 +169,12 @@ const routes: RouteRecordRaw[] = [
       {
         path: 'leaderboard',
         component: LeaderboardPage,
+        meta: { requiresAuth: true },
+      },
+      {
+        path: 'astro-ai',
+        name: 'astro-ai',
+        component: () => import('pages/AstroAI/AstroAIPage.vue'),
         meta: { requiresAuth: true },
       },
     ],

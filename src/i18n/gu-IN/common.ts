@@ -202,6 +202,7 @@ export default {
   locationName: 'સ્થાનનું નામ',
   useCurrentLocation: 'વર્તમાન સ્થાનનો ઉપયોગ કરો',
   addNotificationLocation: 'સૂચના સ્થાન ઉમેરો',
+  addLocation: 'સ્થાન ઉમેરો',
   availableForCommunity: 'સમુદાય સહાય માટે ઉપલબ્ધ',
   availableForCommunityDescription:
     'કટોકટીમાં અન્યોની મદદ કરવા માટે તમારી ઉપલબ્ધતા દર્શાવવા માટે આને ટૉગલ કરો',
@@ -384,4 +385,8 @@ export default {
   viewOnMap: 'મેપ પર જુઓ',
   awayFrom: 'દૂર',
   pending: 'બાકી',
+
+  caretext: 'દુરુપયોગ, સુરક્ષા સંબંધિત અથવા ઉલ્લંઘનની જાણ પર કરો',
+  businessCategory: 'વ્યવસાયની શ્રેણી',
+  selectFromMapLocation: 'નકશા પરથી સ્થાન પસંદ કરો',
 };

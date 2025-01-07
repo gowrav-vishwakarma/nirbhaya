@@ -6,6 +6,18 @@
       padding-bottom: env(safe-area-inset-bottom);
     "
   >
+  <div
+        class="row items-center"
+        style="padding-top: 5px; padding-left: 10px"
+        v-if="userStore.user.id"
+      >
+        <q-btn size="sm" flat class="back-button" @click="router.go(-1)">
+          <i style="font-size: 14px" class="fa-solid fa-arrow-left-long"></i>
+        </q-btn>
+        <!-- <span class="text-weight-bold text-primary q-ml-sm text-h4"
+          >Profile Page</span
+        > -->
+      </div>
     <div class="container q-pa-md">
       <!-- Add Suggestion Button -->
       <!-- <div class="suggestion-button-container q-mb-md">
@@ -14,7 +26,7 @@
       </div> -->
 
       <!-- Header -->
-      <div
+      <!-- <div
         style="
           display: flex;
           justify-content: flex-end;
@@ -35,7 +47,7 @@
         >
           <span style="font-weight: 700; font-size: 14px"> Login </span>
         </q-btn>
-      </div>
+      </div> -->
       <div class="row items-center justify-between q-pa-md">
         <div>
           <h4 class="text-h5 text-weight-bold q-my-none text-primary">
@@ -402,7 +414,7 @@ import { api } from 'src/boot/axios';
 import { useRouter, useRoute } from 'vue-router';
 import { useUserStore } from 'src/stores/user-store';
 import type { CommunityPost } from 'src/types/CommunityPost';
-import PostEngagement from 'src/pages/CommunityPosts/PostEngagementOpenRoute.vue';
+import PostEngagement from 'src/pages/CommunityPosts/PostEngagement.vue';
 const route = useRoute();
 const router = useRouter();
 
@@ -435,14 +447,15 @@ const loading = ref(true);
 const currentlyPlayingVideo = ref<string | null>(null);
 
 // Add these refs near the top of the script section
-const showLoginDialog = ref(true);
+const showLoginDialog = ref(false);
 const postCount = ref(0);
 // Add this method to handle login dialog visibility
 const checkAndShowLoginDialog = () => {
+  console.log('checkAndShowLoginDialog', userStore.isLoggedIn);
   // Only show dialog if user is not logged in and has viewed more than 2 posts
-  // if (!userStore.user) {
-  showLoginDialog.value = true;
-  // }
+  if (!userStore.isLoggedIn) {
+    showLoginDialog.value = true;
+  }
 };
 
 // Update the formatDate helper function
@@ -530,7 +543,7 @@ const loadPosts = async (loadMore = false) => {
         color: 'warning',
         message: 'Post not found',
         icon: 'warning',
-        position:'top-right'
+        position: 'top-right',
       });
       router.push('/community');
       return;
@@ -565,7 +578,7 @@ const loadPosts = async (loadMore = false) => {
       color: 'negative',
       message: 'Failed to load post',
       icon: 'error',
-      position:'top-right'
+      position: 'top-right',
     });
     router.push('/community');
   } finally {
@@ -711,7 +724,7 @@ onMounted(async () => {
   await loadPosts();
 
   // Show login dialog immediately
-  showLoginPrompt();
+  // showLoginPrompt();
 });
 
 // Clean up on component unmount
@@ -1038,9 +1051,9 @@ watch(
 );
 
 // Add this method to show login prompt
-const showLoginPrompt = () => {
-  showLoginDialog.value = true;
-};
+// const showLoginPrompt = () => {
+//   showLoginDialog.value = true;
+// };
 </script>
 <style scoped lang="scss">
 .container {
@@ -2245,4 +2258,13 @@ const showLoginPrompt = () => {
   color: white !important;
   border-radius: 10px !important;
 }
+.back-button {
+  background-color: rgba(102, 100, 102, 0.459);
+  border-radius: 20px;
+  height: 15px !important;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: whitesmoke;
+} 
 </style>
