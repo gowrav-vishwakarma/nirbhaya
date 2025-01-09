@@ -91,7 +91,6 @@
         >
           <q-card-section class="row items-center" style="width: 100%">
             <div class="col-auto">
-              <!-- {{contact}} -->
               <q-avatar>
                 <img src="/profile.png" alt="/profile.png" />
               </q-avatar>
@@ -154,6 +153,7 @@
             class="full-width custom-radius"
             :loading="isLoading"
             @click="handleSubmit"
+            :disable="!hasEmergencyContacts"
             style="border-radius: 10px !important; height: 40px"
           >
             <template v-slot:loading>
@@ -238,20 +238,9 @@ const handlePhoneBlur = async () => {
   }
 };
 
-const validatePhoneNumber = async (phoneNumber: string): Promise<boolean> => {
+const validatePhoneNumber = async (phoneNumber: string, name: string): Promise<boolean> => {
   try {
-    if (phoneNumber === userStore.user.phoneNumber) {
-      phoneError.value = t('common.cantAddOwnNumber');
-      $q.notify({
-        color: 'negative',
-        message: t('common.cantAddOwnNumber'),
-        icon: 'error',
-        position: 'top-right',
-      });
-      return false;
-    }
-
-    const response = await api.post('auth/validate-phone', { phoneNumber });
+    const response = await api.post('auth/validate-phone', { phoneNumber, createNew: true, name });
     if (!response.data.isValid) {
       phoneError.value = t('common.userNotRegisteredInApp');
       $q.notify({
