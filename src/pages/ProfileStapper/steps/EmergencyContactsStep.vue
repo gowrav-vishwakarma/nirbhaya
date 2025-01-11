@@ -47,7 +47,6 @@
             type="tel"
             mask="##########"
             hide-bottom-space
-            @blur="handlePhoneBlur"
           />
         </div>
 
@@ -232,15 +231,16 @@ const newContact = ref<NewContact>({
 const showInputFields = ref(false);
 const phoneError = ref('');
 
-const handlePhoneBlur = async () => {
-  if (newContact.value.phone) {
-    await validatePhoneNumber(newContact.value.phone);
-  }
-};
-
-const validatePhoneNumber = async (phoneNumber: string, name: string): Promise<boolean> => {
+const validatePhoneNumber = async (
+  phoneNumber: string,
+  name?: string
+): Promise<boolean> => {
   try {
-    const response = await api.post('auth/validate-phone', { phoneNumber, createNew: true, name });
+    const response = await api.post('auth/validate-phone', {
+      phoneNumber,
+      createNew: true,
+      name: name || '',
+    });
     if (!response.data.isValid) {
       phoneError.value = t('common.userNotRegisteredInApp');
       $q.notify({
@@ -277,7 +277,10 @@ const addNewContact = async () => {
       return;
     }
 
-    const isValid = await validatePhoneNumber(newContact.value.phone);
+    const isValid = await validatePhoneNumber(
+      newContact.value.phone,
+      newContact.value.name
+    );
     if (!isValid) {
       return;
     }

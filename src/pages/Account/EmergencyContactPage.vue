@@ -62,7 +62,6 @@
                 type="tel"
                 mask="##########"
                 hide-bottom-space
-                @blur="() => handlePhoneBlur(newContact, newContactErrorIndex)"
               />
             </div>
 
@@ -269,10 +268,11 @@ const addEmergencyContact = async () => {
       return;
     }
 
-    // Validate phone number
+    // Validate phone number with contact name
     const isValid = await validatePhoneNumber(
       newContact.value.contactPhone,
-      values.value.emergencyContacts.length
+      values.value.emergencyContacts.length,
+      newContact.value.contactName
     );
     if (!isValid) {
       return;
@@ -418,7 +418,8 @@ const isFormValid = computed(() => {
 
 const validatePhoneNumber = async (
   phoneNumber: string,
-  index: number
+  index: number,
+  contactName?: string
 ): Promise<boolean> => {
   try {
     // First check if the number is user's own number
@@ -428,7 +429,11 @@ const validatePhoneNumber = async (
     }
 
     // Validate phone number with API
-    const response = await api.post('auth/validate-phone', { phoneNumber });
+    const response = await api.post('auth/validate-phone', {
+      phoneNumber,
+      createNew: true,
+      name: contactName || '',
+    });
     if (!response.data.isValid) {
       errors.value[`emergencyContact${index}`] = t(
         'common.userNotRegisteredInApp'
@@ -442,15 +447,6 @@ const validatePhoneNumber = async (
     console.error('Error validating phone number:', error);
     errors.value[`emergencyContact${index}`] = t('common.phoneValidationError');
     return false;
-  }
-};
-
-const handlePhoneBlur = async (
-  contact: EmergencyContact | typeof newContact.value,
-  index: number
-) => {
-  if (contact.contactPhone) {
-    await validatePhoneNumber(contact.contactPhone, index);
   }
 };
 
