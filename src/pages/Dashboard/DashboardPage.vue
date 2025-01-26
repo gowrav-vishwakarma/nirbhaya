@@ -8,7 +8,11 @@
       ></PromotingAppInstall>
 
       <!-- Emergency Contact Warning Banner -->
-      <q-banner v-if="!hasEmergencyContacts" class="bg-warning text-white q-mb-sm q-mt-sm">
+      <q-banner
+        v-if="!hasEmergencyContacts"
+        class="bg-warning text-white q-mb-sm q-mt-sm"
+        @click="goToAddEmergency"
+      >
         <template v-slot:avatar>
           <q-icon name="warning" color="white" />
         </template>
@@ -16,7 +20,11 @@
       </q-banner>
 
       <!-- Volunteer Location Warning Banner -->
-      <q-banner v-if="!hasVolunteer" class="bg-warning text-white q-mb-sm q-mt-sm">
+      <q-banner
+        v-if="!hasVolunteer"
+        class="bg-warning text-white q-mb-sm q-mt-sm"
+        @click="goToAddVolunteers"
+      >
         <template v-slot:avatar>
           <q-icon name="warning" color="white" />
         </template>
@@ -31,15 +39,13 @@
             :class="{
               'nearby-btn text-white full-width': true,
               'attention-required': !hasEmergencyContacts,
-              'animate-bounce': !hasEmergencyContacts
+              'animate-bounce': !hasEmergencyContacts,
             }"
             icon="mdi-human-greeting-proximity"
             label="Add Emergency"
             @click="goToAddEmergency"
           >
-            <q-tooltip>
-              Please add emergency contacts for safety
-            </q-tooltip>
+            <q-tooltip> Please add emergency contacts for safety </q-tooltip>
           </q-btn>
 
           <q-btn
@@ -47,7 +53,7 @@
             :class="{
               'nearby-btn text-white full-width': true,
               'attention-required': !hasVolunteer,
-              'animate-bounce': !hasVolunteer
+              'animate-bounce': !hasVolunteer,
             }"
             icon="volunteer_activism"
             label="Become Volunteer"
@@ -87,7 +93,6 @@
   </q-page>
 </template>
 
-
 <script setup lang="ts">
 import { computed, defineAsyncComponent, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
@@ -97,11 +102,21 @@ import { useQuasar } from 'quasar';
 
 const isDialogOpen = process.env.SHOW_INSTALL_PROMPT == 'true';
 const router = useRouter();
-const WelcomeCard = defineAsyncComponent(() => import('./components/WelcomeCard.vue'));
-const SOSButtons = defineAsyncComponent(() => import('./components/SOSButtons.vue'));
-const EmergencyContacts = defineAsyncComponent(() => import('./components/EmergencyContacts.vue'));
-const TrustStatsCard = defineAsyncComponent(() => import('./components/TrustStatsCard.vue'));
-const PromotingAppInstall = defineAsyncComponent(() => import('src/components/PromotingAppInstall.vue'));
+const WelcomeCard = defineAsyncComponent(
+  () => import('./components/WelcomeCard.vue')
+);
+const SOSButtons = defineAsyncComponent(
+  () => import('./components/SOSButtons.vue')
+);
+const EmergencyContacts = defineAsyncComponent(
+  () => import('./components/EmergencyContacts.vue')
+);
+const TrustStatsCard = defineAsyncComponent(
+  () => import('./components/TrustStatsCard.vue')
+);
+const PromotingAppInstall = defineAsyncComponent(
+  () => import('src/components/PromotingAppInstall.vue')
+);
 
 const userStore = useUserStore();
 const { initiateSOSMode } = useSOSMode();
@@ -110,11 +125,16 @@ const promotingAppInstall = ref();
 
 const userName = computed(() => userStore.user.name || 'User');
 const hasEmergencyContacts = computed(() => {
-  return userStore.user.emergencyContacts && userStore.user.emergencyContacts.length > 0;
+  return (
+    userStore.user.emergencyContacts &&
+    userStore.user.emergencyContacts.length > 0
+  );
 });
 
 const hasVolunteer = computed(() => {
-  return userStore.user.locations.length  && userStore.user.locations[0].location;
+  return (
+    userStore.user.locations.length && userStore.user.locations[0].location
+  );
 });
 
 const goToCommunityRoute = () => {
@@ -131,7 +151,6 @@ const goToAddEmergency = () => {
 const goToAddVolunteers = () => {
   router.push('/account?open=volunteers');
 };
-
 
 const handleSOSClick = (contactsOnly: boolean) => {
   if (!hasEmergencyContacts.value) {
@@ -228,7 +247,8 @@ onMounted(async () => {
 }
 
 @keyframes bounce {
-  0%, 100% {
+  0%,
+  100% {
     transform: translateY(0);
   }
   50% {
