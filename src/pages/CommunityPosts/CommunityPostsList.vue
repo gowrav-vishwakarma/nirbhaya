@@ -647,15 +647,13 @@ const performSearch = (searchParams?: {
 const formatDate = (dateString: string | null) => {
   if (!dateString) return 'Recent';
 
-  console.log('Input date:', dateString); // Log the input date
-
   try {
     // Extract the date using Quasar's extractDate method
     const parsedDate = date.extractDate(dateString, 'YYYY-MM-DD HH:mm:ss');
 
     // Check if the date is valid
     if (!parsedDate || isNaN(parsedDate.getTime())) {
-      console.error('Invalid date after parsing:', parsedDate); // Log invalid date
+      console.error('Invalid date after parsing:', parsedDate);
       return 'Invalid date';
     }
 
@@ -675,9 +673,7 @@ const formatDate = (dateString: string | null) => {
 
     // Less than an hour
     if (diffInMinutes < 60 && diffInMinutes >= 0) {
-      return `${diffInMinutes} ${
-        diffInMinutes === 1 ? 'minute' : 'minutes'
-      } ago`;
+      return `${diffInMinutes} ${diffInMinutes === 1 ? 'minute' : 'minutes'} ago`;
     }
 
     // Less than a day
@@ -690,17 +686,8 @@ const formatDate = (dateString: string | null) => {
       return `${diffInDays} ${diffInDays === 1 ? 'day' : 'days'} ago`;
     }
 
-    // More than a week, format the date
-    const options: Intl.DateTimeFormatOptions = {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: true,
-    };
-
-    return date.formatDate(parsedDate, 'YYYY-MM-DDTHH:mm:ss.SSSZ'); // Format the date for display
+    // More than a week, format the date nicely
+    return date.formatDate(parsedDate, 'MMM D, YYYY [at] h:mm A');
   } catch (error) {
     console.error('Error formatting date:', error);
     return 'Date error';
