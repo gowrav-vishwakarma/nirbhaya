@@ -905,30 +905,33 @@ const onVideoIntersection = (postId: string) => ({
 });
 
 // Update the calculateAge function to handle both string and Date inputs
-const calculateAge = (dob: string | Date): number => {
-  const dobDate = dob instanceof Date ? dob : new Date(dob);
-  const today = new Date();
-  let age = today.getFullYear() - dobDate.getFullYear();
-  const monthDiff = today.getMonth() - dobDate.getMonth();
+// const calculateAge = (dob: string | Date): number => {
+//   const dobDate = dob instanceof Date ? dob : new Date(dob);
+//   const today = new Date();
+//   let age = today.getFullYear() - dobDate.getFullYear();
+//   const monthDiff = today.getMonth() - dobDate.getMonth();
 
-  if (
-    monthDiff < 0 ||
-    (monthDiff === 0 && today.getDate() < dobDate.getDate())
-  ) {
-    age--;
-  }
+//   if (
+//     monthDiff < 0 ||
+//     (monthDiff === 0 && today.getDate() < dobDate.getDate())
+//   ) {
+//     age--;
+//   }
 
-  return age;
-};
+//   return age;
+// };
 
 // Update the onMounted section where location is initialized
 onMounted(async () => {
-  const dob = userStore.user?.dob;
-  if (dob) {
-    isUserPermitted.value = calculateAge(dob) >= 13;
-  } else {
-    isUserPermitted.value = false;
-  }
+  // const dob = userStore.user?.dob;
+  // if (dob) {
+  //   isUserPermitted.value = calculateAge(dob) >= 13;
+  // } else {
+  //   isUserPermitted.value = false;
+  // }
+
+  const userType = userStore.user?.userType;
+  isUserPermitted.value = userType != null && userType !== 'Below (13)';
 
   // Get initial location with timeout
   try {
