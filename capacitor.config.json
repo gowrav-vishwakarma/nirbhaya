@@ -19,6 +19,12 @@
         "sound",
         "alert"
       ]
+    },
+    "CapacitorUpdater": {
+      "autoUpdate": false,
+      "resetWhenUpdate": true,
+      "autoDeletePrevious": true,
+      "autoDeleteFailed": true
     }
   },
   "android": {
