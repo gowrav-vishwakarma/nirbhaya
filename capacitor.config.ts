@@ -1,6 +1,9 @@
 import { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
+  appId: 'com.xavoc.shoutout',
+  appName: 'SOS Bharat',
+  webDir: 'www',
   server: {
     hostname: 'localhost',
     iosScheme: 'https',
@@ -21,6 +24,14 @@ const config: CapacitorConfig = {
         type: 'string',
       },
     },
+    CapacitorUpdater: {
+      updateUrl: 'http://localhost:3000/check-version-capgo',
+      autoUpdate: false,
+      // updateUrl: 'https://myserver.com/app/updates/updates.json',
+    },
+  },
+  android: {
+    allowMixedContent: true,
   },
 };
 

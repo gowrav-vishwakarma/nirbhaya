@@ -3,6 +3,21 @@ import { onMounted } from 'vue';
 import { useQuasar } from 'quasar';
 import { api } from 'src/boot/axios';
 import { iosVersion, androidVersion } from '../../package.json';
+import { CapacitorUpdater } from '@capgo/capacitor-updater';
+
+const handleDownloadComplete = () => {
+  console.log('Download complete');
+  // Handle the download complete event
+};
+
+const handleUpdateAvailable = () => {
+  console.log('Update available');
+  // Handle the update available event
+};
+
+// Register event listeners
+CapacitorUpdater.addListener('downloadComplete', handleDownloadComplete);
+CapacitorUpdater.addListener('updateAvailable', handleUpdateAvailable);
 
 const $q = useQuasar();
 
@@ -54,6 +69,7 @@ const checkVersion = async () => {
       ? latestIosVersion
       : latestAndroidVersion;
     if (isApp && forceUpdate && version !== appVersion) {
+      await downloadNewVersion();
       $q.dialog({
         title: 'Update Required',
         message:
@@ -67,6 +83,7 @@ const checkVersion = async () => {
         openStoreUrl(androidUpdateUrl, iosUpdateUrl);
       });
     } else if (isApp && version !== appVersion) {
+      await downloadNewVersion();
       $q.dialog({
         title: 'Update Available',
         message:
@@ -87,9 +104,29 @@ const checkVersion = async () => {
     console.error('Failed to check version:', error);
   }
 };
+const downloadNewVersion = async () => {
+  try {
+    console.log('capgo update: init step1');
+    // if (updateAvailable) {
+    console.log('capgo update: downloading step3');
+    const downloadLog = await CapacitorUpdater.download({
+      version: '0.0.221',
+      url: 'https://xavoc-technocrats-pvt-ltd.blr1.cdn.digitaloceanspaces.com/app-versions/com.xavoc.shoutout_0.0.220.zip',
+    }).then((data) => {
+      console.log('capgo update: setting step4', data);
+      CapacitorUpdater.set(data);
+    });
+    console.log('downloadLog', downloadLog);
+    //   alert('App updated successfully! Restart to apply changes.');
+    // }
+  } catch (error) {
+    console.error('Update check failed', error);
+  }
+};
 
 onMounted(() => {
-  void checkVersion();
+  CapacitorUpdater.notifyAppReady();
+  checkVersion();
 });
 </script>
 
