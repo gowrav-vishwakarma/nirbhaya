@@ -4,6 +4,20 @@
     <div class="scrollable-inputs q-px-md">
       <q-form @submit.prevent="handleSubmit" class="q-gutter-md">
         <div class="custom-input">
+          <label>{{ t('common.mobileNumber') }}</label>
+          <q-input
+            v-model="values.phoneNumber"
+            filled
+            class="custom-radius"
+            bg-color="pink-1"
+            dense
+            disable
+            readonly
+            hide-bottom-space
+          />
+        </div>
+        <hr />
+        <div class="custom-input">
           <label>{{ t('common.name') }}</label>
           <q-input
             v-model="values.name"
@@ -18,22 +32,9 @@
           />
         </div>
 
-        <div class="custom-input">
-          <label>{{ t('common.mobileNumber') }}</label>
-          <q-input
-            v-model="values.phoneNumber"
-            filled
-            class="custom-radius"
-            bg-color="pink-1"
-            dense
-            disable
-            readonly
-            hide-bottom-space
-          />
-        </div>
         <!-- DOB -->
 
-<!--    <div class="custom-input">
+        <!--    <div class="custom-input">
           <label>{{ t('common.dob') }}</label>
           <q-input
             filled
@@ -72,7 +73,7 @@
             </template>
           </q-input>
         </div> -->
-<!-- state  -->
+        <!-- state  -->
         <!-- <div class="custom-input">
           <label>{{ t('common.state') }}</label>
           <q-select
@@ -93,7 +94,7 @@
             behavior="menu"
           />
         </div> -->
-<!-- city -->
+        <!-- city -->
         <!-- <div class="custom-input">
           <label>{{ t('common.city') }}</label>
           <SearchCity
@@ -417,14 +418,15 @@ const emit = defineEmits(['update-profile', 'next-step']);
 
 // const stateOptions = ref([...originalStateOptions]);
 const userTypes = [
+  'Below (13)',
+  'Girl (13-18)',
+  'Boy (13-18)',
   'Girl/Woman (18-35)',
   'Woman (35+)',
   'Senior Woman (60+)',
   'Boy/Man (18-35)',
   'Man (35+)',
   'Senior Man (60+)',
-  'Child (Under 18)',
-  'Prefer not to say',
 ];
 
 // const professionOptions = [
@@ -776,45 +778,47 @@ const loadUserData = async () => {
   if (userData) {
     // Set initial values
     values.value = {
-      ...userData,
+      name: userData.name,
+      phoneNumber: userData.phoneNumber,
+      userType: userData.userType,
     };
 
     // Create city object if city data exists
-    if (userData.city && userData.state && userData.pincode) {
-      values.value.city = {
-        officename: userData.city,
-        statename: userData.state,
-        pincode: userData.pincode,
-      };
-    }
+    // if (userData.city && userData.state && userData.pincode) {
+    //   values.value.city = {
+    //     officename: userData.city,
+    //     statename: userData.state,
+    //     pincode: userData.pincode,
+    //   };
+    // }
 
     // Set referral ID for validation
     lastCheckedReferralId.value = values.value.referredBy;
 
     // Load business info if exists
-    if (userData.businessName) {
-      values.value.showBusinessInfo = true;
-      values.value.businessInfo = {
-        businessName: userData.businessName,
-        whatsappNumber: userData.whatsappNumber || '',
-        locationName: '',
-        latitude: 0,
-        longitude: 0,
-        businessCategory: userData.businessCategory || null,
-      };
+    // if (userData.businessName) {
+    //   values.value.showBusinessInfo = true;
+    //   values.value.businessInfo = {
+    //     businessName: userData.businessName,
+    //     whatsappNumber: userData.whatsappNumber || '',
+    //     locationName: '',
+    //     latitude: 0,
+    //     longitude: 0,
+    //     businessCategory: userData.businessCategory || null,
+    //   };
 
-      // Get business location from locations array
-      const businessLocation = userData.locations?.find(
-        (loc: UserLocation) => loc.isBusinessLocation
-      );
-      if (businessLocation) {
-        values.value.businessInfo.locationName = businessLocation.name;
-        values.value.businessInfo.longitude =
-          businessLocation.location.coordinates[0];
-        values.value.businessInfo.latitude =
-          businessLocation.location.coordinates[1];
-      }
-    }
+    //   // Get business location from locations array
+    //   const businessLocation = userData.locations?.find(
+    //     (loc: UserLocation) => loc.isBusinessLocation
+    //   );
+    //   if (businessLocation) {
+    //     values.value.businessInfo.locationName = businessLocation.name;
+    //     values.value.businessInfo.longitude =
+    //       businessLocation.location.coordinates[0];
+    //     values.value.businessInfo.latitude =
+    //       businessLocation.location.coordinates[1];
+    //   }
+    // }
   }
 };
 

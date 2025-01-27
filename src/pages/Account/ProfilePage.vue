@@ -235,15 +235,16 @@ const props = defineProps<{
 const emit = defineEmits(['reloadComponents']);
 const userTypeOptions = [
   'Below (13)',
-  'Girl/Boy (13-18)',
+  'Girl (13-18)',
+  'Boy (13-18)',
   'Girl/Woman (18-35)',
   'Woman (35+)',
   'Senior Woman (60+)',
   'Boy/Man (18-35)',
   'Man (35+)',
   'Senior Man (60+)',
-  'Child (Under 18)',
-  'Prefer not to say',
+  // 'Child (Under 18)',
+  // 'Prefer not to say',
 ];
 
 const originalStateOptions = [
