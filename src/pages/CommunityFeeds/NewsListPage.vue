@@ -26,7 +26,7 @@
               text-color="primary"
               floating
             >
-              {{ currentPlayingIndex + 1 }}/{{ news.length }}
+              {{ getProgressText() }}
             </q-badge>
           </q-btn>
         </div>
@@ -65,7 +65,7 @@
             v-for="(newsItem, index) in news"
             :key="newsItem.id"
             class="col-12 col-sm-6 col-md-4"
-            :ref="el => { if (el) newsRefs[index] = el }"
+            :ref="el => { if (el) newsRefs[index] = el as HTMLElement }"
           >
             <q-card :class="['news-card', { 'currently-playing': isPlaying(newsItem.id) }]">
               <q-img
@@ -104,9 +104,9 @@
                   flat
                   :color="isPlaying(newsItem.id) ? 'negative' : 'primary'"
                   :icon="isPlaying(newsItem.id) ? 'stop' : 'volume_up'"
-                  :label="isPlaying(newsItem.id) ? 'Stop' : 'Listen'"
+                  :label="isLoading(newsItem.id) && !isPlaying(newsItem.id) ? 'Waiting...' : (isPlaying(newsItem.id) ? 'Stop' : 'Listen')"
                   @click="toggleAudio(newsItem)"
-                  :loading="isLoading(newsItem.id)"
+                  :loading="isLoading(newsItem.id) && !isPlaying(newsItem.id)"
                 />
               <q-btn
                 v-if="newsItem.source"
@@ -634,9 +634,12 @@ const isPlayingAll = ref(false);
 const currentPlayingIndex = ref(-1);
 const newsRefs = ref<HTMLElement[]>([]);
 
-// Previous audio control code remains...
-
 // Add new functions for global playback
+// Add constant for delay duration
+const DELAY_BETWEEN_NEWS = 2000; // 2 seconds in milliseconds
+const isFirstPlay = ref(true);
+
+// Modify the playNext function to include delay
 async function playNext() {
   if (!isPlayingAll.value) return;
 
@@ -654,12 +657,31 @@ async function playNext() {
     currentElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }
 
+  // Only add delay if it's not the first article
+  if (!isFirstPlay.value) {
+    // Add visual indicator for the delay
+    audioLoading.value = news.value[currentPlayingIndex.value].id;
+
+    // Wait for the delay
+    await new Promise(resolve => setTimeout(resolve, DELAY_BETWEEN_NEWS));
+
+    // Check if we're still playing all after delay
+    if (!isPlayingAll.value) {
+      audioLoading.value = null;
+      return;
+    }
+  } else {
+    isFirstPlay.value = false;
+  }
+
   // Play the current news item
   await toggleAudio(news.value[currentPlayingIndex.value]);
 }
 
+
 function stopPlayAll() {
   isPlayingAll.value = false;
+  isFirstPlay.value = true;
   currentPlayingIndex.value = -1;
   stopCurrentAudio();
 }
@@ -669,12 +691,84 @@ function togglePlayAll() {
     stopPlayAll();
   } else {
     isPlayingAll.value = true;
+    isFirstPlay.value = true;
     currentPlayingIndex.value = -1;
     playNext();
   }
 }
-
 // Modify the existing toggleAudio function
+// function toggleAudio(newsItem: NewsItem) {
+//   return new Promise<void>((resolve) => {
+//     // If this item is currently playing, stop it
+//     if (isPlaying(newsItem.id)) {
+//       stopCurrentAudio();
+//       resolve();
+//       return;
+//     }
+
+//     // Stop any currently playing audio
+//     stopCurrentAudio();
+
+//     // Start new audio
+//     audioLoading.value = newsItem.id;
+
+//     // Get the appropriate content
+//     const content = getNewsContent(newsItem);
+//     const title = getNewsTitle(newsItem);
+//     const text = `${title}. ${content}`;
+
+//     utterance = new SpeechSynthesisUtterance(text);
+
+//     // Find the best matching voice
+//     const voice = findBestVoiceMatch(selectedLanguage.value);
+
+//     if (voice) {
+//       utterance.voice = voice;
+//       utterance.lang = voice.lang;
+//     } else {
+//       utterance.lang = languageConfig[selectedLanguage.value]?.primary || selectedLanguage.value;
+//     }
+
+//     // Set speech properties
+//     utterance.rate = 1.0;
+//     utterance.pitch = 1.0;
+//     utterance.volume = 1.0;
+
+//     // Set up event handlers
+//     utterance.onstart = () => {
+//       audioLoading.value = null;
+//       currentlyPlaying.value = newsItem.id;
+//     };
+
+//     utterance.onend = () => {
+//       currentlyPlaying.value = null;
+//       utterance = null;
+//       resolve();
+
+//       // If playing all, move to next item
+//       if (isPlayingAll.value) {
+//         playNext();
+//       }
+//     };
+
+//     utterance.onerror = (event) => {
+//       console.error('Speech synthesis error:', event);
+//       audioLoading.value = null;
+//       currentlyPlaying.value = null;
+//       utterance = null;
+//       resolve();
+
+//       // If playing all, move to next item even on error
+//       if (isPlayingAll.value) {
+//         playNext();
+//       }
+//     };
+
+//     // Start speaking
+//     speechSynthesis.speak(utterance);
+//   });
+// }
+
 function toggleAudio(newsItem: NewsItem) {
   return new Promise<void>((resolve) => {
     // If this item is currently playing, stop it
@@ -693,7 +787,9 @@ function toggleAudio(newsItem: NewsItem) {
     // Get the appropriate content
     const content = getNewsContent(newsItem);
     const title = getNewsTitle(newsItem);
-    const text = `${title}. ${content}`;
+
+    // Add a small pause in the text itself to create a natural break
+    const text = `${title}... ${content}`;
 
     utterance = new SpeechSynthesisUtterance(text);
 
@@ -723,7 +819,7 @@ function toggleAudio(newsItem: NewsItem) {
       utterance = null;
       resolve();
 
-      // If playing all, move to next item
+      // If playing all, wait and then move to next item
       if (isPlayingAll.value) {
         playNext();
       }
@@ -736,7 +832,7 @@ function toggleAudio(newsItem: NewsItem) {
       utterance = null;
       resolve();
 
-      // If playing all, move to next item even on error
+      // If playing all, still try to continue to next item
       if (isPlayingAll.value) {
         playNext();
       }
@@ -745,6 +841,15 @@ function toggleAudio(newsItem: NewsItem) {
     // Start speaking
     speechSynthesis.speak(utterance);
   });
+}
+
+// Add progress indicator to the template
+function getProgressText() {
+  if (!isPlayingAll.value || currentPlayingIndex.value === -1) return '';
+  const current = currentPlayingIndex.value + 1;
+  const total = news.value.length;
+  const isWaiting = audioLoading.value && !currentlyPlaying.value && !isFirstPlay.value;
+  return isWaiting ? `Waiting... ${current}/${total}` : `Playing ${current}/${total}`;
 }
 // Clean up audio on component unmount
 onUnmounted(() => {
@@ -770,8 +875,12 @@ onMounted(() => {
     border: 2px solid var(--q-primary);
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
   }
-}
 
+  &.waiting {
+    border: 2px dashed var(--q-primary);
+    opacity: 0.9;
+  }
+}
 .ellipsis-3-lines {
   display: -webkit-box;
   -webkit-line-clamp: 3;
