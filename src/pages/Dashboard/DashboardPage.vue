@@ -66,10 +66,9 @@
         </div>
       </div>
 
-      <SOSButtons
-        @initiate-sos="handleSOSClick"
-        :disabled="!hasEmergencyContacts"
-      />
+      <SOSButtons v-if="hasEmergencyContacts" @initiate-sos="handleSOSClick" />
+      <SOSButtons v-else @initiate-sos="handleSOSClick" disabled />
+
       <div class="row justify-center q-mt-md">
         <q-btn
           class="nearby-btn text-white"
