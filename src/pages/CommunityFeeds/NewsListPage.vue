@@ -13,13 +13,22 @@
               AI summaries and translations may be inaccurate. Check source.
             </div>
           </div>
-          <!-- <q-btn
-            flat
-            color="text-white"
-            class="q-px-md"
-            @click="showFilters = true"
+          <q-btn
+            :color="isPlayingAll ? 'negative' : 'primary'"
+            :icon="isPlayingAll ? 'stop' : 'play_arrow'"
+            :label="isPlayingAll ? 'Stop All' : 'Listen All'"
+            @click="togglePlayAll"
+            class="q-mr-md"
           >
-          </q-btn> -->
+            <q-badge
+              v-if="isPlayingAll"
+              color="white"
+              text-color="primary"
+              floating
+            >
+              {{ currentPlayingIndex + 1 }}/{{ news.length }}
+            </q-badge>
+          </q-btn>
         </div>
       </div>
 
@@ -53,16 +62,17 @@
 
           <!-- Existing news items -->
           <div
-          v-for="newsItem in news"
-          :key="newsItem.id"
-          class="col-12 col-sm-6 col-md-4"
-        >
-          <q-card class="news-card">
-            <q-img
-              v-if="newsItem.mediaUrls?.length"
-              :src="getImageUrl(newsItem.mediaUrls[0])"
-              :ratio="16 / 9"
-            />
+            v-for="(newsItem, index) in news"
+            :key="newsItem.id"
+            class="col-12 col-sm-6 col-md-4"
+            :ref="el => { if (el) newsRefs[index] = el }"
+          >
+            <q-card :class="['news-card', { 'currently-playing': isPlaying(newsItem.id) }]">
+              <q-img
+                v-if="newsItem.mediaUrls?.length"
+                :src="getImageUrl(newsItem.mediaUrls[0])"
+                :ratio="16 / 9"
+              />
             <q-card-section>
               <div class="row items-center q-gutter-x-sm">
                 <q-chip
@@ -90,14 +100,14 @@
               </div>
             </q-card-section>
             <q-card-actions align="right">
-              <q-btn
-                flat
-                :color="isPlaying(newsItem.id) ? 'negative' : 'primary'"
-                :icon="isPlaying(newsItem.id) ? 'stop' : 'volume_up'"
-                :label="isPlaying(newsItem.id) ? 'Stop' : 'Listen'"
-                @click="toggleAudio(newsItem)"
-                :loading="isLoading(newsItem.id)"
-              />
+                <q-btn
+                  flat
+                  :color="isPlaying(newsItem.id) ? 'negative' : 'primary'"
+                  :icon="isPlaying(newsItem.id) ? 'stop' : 'volume_up'"
+                  :label="isPlaying(newsItem.id) ? 'Stop' : 'Listen'"
+                  @click="toggleAudio(newsItem)"
+                  :loading="isLoading(newsItem.id)"
+                />
               <q-btn
                 v-if="newsItem.source"
                 flat
@@ -544,63 +554,63 @@ function findBestVoiceMatch(languageCode: string): SpeechSynthesisVoice | null {
   return voices[0] || null;
 }
 
-function toggleAudio(newsItem: NewsItem) {
-  // If this item is currently playing, stop it
-  if (isPlaying(newsItem.id)) {
-    stopCurrentAudio();
-    return;
-  }
+// function toggleAudio(newsItem: NewsItem) {
+//   // If this item is currently playing, stop it
+//   if (isPlaying(newsItem.id)) {
+//     stopCurrentAudio();
+//     return;
+//   }
 
-  // Stop any currently playing audio
-  stopCurrentAudio();
+//   // Stop any currently playing audio
+//   stopCurrentAudio();
 
-  // Start new audio
-  audioLoading.value = newsItem.id;
+//   // Start new audio
+//   audioLoading.value = newsItem.id;
 
-  // Get the appropriate content based on selected language
-  const content = getNewsContent(newsItem);
-  const title = getNewsTitle(newsItem);
-  const text = `${title}. ${content}`;
+//   // Get the appropriate content based on selected language
+//   const content = getNewsContent(newsItem);
+//   const title = getNewsTitle(newsItem);
+//   const text = `${title}. ${content}`;
 
-  utterance = new SpeechSynthesisUtterance(text);
+//   utterance = new SpeechSynthesisUtterance(text);
 
-  // Find the best matching voice for the selected language
-  const voice = findBestVoiceMatch(selectedLanguage.value);
+//   // Find the best matching voice for the selected language
+//   const voice = findBestVoiceMatch(selectedLanguage.value);
 
-  if (voice) {
-    utterance.voice = voice;
-    utterance.lang = voice.lang; // Use the voice's language code
-  } else {
-    // Fallback to just setting the language without a specific voice
-    utterance.lang = languageConfig[selectedLanguage.value]?.primary || selectedLanguage.value;
-  }
+//   if (voice) {
+//     utterance.voice = voice;
+//     utterance.lang = voice.lang; // Use the voice's language code
+//   } else {
+//     // Fallback to just setting the language without a specific voice
+//     utterance.lang = languageConfig[selectedLanguage.value]?.primary || selectedLanguage.value;
+//   }
 
-  // Set additional speech properties for better clarity
-  utterance.rate = 0.8; // Normal speed
-  utterance.pitch = 1.0; // Normal pitch
-  utterance.volume = 1.0; // Full volume
+//   // Set additional speech properties for better clarity
+//   utterance.rate = 0.8; // Normal speed
+//   utterance.pitch = 1.0; // Normal pitch
+//   utterance.volume = 1.0; // Full volume
 
-  // Set up event handlers
-  utterance.onstart = () => {
-    audioLoading.value = null;
-    currentlyPlaying.value = newsItem.id;
-  };
+//   // Set up event handlers
+//   utterance.onstart = () => {
+//     audioLoading.value = null;
+//     currentlyPlaying.value = newsItem.id;
+//   };
 
-  utterance.onend = () => {
-    currentlyPlaying.value = null;
-    utterance = null;
-  };
+//   utterance.onend = () => {
+//     currentlyPlaying.value = null;
+//     utterance = null;
+//   };
 
-  utterance.onerror = (event) => {
-    console.error('Speech synthesis error:', event);
-    audioLoading.value = null;
-    currentlyPlaying.value = null;
-    utterance = null;
-  };
+//   utterance.onerror = (event) => {
+//     console.error('Speech synthesis error:', event);
+//     audioLoading.value = null;
+//     currentlyPlaying.value = null;
+//     utterance = null;
+//   };
 
-  // Start speaking
-  speechSynthesis.speak(utterance);
-}
+//   // Start speaking
+//   speechSynthesis.speak(utterance);
+// }
 
 // Add new functions for audio control
 function isPlaying(newsId: string) {
@@ -619,9 +629,127 @@ function stopCurrentAudio() {
   utterance = null;
 }
 
+// Add new refs for global playback
+const isPlayingAll = ref(false);
+const currentPlayingIndex = ref(-1);
+const newsRefs = ref<HTMLElement[]>([]);
+
+// Previous audio control code remains...
+
+// Add new functions for global playback
+async function playNext() {
+  if (!isPlayingAll.value) return;
+
+  currentPlayingIndex.value++;
+
+  // Check if we've reached the end
+  if (currentPlayingIndex.value >= news.value.length) {
+    stopPlayAll();
+    return;
+  }
+
+  // Scroll to the current news item
+  const currentElement = newsRefs.value[currentPlayingIndex.value];
+  if (currentElement) {
+    currentElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+
+  // Play the current news item
+  await toggleAudio(news.value[currentPlayingIndex.value]);
+}
+
+function stopPlayAll() {
+  isPlayingAll.value = false;
+  currentPlayingIndex.value = -1;
+  stopCurrentAudio();
+}
+
+function togglePlayAll() {
+  if (isPlayingAll.value) {
+    stopPlayAll();
+  } else {
+    isPlayingAll.value = true;
+    currentPlayingIndex.value = -1;
+    playNext();
+  }
+}
+
+// Modify the existing toggleAudio function
+function toggleAudio(newsItem: NewsItem) {
+  return new Promise<void>((resolve) => {
+    // If this item is currently playing, stop it
+    if (isPlaying(newsItem.id)) {
+      stopCurrentAudio();
+      resolve();
+      return;
+    }
+
+    // Stop any currently playing audio
+    stopCurrentAudio();
+
+    // Start new audio
+    audioLoading.value = newsItem.id;
+
+    // Get the appropriate content
+    const content = getNewsContent(newsItem);
+    const title = getNewsTitle(newsItem);
+    const text = `${title}. ${content}`;
+
+    utterance = new SpeechSynthesisUtterance(text);
+
+    // Find the best matching voice
+    const voice = findBestVoiceMatch(selectedLanguage.value);
+
+    if (voice) {
+      utterance.voice = voice;
+      utterance.lang = voice.lang;
+    } else {
+      utterance.lang = languageConfig[selectedLanguage.value]?.primary || selectedLanguage.value;
+    }
+
+    // Set speech properties
+    utterance.rate = 1.0;
+    utterance.pitch = 1.0;
+    utterance.volume = 1.0;
+
+    // Set up event handlers
+    utterance.onstart = () => {
+      audioLoading.value = null;
+      currentlyPlaying.value = newsItem.id;
+    };
+
+    utterance.onend = () => {
+      currentlyPlaying.value = null;
+      utterance = null;
+      resolve();
+
+      // If playing all, move to next item
+      if (isPlayingAll.value) {
+        playNext();
+      }
+    };
+
+    utterance.onerror = (event) => {
+      console.error('Speech synthesis error:', event);
+      audioLoading.value = null;
+      currentlyPlaying.value = null;
+      utterance = null;
+      resolve();
+
+      // If playing all, move to next item even on error
+      if (isPlayingAll.value) {
+        playNext();
+      }
+    };
+
+    // Start speaking
+    speechSynthesis.speak(utterance);
+  });
+}
 // Clean up audio on component unmount
 onUnmounted(() => {
   stopCurrentAudio();
+  stopPlayAll();
 });
 
 onMounted(() => {
@@ -632,6 +760,18 @@ onMounted(() => {
 </script>
 
 <style lang="scss" scoped>
+.news-card {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.3s ease;
+
+  &.currently-playing {
+    border: 2px solid var(--q-primary);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+  }
+}
+
 .ellipsis-3-lines {
   display: -webkit-box;
   -webkit-line-clamp: 3;
