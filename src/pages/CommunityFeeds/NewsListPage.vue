@@ -53,54 +53,62 @@
 
           <!-- Existing news items -->
           <div
-            v-for="newsItem in news"
-            :key="newsItem.id"
-            class="col-12 col-sm-6 col-md-4"
-          >
-            <q-card class="news-card">
-              <q-img
-                v-if="newsItem.mediaUrls?.length"
-                :src="getImageUrl(newsItem.mediaUrls[0])"
-                :ratio="16 / 9"
-              />
-              <q-card-section>
-                <div class="row items-center q-gutter-x-sm">
-                  <q-chip
-                    v-for="category in newsItem.categories"
-                    :key="category"
-                    size="sm"
-                    :label="getCategoryLabel(category)"
-                  />
-                  <q-chip
-                    size="sm"
-                    :label="newsItem.isIndianNews ? 'Indian' : 'International'"
-                    :color="newsItem.isIndianNews ? 'primary' : 'secondary'"
-                    text-color="white"
-                  />
-                  <q-chip
-                    size="sm"
-                    :label="getCurrentLanguageLabel(newsItem)"
-                    color="accent"
-                    text-color="white"
-                  />
-                </div>
-                <div class="text-h6 q-mt-sm">{{ getNewsTitle(newsItem) }}</div>
-                <div class="text-body2 q-mt-sm text-grey-8 _ellipsis-3-lines">
-                  {{ getNewsContent(newsItem) }}
-                </div>
-              </q-card-section>
-              <q-card-actions align="right">
-                <q-btn
-                  v-if="newsItem.source"
-                  flat
-                  color="secondary"
-                  icon="link"
-                  label="Source (English)"
-                  @click="openSource(newsItem.source)"
+          v-for="newsItem in news"
+          :key="newsItem.id"
+          class="col-12 col-sm-6 col-md-4"
+        >
+          <q-card class="news-card">
+            <q-img
+              v-if="newsItem.mediaUrls?.length"
+              :src="getImageUrl(newsItem.mediaUrls[0])"
+              :ratio="16 / 9"
+            />
+            <q-card-section>
+              <div class="row items-center q-gutter-x-sm">
+                <q-chip
+                  v-for="category in newsItem.categories"
+                  :key="category"
+                  size="sm"
+                  :label="getCategoryLabel(category)"
                 />
-              </q-card-actions>
-            </q-card>
-          </div>
+                <q-chip
+                  size="sm"
+                  :label="newsItem.isIndianNews ? 'Indian' : 'International'"
+                  :color="newsItem.isIndianNews ? 'primary' : 'secondary'"
+                  text-color="white"
+                />
+                <q-chip
+                  size="sm"
+                  :label="getCurrentLanguageLabel(newsItem)"
+                  color="accent"
+                  text-color="white"
+                />
+              </div>
+              <div class="text-h6 q-mt-sm">{{ getNewsTitle(newsItem) }}</div>
+              <div class="text-body2 q-mt-sm text-grey-8 _ellipsis-3-lines">
+                {{ getNewsContent(newsItem) }}
+              </div>
+            </q-card-section>
+            <q-card-actions align="right">
+              <q-btn
+                flat
+                :color="isPlaying(newsItem.id) ? 'negative' : 'primary'"
+                :icon="isPlaying(newsItem.id) ? 'stop' : 'volume_up'"
+                :label="isPlaying(newsItem.id) ? 'Stop' : 'Listen'"
+                @click="toggleAudio(newsItem)"
+                :loading="isLoading(newsItem.id)"
+              />
+              <q-btn
+                v-if="newsItem.source"
+                flat
+                color="secondary"
+                icon="link"
+                label="Source (English)"
+                @click="openSource(newsItem.source)"
+              />
+            </q-card-actions>
+          </q-card>
+        </div>
         </div>
 
         <!-- Load More Button -->
@@ -235,7 +243,10 @@ const page = ref(1);
 const pageSize = 6;
 const hasMoreNews = ref(true);
 
-const selectedLanguage = ref(userStore.newsPreferences.language || 'en');
+// Define a type for the language keys
+type LanguageCode = keyof typeof languageConfig;
+
+const selectedLanguage = ref<LanguageCode>(userStore.newsPreferences.language as LanguageCode || 'en');
 const selectedCategories = ref(userStore.newsPreferences.categories || []);
 const selectedNewsType = ref(userStore.newsPreferences.newsType || 'all');
 
@@ -362,7 +373,7 @@ async function fetchNews(reset = false) {
   }
 }
 
-function onLanguageChange(value: string) {
+function onLanguageChange(value: LanguageCode) {
   selectedLanguage.value = value;
   userStore.setNewsPreferences({ language: value });
   fetchNews(true);
@@ -442,6 +453,176 @@ function setupInfiniteScroll() {
     }
   };
 }
+
+// Add new refs for audio control
+
+const currentlyPlaying = ref<string | null>(null);
+const audioLoading = ref<string | null>(null);
+const speechSynthesis = window.speechSynthesis;
+let utterance: SpeechSynthesisUtterance | null = null;
+const availableVoices = ref<SpeechSynthesisVoice[]>([]);
+
+// Language configuration with fallbacks
+const languageConfig = {
+  'en': {
+    primary: 'en-US',
+    fallbacks: ['en-GB', 'en-IN', 'en'],
+    defaultVoice: 'Microsoft David - English (United States)'
+  },
+  'hi': {
+    primary: 'hi-IN',
+    fallbacks: ['hi', 'en-IN'],
+    defaultVoice: 'Microsoft Hemant - Hindi (India)'
+  },
+  'bn': {
+    primary: 'bn-IN',
+    fallbacks: ['bn', 'bn-BD', 'en-IN'],
+    defaultVoice: 'Microsoft Bashkar - Bangla (India)'
+  },
+  'ta': {
+    primary: 'ta-IN',
+    fallbacks: ['ta', 'ta-LK', 'en-IN'],
+    defaultVoice: 'Microsoft Valluvar - Tamil (India)'
+  },
+  'te': {
+    primary: 'te-IN',
+    fallbacks: ['te', 'en-IN'],
+    defaultVoice: 'Microsoft Shruthi - Telugu (India)'
+  },
+  'gu': {
+    primary: 'gu-IN',
+    fallbacks: ['gu', 'en-IN'],
+    defaultVoice: 'Microsoft Dhwani - Gujarati (India)'
+  },
+  'mr': {
+    primary: 'mr-IN',
+    fallbacks: ['mr', 'en-IN'],
+    defaultVoice: 'Microsoft Swara - Marathi (India)'
+  },
+  'ml': {
+    primary: 'ml-IN',
+    fallbacks: ['ml', 'en-IN'],
+    defaultVoice: 'Microsoft Sobhana - Malayalam (India)'
+  }
+};
+// Initialize voices when they're loaded
+function initializeVoices() {
+  availableVoices.value = speechSynthesis.getVoices();
+}
+
+// Call initializeVoices when voices are loaded
+speechSynthesis.onvoiceschanged = initializeVoices;
+// Initialize immediately in case voices are already loaded
+initializeVoices();
+
+function findBestVoiceMatch(languageCode: string): SpeechSynthesisVoice | null {
+  const config = languageConfig[languageCode as keyof typeof languageConfig];
+  if (!config) return null;
+
+  const voices = availableVoices.value;
+  let selectedVoice: SpeechSynthesisVoice | null = null;
+
+  // Try to find the default voice first
+  selectedVoice = voices.find(voice => voice.name === config.defaultVoice) || null;
+  if (selectedVoice) return selectedVoice;
+
+  // Try primary language code
+  selectedVoice = voices.find(voice => voice.lang === config.primary) || null;
+  if (selectedVoice) return selectedVoice;
+
+  // Try fallbacks
+  for (const fallback of config.fallbacks) {
+    selectedVoice = voices.find(voice => voice.lang.startsWith(fallback)) || null;
+    if (selectedVoice) return selectedVoice;
+  }
+
+  // Last resort: try to find any voice that matches the base language code
+  selectedVoice = voices.find(voice => voice.lang.startsWith(languageCode)) || null;
+  if (selectedVoice) return selectedVoice;
+
+  // If no matching voice found, return the first available voice as ultimate fallback
+  return voices[0] || null;
+}
+
+function toggleAudio(newsItem: NewsItem) {
+  // If this item is currently playing, stop it
+  if (isPlaying(newsItem.id)) {
+    stopCurrentAudio();
+    return;
+  }
+
+  // Stop any currently playing audio
+  stopCurrentAudio();
+
+  // Start new audio
+  audioLoading.value = newsItem.id;
+
+  // Get the appropriate content based on selected language
+  const content = getNewsContent(newsItem);
+  const title = getNewsTitle(newsItem);
+  const text = `${title}. ${content}`;
+
+  utterance = new SpeechSynthesisUtterance(text);
+
+  // Find the best matching voice for the selected language
+  const voice = findBestVoiceMatch(selectedLanguage.value);
+
+  if (voice) {
+    utterance.voice = voice;
+    utterance.lang = voice.lang; // Use the voice's language code
+  } else {
+    // Fallback to just setting the language without a specific voice
+    utterance.lang = languageConfig[selectedLanguage.value]?.primary || selectedLanguage.value;
+  }
+
+  // Set additional speech properties for better clarity
+  utterance.rate = 0.8; // Normal speed
+  utterance.pitch = 1.0; // Normal pitch
+  utterance.volume = 1.0; // Full volume
+
+  // Set up event handlers
+  utterance.onstart = () => {
+    audioLoading.value = null;
+    currentlyPlaying.value = newsItem.id;
+  };
+
+  utterance.onend = () => {
+    currentlyPlaying.value = null;
+    utterance = null;
+  };
+
+  utterance.onerror = (event) => {
+    console.error('Speech synthesis error:', event);
+    audioLoading.value = null;
+    currentlyPlaying.value = null;
+    utterance = null;
+  };
+
+  // Start speaking
+  speechSynthesis.speak(utterance);
+}
+
+// Add new functions for audio control
+function isPlaying(newsId: string) {
+  return currentlyPlaying.value === newsId;
+}
+
+function isLoading(newsId: string) {
+  return audioLoading.value === newsId;
+}
+
+function stopCurrentAudio() {
+  if (utterance && speechSynthesis.speaking) {
+    speechSynthesis.cancel();
+  }
+  currentlyPlaying.value = null;
+  utterance = null;
+}
+
+// Clean up audio on component unmount
+onUnmounted(() => {
+  stopCurrentAudio();
+});
 
 onMounted(() => {
   fetchNews();
