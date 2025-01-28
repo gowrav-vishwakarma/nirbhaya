@@ -183,6 +183,8 @@ export default {
   attemptedKidnapping: 'Attempted Kidnapping',
   sexualAssault: 'Sexual Assault',
   domesticViolence: 'Domestic Violence',
+  medicalemergency: 'Medical Emergency',
+  safetyconcerns: 'Safety Concerns',
   unknown: 'Unknown',
   // Help Page
   locationPermission: 'Location Permission',

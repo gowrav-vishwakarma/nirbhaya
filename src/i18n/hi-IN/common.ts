@@ -195,6 +195,8 @@ export default {
   attemptedKidnapping: 'अपहरण प्रयास',
   sexualAssault: 'यौन उत्पीड़न',
   domesticViolence: 'घरेलू हिंसा',
+  medicalemergency: 'चिकित्सा आपातकाल',
+  safetyconcerns: 'सुरक्षा संबंधी चिंताएँ',
   unknown: 'अज्ञात',
   // Help Page
   locationPermission: 'स्थान अनुमति',

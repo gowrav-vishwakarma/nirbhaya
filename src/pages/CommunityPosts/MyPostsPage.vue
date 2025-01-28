@@ -191,7 +191,7 @@
                 >
                   <q-tooltip>Delete Post</q-tooltip>
                 </q-btn>
-                <!-- <q-btn
+                <q-btn
                   flat
                   round
                   color="primary"
@@ -201,7 +201,7 @@
                   v-if="Number(userStore.user?.id) == Number(props.id)"
                 >
                   <q-tooltip>Edit Post</q-tooltip>
-                </q-btn> -->
+                </q-btn>
               </div>
             </q-card-section>
 

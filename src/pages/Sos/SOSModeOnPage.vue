@@ -416,42 +416,42 @@ const locationSentToServer = ref(false);
 const threats = [
   {
     color: '#000000',
-    icon: 'emergency',
-    threatName: 'domesticViolence',
-    visibleThreat: 'common.domesticViolence',
+    icon: 'pan_tool',
+    threatName: 'safetyconcerns',
+    visibleThreat: 'common.safetyconcerns',
   },
   {
     color: '#FF0000',
-    icon: 'diversity_3',
-    threatName: 'attemptedKidnapping',
-    visibleThreat: 'common.attemptedKidnapping',
+    icon: 'emergency',
+    threatName: 'medicalemergency',
+    visibleThreat: 'common.medicalemergency',
   },
 
-  {
-    color: '#808000',
-    icon: 'touch_app',
-    threatName: 'physicalThreat',
-    visibleThreat: 'common.physicalThreat',
-  },
-  {
-    color: '#641e16',
-    icon: 'pan_tool',
-    threatName: 'sexualAssault',
-    visibleThreat: 'common.sexualAssault',
-  },
-  {
-    color: '#FF00FF',
-    icon: 'gesture',
-    threatName: 'followedBySomeone',
-    visibleThreat: 'common.followedBySomeone',
-  },
+  // {
+  //   color: '#808000',
+  //   icon: 'touch_app',
+  //   threatName: 'physicalThreat',
+  //   visibleThreat: 'common.physicalThreat',
+  // },
+  // {
+  //   color: '#641e16',
+  //   icon: 'pan_tool',
+  //   threatName: 'sexualAssault',
+  //   visibleThreat: 'common.sexualAssault',
+  // },
+  // {
+  //   color: '#FF00FF',
+  //   icon: 'gesture',
+  //   threatName: 'followedBySomeone',
+  //   visibleThreat: 'common.followedBySomeone',
+  // },
 
-  {
-    color: '#008080',
-    icon: 'record_voice_over',
-    threatName: 'verbalHarassment',
-    visibleThreat: 'common.verbalHarassment',
-  },
+  // {
+  //   color: '#008080',
+  //   icon: 'record_voice_over',
+  //   threatName: 'verbalHarassment',
+  //   visibleThreat: 'common.verbalHarassment',
+  // },
 
   // 'common.followedBySomeone',
   // 'common.verbalHarassment',

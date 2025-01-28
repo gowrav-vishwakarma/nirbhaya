@@ -4,6 +4,20 @@
     <div class="scrollable-inputs q-px-md">
       <q-form @submit.prevent="handleSubmit" class="q-gutter-md">
         <div class="custom-input">
+          <label>{{ t('common.mobileNumber') }}</label>
+          <q-input
+            v-model="values.phoneNumber"
+            filled
+            class="custom-radius"
+            bg-color="pink-1"
+            dense
+            disable
+            readonly
+            hide-bottom-space
+          />
+        </div>
+        <hr />
+        <div class="custom-input">
           <label>{{ t('common.name') }}</label>
           <q-input
             v-model="values.name"
@@ -18,21 +32,9 @@
           />
         </div>
 
-        <div class="custom-input">
-          <label>{{ t('common.mobileNumber') }}</label>
-          <q-input
-            v-model="values.phoneNumber"
-            filled
-            class="custom-radius"
-            bg-color="pink-1"
-            dense
-            disable
-            readonly
-            hide-bottom-space
-          />
-        </div>
+        <!-- DOB -->
 
-        <div class="custom-input">
+        <!--    <div class="custom-input">
           <label>{{ t('common.dob') }}</label>
           <q-input
             filled
@@ -56,7 +58,6 @@
                   transition-show="scale"
                   transition-hide="scale"
                 >
-                  <!-- v-model="datePickerVisible" -->
                   <q-date
                     v-model="values.dob"
                     :navigation-min-year-month="minDate"
@@ -71,9 +72,9 @@
               </q-icon>
             </template>
           </q-input>
-        </div>
-
-        <div class="custom-input">
+        </div> -->
+        <!-- state  -->
+        <!-- <div class="custom-input">
           <label>{{ t('common.state') }}</label>
           <q-select
             v-model="values.state"
@@ -92,9 +93,9 @@
             hide-bottom-space
             behavior="menu"
           />
-        </div>
-
-        <div class="custom-input">
+        </div> -->
+        <!-- city -->
+        <!-- <div class="custom-input">
           <label>{{ t('common.city') }}</label>
           <SearchCity
             v-model="values.city"
@@ -105,8 +106,8 @@
             :key="values.state"
             hide-bottom-space
           />
-        </div>
-
+        </div> -->
+        <!-- userType -->
         <div class="custom-input">
           <label>{{ t('common.userType') }}</label>
           <q-select
@@ -121,8 +122,8 @@
             hide-bottom-space
           />
         </div>
-
-        <div class="custom-input">
+        <!-- profession -->
+        <!-- <div class="custom-input">
           <label>{{ t('common.profession') }}</label>
           <q-select
             v-model="values.profession"
@@ -139,9 +140,9 @@
             option-label="label"
             hide-bottom-space
           />
-        </div>
-
-        <div class="custom-input">
+        </div> -->
+        <!-- referredBy -->
+        <!-- <div class="custom-input">
           <label>{{ t('common.referredBy') }}</label>
           <q-input
             v-model="values.referredBy"
@@ -157,16 +158,16 @@
             :disable="isReferralIdStored"
           >
           </q-input>
-        </div>
-
-        <div class="custom-input">
+        </div> -->
+        <!-- showBusinessInfo -->
+        <!-- <div class="custom-input">
           <q-checkbox
             v-model="values.showBusinessInfo"
             :label="t('common.addBusinessInfo')"
           />
-        </div>
+        </div> -->
 
-        <template v-if="values.showBusinessInfo && values.businessInfo">
+        <!-- <template v-if="values.showBusinessInfo && values.businessInfo">
           <div class="custom-input">
             <label>{{ t('common.businessName') }}</label>
             <q-input
@@ -282,7 +283,7 @@
             v-model="showLocationSelector"
             @location-selected="handleLocationSelected"
           />
-        </template>
+        </template> -->
       </q-form>
     </div>
     <div
@@ -309,17 +310,17 @@
 </template>
 
 <script lang="ts" setup>
-import { onMounted, computed, ref, watch, nextTick } from 'vue';
+import { onMounted, computed, ref, watch } from 'vue';
 import { useQuasar } from 'quasar';
 import { useI18n } from 'vue-i18n';
 import { api } from 'src/boot/axios';
 import { useForm } from 'src/qnatk/composibles/use-form';
-import SearchCity from 'src/components/SearchCity.vue';
+// import SearchCity from 'src/components/SearchCity.vue';
 import { useUserStore } from 'src/stores/user-store';
-import type { QSelectFilterFn } from 'quasar';
-import { Geolocation } from '@capacitor/geolocation';
-import LocationSelectorDialog from 'src/components/Location/LocationSelectorDialog.vue';
-import businessCategoriesData from 'src/jsondata/businessCategories.json';
+// import type { QSelectFilterFn } from 'quasar';
+// import { Geolocation } from '@capacitor/geolocation';
+// import LocationSelectorDialog from 'src/components/Location/LocationSelectorDialog.vue';
+// import businessCategoriesData from 'src/jsondata/businessCategories.json';
 
 const $q = useQuasar();
 const { t } = useI18n();
@@ -353,18 +354,18 @@ interface BusinessInfo {
 interface FormValues {
   name: string;
   phoneNumber: string;
-  dob: string;
-  state: string;
-  city: City | null;
+  // dob: string;
+  // state: string;
+  // city: City | null;
   userType: string;
-  profession: string;
-  referredBy: string;
-  pincode: string;
-  showBusinessInfo: boolean;
-  businessInfo: BusinessInfo | null;
+  // profession: string;
+  // referredBy: string;
+  // pincode: string;
+  // showBusinessInfo: boolean;
+  // businessInfo: BusinessInfo | null;
   locations?: UserLocation[];
-  whatsappNumber?: string;
-  businessName?: string;
+  // whatsappNumber?: string;
+  // businessName?: string;
 }
 
 // const props = defineProps<{
@@ -375,185 +376,186 @@ const emit = defineEmits(['update-profile', 'next-step']);
 
 // const datePickerVisible = ref(false);
 
-const originalStateOptions = [
-  'Andhra Pradesh',
-  'Arunachal Pradesh',
-  'Telangana',
-  'Assam',
-  'Bihar',
-  'Uttar Pradesh',
-  'Gujarat',
-  'Goa',
-  'Haryana',
-  'Himachal Pradesh',
-  'Jammu and Kashmir',
-  'Madhya Pradesh',
-  'Karnataka',
-  'Kerala',
-  'Maharashtra',
-  'Chattisgarh',
-  'Delhi',
-  'Daman and Diu',
-  'Dadra and Nagar Hav.',
-  'Manipur',
-  'Megalaya',
-  'Mizoram',
-  'Nagaland',
-  'Odisha',
-  'Punjab',
-  'Rajasthan',
-  'Sikkim',
-  'Tamil Nadu',
-  'Tripura',
-  'Jharkhand',
-  'Uttarakhand',
-  'BIJAPUR(KAR)',
-  'Lakshadweep',
-  'Chandigarh',
-  'Pondicherry',
-  'Andaman and Nico.In.',
-  'West Bengal',
-];
+// const originalStateOptions = [
+//   'Andhra Pradesh',
+//   'Arunachal Pradesh',
+//   'Telangana',
+//   'Assam',
+//   'Bihar',
+//   'Uttar Pradesh',
+//   'Gujarat',
+//   'Goa',
+//   'Haryana',
+//   'Himachal Pradesh',
+//   'Jammu and Kashmir',
+//   'Madhya Pradesh',
+//   'Karnataka',
+//   'Kerala',
+//   'Maharashtra',
+//   'Chattisgarh',
+//   'Delhi',
+//   'Daman and Diu',
+//   'Dadra and Nagar Hav.',
+//   'Manipur',
+//   'Megalaya',
+//   'Mizoram',
+//   'Nagaland',
+//   'Odisha',
+//   'Punjab',
+//   'Rajasthan',
+//   'Sikkim',
+//   'Tamil Nadu',
+//   'Tripura',
+//   'Jharkhand',
+//   'Uttarakhand',
+//   'BIJAPUR(KAR)',
+//   'Lakshadweep',
+//   'Chandigarh',
+//   'Pondicherry',
+//   'Andaman and Nico.In.',
+//   'West Bengal',
+// ];
 
-const stateOptions = ref([...originalStateOptions]);
+// const stateOptions = ref([...originalStateOptions]);
 const userTypes = [
+  'Below (13)',
+  'Girl (13-18)',
+  'Boy (13-18)',
   'Girl/Woman (18-35)',
   'Woman (35+)',
   'Senior Woman (60+)',
   'Boy/Man (18-35)',
   'Man (35+)',
   'Senior Man (60+)',
-  'Child (Under 18)',
-  'Prefer not to say',
 ];
 
-const professionOptions = [
-  { label: t('common.hospital'), value: 'hospital' },
-  { label: t('common.doctorGeneral'), value: 'doctorGeneral' },
-  { label: t('common.doctorEmergency'), value: 'doctorEmergency' },
-  { label: t('common.mechanic2Wheeler'), value: 'mechanic2Wheeler' },
-  { label: t('common.mechanic4Wheeler'), value: 'mechanic4Wheeler' },
-  { label: t('common.mechanicBoth'), value: 'mechanicBoth' },
-  { label: t('common.nurse'), value: 'nurse' },
-  { label: t('common.tech'), value: 'tech' },
-  { label: t('common.student'), value: 'student' },
-  { label: t('common.freelancer'), value: 'freelancer' },
-  { label: t('common.onlineSeller'), value: 'onlineSeller' },
-  { label: t('common.handicraftMaker'), value: 'handicraftMaker' },
-  { label: t('common.tailor'), value: 'tailor' },
-  { label: t('common.beautician'), value: 'beautician' },
-  { label: t('common.foodSeller'), value: 'foodSeller' },
-  { label: t('common.artsMediaDesigner'), value: 'artsMediaDesigner' },
-  { label: t('common.skilledTradesWorker'), value: 'skilledTradesWorker' },
-  { label: t('common.shopOwner'), value: 'shopOwner' },
-  { label: t('common.techITProfessional'), value: 'techITProfessional' },
-  {
-    label: t('common.healthcareMedicalWorker'),
-    value: 'healthcareMedicalWorker',
-  },
-  { label: t('common.socialWorker'), value: 'socialWorker' },
-  { label: t('common.privateSectorEmployee'), value: 'privateSectorEmployee' },
-  { label: t('common.governmentEmployee'), value: 'governmentEmployee' },
-  { label: t('common.businessOwner'), value: 'businessOwner' },
-  { label: t('common.housewife'), value: 'housewife' },
-  { label: t('common.retired'), value: 'retired' },
-  { label: t('common.unemployed'), value: 'unemployed' },
-  { label: t('common.other'), value: 'other' },
-];
+// const professionOptions = [
+//   { label: t('common.hospital'), value: 'hospital' },
+//   { label: t('common.doctorGeneral'), value: 'doctorGeneral' },
+//   { label: t('common.doctorEmergency'), value: 'doctorEmergency' },
+//   { label: t('common.mechanic2Wheeler'), value: 'mechanic2Wheeler' },
+//   { label: t('common.mechanic4Wheeler'), value: 'mechanic4Wheeler' },
+//   { label: t('common.mechanicBoth'), value: 'mechanicBoth' },
+//   { label: t('common.nurse'), value: 'nurse' },
+//   { label: t('common.tech'), value: 'tech' },
+//   { label: t('common.student'), value: 'student' },
+//   { label: t('common.freelancer'), value: 'freelancer' },
+//   { label: t('common.onlineSeller'), value: 'onlineSeller' },
+//   { label: t('common.handicraftMaker'), value: 'handicraftMaker' },
+//   { label: t('common.tailor'), value: 'tailor' },
+//   { label: t('common.beautician'), value: 'beautician' },
+//   { label: t('common.foodSeller'), value: 'foodSeller' },
+//   { label: t('common.artsMediaDesigner'), value: 'artsMediaDesigner' },
+//   { label: t('common.skilledTradesWorker'), value: 'skilledTradesWorker' },
+//   { label: t('common.shopOwner'), value: 'shopOwner' },
+//   { label: t('common.techITProfessional'), value: 'techITProfessional' },
+//   {
+//     label: t('common.healthcareMedicalWorker'),
+//     value: 'healthcareMedicalWorker',
+//   },
+//   { label: t('common.socialWorker'), value: 'socialWorker' },
+//   { label: t('common.privateSectorEmployee'), value: 'privateSectorEmployee' },
+//   { label: t('common.governmentEmployee'), value: 'governmentEmployee' },
+//   { label: t('common.businessOwner'), value: 'businessOwner' },
+//   { label: t('common.housewife'), value: 'housewife' },
+//   { label: t('common.retired'), value: 'retired' },
+//   { label: t('common.unemployed'), value: 'unemployed' },
+//   { label: t('common.other'), value: 'other' },
+// ];
 
-const isReferralIdStored = computed(() => {
-  return !!userStore.user.referredBy;
-});
+// const isReferralIdStored = computed(() => {
+//   return !!userStore.user.referredBy;
+// });
 
 const { values, errors, isLoading, validateAndSubmit, callbacks } =
   useForm<FormValues>(api, 'user/user-profile-update', {
     name: '',
     phoneNumber: '',
-    city: null,
-    state: '',
-    dob: '',
+    // city: null,
+    // state: '',
+    // dob: '',
     userType: '',
-    profession: '',
-    pincode: '',
-    emergencyContacts: [],
+    // profession: '',
+    // pincode: '',
+    // emergencyContacts: [],
     startAudioVideoRecordOnSos: false,
     streamAudioVideoOnSos: false,
     broadcastAudioOnSos: false,
-    referredBy: '',
-    showBusinessInfo: false,
-    businessInfo: null,
+    // referredBy: '',
+    // showBusinessInfo: false,
+    // businessInfo: null,
   });
 
 const isFormValid = computed(() => {
   const baseValidation =
     !!values.value.name &&
     !!values.value.phoneNumber &&
-    !!values.value.dob &&
-    !!values.value.state &&
-    !!values.value.city &&
+    // !!values.value.dob &&
+    // !!values.value.state &&
+    // !!values.value.city &&
     !!values.value.userType &&
-    !!values.value.profession &&
+    // !!values.value.profession &&
     Object.keys(errors.value).length === 0;
 
   // Add business info validation if enabled
-  if (values.value.showBusinessInfo && values.value.businessInfo) {
-    return (
-      baseValidation &&
-      !!values.value.businessInfo.businessName &&
-      !!values.value.businessInfo.whatsappNumber &&
-      String(values.value.businessInfo.whatsappNumber).length === 10 &&
-      !!values.value.businessInfo.locationName &&
-      !!values.value.businessInfo.latitude &&
-      !!values.value.businessInfo.longitude &&
-      !!values.value.businessInfo.businessCategory
-    );
-  }
+  // if (values.value.showBusinessInfo && values.value.businessInfo) {
+  //   return (
+  //     baseValidation &&
+  //     !!values.value.businessInfo.businessName &&
+  //     !!values.value.businessInfo.whatsappNumber &&
+  //     String(values.value.businessInfo.whatsappNumber).length === 10 &&
+  //     !!values.value.businessInfo.locationName &&
+  //     !!values.value.businessInfo.latitude &&
+  //     !!values.value.businessInfo.longitude &&
+  //     !!values.value.businessInfo.businessCategory
+  //   );
+  // }
 
   return baseValidation;
 });
 
-callbacks.beforeSubmit = (data: FormValues) => {
-  const processedData = {
-    ...data,
-    dob: data.dob || '',
-    state: data.state || '',
-    pincode: data.pincode || '',
-  };
+// callbacks.beforeSubmit = (data: FormValues) => {
+//   const processedData = {
+//     ...data,
+//     dob: data.dob || '',
+//     state: data.state || '',
+//     pincode: data.pincode || '',
+//   };
 
-  if (data.city && typeof data.city === 'object') {
-    const cityData = data.city as City;
-    processedData.state = cityData.statename;
-    processedData.pincode = cityData.pincode;
-    processedData.city = cityData.officename;
-  }
+//   if (data.city && typeof data.city === 'object') {
+//     const cityData = data.city as City;
+//     processedData.state = cityData.statename;
+//     processedData.pincode = cityData.pincode;
+//     processedData.city = cityData.officename;
+//   }
 
-  if (
-    data.showBusinessInfo &&
-    data.businessInfo &&
-    'longitude' in data.businessInfo
-  ) {
-    processedData.businessName = data.businessInfo.businessName;
-    processedData.whatsappNumber = data.businessInfo.whatsappNumber.toString();
+//   if (
+//     data.showBusinessInfo &&
+//     data.businessInfo &&
+//     'longitude' in data.businessInfo
+//   ) {
+//     processedData.businessName = data.businessInfo.businessName;
+//     processedData.whatsappNumber = data.businessInfo.whatsappNumber.toString();
 
-    // const businessLocation: UserLocation = {
-    //   name: data.businessInfo.locationName,
-    //   location: {
-    //     type: 'Point',
-    //     coordinates: [data.businessInfo.longitude, data.businessInfo.latitude],
-    //   },
-    //   isBusinessLocation: true,
-    // };
+//     // const businessLocation: UserLocation = {
+//     //   name: data.businessInfo.locationName,
+//     //   location: {
+//     //     type: 'Point',
+//     //     coordinates: [data.businessInfo.longitude, data.businessInfo.latitude],
+//     //   },
+//     //   isBusinessLocation: true,
+//     // };
 
-    processedData.locations = [
-      ...(userStore.user?.locations || []).filter(
-        (loc: UserLocation) => !loc.isBusinessLocation
-      ),
-      // businessLocation,
-    ];
-  }
+//     processedData.locations = [
+//       ...(userStore.user?.locations || []).filter(
+//         (loc: UserLocation) => !loc.isBusinessLocation
+//       ),
+//       // businessLocation,
+//     ];
+//   }
 
-  return processedData;
-};
+//   return processedData;
+// };
 
 const handleSubmit = async () => {
   if (isFormValid.value) {
@@ -640,13 +642,13 @@ callbacks.onSuccess = (data) => {
     // Ensure specific fields are updated
     name: values.value.name,
     phoneNumber: values.value.phoneNumber,
-    dob: values.value.dob,
-    state: values.value.state,
-    city: values.value.city?.officename || '',
-    pincode: values.value.pincode,
+    // dob: values.value.dob,
+    // state: values.value.state,
+    // city: values.value.city?.officename || '',
+    // pincode: values.value.pincode,
     userType: values.value.userType,
-    profession: values.value.profession,
-    referredBy: values.value.referredBy,
+    // profession: values.value.profession,
+    // referredBy: values.value.referredBy,
     locations: locations, // Preserve the locations array
   };
 
@@ -665,56 +667,56 @@ callbacks.onError = (error: any) => {
   return error;
 };
 
-const filterStates: QSelectFilterFn = (
-  val: string,
-  update: (fn: () => void) => void
-) => {
-  if (val === '') {
-    update(() => {
-      stateOptions.value = originalStateOptions;
-    });
-    return;
-  }
+// const filterStates: QSelectFilterFn = (
+//   val: string,
+//   update: (fn: () => void) => void
+// ) => {
+//   if (val === '') {
+//     update(() => {
+//       stateOptions.value = originalStateOptions;
+//     });
+//     return;
+//   }
 
-  update(() => {
-    const needle = val.toLowerCase();
-    stateOptions.value = originalStateOptions.filter(
-      (state) => state.toLowerCase().indexOf(needle) > -1
-    );
-  });
-};
+//   update(() => {
+//     const needle = val.toLowerCase();
+//     stateOptions.value = originalStateOptions.filter(
+//       (state) => state.toLowerCase().indexOf(needle) > -1
+//     );
+//   });
+// };
 
-const handleStateChange = (newState: string | null) => {
-  if (!newState) {
-    values.value.state = '';
-    values.value.city = null;
-    values.value.pincode = '';
-    errors.value.state = ['State Required'];
-    errors.value.city = ['City Required'];
-  } else {
-    values.value.state = newState;
-    values.value.city = null;
-    values.value.pincode = '';
-    delete errors.value.state;
-    errors.value.city = ['City Required'];
-    nextTick(() => {
-      values.value.city = null;
-    });
-  }
-};
+// const handleStateChange = (newState: string | null) => {
+//   if (!newState) {
+//     values.value.state = '';
+//     values.value.city = null;
+//     values.value.pincode = '';
+//     errors.value.state = ['State Required'];
+//     errors.value.city = ['City Required'];
+//   } else {
+//     values.value.state = newState;
+//     values.value.city = null;
+//     values.value.pincode = '';
+//     delete errors.value.state;
+//     errors.value.city = ['City Required'];
+//     nextTick(() => {
+//       values.value.city = null;
+//     });
+//   }
+// };
 
-const handleCitySelection = (selectedCity: City | null) => {
-  if (!selectedCity) {
-    values.value.city = null;
-    values.value.pincode = '';
-    errors.value.city = ['City Required'];
-  } else {
-    values.value.state = selectedCity.statename;
-    values.value.pincode = selectedCity.pincode;
-    values.value.city = selectedCity;
-    delete errors.value.city;
-  }
-};
+// const handleCitySelection = (selectedCity: City | null) => {
+//   if (!selectedCity) {
+//     values.value.city = null;
+//     values.value.pincode = '';
+//     errors.value.city = ['City Required'];
+//   } else {
+//     values.value.state = selectedCity.statename;
+//     values.value.pincode = selectedCity.pincode;
+//     values.value.city = selectedCity;
+//     delete errors.value.city;
+//   }
+// };
 
 const lastCheckedReferralId = ref('');
 
@@ -776,102 +778,104 @@ const loadUserData = async () => {
   if (userData) {
     // Set initial values
     values.value = {
-      ...userData,
+      name: userData.name,
+      phoneNumber: userData.phoneNumber,
+      userType: userData.userType,
     };
 
     // Create city object if city data exists
-    if (userData.city && userData.state && userData.pincode) {
-      values.value.city = {
-        officename: userData.city,
-        statename: userData.state,
-        pincode: userData.pincode,
-      };
-    }
+    // if (userData.city && userData.state && userData.pincode) {
+    //   values.value.city = {
+    //     officename: userData.city,
+    //     statename: userData.state,
+    //     pincode: userData.pincode,
+    //   };
+    // }
 
     // Set referral ID for validation
     lastCheckedReferralId.value = values.value.referredBy;
 
     // Load business info if exists
-    if (userData.businessName) {
-      values.value.showBusinessInfo = true;
-      values.value.businessInfo = {
-        businessName: userData.businessName,
-        whatsappNumber: userData.whatsappNumber || '',
-        locationName: '',
-        latitude: 0,
-        longitude: 0,
-        businessCategory: userData.businessCategory || null,
-      };
+    // if (userData.businessName) {
+    //   values.value.showBusinessInfo = true;
+    //   values.value.businessInfo = {
+    //     businessName: userData.businessName,
+    //     whatsappNumber: userData.whatsappNumber || '',
+    //     locationName: '',
+    //     latitude: 0,
+    //     longitude: 0,
+    //     businessCategory: userData.businessCategory || null,
+    //   };
 
-      // Get business location from locations array
-      const businessLocation = userData.locations?.find(
-        (loc: UserLocation) => loc.isBusinessLocation
-      );
-      if (businessLocation) {
-        values.value.businessInfo.locationName = businessLocation.name;
-        values.value.businessInfo.longitude =
-          businessLocation.location.coordinates[0];
-        values.value.businessInfo.latitude =
-          businessLocation.location.coordinates[1];
-      }
-    }
+    //   // Get business location from locations array
+    //   const businessLocation = userData.locations?.find(
+    //     (loc: UserLocation) => loc.isBusinessLocation
+    //   );
+    //   if (businessLocation) {
+    //     values.value.businessInfo.locationName = businessLocation.name;
+    //     values.value.businessInfo.longitude =
+    //       businessLocation.location.coordinates[0];
+    //     values.value.businessInfo.latitude =
+    //       businessLocation.location.coordinates[1];
+    //   }
+    // }
   }
 };
 
-const isLoadingLocation = ref(false);
+// const isLoadingLocation = ref(false);
 
-const getCurrentLocation = async () => {
-  try {
-    isLoadingLocation.value = true;
+// const getCurrentLocation = async () => {
+//   try {
+//     isLoadingLocation.value = true;
 
-    // Request location permissions first
-    const permissionStatus = await Geolocation.checkPermissions();
-    if (permissionStatus.location !== 'granted') {
-      await Geolocation.requestPermissions();
-    }
+//     // Request location permissions first
+//     const permissionStatus = await Geolocation.checkPermissions();
+//     if (permissionStatus.location !== 'granted') {
+//       await Geolocation.requestPermissions();
+//     }
 
-    // Get current position
-    const position = await Geolocation.getCurrentPosition({
-      enableHighAccuracy: true,
-      timeout: 10000,
-    });
+//     // Get current position
+//     const position = await Geolocation.getCurrentPosition({
+//       enableHighAccuracy: true,
+//       timeout: 10000,
+//     });
 
-    if (position && values.value.businessInfo) {
-      values.value.businessInfo.latitude = position.coords.latitude;
-      values.value.businessInfo.longitude = position.coords.longitude;
+//     if (position && values.value.businessInfo) {
+//       values.value.businessInfo.latitude = position.coords.latitude;
+//       values.value.businessInfo.longitude = position.coords.longitude;
 
-      // Optional: Show success notification
-      $q.notify({
-        type: 'black',
-        color: 'black',
-        message: t('common.locationCaptured'),
-        position: 'top-right',
-      });
-    }
-  } catch (error: any) {
-    console.error('Location error:', error);
-    let errorMessage = '';
+//       // Optional: Show success notification
+//       $q.notify({
+//         type: 'black',
+//         color: 'black',
+//         message: t('common.locationCaptured'),
+//         position: 'top-right',
+//       });
+//     }
+//   } catch (error: any) {
+//     console.error('Location error:', error);
+//     let errorMessage = '';
 
-    // Handle specific error cases
-    if (error.code === 1) {
-      errorMessage = t('common.locationPermissionDenied');
-    } else if (error.code === 2) {
-      errorMessage = t('common.locationUnavailable');
-    } else if (error.code === 3) {
-      errorMessage = t('common.locationTimeout');
-    } else {
-      errorMessage = t('common.locationError');
-    }
+//     // Handle specific error cases
+//     if (error.code === 1) {
+//       errorMessage = t('common.locationPermissionDenied');
+//     } else if (error.code === 2) {
+//       errorMessage = t('common.locationUnavailable');
+//     } else if (error.code === 3) {
+//       errorMessage = t('common.locationTimeout');
+//     } else {
+//       errorMessage = t('common.locationError');
+//     }
 
-    $q.notify({
-      type: 'negative',
-      message: errorMessage,
-      position: 'top-right',
-    });
-  } finally {
-    isLoadingLocation.value = false;
-  }
-};
+//     $q.notify({
+//       type: 'negative',
+//       message: errorMessage,
+//       position: 'top-right',
+//     });
+//   } finally {
+//     isLoadingLocation.value = false;
+//   }
+// };
 
 // Update the watch for showBusinessInfo
 watch(
@@ -892,107 +896,107 @@ watch(
   }
 );
 
-const showLocationSelector = ref(false);
+// const showLocationSelector = ref(false);
 
-const handleLocationSelected = (location: {
-  type: string;
-  coordinates: number[];
-}) => {
-  if (values.value.businessInfo) {
-    values.value.businessInfo.latitude = location.coordinates[1];
-    values.value.businessInfo.longitude = location.coordinates[0];
+// const handleLocationSelected = (location: {
+//   type: string;
+//   coordinates: number[];
+// }) => {
+//   if (values.value.businessInfo) {
+//     values.value.businessInfo.latitude = location.coordinates[1];
+//     values.value.businessInfo.longitude = location.coordinates[0];
 
-    // Get the formatted address or a default location name
-    const locationName =
-      values.value.businessInfo.locationName || 'Business Location';
-    values.value.businessInfo.locationName = locationName;
-  }
-  showLocationSelector.value = false;
-};
+//     // Get the formatted address or a default location name
+//     const locationName =
+//       values.value.businessInfo.locationName || 'Business Location';
+//     values.value.businessInfo.locationName = locationName;
+//   }
+//   showLocationSelector.value = false;
+// };
 
 // Add a computed property to check if location is set
-const isLocationSet = computed(() => {
-  if (!values.value.businessInfo) return false;
-  return !!(
-    values.value.businessInfo.latitude &&
-    values.value.businessInfo.longitude &&
-    values.value.businessInfo.locationName
-  );
-});
+// const isLocationSet = computed(() => {
+//   if (!values.value.businessInfo) return false;
+//   return !!(
+//     values.value.businessInfo.latitude &&
+//     values.value.businessInfo.longitude &&
+//     values.value.businessInfo.locationName
+//   );
+// });
 
 // Add a computed property for formatted coordinates
-const formattedCoordinates = computed(() => {
-  if (!values.value.businessInfo) return '';
-  const { latitude, longitude } = values.value.businessInfo;
-  if (!latitude || !longitude) return '';
-  return `${latitude.toFixed(6)}, ${longitude.toFixed(6)}`;
-});
+// const formattedCoordinates = computed(() => {
+//   if (!values.value.businessInfo) return '';
+//   const { latitude, longitude } = values.value.businessInfo;
+//   if (!latitude || !longitude) return '';
+//   return `${latitude.toFixed(6)}, ${longitude.toFixed(6)}`;
+// });
 
-const minDate = computed(() => {
-  const date = new Date();
-  date.setFullYear(date.getFullYear() - 150); // 100 years ago
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-based
-  return `${year}/${month}`;
-});
+// const minDate = computed(() => {
+//   const date = new Date();
+//   date.setFullYear(date.getFullYear() - 150); // 100 years ago
+//   const year = date.getFullYear();
+//   const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-based
+//   return `${year}/${month}`;
+// });
 
-const maxDate = computed(() => {
-  const date = new Date();
-  date.setFullYear(date.getFullYear() - 13); // Must be at least 13 years old
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-based
-  return `${year}/${month}`;
-});
+// const maxDate = computed(() => {
+//   const date = new Date();
+//   date.setFullYear(date.getFullYear() - 13); // Must be at least 13 years old
+//   const year = date.getFullYear();
+//   const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-based
+//   return `${year}/${month}`;
+// });
 
-const businessCategories = computed(() => {
-  const categories = businessCategoriesData;
-  return categories.reduce((acc, category, categoryIndex) => {
-    return [
-      ...acc,
-      {
-        group: category.group,
-        id: `group_${categoryIndex}`,
-        value: `group_${categoryIndex}`,
-      },
-      ...category.options.map((opt, optIndex) => ({
-        ...opt,
-        groupName: category.group,
-        id: `${categoryIndex}_${optIndex}`,
-      })),
-    ];
-  }, [] as Array<any>);
-});
+// const businessCategories = computed(() => {
+//   const categories = businessCategoriesData;
+//   return categories.reduce((acc, category, categoryIndex) => {
+//     return [
+//       ...acc,
+//       {
+//         group: category.group,
+//         id: `group_${categoryIndex}`,
+//         value: `group_${categoryIndex}`,
+//       },
+//       ...category.options.map((opt, optIndex) => ({
+//         ...opt,
+//         groupName: category.group,
+//         id: `${categoryIndex}_${optIndex}`,
+//       })),
+//     ];
+//   }, [] as Array<any>);
+// });
 
-const filterBusinessCategories = (
-  val: string,
-  update: (callback: () => void) => void
-) => {
-  if (val === '') {
-    update(() => {
-      return;
-    });
-    return;
-  }
+// const filterBusinessCategories = (
+//   val: string,
+//   update: (callback: () => void) => void
+// ) => {
+//   if (val === '') {
+//     update(() => {
+//       return;
+//     });
+//     return;
+//   }
 
-  update(() => {
-    const needle = val.toLowerCase();
-    const filtered = businessCategories.value.filter((item) => {
-      if (item.group) return true;
-      return (
-        item.label?.toLowerCase().includes(needle) ||
-        item.groupName?.toLowerCase().includes(needle)
-      );
-    });
+//   update(() => {
+//     const needle = val.toLowerCase();
+//     const filtered = businessCategories.value.filter((item) => {
+//       if (item.group) return true;
+//       return (
+//         item.label?.toLowerCase().includes(needle) ||
+//         item.groupName?.toLowerCase().includes(needle)
+//       );
+//     });
 
-    const groupsWithMatches = new Set(
-      filtered.filter((item) => !item.group).map((item) => item.groupName)
-    );
+//     const groupsWithMatches = new Set(
+//       filtered.filter((item) => !item.group).map((item) => item.groupName)
+//     );
 
-    return filtered.filter(
-      (item) => !item.group || groupsWithMatches.has(item.group)
-    );
-  });
-};
+//     return filtered.filter(
+//       (item) => !item.group || groupsWithMatches.has(item.group)
+//     );
+//   });
+// };
 
 onMounted(() => {
   loadUserData();
@@ -1002,12 +1006,12 @@ onMounted(() => {
   }
 });
 
-const emitUpdate = () => {
-  emit('update-profile', {
-    ...values.value,
-    dob: values.value.dob ? values.value.dob : null, // Date will already be in yyyy-MM-dd format
-  });
-};
+// const emitUpdate = () => {
+//   emit('update-profile', {
+//     ...values.value,
+//     dob: values.value.dob ? values.value.dob : null, // Date will already be in yyyy-MM-dd format
+//   });
+// };
 </script>
 
 <style scoped>

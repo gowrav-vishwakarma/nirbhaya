@@ -170,6 +170,8 @@ export default {
   attemptedKidnapping: 'અપહરણનો પ્રયાસ',
   sexualAssault: 'જાતીય હુમલો',
   domesticViolence: 'ઘરેલુ હિંસા',
+  medicalemergency: 'તબીબી કટોકટી',
+  safetyconcerns: 'સલામતીની ચિંતા',
   unknown: 'અજાનું',
   // Help Page
   locationPermission: 'સ્થાન પરવાનગી',
