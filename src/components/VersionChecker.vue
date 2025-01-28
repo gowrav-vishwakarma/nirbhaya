@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted } from 'vue';
+import { onMounted, ref } from 'vue';
 import { useQuasar } from 'quasar';
 import { api } from 'src/boot/axios';
 import { iosVersion, androidVersion } from '../../package.json';
@@ -8,15 +8,18 @@ import { Device } from '@capacitor/device';
 
 CapacitorUpdater.notifyAppReady();
 
-const handleDownloadComplete = async (data:any) => {
-    console.log('capgo update: Download complete',JSON.stringify(data));
+const isLoading = ref(false);
+
+const handleDownloadComplete = async (data: any) => {
+  isLoading.value = false;
+  console.log('capgo update: Download complete', JSON.stringify(data));
   // Handle the download complete event
   await CapacitorUpdater.set(data.bundle);
-    console.log('capgo update: set works function',JSON.stringify(data));
+  console.log('capgo update: set works function', JSON.stringify(data));
   await CapacitorUpdater.notifyAppReady();
   const currentBundle = await CapacitorUpdater.current();
   const capgo_version = currentBundle.bundle.version;
-    console.log('capgo update: capgo version after set', capgo_version);
+  console.log('capgo update: capgo version after set', capgo_version);
   CapacitorUpdater.reload();
 };
 
@@ -63,7 +66,7 @@ const checkVersion = async () => {
     const { identifier } = await Device.getId();
     const response = await api.post<VersionResponse>('check-version', {
       currentVersion: version,
-      deviceId:identifier
+      deviceId: identifier,
     });
 
     const {
@@ -89,24 +92,26 @@ const checkVersion = async () => {
       $q.dialog({
         title: 'Update Required',
         message:
-          'A new version ('+capgo_version+') is available. You must update the app to continue using it.',
+          'A new version ' +
+          (capgo_version != 'builtin' ? capgo_version : '') +
+          ' is available. You must update the app to continue using it.',
         persistent: true,
         ok: {
           label: 'Update Now',
           color: 'primary',
         },
       }).onOk(async () => {
-        if( !forceUpdate && capgo_version != appVersion)
+        if (!forceUpdate && capgo_version != appVersion)
           await downloadNewVersion(appVersion);
-        else
-          openStoreUrl(androidUpdateUrl, iosUpdateUrl);
+        else openStoreUrl(androidUpdateUrl, iosUpdateUrl);
       });
     } else if (isApp && version !== appVersion) {
-
       $q.dialog({
         title: 'Update Available',
         message:
-          'A new version ('+capgo_version+') of the app is available. Would you like to update?',
+          'A new version ' +
+          (capgo_version != 'builtin' ? capgo_version : '') +
+          ' of the app is available. Would you like to update?',
         ok: {
           label: 'Update',
           color: 'primary',
@@ -116,29 +121,32 @@ const checkVersion = async () => {
           color: 'grey',
         },
       }).onOk(async () => {
-        if(!forceUpdate && capgo_version != appVersion)
+        if (!forceUpdate && capgo_version != appVersion)
           await downloadNewVersion(appVersion);
-        else
-          openStoreUrl(androidUpdateUrl, iosUpdateUrl);
+        else openStoreUrl(androidUpdateUrl, iosUpdateUrl);
       });
     }
   } catch (error) {
     console.error('Failed to check version:', error);
   }
 };
-const downloadNewVersion = async (newVersion:string) => {
+const downloadNewVersion = async (newVersion: string) => {
+  isLoading.value = true;
   try {
     console.log('capgo update: init step1');
-    const downloadUrl = 'https://xavoc-technocrats-pvt-ltd.blr1.cdn.digitaloceanspaces.com/app-versions/com.xavoc.shoutout_'+newVersion+'.zip';
+    const downloadUrl =
+      'https://xavoc-technocrats-pvt-ltd.blr1.cdn.digitaloceanspaces.com/app-versions/com.xavoc.shoutout_' +
+      newVersion +
+      '.zip';
     const downloadLog = await CapacitorUpdater.download({
       version: newVersion,
-      url: downloadUrl
+      url: downloadUrl,
     });
     console.log('capgo update: downloaded', JSON.stringify(downloadLog));
   } catch (error) {
+    isLoading.value = false;
     console.error('Update check failed', error);
     // Additional logging for debugging
-
   }
 };
 
@@ -148,5 +156,20 @@ onMounted(() => {
 </script>
 
 <template>
-  <div></div>
+  <div>
+    <div v-if="isLoading" class="loader">
+      <q-spinner color="primary" size="50px" />
+    </div>
+  </div>
 </template>
+
+<style>
+.loader {
+  /* Center the loader */
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 9999; /* Ensure it appears above other content */
+}
+</style>

@@ -25,8 +25,8 @@ const config: CapacitorConfig = {
       },
     },
     CapacitorUpdater: {
-      // updateUrl: 'http://localhost:3000/check-version-capgo',
       autoUpdate: false,
+      statsUrl: '',
       // updateUrl: 'https://myserver.com/app/updates/updates.json',
     },
   },
