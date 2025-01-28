@@ -24,6 +24,8 @@ PODS:
     - Capacitor
     - SSZipArchive (= 2.4.3)
     - Version
+  - CordovaPlugins (6.1.2):
+    - CapacitorCordova
   - FirebaseCore (11.2.0):
     - FirebaseCoreInternal (~> 11.0)
     - GoogleUtilities/Environment (~> 8.0)
@@ -92,6 +94,7 @@ DEPENDENCIES:
   - "CapacitorPushNotifications (from `../../node_modules/@capacitor/push-notifications`)"
   - "CapacitorStatusBar (from `../../node_modules/@capacitor/status-bar`)"
   - "CapgoCapacitorUpdater (from `../../node_modules/@capgo/capacitor-updater`)"
+  - CordovaPlugins (from `../capacitor-cordova-ios-plugins`)
   - FirebaseMessaging
 
 SPEC REPOS:
@@ -131,6 +134,8 @@ EXTERNAL SOURCES:
     :path: "../../node_modules/@capacitor/status-bar"
   CapgoCapacitorUpdater:
     :path: "../../node_modules/@capgo/capacitor-updater"
+  CordovaPlugins:
+    :path: "../capacitor-cordova-ios-plugins"
 
 SPEC CHECKSUMS:
   Alamofire: 7193b3b92c74a07f85569e1a6c4f4237291e7496
@@ -145,6 +150,7 @@ SPEC CHECKSUMS:
   CapacitorPushNotifications: ccd797926c030acad3d5498ef452c735c90a2c89
   CapacitorStatusBar: 3b9ac7d0684770522c532d1158a1434512ab1477
   CapgoCapacitorUpdater: e71f9dbf57f2effe9c33e9d76a90f99b26d78c09
+  CordovaPlugins: 1305d11919a9d07c101d9a8ac7dc4d23d080def7
   FirebaseCore: a282032ae9295c795714ded2ec9c522fc237f8da
   FirebaseCoreInternal: 0c569513412da9f3b31bd0b340013bbee8f295c5
   FirebaseInstallations: 771177d89d6c451dc6e50085ec82e2fc77ed0a4a
@@ -156,6 +162,6 @@ SPEC CHECKSUMS:
   SSZipArchive: fe6a26b2a54d5a0890f2567b5cc6de5caa600aef
   Version: de5907f2c5d0f3cf21708db7801d1d5401139486
 
-PODFILE CHECKSUM: 9d1ea2da2699a4b40f5ad7ae72ec9a4918bc30e1
+PODFILE CHECKSUM: 91665fea4e884a6abe3fa15ac220b827b7c034de
 
 COCOAPODS: 1.15.0

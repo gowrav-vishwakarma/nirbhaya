@@ -20,7 +20,7 @@ dependencies {
     implementation project(':capgo-capacitor-updater')
 
 }
-
+apply from: "../../node_modules/cordova-plugin-smartlook/src/android/plugin.gradle"
 
 if (hasProperty('postBuildExtras')) {
   postBuildExtras()
