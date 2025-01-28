@@ -13,7 +13,7 @@
               AI summaries and translations may be inaccurate. Check source.
             </div>
           </div>
-          <q-btn
+          <!-- <q-btn
             :color="isPlayingAll ? 'negative' : 'primary'"
             :icon="isPlayingAll ? 'stop' : 'play_arrow'"
             :label="isPlayingAll ? 'Stop All' : 'Listen All'"
@@ -28,7 +28,7 @@
             >
               {{ getProgressText() }}
             </q-badge>
-          </q-btn>
+          </q-btn> -->
         </div>
       </div>
 
@@ -139,7 +139,7 @@
       </div>
     </div>
 
-    <q-page-sticky position="bottom-left" :offset="[18, 18]">
+    <q-page-sticky position="bottom-left" class="q-mt-sm" :offset="[18, 18]">
       <q-btn rounded color="primary" icon="tune" @click="showFilters = true">
         Filters
         <q-badge
@@ -151,6 +151,23 @@
           {{ activeFiltersCount }}
         </q-badge>
       </q-btn>
+    <br><br/>
+      <q-btn rounded
+            :color="isPlayingAll ? 'negative' : 'primary'"
+            :icon="isPlayingAll ? 'stop' : 'volume_up'"
+            :label="isPlayingAll ? 'Stop All' : 'Listen All'"
+            @click="togglePlayAll"
+            class="q-mr-md"
+          >
+            <q-badge
+              v-if="isPlayingAll"
+              color="white"
+              text-color="primary"
+              floating
+            >
+              {{ getProgressText() }}
+            </q-badge>
+          </q-btn>
     </q-page-sticky>
 
     <!-- Filters Dialog -->
