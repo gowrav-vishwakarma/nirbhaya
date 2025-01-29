@@ -13,22 +13,6 @@
               AI summaries and translations may be inaccurate. Check source.
             </div>
           </div>
-          <!-- <q-btn
-            :color="isPlayingAll ? 'negative' : 'primary'"
-            :icon="isPlayingAll ? 'stop' : 'play_arrow'"
-            :label="isPlayingAll ? 'Stop All' : 'Listen All'"
-            @click="togglePlayAll"
-            class="q-mr-md"
-          >
-            <q-badge
-              v-if="isPlayingAll"
-              color="white"
-              text-color="primary"
-              floating
-            >
-              {{ getProgressText() }}
-            </q-badge>
-          </q-btn> -->
         </div>
       </div>
 
@@ -75,6 +59,8 @@
               />
             <q-card-section>
               <div class="row items-center q-gutter-x-sm">
+                <!-- <q-icon name="schedule" size="xs" class="q-mr-xs" />-->
+                <span>Added {{ formatDate(newsItem.createdAt) }}</span>
                 <q-chip
                   v-for="category in newsItem.categories"
                   :key="category"
@@ -246,6 +232,7 @@
 import { ref, onMounted, computed, onUnmounted } from 'vue';
 import { useUserStore } from 'stores/user-store';
 import { api } from 'src/boot/axios';
+import { date } from 'quasar';
 
 interface NewsItem {
   id: string;
@@ -571,64 +558,6 @@ function findBestVoiceMatch(languageCode: string): SpeechSynthesisVoice | null {
   return voices[0] || null;
 }
 
-// function toggleAudio(newsItem: NewsItem) {
-//   // If this item is currently playing, stop it
-//   if (isPlaying(newsItem.id)) {
-//     stopCurrentAudio();
-//     return;
-//   }
-
-//   // Stop any currently playing audio
-//   stopCurrentAudio();
-
-//   // Start new audio
-//   audioLoading.value = newsItem.id;
-
-//   // Get the appropriate content based on selected language
-//   const content = getNewsContent(newsItem);
-//   const title = getNewsTitle(newsItem);
-//   const text = `${title}. ${content}`;
-
-//   utterance = new SpeechSynthesisUtterance(text);
-
-//   // Find the best matching voice for the selected language
-//   const voice = findBestVoiceMatch(selectedLanguage.value);
-
-//   if (voice) {
-//     utterance.voice = voice;
-//     utterance.lang = voice.lang; // Use the voice's language code
-//   } else {
-//     // Fallback to just setting the language without a specific voice
-//     utterance.lang = languageConfig[selectedLanguage.value]?.primary || selectedLanguage.value;
-//   }
-
-//   // Set additional speech properties for better clarity
-//   utterance.rate = 0.8; // Normal speed
-//   utterance.pitch = 1.0; // Normal pitch
-//   utterance.volume = 1.0; // Full volume
-
-//   // Set up event handlers
-//   utterance.onstart = () => {
-//     audioLoading.value = null;
-//     currentlyPlaying.value = newsItem.id;
-//   };
-
-//   utterance.onend = () => {
-//     currentlyPlaying.value = null;
-//     utterance = null;
-//   };
-
-//   utterance.onerror = (event) => {
-//     console.error('Speech synthesis error:', event);
-//     audioLoading.value = null;
-//     currentlyPlaying.value = null;
-//     utterance = null;
-//   };
-
-//   // Start speaking
-//   speechSynthesis.speak(utterance);
-// }
-
 // Add new functions for audio control
 function isPlaying(newsId: string) {
   return currentlyPlaying.value === newsId;
@@ -713,78 +642,6 @@ function togglePlayAll() {
     playNext();
   }
 }
-// Modify the existing toggleAudio function
-// function toggleAudio(newsItem: NewsItem) {
-//   return new Promise<void>((resolve) => {
-//     // If this item is currently playing, stop it
-//     if (isPlaying(newsItem.id)) {
-//       stopCurrentAudio();
-//       resolve();
-//       return;
-//     }
-
-//     // Stop any currently playing audio
-//     stopCurrentAudio();
-
-//     // Start new audio
-//     audioLoading.value = newsItem.id;
-
-//     // Get the appropriate content
-//     const content = getNewsContent(newsItem);
-//     const title = getNewsTitle(newsItem);
-//     const text = `${title}. ${content}`;
-
-//     utterance = new SpeechSynthesisUtterance(text);
-
-//     // Find the best matching voice
-//     const voice = findBestVoiceMatch(selectedLanguage.value);
-
-//     if (voice) {
-//       utterance.voice = voice;
-//       utterance.lang = voice.lang;
-//     } else {
-//       utterance.lang = languageConfig[selectedLanguage.value]?.primary || selectedLanguage.value;
-//     }
-
-//     // Set speech properties
-//     utterance.rate = 1.0;
-//     utterance.pitch = 1.0;
-//     utterance.volume = 1.0;
-
-//     // Set up event handlers
-//     utterance.onstart = () => {
-//       audioLoading.value = null;
-//       currentlyPlaying.value = newsItem.id;
-//     };
-
-//     utterance.onend = () => {
-//       currentlyPlaying.value = null;
-//       utterance = null;
-//       resolve();
-
-//       // If playing all, move to next item
-//       if (isPlayingAll.value) {
-//         playNext();
-//       }
-//     };
-
-//     utterance.onerror = (event) => {
-//       console.error('Speech synthesis error:', event);
-//       audioLoading.value = null;
-//       currentlyPlaying.value = null;
-//       utterance = null;
-//       resolve();
-
-//       // If playing all, move to next item even on error
-//       if (isPlayingAll.value) {
-//         playNext();
-//       }
-//     };
-
-//     // Start speaking
-//     speechSynthesis.speak(utterance);
-//   });
-// }
 
 function toggleAudio(newsItem: NewsItem) {
   return new Promise<void>((resolve) => {
@@ -868,6 +725,69 @@ function getProgressText() {
   const isWaiting = audioLoading.value && !currentlyPlaying.value && !isFirstPlay.value;
   return isWaiting ? `Waiting... ${current}/${total}` : `Playing ${current}/${total}`;
 }
+
+const formatDate = (dateString: string | null) => {
+  if (!dateString) return 'Recent';
+
+  console.log('Input date:', dateString); // Log the input date
+
+  try {
+    // Extract the date using Quasar's extractDate method
+    const parsedDate = date.extractDate(dateString, 'YYYY-MM-DD HH:mm:ss');
+
+    // Check if the date is valid
+    if (!parsedDate || isNaN(parsedDate.getTime())) {
+      console.error('Invalid date after parsing:', parsedDate); // Log invalid date
+      return 'Invalid date';
+    }
+
+    // Get the current time in UTC
+    const nowUTC = new Date();
+
+    const diffInMs = nowUTC.getTime() - parsedDate.getTime();
+    const diffInSeconds = Math.floor(diffInMs / 1000);
+    const diffInMinutes = Math.floor(diffInSeconds / 60);
+    const diffInHours = Math.floor(diffInMinutes / 60);
+    const diffInDays = Math.floor(diffInHours / 24);
+
+    // Less than a minute
+    if (diffInSeconds < 60 && diffInSeconds >= 0) {
+      return 'Just now';
+    }
+
+    // Less than an hour
+    if (diffInMinutes < 60 && diffInMinutes >= 0) {
+      return `${diffInMinutes} ${
+        diffInMinutes === 1 ? 'minute' : 'minutes'
+      } ago`;
+    }
+
+    // Less than a day
+    if (diffInHours < 24 && diffInHours >= 0) {
+      return `${diffInHours} ${diffInHours === 1 ? 'hour' : 'hours'} ago`;
+    }
+
+    // Less than a week
+    if (diffInDays < 7 && diffInDays >= 0) {
+      return `${diffInDays} ${diffInDays === 1 ? 'day' : 'days'} ago`;
+    }
+
+    // More than a week, format the date
+    const options: Intl.DateTimeFormatOptions = {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true,
+    };
+
+    return date.formatDate(parsedDate, 'YYYY-MM-DDTHH:mm:ss.SSSZ'); // Format the date for display
+  } catch (error) {
+    console.error('Error formatting date:', error);
+    return 'Date error';
+  }
+};
 // Clean up audio on component unmount
 onUnmounted(() => {
   stopCurrentAudio();
