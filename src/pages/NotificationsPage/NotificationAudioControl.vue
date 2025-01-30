@@ -35,7 +35,7 @@ const joinConference = async () => {
     const roomName = `sosbharat_event_${props.sosEventId}`;
     const result = await Jitsi.joinConference({
       roomName,
-      url: 'https://meet.jit.si',
+      url: process.env.SOS_JISTI_MEET_URL,
       featureFlags: {
         'prejoinpage.enabled': false,
         'recording.enabled': false,
