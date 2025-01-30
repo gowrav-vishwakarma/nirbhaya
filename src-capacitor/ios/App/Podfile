@@ -1,6 +1,6 @@
 require_relative '../../node_modules/@capacitor/ios/scripts/pods_helpers'
 
-platform :ios, '13.0'
+platform :ios, '13.0.0'
 use_frameworks!
 
 # workaround to avoid Xcode caching of Pods that requires
@@ -20,6 +20,7 @@ def capacitor_pods
   pod 'CapacitorPushNotifications', :path => '../../node_modules/@capacitor/push-notifications'
   pod 'CapacitorStatusBar', :path => '../../node_modules/@capacitor/status-bar'
   pod 'CapgoCapacitorUpdater', :path => '../../node_modules/@capgo/capacitor-updater'
+  pod 'CapacitorJitsiMeet', :path => '../../node_modules/capacitor-jitsi-meet'
 end
 
 target 'App' do

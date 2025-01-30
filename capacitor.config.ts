@@ -1,3 +1,5 @@
+/// <reference types="@capacitor/cli" />
+
 import { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
@@ -28,6 +30,9 @@ const config: CapacitorConfig = {
       autoUpdate: false,
       statsUrl: '',
       // updateUrl: 'https://myserver.com/app/updates/updates.json',
+    },
+    JitsiMeet: {
+      // Add any plugin specific configuration here
     },
   },
   android: {
