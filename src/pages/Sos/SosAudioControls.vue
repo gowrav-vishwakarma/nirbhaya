@@ -37,7 +37,7 @@ const joinConference = async () => {
       roomName,
       url: process.env.SOS_JISTI_MEET_URL,
       featureFlags: {
-        'prejoinpage.enabled': true,
+        'prejoinpage.enabled': false,
         'recording.enabled': false,
         'live-streaming.enabled': false,
         'android.screensharing.enabled': false,
@@ -46,6 +46,7 @@ const joinConference = async () => {
       startWithVideoMuted: false,
       chatEnabled: false,
       inviteEnabled: false,
+      displayName: roomName,
     });
 
     if (result.success) {
