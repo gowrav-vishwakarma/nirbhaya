@@ -37,13 +37,13 @@ const joinConference = async () => {
       roomName,
       url: 'https://meet.jit.si',
       featureFlags: {
-        'prejoinpage.enabled': false,
+        'prejoinpage.enabled': true,
         'recording.enabled': false,
         'live-streaming.enabled': false,
         'android.screensharing.enabled': false,
       },
       startWithAudioMuted: false, // SOS initiator starts unmuted
-      startWithVideoMuted: true,
+      startWithVideoMuted: false,
       chatEnabled: false,
       inviteEnabled: false,
     });
