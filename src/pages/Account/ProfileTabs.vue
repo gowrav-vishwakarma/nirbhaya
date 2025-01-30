@@ -405,7 +405,9 @@ onMounted(() => {
     expandedItems.value.emergencyContact = true; // Open the EmergencyContactPage expansion
     // Scroll to the EmergencyContactPage section
     setTimeout(() => {
-      const emergencySection = document.querySelector('.emergency-contact-section');
+      const emergencySection = document.querySelector(
+        '.emergency-contact-section'
+      );
       if (emergencySection) {
         emergencySection.scrollIntoView({ behavior: 'smooth' });
       }
@@ -414,7 +416,9 @@ onMounted(() => {
     expandedItems.value.volunteers = true; // Open the VolunteeringPage expansion
     // Scroll to the VolunteeringPage section
     setTimeout(() => {
-      const volunteeringSection = document.querySelector('.volunteering-section');
+      const volunteeringSection = document.querySelector(
+        '.volunteering-section'
+      );
       if (volunteeringSection) {
         volunteeringSection.scrollIntoView({ behavior: 'smooth' });
       }

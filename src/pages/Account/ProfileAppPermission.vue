@@ -34,7 +34,7 @@
         {{ $t('common.sosSettings') }}
       </div> -->
       <q-list bordered>
-        <q-item tag="label" v-ripple>
+        <!-- <q-item tag="label" v-ripple>
           <q-item-section>
             <q-item-label>{{
               $t('common.startAudioVideoRecordOnSos')
@@ -61,7 +61,7 @@
               @update:model-value="handleSettingChange('streamAudioVideoOnSos')"
             />
           </q-item-section>
-        </q-item>
+        </q-item> -->
         <q-item tag="label" v-ripple>
           <q-item-section>
             <q-item-label>{{ $t('common.broadcastAudioOnSos') }}</q-item-label>
