@@ -9,9 +9,11 @@ import { Capacitor } from '@capacitor/core';
 
 // Set up Smartlook with your API key
 onMounted(async () => {
+  console.log('Platform.isNativePlatform()', Capacitor.isNativePlatform());
   if (
-    Capacitor.getPlatform() === 'android' ||
-    Capacitor.getPlatform() === 'ios'
+    (Capacitor.getPlatform() === 'android' ||
+      Capacitor.getPlatform() === 'ios') &&
+    process.env.SMARTLOOK_PROJECT_KEY
   ) {
     try {
       Smartlook.setProjectKey({
