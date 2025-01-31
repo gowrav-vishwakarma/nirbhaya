@@ -75,6 +75,27 @@
             />
           </q-item-section>
         </q-item>
+
+        <!-- Add new checkbox for auto notify nearby -->
+        <q-item tag="label" v-ripple>
+          <q-item-section>
+            <q-item-label>{{
+              $t('common.autoNotifyNearbyDefault')
+            }}</q-item-label>
+            <q-item-label caption>
+              {{ $t('common.autoNotifyNearbyDefaultDesc') }}
+            </q-item-label>
+          </q-item-section>
+          <q-item-section side>
+            <q-toggle
+              v-model="values.autoNotifyNearbyDefault"
+              @update:model-value="
+                handleSettingChange('autoNotifyNearbyDefault')
+              "
+              color="primary"
+            />
+          </q-item-section>
+        </q-item>
       </q-list>
     </div>
     <div v-else style="padding: 16px">
@@ -106,6 +127,7 @@ interface SOSSettings {
   startAudioVideoRecordOnSos: boolean;
   streamAudioVideoOnSos: boolean;
   broadcastAudioOnSos: boolean;
+  autoNotifyNearbyDefault: boolean;
 }
 const props = defineProps<{
   reloadComponents?: () => void;
@@ -128,6 +150,7 @@ const values = ref<SOSSettings>({
     userStore.user?.startAudioVideoRecordOnSos ?? false,
   streamAudioVideoOnSos: userStore.user?.streamAudioVideoOnSos ?? false,
   broadcastAudioOnSos: userStore.user?.broadcastAudioOnSos ?? true,
+  autoNotifyNearbyDefault: userStore.user?.autoNotifyNearbyDefault ?? true,
 });
 
 // Sync values with store on mount
@@ -138,6 +161,7 @@ onMounted(() => {
         userStore.user.startAudioVideoRecordOnSos ?? false,
       streamAudioVideoOnSos: userStore.user.streamAudioVideoOnSos ?? false,
       broadcastAudioOnSos: userStore.user.broadcastAudioOnSos ?? true,
+      autoNotifyNearbyDefault: userStore.user.autoNotifyNearbyDefault ?? true,
     };
   }
   checkPermissions();
@@ -148,6 +172,12 @@ const STREAM_SAVE = computed(() => process.env.STREAM_SAVE);
 
 // Add isNavigatorMediaSupported computed property
 const isNavigatorMediaSupported = computed(() => {
+  // For native platforms (Android/iOS), always return true since they handle media differently
+  if (Capacitor.isNativePlatform()) {
+    return true;
+  }
+
+  // For web, check navigator.mediaDevices
   return (
     typeof navigator !== 'undefined' && navigator.mediaDevices !== undefined
   );
@@ -250,6 +280,7 @@ watch(
         startAudioVideoRecordOnSos: newUser.startAudioVideoRecordOnSos ?? false,
         streamAudioVideoOnSos: newUser.streamAudioVideoOnSos ?? false,
         broadcastAudioOnSos: newUser.broadcastAudioOnSos ?? true,
+        autoNotifyNearbyDefault: newUser.autoNotifyNearbyDefault ?? true,
       };
     }
   },

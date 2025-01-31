@@ -31,6 +31,13 @@
             <div class="text-subtitle1 q-mt-sm">
               {{ $t('common.sosCountdownMessage') }}
             </div>
+            <div class="text-subtitle2 q-mt-sm">
+              <q-checkbox
+                v-model="autoNotifyNearby"
+                :label="$t('common.autoNotifyNearbyAfterDelay')"
+                color="red"
+              />
+            </div>
             <q-btn
               @click="cancelSOS"
               class="cancel-sos-button full-width q-py-sm"
@@ -523,6 +530,10 @@ const getTooltip = (status: string, type: string) => {
   }
 };
 
+// Add new refs
+const autoNotifyNearby = ref(userStore.user?.autoNotifyNearbyDefault ?? true);
+const nearbyNotificationTimer = ref<ReturnType<typeof setTimeout> | null>(null);
+
 onMounted(async () => {
   await checkPermissions();
   await activateSOSPermissions();
@@ -623,6 +634,11 @@ onBeforeRouteLeave(async (to, from, next) => {
   await stopLocationWatching();
   await stopRecordingAndStreaming();
 
+  if (nearbyNotificationTimer.value) {
+    clearTimeout(nearbyNotificationTimer.value);
+    nearbyNotificationTimer.value = null;
+  }
+
   // Only show the confirmation if SOS is still active
   if (sosSent.value) {
     const shouldProceed = await showResolveConfirmation();
@@ -662,6 +678,10 @@ const resetCountdown = () => {
 
 const cancelSOS = async () => {
   try {
+    if (nearbyNotificationTimer.value) {
+      clearTimeout(nearbyNotificationTimer.value);
+      nearbyNotificationTimer.value = null;
+    }
     // await sendCancelSOSRequest();
     logMessage('SOS request cancelled.');
     router.push('/sos');
@@ -699,6 +719,16 @@ const updateSOSData = async (data: {
       sosSent.value = true;
       notifiedPersons.value = 10;
       acceptedPersons.value = 3;
+
+      // Start timer for auto-notify nearby if enabled
+      if (autoNotifyNearby.value && !sentSosUpdateNearByAlso.value) {
+        nearbyNotificationTimer.value = setTimeout(() => {
+          if (accepted.value === 0) {
+            // Only notify if no one has accepted
+            updateNearByAlso();
+          }
+        }, 60000); // 1 minute delay
+      }
     }
 
     // Always update all available values
@@ -1398,5 +1428,15 @@ const updateNearByAlso = () => {
   border-radius: 8px;
   padding: 20px;
   min-width: 200px;
+}
+
+// Add style for checkbox
+.q-checkbox {
+  margin-top: 10px;
+  margin-bottom: 10px;
+  .q-checkbox__label {
+    font-size: 0.9em;
+    color: $grey-8;
+  }
 }
 </style>
