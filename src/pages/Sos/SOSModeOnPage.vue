@@ -112,12 +112,14 @@
           </div>
 
           <!-- <div> -->
+          <!--
           <div
             class="q-ma-none"
             style="margin-top: -10px; text-align: center"
             v-if="!sentSosUpdateNearByAlso"
           >
             <div class="q-mb-sm">
+
               <q-btn
                 @click="updateNearByAlso"
                 round
@@ -150,7 +152,7 @@
             <span class="q-ma-none" style="font-weight: 700"
               >Send SOS to nearby volunteers?</span
             >
-          </div>
+          </div> -->
           <!-- </div> -->
 
           <q-list

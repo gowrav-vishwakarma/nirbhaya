@@ -1,6 +1,6 @@
 <template>
   <div>
-    <q-btn
+    <!-- <q-btn
       round
       :color="isJoined ? 'primary' : 'grey'"
       :icon="$t('common.icons.volumeUp')"
@@ -9,7 +9,7 @@
       :disable="isLoading"
     >
       <q-tooltip>{{ $t(isJoined ? 'muteAudio' : 'unmuteAudio') }}</q-tooltip>
-    </q-btn>
+    </q-btn> -->
   </div>
 </template>
 
