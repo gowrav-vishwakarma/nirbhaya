@@ -22,7 +22,7 @@ dependencies {
     implementation project(':capacitor-jitsi-meet')
 
 }
-apply from: "../../node_modules/cordova-plugin-smartlook/src/android/plugin.gradle"
+apply from: "../../../node_modules/cordova-plugin-smartlook/src/android/plugin.gradle"
 
 if (hasProperty('postBuildExtras')) {
   postBuildExtras()
