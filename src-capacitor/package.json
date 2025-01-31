@@ -5,6 +5,7 @@
   "author": "Gowrav Vishwakarma <gowravvishwkarma@gmail.com>",
   "private": true,
   "dependencies": {
+    "@capacitor-community/text-to-speech": "^5.1.0",
     "@capacitor/android": "^6.1.2",
     "@capacitor/app": "^6.0.0",
     "@capacitor/camera": "^6.0.0",

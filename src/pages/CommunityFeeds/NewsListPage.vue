@@ -51,60 +51,71 @@
             class="col-12 col-sm-6 col-md-4"
             :ref="el => { if (el) newsRefs[index] = el as HTMLElement }"
           >
-            <q-card :class="['news-card', { 'currently-playing': isPlaying(newsItem.id) }]">
+            <q-card
+              :class="[
+                'news-card',
+                { 'currently-playing': isPlaying(newsItem.id) },
+              ]"
+            >
               <q-img
                 v-if="newsItem.mediaUrls?.length"
                 :src="getImageUrl(newsItem.mediaUrls[0])"
                 :ratio="16 / 9"
               />
-            <q-card-section>
-              <div class="row items-center q-gutter-x-sm">
-                <!-- <q-icon name="schedule" size="xs" class="q-mr-xs" />-->
-                <span>Added {{ formatDate(newsItem.createdAt) }}</span>
-                <q-chip
-                  v-for="category in newsItem.categories"
-                  :key="category"
-                  size="sm"
-                  :label="getCategoryLabel(category)"
-                />
-                <q-chip
-                  size="sm"
-                  :label="newsItem.isIndianNews ? 'Indian' : 'International'"
-                  :color="newsItem.isIndianNews ? 'primary' : 'secondary'"
-                  text-color="white"
-                />
-                <q-chip
-                  size="sm"
-                  :label="getCurrentLanguageLabel(newsItem)"
-                  color="accent"
-                  text-color="white"
-                />
-              </div>
-              <div class="text-h6 q-mt-sm">{{ getNewsTitle(newsItem) }}</div>
-              <div class="text-body2 q-mt-sm text-grey-8 _ellipsis-3-lines">
-                {{ getNewsContent(newsItem) }}
-              </div>
-            </q-card-section>
-            <q-card-actions align="right">
+              <q-card-section>
+                <div class="row items-center q-gutter-x-sm">
+                  <!-- <q-icon name="schedule" size="xs" class="q-mr-xs" />-->
+                  <span>Added {{ formatDate(newsItem.createdAt) }}</span>
+                  <q-chip
+                    v-for="category in newsItem.categories"
+                    :key="category"
+                    size="sm"
+                    :label="getCategoryLabel(category)"
+                  />
+                  <q-chip
+                    size="sm"
+                    :label="newsItem.isIndianNews ? 'Indian' : 'International'"
+                    :color="newsItem.isIndianNews ? 'primary' : 'secondary'"
+                    text-color="white"
+                  />
+                  <q-chip
+                    size="sm"
+                    :label="getCurrentLanguageLabel(newsItem)"
+                    color="accent"
+                    text-color="white"
+                  />
+                </div>
+                <div class="text-h6 q-mt-sm">{{ getNewsTitle(newsItem) }}</div>
+                <div class="text-body2 q-mt-sm text-grey-8 _ellipsis-3-lines">
+                  {{ getNewsContent(newsItem) }}
+                </div>
+              </q-card-section>
+              <q-card-actions align="right">
                 <q-btn
                   flat
                   :color="isPlaying(newsItem.id) ? 'negative' : 'primary'"
                   :icon="isPlaying(newsItem.id) ? 'stop' : 'volume_up'"
-                  :label="isLoading(newsItem.id) && !isPlaying(newsItem.id) ? 'Waiting...' : (isPlaying(newsItem.id) ? 'Stop' : 'Listen')"
+                  :label="
+                    isLoading(newsItem.id) && !isPlaying(newsItem.id)
+                      ? 'Waiting...'
+                      : isPlaying(newsItem.id)
+                      ? 'Stop'
+                      : 'Listen'
+                  "
                   @click="toggleAudio(newsItem)"
                   :loading="isLoading(newsItem.id) && !isPlaying(newsItem.id)"
                 />
-              <q-btn
-                v-if="newsItem.source"
-                flat
-                color="secondary"
-                icon="link"
-                label="Source (English)"
-                @click="openSource(newsItem.source)"
-              />
-            </q-card-actions>
-          </q-card>
-        </div>
+                <q-btn
+                  v-if="newsItem.source"
+                  flat
+                  color="secondary"
+                  icon="link"
+                  label="Source (English)"
+                  @click="openSource(newsItem.source)"
+                />
+              </q-card-actions>
+            </q-card>
+          </div>
         </div>
 
         <!-- Load More Button -->
@@ -137,23 +148,24 @@
           {{ activeFiltersCount }}
         </q-badge>
       </q-btn>
-    <br><br/>
-      <q-btn rounded
-            :color="isPlayingAll ? 'negative' : 'primary'"
-            :icon="isPlayingAll ? 'stop' : 'volume_up'"
-            :label="isPlayingAll ? 'Stop All' : 'Listen All'"
-            @click="togglePlayAll"
-            class="q-mr-md"
-          >
-            <q-badge
-              v-if="isPlayingAll"
-              color="white"
-              text-color="primary"
-              floating
-            >
-              {{ getProgressText() }}
-            </q-badge>
-          </q-btn>
+      <br /><br />
+      <q-btn
+        rounded
+        :color="isPlayingAll ? 'negative' : 'primary'"
+        :icon="isPlayingAll ? 'stop' : 'volume_up'"
+        :label="isPlayingAll ? 'Stop All' : 'Listen All'"
+        @click="togglePlayAll"
+        class="q-mr-md"
+      >
+        <q-badge
+          v-if="isPlayingAll"
+          color="white"
+          text-color="primary"
+          floating
+        >
+          {{ getProgressText() }}
+        </q-badge>
+      </q-btn>
     </q-page-sticky>
 
     <!-- Filters Dialog -->
@@ -233,6 +245,7 @@ import { ref, onMounted, computed, onUnmounted } from 'vue';
 import { useUserStore } from 'stores/user-store';
 import { api } from 'src/boot/axios';
 import { date } from 'quasar';
+import { TextToSpeech } from '@capacitor-community/text-to-speech';
 
 interface NewsItem {
   id: string;
@@ -260,7 +273,9 @@ const hasMoreNews = ref(true);
 // Define a type for the language keys
 type LanguageCode = keyof typeof languageConfig;
 
-const selectedLanguage = ref<LanguageCode>(userStore.newsPreferences.language as LanguageCode || 'en');
+const selectedLanguage = ref<LanguageCode>(
+  (userStore.newsPreferences.language as LanguageCode) || 'en'
+);
 const selectedCategories = ref(userStore.newsPreferences.categories || []);
 const selectedNewsType = ref(userStore.newsPreferences.newsType || 'all');
 
@@ -472,91 +487,94 @@ function setupInfiniteScroll() {
 
 const currentlyPlaying = ref<string | null>(null);
 const audioLoading = ref<string | null>(null);
-const speechSynthesis = window.speechSynthesis;
-let utterance: SpeechSynthesisUtterance | null = null;
-const availableVoices = ref<SpeechSynthesisVoice[]>([]);
+// const speechSynthesis = window.speechSynthesis;
+// let utterance: SpeechSynthesisUtterance | null = null;
+// const availableVoices = ref<SpeechSynthesisVoice[]>([]);
 
 // Language configuration with fallbacks
 const languageConfig = {
-  'en': {
+  en: {
     primary: 'en-US',
     fallbacks: ['en-GB', 'en-IN', 'en'],
-    defaultVoice: 'Microsoft David - English (United States)'
+    defaultVoice: 'Microsoft David - English (United States)',
   },
-  'hi': {
+  hi: {
     primary: 'hi-IN',
     fallbacks: ['hi', 'en-IN'],
-    defaultVoice: 'Microsoft Hemant - Hindi (India)'
+    defaultVoice: 'Microsoft Hemant - Hindi (India)',
   },
-  'bn': {
+  bn: {
     primary: 'bn-IN',
     fallbacks: ['bn', 'bn-BD', 'en-IN'],
-    defaultVoice: 'Microsoft Bashkar - Bangla (India)'
+    defaultVoice: 'Microsoft Bashkar - Bangla (India)',
   },
-  'ta': {
+  ta: {
     primary: 'ta-IN',
     fallbacks: ['ta', 'ta-LK', 'en-IN'],
-    defaultVoice: 'Microsoft Valluvar - Tamil (India)'
+    defaultVoice: 'Microsoft Valluvar - Tamil (India)',
   },
-  'te': {
+  te: {
     primary: 'te-IN',
     fallbacks: ['te', 'en-IN'],
-    defaultVoice: 'Microsoft Shruthi - Telugu (India)'
+    defaultVoice: 'Microsoft Shruthi - Telugu (India)',
   },
-  'gu': {
+  gu: {
     primary: 'gu-IN',
     fallbacks: ['gu', 'en-IN'],
-    defaultVoice: 'Microsoft Dhwani - Gujarati (India)'
+    defaultVoice: 'Microsoft Dhwani - Gujarati (India)',
   },
-  'mr': {
+  mr: {
     primary: 'mr-IN',
     fallbacks: ['mr', 'en-IN'],
-    defaultVoice: 'Microsoft Swara - Marathi (India)'
+    defaultVoice: 'Microsoft Swara - Marathi (India)',
   },
-  'ml': {
+  ml: {
     primary: 'ml-IN',
     fallbacks: ['ml', 'en-IN'],
-    defaultVoice: 'Microsoft Sobhana - Malayalam (India)'
-  }
+    defaultVoice: 'Microsoft Sobhana - Malayalam (India)',
+  },
 };
 // Initialize voices when they're loaded
-function initializeVoices() {
-  availableVoices.value = speechSynthesis.getVoices();
-}
+// function initializeVoices() {
+//   availableVoices.value = speechSynthesis.getVoices();
+// }
 
 // Call initializeVoices when voices are loaded
-speechSynthesis.onvoiceschanged = initializeVoices;
+// speechSynthesis.onvoiceschanged = initializeVoices;
 // Initialize immediately in case voices are already loaded
-initializeVoices();
+// initializeVoices();
 
-function findBestVoiceMatch(languageCode: string): SpeechSynthesisVoice | null {
-  const config = languageConfig[languageCode as keyof typeof languageConfig];
-  if (!config) return null;
+// function findBestVoiceMatch(languageCode: string): SpeechSynthesisVoice | null {
+//   const config = languageConfig[languageCode as keyof typeof languageConfig];
+//   if (!config) return null;
 
-  const voices = availableVoices.value;
-  let selectedVoice: SpeechSynthesisVoice | null = null;
+//   const voices = availableVoices.value;
+//   let selectedVoice: SpeechSynthesisVoice | null = null;
 
-  // Try to find the default voice first
-  selectedVoice = voices.find(voice => voice.name === config.defaultVoice) || null;
-  if (selectedVoice) return selectedVoice;
+//   // Try to find the default voice first
+//   selectedVoice =
+//     voices.find((voice) => voice.name === config.defaultVoice) || null;
+//   if (selectedVoice) return selectedVoice;
 
-  // Try primary language code
-  selectedVoice = voices.find(voice => voice.lang === config.primary) || null;
-  if (selectedVoice) return selectedVoice;
+//   // Try primary language code
+//   selectedVoice = voices.find((voice) => voice.lang === config.primary) || null;
+//   if (selectedVoice) return selectedVoice;
 
-  // Try fallbacks
-  for (const fallback of config.fallbacks) {
-    selectedVoice = voices.find(voice => voice.lang.startsWith(fallback)) || null;
-    if (selectedVoice) return selectedVoice;
-  }
+//   // Try fallbacks
+//   for (const fallback of config.fallbacks) {
+//     selectedVoice =
+//       voices.find((voice) => voice.lang.startsWith(fallback)) || null;
+//     if (selectedVoice) return selectedVoice;
+//   }
 
-  // Last resort: try to find any voice that matches the base language code
-  selectedVoice = voices.find(voice => voice.lang.startsWith(languageCode)) || null;
-  if (selectedVoice) return selectedVoice;
+//   // Last resort: try to find any voice that matches the base language code
+//   selectedVoice =
+//     voices.find((voice) => voice.lang.startsWith(languageCode)) || null;
+//   if (selectedVoice) return selectedVoice;
 
-  // If no matching voice found, return the first available voice as ultimate fallback
-  return voices[0] || null;
-}
+//   // If no matching voice found, return the first available voice as ultimate fallback
+//   return voices[0] || null;
+// }
 
 // Add new functions for audio control
 function isPlaying(newsId: string) {
@@ -567,12 +585,13 @@ function isLoading(newsId: string) {
   return audioLoading.value === newsId;
 }
 
-function stopCurrentAudio() {
-  if (utterance && speechSynthesis.speaking) {
-    speechSynthesis.cancel();
-  }
+async function stopCurrentAudio() {
+  // if (utterance && speechSynthesis.speaking) {
+  //   speechSynthesis.cancel();
+  // }
   currentlyPlaying.value = null;
-  utterance = null;
+  await TextToSpeech.stop();
+  // utterance = null;
 }
 
 // Add new refs for global playback
@@ -609,7 +628,7 @@ async function playNext() {
     audioLoading.value = news.value[currentPlayingIndex.value].id;
 
     // Wait for the delay
-    await new Promise(resolve => setTimeout(resolve, DELAY_BETWEEN_NEWS));
+    await new Promise((resolve) => setTimeout(resolve, DELAY_BETWEEN_NEWS));
 
     // Check if we're still playing all after delay
     if (!isPlayingAll.value) {
@@ -623,7 +642,6 @@ async function playNext() {
   // Play the current news item
   await toggleAudio(news.value[currentPlayingIndex.value]);
 }
-
 
 function stopPlayAll() {
   isPlayingAll.value = false;
@@ -643,8 +661,8 @@ function togglePlayAll() {
   }
 }
 
-function toggleAudio(newsItem: NewsItem) {
-  return new Promise<void>((resolve) => {
+async function toggleAudio(newsItem: NewsItem) {
+  return new Promise<void>(async (resolve) => {
     // If this item is currently playing, stop it
     if (isPlaying(newsItem.id)) {
       stopCurrentAudio();
@@ -665,55 +683,72 @@ function toggleAudio(newsItem: NewsItem) {
     // Add a small pause in the text itself to create a natural break
     const text = `${title}... ${content}`;
 
-    utterance = new SpeechSynthesisUtterance(text);
-
-    // Find the best matching voice
-    const voice = findBestVoiceMatch(selectedLanguage.value);
-
-    if (voice) {
-      utterance.voice = voice;
-      utterance.lang = voice.lang;
-    } else {
-      utterance.lang = languageConfig[selectedLanguage.value]?.primary || selectedLanguage.value;
-    }
-
+    // utterance = new SpeechSynthesisUtterance(text);
+    // const voice = findBestVoiceMatch(selectedLanguage.value);
+    // if (voice) {
+    //   utterance.voice = voice;
+    //   utterance.lang = voice.lang;
+    // } else {
+    //   utterance.lang =
+    //     languageConfig[selectedLanguage.value]?.primary ||
+    //     selectedLanguage.value;
+    // }
     // Set speech properties
-    utterance.rate = 1.0;
-    utterance.pitch = 1.0;
-    utterance.volume = 1.0;
-
+    // utterance.rate = 1.0;
+    // utterance.pitch = 1.0;
+    // utterance.volume = 1.0;
     // Set up event handlers
-    utterance.onstart = () => {
-      audioLoading.value = null;
-      currentlyPlaying.value = newsItem.id;
-    };
+    // utterance.onstart = () => {
+    //   audioLoading.value = null;
+    //   currentlyPlaying.value = newsItem.id;
+    // };
+    // utterance.onend = () => {
+    //   currentlyPlaying.value = null;
+    //   utterance = null;
+    //   resolve();
 
-    utterance.onend = () => {
-      currentlyPlaying.value = null;
-      utterance = null;
-      resolve();
+    //   // If playing all, wait and then move to next item
+    //   if (isPlayingAll.value) {
+    //     playNext();
+    //   }
+    // };
+    // utterance.onerror = (event) => {
+    //   console.error('Speech synthesis error:', event);
+    //   audioLoading.value = null;
+    //   currentlyPlaying.value = null;
+    //   utterance = null;
+    //   resolve();
 
-      // If playing all, wait and then move to next item
-      if (isPlayingAll.value) {
-        playNext();
-      }
-    };
-
-    utterance.onerror = (event) => {
-      console.error('Speech synthesis error:', event);
-      audioLoading.value = null;
-      currentlyPlaying.value = null;
-      utterance = null;
-      resolve();
-
-      // If playing all, still try to continue to next item
-      if (isPlayingAll.value) {
-        playNext();
-      }
-    };
+    //   // If playing all, still try to continue to next item
+    //   if (isPlayingAll.value) {
+    //     playNext();
+    //   }
+    // };
 
     // Start speaking
-    speechSynthesis.speak(utterance);
+    // speechSynthesis.speak(utterance);
+    try {
+      audioLoading.value = null;
+      currentlyPlaying.value = newsItem.id;
+      await TextToSpeech.speak({
+        text,
+        lang: selectedLanguage.value,
+        rate: 1.0,
+        pitch: 1.0,
+        volume: 1.0,
+        category: 'ambient',
+      }).then(() => {
+        if (isPlayingAll.value) {
+          playNext();
+        }
+      });
+    } catch (error) {
+      console.error('Error using TextToSpeech on Android:', error);
+      currentlyPlaying.value = null;
+      if (isPlayingAll.value) {
+        playNext();
+      }
+    }
   });
 }
 
@@ -722,8 +757,11 @@ function getProgressText() {
   if (!isPlayingAll.value || currentPlayingIndex.value === -1) return '';
   const current = currentPlayingIndex.value + 1;
   const total = news.value.length;
-  const isWaiting = audioLoading.value && !currentlyPlaying.value && !isFirstPlay.value;
-  return isWaiting ? `Waiting... ${current}/${total}` : `Playing ${current}/${total}`;
+  const isWaiting =
+    audioLoading.value && !currentlyPlaying.value && !isFirstPlay.value;
+  return isWaiting
+    ? `Waiting... ${current}/${total}`
+    : `Playing ${current}/${total}`;
 }
 
 const formatDate = (dateString: string | null) => {
