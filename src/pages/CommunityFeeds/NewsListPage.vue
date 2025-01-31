@@ -13,13 +13,6 @@
               AI summaries and translations may be inaccurate. Check source.
             </div>
           </div>
-          <!-- <q-btn
-            flat
-            color="text-white"
-            class="q-px-md"
-            @click="showFilters = true"
-          >
-          </q-btn> -->
         </div>
       </div>
 
@@ -53,11 +46,17 @@
 
           <!-- Existing news items -->
           <div
-            v-for="newsItem in news"
+            v-for="(newsItem, index) in news"
             :key="newsItem.id"
             class="col-12 col-sm-6 col-md-4"
+            :ref="el => { if (el) newsRefs[index] = el as HTMLElement }"
           >
-            <q-card class="news-card">
+            <q-card
+              :class="[
+                'news-card',
+                { 'currently-playing': isPlaying(newsItem.id) },
+              ]"
+            >
               <q-img
                 v-if="newsItem.mediaUrls?.length"
                 :src="getImageUrl(newsItem.mediaUrls[0])"
@@ -65,6 +64,8 @@
               />
               <q-card-section>
                 <div class="row items-center q-gutter-x-sm">
+                  <!-- <q-icon name="schedule" size="xs" class="q-mr-xs" />-->
+                  <span>Added {{ formatDate(newsItem.createdAt) }}</span>
                   <q-chip
                     v-for="category in newsItem.categories"
                     :key="category"
@@ -90,6 +91,21 @@
                 </div>
               </q-card-section>
               <q-card-actions align="right">
+                <q-btn
+                  flat
+                  :color="isPlaying(newsItem.id) ? 'negative' : 'primary'"
+                  :icon="isPlaying(newsItem.id) ? 'stop' : 'volume_up'"
+                  :label="
+                    isLoading(newsItem.id) && !isPlaying(newsItem.id)
+                      ? 'Waiting...'
+                      : isPlaying(newsItem.id)
+                      ? 'Stop'
+                      : 'Listen'
+                  "
+                  @click="toggleAudio(newsItem)"
+                  :loading="isLoading(newsItem.id) && !isPlaying(newsItem.id)"
+                  v-if="selectedLanguageSupported"
+                />
                 <q-btn
                   v-if="newsItem.source"
                   flat
@@ -121,7 +137,7 @@
       </div>
     </div>
 
-    <q-page-sticky position="bottom-left" :offset="[18, 18]">
+    <q-page-sticky position="bottom-left" class="q-mt-sm" :offset="[18, 18]">
       <q-btn rounded color="primary" icon="tune" @click="showFilters = true">
         Filters
         <q-badge
@@ -131,6 +147,25 @@
           class="q-ml-sm"
         >
           {{ activeFiltersCount }}
+        </q-badge>
+      </q-btn>
+      <br /><br />
+      <q-btn
+        v-if="selectedLanguageSupported"
+        rounded
+        :color="isPlayingAll ? 'negative' : 'primary'"
+        :icon="isPlayingAll ? 'stop' : 'volume_up'"
+        :label="isPlayingAll ? 'Stop All' : 'Listen All'"
+        @click="togglePlayAll"
+        class="q-mr-md"
+      >
+        <q-badge
+          v-if="isPlayingAll"
+          color="white"
+          text-color="primary"
+          floating
+        >
+          {{ getProgressText() }}
         </q-badge>
       </q-btn>
     </q-page-sticky>
@@ -211,6 +246,8 @@
 import { ref, onMounted, computed, onUnmounted } from 'vue';
 import { useUserStore } from 'stores/user-store';
 import { api } from 'src/boot/axios';
+import { date } from 'quasar';
+import { TextToSpeech } from '@capacitor-community/text-to-speech';
 
 interface NewsItem {
   id: string;
@@ -235,7 +272,13 @@ const page = ref(1);
 const pageSize = 6;
 const hasMoreNews = ref(true);
 
-const selectedLanguage = ref(userStore.newsPreferences.language || 'en');
+// Define a type for the language keys
+type LanguageCode = keyof typeof languageConfig;
+
+const selectedLanguage = ref<LanguageCode>(
+  (userStore.newsPreferences.language as LanguageCode) || 'en'
+);
+const selectedLanguageSupported = ref(false);
 const selectedCategories = ref(userStore.newsPreferences.categories || []);
 const selectedNewsType = ref(userStore.newsPreferences.newsType || 'all');
 
@@ -362,10 +405,11 @@ async function fetchNews(reset = false) {
   }
 }
 
-function onLanguageChange(value: string) {
+async function onLanguageChange(value: LanguageCode) {
   selectedLanguage.value = value;
   userStore.setNewsPreferences({ language: value });
   fetchNews(true);
+  checkLanguageSupport();
 }
 
 function onCategoriesChange(value: string[] | null) {
@@ -443,14 +487,402 @@ function setupInfiniteScroll() {
   };
 }
 
-onMounted(() => {
+// Add new refs for audio control
+
+const currentlyPlaying = ref<string | null>(null);
+const audioLoading = ref<string | null>(null);
+// const speechSynthesis = window.speechSynthesis;
+// let utterance: SpeechSynthesisUtterance | null = null;
+// const availableVoices = ref<SpeechSynthesisVoice[]>([]);
+
+// Language configuration with fallbacks
+const languageConfig = {
+  en: {
+    primary: 'en-US',
+    fallbacks: ['en-GB', 'en-IN', 'en'],
+    defaultVoice: 'Microsoft David - English (United States)',
+  },
+  hi: {
+    primary: 'hi-IN',
+    fallbacks: ['hi', 'en-IN'],
+    defaultVoice: 'Microsoft Hemant - Hindi (India)',
+  },
+  bn: {
+    primary: 'bn-IN',
+    fallbacks: ['bn', 'bn-BD', 'en-IN'],
+    defaultVoice: 'Microsoft Bashkar - Bangla (India)',
+  },
+  ta: {
+    primary: 'ta-IN',
+    fallbacks: ['ta', 'ta-LK', 'en-IN'],
+    defaultVoice: 'Microsoft Valluvar - Tamil (India)',
+  },
+  te: {
+    primary: 'te-IN',
+    fallbacks: ['te', 'en-IN'],
+    defaultVoice: 'Microsoft Shruthi - Telugu (India)',
+  },
+  gu: {
+    primary: 'gu-IN',
+    fallbacks: ['gu', 'en-IN'],
+    defaultVoice: 'Microsoft Dhwani - Gujarati (India)',
+  },
+  mr: {
+    primary: 'mr-IN',
+    fallbacks: ['mr', 'en-IN'],
+    defaultVoice: 'Microsoft Swara - Marathi (India)',
+  },
+  ml: {
+    primary: 'ml-IN',
+    fallbacks: ['ml', 'en-IN'],
+    defaultVoice: 'Microsoft Sobhana - Malayalam (India)',
+  },
+};
+// Initialize voices when they're loaded
+// function initializeVoices() {
+//   availableVoices.value = speechSynthesis.getVoices();
+// }
+
+// Call initializeVoices when voices are loaded
+// speechSynthesis.onvoiceschanged = initializeVoices;
+// Initialize immediately in case voices are already loaded
+// initializeVoices();
+
+// function findBestVoiceMatch(languageCode: string): SpeechSynthesisVoice | null {
+//   const config = languageConfig[languageCode as keyof typeof languageConfig];
+//   if (!config) return null;
+
+//   const voices = availableVoices.value;
+//   let selectedVoice: SpeechSynthesisVoice | null = null;
+
+//   // Try to find the default voice first
+//   selectedVoice =
+//     voices.find((voice) => voice.name === config.defaultVoice) || null;
+//   if (selectedVoice) return selectedVoice;
+
+//   // Try primary language code
+//   selectedVoice = voices.find((voice) => voice.lang === config.primary) || null;
+//   if (selectedVoice) return selectedVoice;
+
+//   // Try fallbacks
+//   for (const fallback of config.fallbacks) {
+//     selectedVoice =
+//       voices.find((voice) => voice.lang.startsWith(fallback)) || null;
+//     if (selectedVoice) return selectedVoice;
+//   }
+
+//   // Last resort: try to find any voice that matches the base language code
+//   selectedVoice =
+//     voices.find((voice) => voice.lang.startsWith(languageCode)) || null;
+//   if (selectedVoice) return selectedVoice;
+
+//   // If no matching voice found, return the first available voice as ultimate fallback
+//   return voices[0] || null;
+// }
+
+// Add new functions for audio control
+function isPlaying(newsId: string) {
+  return currentlyPlaying.value === newsId;
+}
+
+function isLoading(newsId: string) {
+  return audioLoading.value === newsId;
+}
+
+async function stopCurrentAudio() {
+  // if (utterance && speechSynthesis.speaking) {
+  //   speechSynthesis.cancel();
+  // }
+  currentlyPlaying.value = null;
+  await TextToSpeech.stop();
+  // utterance = null;
+}
+
+// Add new refs for global playback
+const isPlayingAll = ref(false);
+const currentPlayingIndex = ref(-1);
+const newsRefs = ref<HTMLElement[]>([]);
+
+// Add new functions for global playback
+// Add constant for delay duration
+const DELAY_BETWEEN_NEWS = 2000; // 2 seconds in milliseconds
+const isFirstPlay = ref(true);
+
+// Modify the playNext function to include delay
+async function playNext() {
+  if (!isPlayingAll.value) return;
+
+  currentPlayingIndex.value++;
+
+  // Check if we've reached the end
+  if (currentPlayingIndex.value >= news.value.length) {
+    stopPlayAll();
+    return;
+  }
+
+  // Scroll to the current news item
+  const currentElement = newsRefs.value[currentPlayingIndex.value];
+  if (currentElement) {
+    currentElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+
+  // Only add delay if it's not the first article
+  if (!isFirstPlay.value) {
+    // Add visual indicator for the delay
+    audioLoading.value = news.value[currentPlayingIndex.value].id;
+
+    // Wait for the delay
+    await new Promise((resolve) => setTimeout(resolve, DELAY_BETWEEN_NEWS));
+
+    // Check if we're still playing all after delay
+    if (!isPlayingAll.value) {
+      audioLoading.value = null;
+      return;
+    }
+  } else {
+    isFirstPlay.value = false;
+  }
+
+  // Play the current news item
+  await toggleAudio(news.value[currentPlayingIndex.value]);
+}
+
+function stopPlayAll() {
+  isPlayingAll.value = false;
+  isFirstPlay.value = true;
+  currentPlayingIndex.value = -1;
+  stopCurrentAudio();
+}
+
+function togglePlayAll() {
+  if (isPlayingAll.value) {
+    stopPlayAll();
+  } else {
+    isPlayingAll.value = true;
+    isFirstPlay.value = true;
+    currentPlayingIndex.value = -1;
+    playNext();
+  }
+}
+
+async function toggleAudio(newsItem: NewsItem) {
+  if (!selectedLanguageSupported.value) {
+    alert('current Language is not support in your device');
+    return;
+  }
+  return new Promise<void>(async (resolve) => {
+    // If this item is currently playing, stop it
+    if (isPlaying(newsItem.id)) {
+      stopCurrentAudio();
+      resolve();
+      return;
+    }
+
+    // Stop any currently playing audio
+    stopCurrentAudio();
+
+    // Start new audio
+    audioLoading.value = newsItem.id;
+
+    // Get the appropriate content
+    const content = getNewsContent(newsItem);
+    const title = getNewsTitle(newsItem);
+
+    // Add a small pause in the text itself to create a natural break
+    const text = `${title}... ${content}`;
+
+    // utterance = new SpeechSynthesisUtterance(text);
+    // const voice = findBestVoiceMatch(selectedLanguage.value);
+    // if (voice) {
+    //   utterance.voice = voice;
+    //   utterance.lang = voice.lang;
+    // } else {
+    //   utterance.lang =
+    //     languageConfig[selectedLanguage.value]?.primary ||
+    //     selectedLanguage.value;
+    // }
+    // Set speech properties
+    // utterance.rate = 1.0;
+    // utterance.pitch = 1.0;
+    // utterance.volume = 1.0;
+    // Set up event handlers
+    // utterance.onstart = () => {
+    //   audioLoading.value = null;
+    //   currentlyPlaying.value = newsItem.id;
+    // };
+    // utterance.onend = () => {
+    //   currentlyPlaying.value = null;
+    //   utterance = null;
+    //   resolve();
+
+    //   // If playing all, wait and then move to next item
+    //   if (isPlayingAll.value) {
+    //     playNext();
+    //   }
+    // };
+    // utterance.onerror = (event) => {
+    //   console.error('Speech synthesis error:', event);
+    //   audioLoading.value = null;
+    //   currentlyPlaying.value = null;
+    //   utterance = null;
+    //   resolve();
+
+    //   // If playing all, still try to continue to next item
+    //   if (isPlayingAll.value) {
+    //     playNext();
+    //   }
+    // };
+
+    // Start speaking
+    // speechSynthesis.speak(utterance);
+    try {
+      audioLoading.value = null;
+      currentlyPlaying.value = newsItem.id;
+      await TextToSpeech.speak({
+        text,
+        lang: selectedLanguage.value,
+        rate: 1.0,
+        pitch: 1.0,
+        volume: 1.0,
+        category: 'playback', //'ambient',
+      }).then(() => {
+        if (isPlayingAll.value) {
+          playNext();
+        }
+      });
+    } catch (error) {
+      console.error('Error using TextToSpeech on Android:', error);
+      currentlyPlaying.value = null;
+      if (isPlayingAll.value) {
+        playNext();
+      }
+    }
+  });
+}
+
+// Add progress indicator to the template
+function getProgressText() {
+  if (!isPlayingAll.value || currentPlayingIndex.value === -1) return '';
+  const current = currentPlayingIndex.value + 1;
+  const total = news.value.length;
+  const isWaiting =
+    audioLoading.value && !currentlyPlaying.value && !isFirstPlay.value;
+  return isWaiting
+    ? `Waiting... ${current}/${total}`
+    : `Playing ${current}/${total}`;
+}
+
+const checkLanguageSupport = async () => {
+  const supportLang = await TextToSpeech.getSupportedLanguages();
+  const isSupport = await TextToSpeech.isLanguageSupported({
+    lang: selectedLanguage.value,
+  });
+  if (isSupport && isSupport.supported) {
+    selectedLanguageSupported.value =
+      isSupport.supported == true ? true : false;
+  } else {
+    selectedLanguageSupported.value = false;
+  }
+  console.log(
+    'supportLang',
+    selectedLanguage.value,
+    JSON.stringify(supportLang),
+    JSON.stringify(isSupport)
+  );
+};
+const formatDate = (dateString: string | null) => {
+  if (!dateString) return 'Recent';
+
+  console.log('Input date:', dateString); // Log the input date
+
+  try {
+    // Extract the date using Quasar's extractDate method
+    const parsedDate = date.extractDate(dateString, 'YYYY-MM-DD HH:mm:ss');
+
+    // Check if the date is valid
+    if (!parsedDate || isNaN(parsedDate.getTime())) {
+      console.error('Invalid date after parsing:', parsedDate); // Log invalid date
+      return 'Invalid date';
+    }
+
+    // Get the current time in UTC
+    const nowUTC = new Date();
+
+    const diffInMs = nowUTC.getTime() - parsedDate.getTime();
+    const diffInSeconds = Math.floor(diffInMs / 1000);
+    const diffInMinutes = Math.floor(diffInSeconds / 60);
+    const diffInHours = Math.floor(diffInMinutes / 60);
+    const diffInDays = Math.floor(diffInHours / 24);
+
+    // Less than a minute
+    if (diffInSeconds < 60 && diffInSeconds >= 0) {
+      return 'Just now';
+    }
+
+    // Less than an hour
+    if (diffInMinutes < 60 && diffInMinutes >= 0) {
+      return `${diffInMinutes} ${
+        diffInMinutes === 1 ? 'minute' : 'minutes'
+      } ago`;
+    }
+
+    // Less than a day
+    if (diffInHours < 24 && diffInHours >= 0) {
+      return `${diffInHours} ${diffInHours === 1 ? 'hour' : 'hours'} ago`;
+    }
+
+    // Less than a week
+    if (diffInDays < 7 && diffInDays >= 0) {
+      return `${diffInDays} ${diffInDays === 1 ? 'day' : 'days'} ago`;
+    }
+
+    // More than a week, format the date
+    const options: Intl.DateTimeFormatOptions = {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true,
+    };
+
+    return date.formatDate(parsedDate, 'YYYY-MM-DDTHH:mm:ss.SSSZ'); // Format the date for display
+  } catch (error) {
+    console.error('Error formatting date:', error);
+    return 'Date error';
+  }
+};
+// Clean up audio on component unmount
+onUnmounted(() => {
+  stopCurrentAudio();
+  stopPlayAll();
+});
+
+onMounted(async () => {
   fetchNews();
   const cleanup = setupInfiniteScroll();
   onUnmounted(cleanup);
+  checkLanguageSupport();
 });
 </script>
 
 <style lang="scss" scoped>
+.news-card {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.3s ease;
+
+  &.currently-playing {
+    border: 2px solid var(--q-primary);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+  }
+
+  &.waiting {
+    border: 2px dashed var(--q-primary);
+    opacity: 0.9;
+  }
+}
 .ellipsis-3-lines {
   display: -webkit-box;
   -webkit-line-clamp: 3;

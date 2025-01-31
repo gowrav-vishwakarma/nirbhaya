@@ -6,6 +6,8 @@ PODS:
     - Capacitor
   - CapacitorCamera (6.0.2):
     - Capacitor
+  - CapacitorCommunityTextToSpeech (5.1.0):
+    - Capacitor
   - CapacitorCordova (6.1.2)
   - CapacitorDevice (6.0.1):
     - Capacitor
@@ -107,15 +109,16 @@ DEPENDENCIES:
   - "Capacitor (from `../../node_modules/@capacitor/ios`)"
   - "CapacitorApp (from `../../node_modules/@capacitor/app`)"
   - "CapacitorCamera (from `../../node_modules/@capacitor/camera`)"
+  - "CapacitorCommunityTextToSpeech (from `../../node_modules/@capacitor-community/text-to-speech`)"
   - "CapacitorCordova (from `../../node_modules/@capacitor/ios`)"
   - "CapacitorDevice (from `../../node_modules/@capacitor/device`)"
   - "CapacitorFilesystem (from `../../node_modules/@capacitor/filesystem`)"
   - "CapacitorGeolocation (from `../../node_modules/@capacitor/geolocation`)"
-  - CapacitorJitsiMeet (from `../../node_modules/capacitor-jitsi-meet`)
+  - CapacitorJitsiMeet (from `../../../node_modules/capacitor-jitsi-meet`)
   - "CapacitorNetwork (from `../../node_modules/@capacitor/network`)"
   - "CapacitorPushNotifications (from `../../node_modules/@capacitor/push-notifications`)"
   - "CapacitorStatusBar (from `../../node_modules/@capacitor/status-bar`)"
-  - "CapgoCapacitorUpdater (from `../../node_modules/@capgo/capacitor-updater`)"
+  - "CapgoCapacitorUpdater (from `../../../node_modules/@capgo/capacitor-updater`)"
   - CordovaPlugins (from `../capacitor-cordova-ios-plugins`)
   - FirebaseMessaging
   - JitsiMeetSDK
@@ -145,6 +148,8 @@ EXTERNAL SOURCES:
     :path: "../../node_modules/@capacitor/app"
   CapacitorCamera:
     :path: "../../node_modules/@capacitor/camera"
+  CapacitorCommunityTextToSpeech:
+    :path: "../../node_modules/@capacitor-community/text-to-speech"
   CapacitorCordova:
     :path: "../../node_modules/@capacitor/ios"
   CapacitorDevice:
@@ -154,7 +159,7 @@ EXTERNAL SOURCES:
   CapacitorGeolocation:
     :path: "../../node_modules/@capacitor/geolocation"
   CapacitorJitsiMeet:
-    :path: "../../node_modules/capacitor-jitsi-meet"
+    :path: "../../../node_modules/capacitor-jitsi-meet"
   CapacitorNetwork:
     :path: "../../node_modules/@capacitor/network"
   CapacitorPushNotifications:
@@ -162,7 +167,7 @@ EXTERNAL SOURCES:
   CapacitorStatusBar:
     :path: "../../node_modules/@capacitor/status-bar"
   CapgoCapacitorUpdater:
-    :path: "../../node_modules/@capgo/capacitor-updater"
+    :path: "../../../node_modules/@capgo/capacitor-updater"
   CordovaPlugins:
     :path: "../capacitor-cordova-ios-plugins"
 
@@ -171,6 +176,7 @@ SPEC CHECKSUMS:
   Capacitor: 679f9673fdf30597493a6362a5d5bf233d46abc2
   CapacitorApp: 0bc633b4eae40a1f32cd2834788fad3bc42da6a1
   CapacitorCamera: ed022171dbf3853e68eec877b4d78995378af6b7
+  CapacitorCommunityTextToSpeech: 6fee8872a6ce215f34413efe43b04447187e008d
   CapacitorCordova: f48c89f96c319101cd2f0ce8a2b7449b5fb8b3dd
   CapacitorDevice: 7097a1deb4224b77fd13a6e60a355d0062a5d772
   CapacitorFilesystem: 37fb3aa5c945b4539ab11c74a5c57925a302bf24
@@ -196,6 +202,6 @@ SPEC CHECKSUMS:
   SSZipArchive: fe6a26b2a54d5a0890f2567b5cc6de5caa600aef
   Version: de5907f2c5d0f3cf21708db7801d1d5401139486
 
-PODFILE CHECKSUM: f6a7ccb2c215ea14c577496daf5556701084a0d8
+PODFILE CHECKSUM: 4bfee43c828321d2aacf4bd52fa2f60ddb813ef7
 
 COCOAPODS: 1.15.0

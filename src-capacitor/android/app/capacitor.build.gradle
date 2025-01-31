@@ -9,6 +9,7 @@ android {
 
 apply from: "../capacitor-cordova-android-plugins/cordova.variables.gradle"
 dependencies {
+    implementation project(':capacitor-community-text-to-speech')
     implementation project(':capacitor-app')
     implementation project(':capacitor-camera')
     implementation project(':capacitor-device')
@@ -21,7 +22,7 @@ dependencies {
     implementation project(':capacitor-jitsi-meet')
 
 }
-apply from: "../../node_modules/cordova-plugin-smartlook/src/android/plugin.gradle"
+apply from: "../../../node_modules/cordova-plugin-smartlook/src/android/plugin.gradle"
 
 if (hasProperty('postBuildExtras')) {
   postBuildExtras()
