@@ -95,6 +95,8 @@ export default {
   locationPermissionRequired:
     'स्थान परवानगी जरूरी है जिससे नज़दीकी व्यक्तियों को मदद भेजने में मदद मिले।',
   retry: 'पुनः प्रयास करें',
+  autoNotifyNearbyAfterDelay:
+    'नज़दीकी व्यक्तियों को यदि कोई संपर्क नहीं जोड़ता है तो 3 मिनट में सूचित करें',
   // Profile Page
   myProfile: 'मेरा प्रोफ़ाइल',
   emergencyContact: 'आपातकालीन संपर्क',
@@ -439,4 +441,7 @@ export default {
   locationUpdateSuccess: 'स्थान सफलतापूर्वक अपडेट किया गया',
   businessCategory: 'व्यवसाय की श्रेणी',
   selectFromMapLocation: 'स्थान मानचित्र से चुनें',
+  autoNotifyNearbyDefault: 'स्वचालित रूप से पास के स्वयंसेवकों को सूचित करें',
+  autoNotifyNearbyDefaultDesc:
+    'जब सक्षम हो, यदि 1 मिनट के भीतर कोई संपर्क प्रतिक्रिया नहीं देता है तो SOS अलर्ट स्वचालित रूप से पास के स्वयंसेवकों को सूचित करेगा',
 };
