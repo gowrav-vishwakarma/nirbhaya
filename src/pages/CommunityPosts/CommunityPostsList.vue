@@ -647,15 +647,13 @@ const performSearch = (searchParams?: {
 const formatDate = (dateString: string | null) => {
   if (!dateString) return 'Recent';
 
-  console.log('Input date:', dateString); // Log the input date
-
   try {
     // Extract the date using Quasar's extractDate method
     const parsedDate = date.extractDate(dateString, 'YYYY-MM-DD HH:mm:ss');
 
     // Check if the date is valid
     if (!parsedDate || isNaN(parsedDate.getTime())) {
-      console.error('Invalid date after parsing:', parsedDate); // Log invalid date
+      console.error('Invalid date after parsing:', parsedDate);
       return 'Invalid date';
     }
 
@@ -675,9 +673,7 @@ const formatDate = (dateString: string | null) => {
 
     // Less than an hour
     if (diffInMinutes < 60 && diffInMinutes >= 0) {
-      return `${diffInMinutes} ${
-        diffInMinutes === 1 ? 'minute' : 'minutes'
-      } ago`;
+      return `${diffInMinutes} ${diffInMinutes === 1 ? 'minute' : 'minutes'} ago`;
     }
 
     // Less than a day
@@ -690,17 +686,8 @@ const formatDate = (dateString: string | null) => {
       return `${diffInDays} ${diffInDays === 1 ? 'day' : 'days'} ago`;
     }
 
-    // More than a week, format the date
-    const options: Intl.DateTimeFormatOptions = {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: true,
-    };
-
-    return date.formatDate(parsedDate, 'YYYY-MM-DDTHH:mm:ss.SSSZ'); // Format the date for display
+    // More than a week, format the date nicely
+    return date.formatDate(parsedDate, 'MMM D, YYYY [at] h:mm A');
   } catch (error) {
     console.error('Error formatting date:', error);
     return 'Date error';
@@ -918,30 +905,33 @@ const onVideoIntersection = (postId: string) => ({
 });
 
 // Update the calculateAge function to handle both string and Date inputs
-const calculateAge = (dob: string | Date): number => {
-  const dobDate = dob instanceof Date ? dob : new Date(dob);
-  const today = new Date();
-  let age = today.getFullYear() - dobDate.getFullYear();
-  const monthDiff = today.getMonth() - dobDate.getMonth();
+// const calculateAge = (dob: string | Date): number => {
+//   const dobDate = dob instanceof Date ? dob : new Date(dob);
+//   const today = new Date();
+//   let age = today.getFullYear() - dobDate.getFullYear();
+//   const monthDiff = today.getMonth() - dobDate.getMonth();
 
-  if (
-    monthDiff < 0 ||
-    (monthDiff === 0 && today.getDate() < dobDate.getDate())
-  ) {
-    age--;
-  }
+//   if (
+//     monthDiff < 0 ||
+//     (monthDiff === 0 && today.getDate() < dobDate.getDate())
+//   ) {
+//     age--;
+//   }
 
-  return age;
-};
+//   return age;
+// };
 
 // Update the onMounted section where location is initialized
 onMounted(async () => {
-  const dob = userStore.user?.dob;
-  if (dob) {
-    isUserPermitted.value = calculateAge(dob) >= 13;
-  } else {
-    isUserPermitted.value = false;
-  }
+  // const dob = userStore.user?.dob;
+  // if (dob) {
+  //   isUserPermitted.value = calculateAge(dob) >= 13;
+  // } else {
+  //   isUserPermitted.value = false;
+  // }
+
+  const userType = userStore.user?.userType;
+  isUserPermitted.value = userType != null && userType !== 'Below (13)';
 
   // Get initial location with timeout
   try {

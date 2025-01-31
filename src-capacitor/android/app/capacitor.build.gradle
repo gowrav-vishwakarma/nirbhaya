@@ -18,9 +18,11 @@ dependencies {
     implementation project(':capacitor-network')
     implementation project(':capacitor-push-notifications')
     implementation project(':capacitor-status-bar')
+    implementation project(':capgo-capacitor-updater')
+    implementation project(':capacitor-jitsi-meet')
 
 }
-
+apply from: "../../node_modules/cordova-plugin-smartlook/src/android/plugin.gradle"
 
 if (hasProperty('postBuildExtras')) {
   postBuildExtras()

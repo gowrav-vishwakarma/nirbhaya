@@ -74,6 +74,9 @@ export default {
   getHelp: 'Get Help',
   notificationsPermissionHelp: 'notifications Permission Help',
   errorGettingLocation: 'Error getting location. Please try again.',
+  autoNotifyNearbyAfterDelay:
+    'Notify nearby volunteers if no contact joins in 3 minute',
+
   // Profile Page
   myProfile: 'My Profile',
   emergencyContact: 'Emergency Contact',
@@ -183,6 +186,8 @@ export default {
   attemptedKidnapping: 'Attempted Kidnapping',
   sexualAssault: 'Sexual Assault',
   domesticViolence: 'Domestic Violence',
+  medicalemergency: 'Medical Emergency',
+  safetyconcerns: 'Safety Concerns',
   unknown: 'Unknown',
   // Help Page
   locationPermission: 'Location Permission',
@@ -611,4 +616,8 @@ export default {
   astroai: 'AstroAI',
 
   caretext: 'Report abuse, safety concerns, or violations to',
+
+  autoNotifyNearbyDefault: 'Auto-notify nearby volunteers by default',
+  autoNotifyNearbyDefaultDesc:
+    'When enabled, SOS alerts will automatically notify nearby volunteers if no contacts respond within 3 minute',
 };

@@ -100,6 +100,7 @@
             group="profile-tabs"
             icon="mdi-human-greeting-proximity"
             :label="t('common.emergencyContact')"
+            class="emergency-contact-section"
           >
             <EmergencyContactPage :reload-components="reloadComponents" />
           </q-expansion-item>
@@ -111,6 +112,7 @@
             group="profile-tabs"
             icon="volunteer_activism"
             :label="t('common.beVolunteers')"
+            class="volunteering-section"
           >
             <q-card>
               <VolunteeringPage @reload-components="reloadComponents" />
@@ -203,8 +205,8 @@
   </div>
 </template>
 <script setup lang="ts">
-import { ref, provide, computed } from 'vue';
-import { useRouter } from 'vue-router';
+import { ref, provide, computed, onMounted } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
 import { useQuasar } from 'quasar';
 import ProfilePage from './ProfilePage.vue';
 import VolunteeringPage from './VolunteeringPage.vue';
@@ -227,6 +229,7 @@ const isProcessingImages = ref(false);
 const { t } = useI18n();
 const userStore = useUserStore();
 const router = useRouter();
+const route = useRoute();
 const $q = useQuasar();
 const reloadKey = ref(0);
 const reloadComponents = () => {
@@ -387,15 +390,40 @@ const logout = async () => {
 };
 
 const expandedItems = ref({
-  profile: !userStore.user?.name,
+  profile: false,
+  emergencyContact: false,
   volunteers: false,
-  myPosts: false,
   community: false,
   feedback: false,
-  rating: false,
   settings: false,
-  emergencyContact: false,
   business: false,
+});
+
+onMounted(() => {
+  // Check if the URL has the 'open' query parameter
+  if (route.query.open === 'emergency') {
+    expandedItems.value.emergencyContact = true; // Open the EmergencyContactPage expansion
+    // Scroll to the EmergencyContactPage section
+    setTimeout(() => {
+      const emergencySection = document.querySelector(
+        '.emergency-contact-section'
+      );
+      if (emergencySection) {
+        emergencySection.scrollIntoView({ behavior: 'smooth' });
+      }
+    }, 100); // Delay to ensure the expansion is opened before scrolling
+  } else if (route.query.open === 'volunteers') {
+    expandedItems.value.volunteers = true; // Open the VolunteeringPage expansion
+    // Scroll to the VolunteeringPage section
+    setTimeout(() => {
+      const volunteeringSection = document.querySelector(
+        '.volunteering-section'
+      );
+      if (volunteeringSection) {
+        volunteeringSection.scrollIntoView({ behavior: 'smooth' });
+      }
+    }, 100); // Delay to ensure the expansion is opened before scrolling
+  }
 });
 </script>
 <style lang="scss" scoped>

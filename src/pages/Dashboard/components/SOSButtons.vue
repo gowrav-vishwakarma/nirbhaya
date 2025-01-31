@@ -1,7 +1,11 @@
 <template>
   <div class="sos-buttons q-mb-lg" style="border: 1px solid white; border-radius: 10px; margin-top: 20px">
-    <q-btn round style="background-color: #e74c3c" class="sos-button q-my-lg glowing-border"
-      @click="$emit('initiate-sos', true)">
+    <q-btn
+      round
+      style="background-color: #e74c3c"
+      class="sos-button q-my-lg glowing-border"
+      @click="handleClick"
+    >
       <div class="row items-center full-width">
         <span style="margin: auto; font-size: 40px; color: white">sos</span>
       </div>
@@ -52,11 +56,17 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
+
 const showPopup = ref(false); // Reactive variable to control popup visibility
 
-defineEmits<{
+const emit = defineEmits<{
   (e: 'initiate-sos', contactsOnly: boolean): void;
 }>();
+
+const handleClick = () => {
+  // Emit the event to initiate SOS regardless of emergency contacts
+  emit('initiate-sos', true);
+};
 </script>
 
 <style lang="scss" scoped>

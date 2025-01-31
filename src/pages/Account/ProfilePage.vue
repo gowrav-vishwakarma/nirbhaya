@@ -39,8 +39,8 @@
               </div>
 
               <!-- DOB Input -->
-              <div class="col-12 col-sm-6 q-py-none custom-input">
-                <label>{{ $t('common.dob') }}</label>
+              <!-- <div class="col-12 col-sm-6 q-py-none custom-input">
+                <label>{{ $t('common.dob') }} (optional)</label>
                 <q-input
                   filled
                   v-model="values.dob"
@@ -51,7 +51,7 @@
                   bg-color="pink-1"
                   dense
                   hide-bottom-space
-                  :rules="[(val) => !!val || 'Date of birth is required']"
+                  :rules="[]"
                   :fill-mask="true"
                   input-class="text-left"
                 >
@@ -80,8 +80,23 @@
                     </q-popup-proxy>
                   </template>
                 </q-input>
-              </div>
+              </div> -->
 
+              <!-- User Type Input -->
+              <div class="col-12 col-sm-6 q-py-none custom-input">
+                <label>{{ $t('common.userType') }}</label>
+                <q-select
+                  v-model="values.userType"
+                  :options="userTypeOptions"
+                  filled
+                  class="custom-radius"
+                  bg-color="pink-1"
+                  dense
+                  :error="!!errors.userType"
+                  :error-message="errors.userType?.join('; ')"
+                  hide-bottom-space
+                />
+              </div>
               <!-- State Input -->
               <div class="col-12 col-sm-6 q-py-none custom-input">
                 <label>{{ $t('common.state') }}</label>
@@ -113,22 +128,6 @@
                   @update:modelValue="handleCitySelection"
                   :disabled="!values.state"
                   :key="values.state"
-                />
-              </div>
-
-              <!-- User Type Input -->
-              <div class="col-12 col-sm-6 q-py-none custom-input">
-                <label>{{ $t('common.userType') }}</label>
-                <q-select
-                  v-model="values.userType"
-                  :options="userTypeOptions"
-                  filled
-                  class="custom-radius"
-                  bg-color="pink-1"
-                  dense
-                  :error="!!errors.userType"
-                  :error-message="errors.userType?.join('; ')"
-                  hide-bottom-space
                 />
               </div>
 
@@ -235,14 +234,17 @@ const props = defineProps<{
 
 const emit = defineEmits(['reloadComponents']);
 const userTypeOptions = [
+  'Below (13)',
+  'Girl (13-18)',
+  'Boy (13-18)',
   'Girl/Woman (18-35)',
   'Woman (35+)',
   'Senior Woman (60+)',
   'Boy/Man (18-35)',
   'Man (35+)',
   'Senior Man (60+)',
-  'Child (Under 18)',
-  'Prefer not to say',
+  // 'Child (Under 18)',
+  // 'Prefer not to say',
 ];
 
 const originalStateOptions = [
@@ -360,7 +362,7 @@ interface FormValues {
   phoneNumber: string;
   city: City | null;
   state: string;
-  dob: string;
+  // dob: string;
   userType: string;
   profession: string;
   pincode: string;
@@ -378,7 +380,7 @@ const { values, errors, isLoading, validateAndSubmit, callbacks } =
     phoneNumber: '',
     city: null,
     state: '',
-    dob: '',
+    // dob: '',
     userType: '',
     profession: '',
     pincode: '',
@@ -393,7 +395,7 @@ callbacks.beforeSubmit = (data) => {
   console.log('data before processing...', data);
   const processedData = {
     ...data,
-    dob: data.dob || '',
+    // dob: data.dob || '',
     state: data.state || '',
     pincode: data.pincode || '',
     referredBy: errors.value.referredBy ? '' : data.referredBy,
@@ -433,7 +435,7 @@ const loadUserData = async () => {
     city: values.value.city,
     name: userData.name || '',
     phoneNumber: userData.phoneNumber || '',
-    dob: userData.dob || '',
+    // dob: userData.dob || '',
     userType: userData.userType || '',
     // Add null coalescing for profession
     profession: userData.profession || '',
@@ -483,7 +485,7 @@ const isFormValid = computed(() => {
 
   return (
     !!values.value.name &&
-    !!values.value.dob &&
+    // !!values.value.dob &&
     !!values.value.state &&
     !!values.value.city &&
     (hasEmergencyContacts.value ||
@@ -492,7 +494,7 @@ const isFormValid = computed(() => {
       (contact: EmergencyContact) => contact.contactName && contact.contactPhone
     ) &&
     !errors.value.name &&
-    !errors.value.dob &&
+    // !errors.value.dob &&
     !errors.value.state &&
     !errors.value.city &&
     !Object.keys(errors.value).some((key) => key.startsWith('emergencyContact'))
@@ -516,7 +518,7 @@ callbacks.onSuccess = (data) => {
   // Make sure all fields are properly updated in the store
   const updatedUserData = {
     ...data.user,
-    dob: values.value.dob,
+    // dob: values.value.dob,
     state: values.value.state,
     pincode: values.value.pincode,
     profession: values.value.profession,

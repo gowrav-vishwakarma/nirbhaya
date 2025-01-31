@@ -23,7 +23,9 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>UIBackgroundModes</key>
-	<array>
+  <array>
+    <string>audio</string>
+    <string>voip</string>
 		<string>remote-notification</string>
 	</array>
 	<key>UILaunchStoryboardName</key>

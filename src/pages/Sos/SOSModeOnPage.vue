@@ -31,6 +31,13 @@
             <div class="text-subtitle1 q-mt-sm">
               {{ $t('common.sosCountdownMessage') }}
             </div>
+            <div class="text-subtitle2 q-mt-sm">
+              <q-checkbox
+                v-model="autoNotifyNearby"
+                :label="$t('common.autoNotifyNearbyAfterDelay')"
+                color="red"
+              />
+            </div>
             <q-btn
               @click="cancelSOS"
               class="cancel-sos-button full-width q-py-sm"
@@ -105,12 +112,14 @@
           </div>
 
           <!-- <div> -->
+          <!--
           <div
             class="q-ma-none"
             style="margin-top: -10px; text-align: center"
             v-if="!sentSosUpdateNearByAlso"
           >
             <div class="q-mb-sm">
+
               <q-btn
                 @click="updateNearByAlso"
                 round
@@ -143,7 +152,7 @@
             <span class="q-ma-none" style="font-weight: 700"
               >Send SOS to nearby volunteers?</span
             >
-          </div>
+          </div> -->
           <!-- </div> -->
 
           <q-list
@@ -385,8 +394,8 @@ const timeLeft = ref(countdownDuration);
 let countdownInterval: ReturnType<typeof setInterval> | null = null;
 const sosSent = ref(false);
 const isResolvingManually = ref(false);
-const notifiedPersons = ref(0);
-const acceptedPersons = ref(0);
+// const notifiedPersons = ref(0);
+// const acceptedPersons = ref(0);
 
 const createdSosId = ref(
   route.query.sosEventId ? parseInt(String(route.query.sosEventId)) : 0
@@ -416,42 +425,42 @@ const locationSentToServer = ref(false);
 const threats = [
   {
     color: '#000000',
-    icon: 'emergency',
-    threatName: 'domesticViolence',
-    visibleThreat: 'common.domesticViolence',
+    icon: 'pan_tool',
+    threatName: 'safetyconcerns',
+    visibleThreat: 'common.safetyconcerns',
   },
   {
     color: '#FF0000',
-    icon: 'diversity_3',
-    threatName: 'attemptedKidnapping',
-    visibleThreat: 'common.attemptedKidnapping',
+    icon: 'emergency',
+    threatName: 'medicalemergency',
+    visibleThreat: 'common.medicalemergency',
   },
 
-  {
-    color: '#808000',
-    icon: 'touch_app',
-    threatName: 'physicalThreat',
-    visibleThreat: 'common.physicalThreat',
-  },
-  {
-    color: '#641e16',
-    icon: 'pan_tool',
-    threatName: 'sexualAssault',
-    visibleThreat: 'common.sexualAssault',
-  },
-  {
-    color: '#FF00FF',
-    icon: 'gesture',
-    threatName: 'followedBySomeone',
-    visibleThreat: 'common.followedBySomeone',
-  },
+  // {
+  //   color: '#808000',
+  //   icon: 'touch_app',
+  //   threatName: 'physicalThreat',
+  //   visibleThreat: 'common.physicalThreat',
+  // },
+  // {
+  //   color: '#641e16',
+  //   icon: 'pan_tool',
+  //   threatName: 'sexualAssault',
+  //   visibleThreat: 'common.sexualAssault',
+  // },
+  // {
+  //   color: '#FF00FF',
+  //   icon: 'gesture',
+  //   threatName: 'followedBySomeone',
+  //   visibleThreat: 'common.followedBySomeone',
+  // },
 
-  {
-    color: '#008080',
-    icon: 'record_voice_over',
-    threatName: 'verbalHarassment',
-    visibleThreat: 'common.verbalHarassment',
-  },
+  // {
+  //   color: '#008080',
+  //   icon: 'record_voice_over',
+  //   threatName: 'verbalHarassment',
+  //   visibleThreat: 'common.verbalHarassment',
+  // },
 
   // 'common.followedBySomeone',
   // 'common.verbalHarassment',
@@ -522,6 +531,10 @@ const getTooltip = (status: string, type: string) => {
       return `Unknown ${type} status`;
   }
 };
+
+// Add new refs
+const autoNotifyNearby = ref(userStore.user?.autoNotifyNearbyDefault ?? true);
+const nearbyNotificationTimer = ref<ReturnType<typeof setTimeout> | null>(null);
 
 onMounted(async () => {
   await checkPermissions();
@@ -623,6 +636,11 @@ onBeforeRouteLeave(async (to, from, next) => {
   await stopLocationWatching();
   await stopRecordingAndStreaming();
 
+  if (nearbyNotificationTimer.value) {
+    clearTimeout(nearbyNotificationTimer.value);
+    nearbyNotificationTimer.value = null;
+  }
+
   // Only show the confirmation if SOS is still active
   if (sosSent.value) {
     const shouldProceed = await showResolveConfirmation();
@@ -662,6 +680,10 @@ const resetCountdown = () => {
 
 const cancelSOS = async () => {
   try {
+    if (nearbyNotificationTimer.value) {
+      clearTimeout(nearbyNotificationTimer.value);
+      nearbyNotificationTimer.value = null;
+    }
     // await sendCancelSOSRequest();
     logMessage('SOS request cancelled.');
     router.push('/sos');
@@ -697,8 +719,18 @@ const updateSOSData = async (data: {
         clearInterval(countdownInterval);
       }
       sosSent.value = true;
-      notifiedPersons.value = 10;
-      acceptedPersons.value = 3;
+      // notifiedPersons.value = 10;
+      // acceptedPersons.value = 3;
+
+      // Start timer for auto-notify nearby if enabled
+      if (autoNotifyNearby.value && !sentSosUpdateNearByAlso.value) {
+        nearbyNotificationTimer.value = setTimeout(() => {
+          if (accepted.value === 0) {
+            // Only notify if no one has accepted
+            updateNearByAlso();
+          }
+        }, 180000); // 1 minute delay
+      }
     }
 
     // Always update all available values
@@ -1398,5 +1430,15 @@ const updateNearByAlso = () => {
   border-radius: 8px;
   padding: 20px;
   min-width: 200px;
+}
+
+// Add style for checkbox
+.q-checkbox {
+  margin-top: 10px;
+  margin-bottom: 10px;
+  .q-checkbox__label {
+    font-size: 0.9em;
+    color: $grey-8;
+  }
 }
 </style>

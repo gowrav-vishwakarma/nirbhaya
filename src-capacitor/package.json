@@ -1,11 +1,12 @@
 {
   "name": "SOS Bharat",
-  "version": "0.0.220",
+  "version": "0.0.221",
   "description": "Connect with your local community heroes while staying informed with daily news. Plus, get peace of mind knowing trusted neighbours and contacts are just a tap away when needed.",
   "author": "Gowrav Vishwakarma <gowravvishwkarma@gmail.com>",
   "private": true,
   "dependencies": {
     "@capacitor-community/text-to-speech": "^5.1.0",
+    "@awesome-cordova-plugins/smartlook": "^6.14.0",
     "@capacitor/android": "^6.1.2",
     "@capacitor/app": "^6.0.0",
     "@capacitor/camera": "^6.0.0",
@@ -18,6 +19,9 @@
     "@capacitor/network": "^6.0.0",
     "@capacitor/push-notifications": "^6.0.0",
     "@capacitor/status-bar": "^6.0.2",
-    "@ionic/pwa-elements": "^3.3.0"
+    "@capgo/capacitor-updater": "^6.14.8",
+    "@ionic/pwa-elements": "^3.3.0",
+    "cordova-plugin-smartlook": "^2.0.6",
+    "capacitor-jitsi-meet": "^6.2.1"
   }
 }
