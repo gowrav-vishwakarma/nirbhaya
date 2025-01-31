@@ -9,6 +9,8 @@
             style="color: white; font-weight: 900"
           >
             Bulletin Feed
+            <!-- {{ selectedLanguageSupported }}
+            {{ selectedLanguage }} -->
             <div class="text-caption text-white-6">
               AI summaries and translations may be inaccurate. Check source.
             </div>
@@ -773,7 +775,7 @@ function getProgressText() {
 }
 
 const checkLanguageSupport = async () => {
-  const supportLang = await TextToSpeech.getSupportedLanguages();
+  // const supportLang = await TextToSpeech.getSupportedLanguages();
   const isSupport = await TextToSpeech.isLanguageSupported({
     lang: selectedLanguage.value,
   });
@@ -786,7 +788,7 @@ const checkLanguageSupport = async () => {
   console.log(
     'supportLang',
     selectedLanguage.value,
-    JSON.stringify(supportLang),
+    // JSON.stringify(supportLang),
     JSON.stringify(isSupport)
   );
 };
@@ -862,7 +864,7 @@ onMounted(async () => {
   fetchNews();
   const cleanup = setupInfiniteScroll();
   onUnmounted(cleanup);
-  checkLanguageSupport();
+  await checkLanguageSupport();
 });
 </script>
 
