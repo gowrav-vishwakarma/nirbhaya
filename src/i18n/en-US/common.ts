@@ -75,7 +75,7 @@ export default {
   notificationsPermissionHelp: 'notifications Permission Help',
   errorGettingLocation: 'Error getting location. Please try again.',
   autoNotifyNearbyAfterDelay:
-    'Notify nearby volunteers if no contact joins in 1 minute',
+    'Notify nearby volunteers if no contact joins in 3 minute',
 
   // Profile Page
   myProfile: 'My Profile',
