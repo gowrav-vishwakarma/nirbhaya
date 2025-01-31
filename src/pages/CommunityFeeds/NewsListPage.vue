@@ -104,6 +104,7 @@
                   "
                   @click="toggleAudio(newsItem)"
                   :loading="isLoading(newsItem.id) && !isPlaying(newsItem.id)"
+                  v-if="selectedLanguageSupported"
                 />
                 <q-btn
                   v-if="newsItem.source"
@@ -150,6 +151,7 @@
       </q-btn>
       <br /><br />
       <q-btn
+        v-if="selectedLanguageSupported"
         rounded
         :color="isPlayingAll ? 'negative' : 'primary'"
         :icon="isPlayingAll ? 'stop' : 'volume_up'"
@@ -276,6 +278,7 @@ type LanguageCode = keyof typeof languageConfig;
 const selectedLanguage = ref<LanguageCode>(
   (userStore.newsPreferences.language as LanguageCode) || 'en'
 );
+const selectedLanguageSupported = ref(false);
 const selectedCategories = ref(userStore.newsPreferences.categories || []);
 const selectedNewsType = ref(userStore.newsPreferences.newsType || 'all');
 
@@ -402,10 +405,11 @@ async function fetchNews(reset = false) {
   }
 }
 
-function onLanguageChange(value: LanguageCode) {
+async function onLanguageChange(value: LanguageCode) {
   selectedLanguage.value = value;
   userStore.setNewsPreferences({ language: value });
   fetchNews(true);
+  checkLanguageSupport();
 }
 
 function onCategoriesChange(value: string[] | null) {
@@ -662,6 +666,10 @@ function togglePlayAll() {
 }
 
 async function toggleAudio(newsItem: NewsItem) {
+  if (!selectedLanguageSupported.value) {
+    alert('current Language is not support in your device');
+    return;
+  }
   return new Promise<void>(async (resolve) => {
     // If this item is currently playing, stop it
     if (isPlaying(newsItem.id)) {
@@ -736,7 +744,7 @@ async function toggleAudio(newsItem: NewsItem) {
         rate: 1.0,
         pitch: 1.0,
         volume: 1.0,
-        category: 'ambient',
+        category: 'playback', //'ambient',
       }).then(() => {
         if (isPlayingAll.value) {
           playNext();
@@ -764,6 +772,24 @@ function getProgressText() {
     : `Playing ${current}/${total}`;
 }
 
+const checkLanguageSupport = async () => {
+  const supportLang = await TextToSpeech.getSupportedLanguages();
+  const isSupport = await TextToSpeech.isLanguageSupported({
+    lang: selectedLanguage.value,
+  });
+  if (isSupport && isSupport.supported) {
+    selectedLanguageSupported.value =
+      isSupport.supported == true ? true : false;
+  } else {
+    selectedLanguageSupported.value = false;
+  }
+  console.log(
+    'supportLang',
+    selectedLanguage.value,
+    JSON.stringify(supportLang),
+    JSON.stringify(isSupport)
+  );
+};
 const formatDate = (dateString: string | null) => {
   if (!dateString) return 'Recent';
 
@@ -832,10 +858,11 @@ onUnmounted(() => {
   stopPlayAll();
 });
 
-onMounted(() => {
+onMounted(async () => {
   fetchNews();
   const cleanup = setupInfiniteScroll();
   onUnmounted(cleanup);
+  checkLanguageSupport();
 });
 </script>
 
