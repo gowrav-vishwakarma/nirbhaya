@@ -619,5 +619,5 @@ export default {
 
   autoNotifyNearbyDefault: 'Auto-notify nearby volunteers by default',
   autoNotifyNearbyDefaultDesc:
-    'When enabled, SOS alerts will automatically notify nearby volunteers if no contacts respond within 1 minute',
+    'When enabled, SOS alerts will automatically notify nearby volunteers if no contacts respond within 3 minute',
 };
