@@ -30,8 +30,14 @@ const { t } = useI18n();
 const isLoading = ref(false);
 const isJoined = ref(false);
 
+window.addEventListener('onParticipantsInfoRetrieved', (data: any) => {
+  // do things here
+  console.log('participant joined Rakesh', JSON.stringify(data));
+});
+
 const joinConference = async () => {
   try {
+    const displayName = 'SOS by';
     const roomName = `sosbharat_event_${props.sosEventId}`;
     const result = await Jitsi.joinConference({
       roomName,
@@ -46,7 +52,7 @@ const joinConference = async () => {
       startWithVideoMuted: false,
       chatEnabled: false,
       inviteEnabled: false,
-      displayName: roomName,
+      displayName: displayName,
     });
 
     if (result.success) {

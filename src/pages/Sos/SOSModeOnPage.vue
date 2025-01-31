@@ -392,8 +392,8 @@ const timeLeft = ref(countdownDuration);
 let countdownInterval: ReturnType<typeof setInterval> | null = null;
 const sosSent = ref(false);
 const isResolvingManually = ref(false);
-const notifiedPersons = ref(0);
-const acceptedPersons = ref(0);
+// const notifiedPersons = ref(0);
+// const acceptedPersons = ref(0);
 
 const createdSosId = ref(
   route.query.sosEventId ? parseInt(String(route.query.sosEventId)) : 0
@@ -717,8 +717,8 @@ const updateSOSData = async (data: {
         clearInterval(countdownInterval);
       }
       sosSent.value = true;
-      notifiedPersons.value = 10;
-      acceptedPersons.value = 3;
+      // notifiedPersons.value = 10;
+      // acceptedPersons.value = 3;
 
       // Start timer for auto-notify nearby if enabled
       if (autoNotifyNearby.value && !sentSosUpdateNearByAlso.value) {
@@ -727,7 +727,7 @@ const updateSOSData = async (data: {
             // Only notify if no one has accepted
             updateNearByAlso();
           }
-        }, 60000); // 1 minute delay
+        }, 180000); // 1 minute delay
       }
     }
 

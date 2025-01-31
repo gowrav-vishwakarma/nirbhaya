@@ -46,6 +46,7 @@ const joinConference = async () => {
       startWithVideoMuted: true,
       chatEnabled: false,
       inviteEnabled: false,
+      displayName: 'Volunteer',
     });
 
     if (result.success) {
