@@ -541,9 +541,9 @@ onMounted(async () => {
   await activateSOSPermissions();
   startCountdown();
   await startLocationWatching();
-  if (shouldRecord.value || shouldStream.value) {
-    await startRecordingAndStreaming();
-  }
+  // if (shouldRecord.value || shouldStream.value) {
+  //   await startRecordingAndStreaming();
+  // }
 
   // Add this to update audio status based on SosAudioControls
   if (shouldRecord.value || shouldStream.value) {
@@ -634,7 +634,7 @@ onBeforeRouteLeave(async (to, from, next) => {
     clearInterval(countdownInterval);
   }
   await stopLocationWatching();
-  await stopRecordingAndStreaming();
+  // await stopRecordingAndStreaming();
 
   if (nearbyNotificationTimer.value) {
     clearTimeout(nearbyNotificationTimer.value);
