@@ -295,7 +295,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted } from 'vue';
+import { ref, computed, watch } from 'vue';
 import { api } from 'src/boot/axios';
 import { useQuasar } from 'quasar';
 import { useUserStore } from 'src/stores/user-store';
@@ -338,11 +338,11 @@ const form = ref({
 
 const showMoreOptions = ref(false);
 
-const tagInput = ref('');
+// const tagInput = ref('');
 
-const titleCharCount = computed(() => {
-  return form.value.title.length;
-});
+// const titleCharCount = computed(() => {
+//   return form.value.title.length;
+// });
 
 const descriptionCharCount = computed(() => {
   return form.value.description.length;
@@ -363,29 +363,23 @@ const isValid = computed(() => {
   return hasContent && validLength;
 });
 
-const canAddMoreTags = computed(() => {
-  return form.value.tags.length < 5;
-});
+// const canAddMoreTags = computed(() => {
+//   return form.value.tags.length < 5;
+// });
 
-const addTag = () => {
-  const tag = tagInput.value.trim().toLowerCase();
-  if (tag && !form.value.tags.includes(tag) && canAddMoreTags.value) {
-    form.value.tags.push(tag);
-  } else if (!canAddMoreTags.value) {
-    console.log('Maximum 5 tags allowed');
+// const addTag = () => {
+//   const tag = tagInput.value.trim().toLowerCase();
+//   if (tag && !form.value.tags.includes(tag) && canAddMoreTags.value) {
+//     form.value.tags.push(tag);
+//   } else if (!canAddMoreTags.value) {
+//     console.log('Maximum 5 tags allowed');
+//   }
+//   tagInput.value = '';
+// };
 
-    // $q.notify({
-    //   color: 'warning',
-    //   message: 'Maximum 5 tags allowed',
-    //   icon: 'warning'
-    // });
-  }
-  tagInput.value = '';
-};
-
-const removeTag = (tag: string) => {
-  form.value.tags = form.value.tags.filter((t) => t !== tag);
-};
+// const removeTag = (tag: string) => {
+//   form.value.tags = form.value.tags.filter((t) => t !== tag);
+// };
 
 const fileInput = ref<HTMLInputElement | null>(null);
 

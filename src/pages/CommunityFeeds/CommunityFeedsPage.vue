@@ -22,7 +22,12 @@
               <img src="https://cdn.quasar.dev/img/avatar.png" />
               <q-badge floating color="green" rounded />
             </q-avatar>
-            <q-btn class="full-width q-ml-md post-input-btn" flat color="grey-7" @click="openCreatePostDialog">
+            <q-btn
+              class="full-width q-ml-md post-input-btn"
+              flat
+              color="grey-7"
+              @click="openCreatePostDialog"
+            >
               <div class="row full-width items-center text-left">
                 <span class="text-grey-7">What's on your mind?</span>
               </div>
@@ -35,7 +40,13 @@
       <div class="posts-feed q-pa-md">
         <!-- Skeleton Loader -->
         <template v-if="loading">
-          <q-card v-for="n in 3" :key="n" class="post-card q-mb-md" flat bordered>
+          <q-card
+            v-for="n in 3"
+            :key="n"
+            class="post-card q-mb-md"
+            flat
+            bordered
+          >
             <q-card-section>
               <div class="row items-center">
                 <q-skeleton type="QAvatar" size="40px" />
@@ -54,7 +65,13 @@
 
         <!-- Actual Posts -->
         <template v-else>
-          <q-card v-for="post in posts" :key="post.id" class="post-card q-mb-md" flat bordered>
+          <q-card
+            v-for="post in posts"
+            :key="post.id"
+            class="post-card q-mb-md"
+            flat
+            bordered
+          >
             <q-card-section>
               <div class="row items-center">
                 <q-avatar size="40px">
@@ -93,7 +110,14 @@
             <q-card-section>
               <div class="text-body1">{{ post.content }}</div>
               <div v-if="post.tags" class="q-mt-sm">
-                <q-chip v-for="tag in post.tags" :key="tag" dense color="primary" text-color="white" size="sm">
+                <q-chip
+                  v-for="tag in post.tags"
+                  :key="tag"
+                  dense
+                  color="primary"
+                  text-color="white"
+                  size="sm"
+                >
                   #{{ tag }}
                 </q-chip>
               </div>
@@ -104,8 +128,13 @@
                 <!-- Single image layout -->
                 <template v-if="post.images.length === 1">
                   <div class="col-12">
-                    <q-img :src="post.images[0]" :ratio="16 / 9" spinner-color="primary" spinner-size="82px"
-                      class="rounded-borders">
+                    <q-img
+                      :src="post.images[0]"
+                      :ratio="16 / 9"
+                      spinner-color="primary"
+                      spinner-size="82px"
+                      class="rounded-borders"
+                    >
                       <template v-slot:loading>
                         <q-skeleton type="rect" />
                       </template>
@@ -115,8 +144,17 @@
 
                 <!-- Two images layout -->
                 <template v-else-if="post.images.length === 2">
-                  <div v-for="(img, index) in post.images" :key="index" class="col-6">
-                    <q-img :src="img" :ratio="1" spinner-color="primary" class="rounded-borders">
+                  <div
+                    v-for="(img, index) in post.images"
+                    :key="index"
+                    class="col-6"
+                  >
+                    <q-img
+                      :src="img"
+                      :ratio="1"
+                      spinner-color="primary"
+                      class="rounded-borders"
+                    >
                       <template v-slot:loading>
                         <q-skeleton type="rect" />
                       </template>
@@ -128,24 +166,42 @@
                 <template v-else>
                   <!-- First large image -->
                   <div class="col-12">
-                    <q-img :src="post.images[0]" :ratio="16 / 9" spinner-color="primary" class="rounded-borders">
+                    <q-img
+                      :src="post.images[0]"
+                      :ratio="16 / 9"
+                      spinner-color="primary"
+                      class="rounded-borders"
+                    >
                       <template v-slot:loading>
                         <q-skeleton type="rect" />
                       </template>
                     </q-img>
                   </div>
                   <!-- Remaining images in grid -->
-                  <div v-for="(img, index) in post.images.slice(1, 4)" :key="index" class="col-6">
+                  <div
+                    v-for="(img, index) in post.images.slice(1, 4)"
+                    :key="index"
+                    class="col-6"
+                  >
                     <div class="image-container">
-                      <q-img :src="img" :ratio="1" spinner-color="primary" class="rounded-borders">
+                      <q-img
+                        :src="img"
+                        :ratio="1"
+                        spinner-color="primary"
+                        class="rounded-borders"
+                      >
                         <template v-slot:loading>
                           <q-skeleton type="rect" />
                         </template>
                       </q-img>
                       <!-- Show remaining count on last visible image -->
-                      <div v-if="index === 2 && post.images.length > 4"
-                        class="remaining-overlay flex flex-center text-white">
-                        <span class="text-h5">+{{ post.images.length - 4 }}</span>
+                      <div
+                        v-if="index === 2 && post.images.length > 4"
+                        class="remaining-overlay flex flex-center text-white"
+                      >
+                        <span class="text-h5"
+                          >+{{ post.images.length - 4 }}</span
+                        >
                       </div>
                     </div>
                   </div>
@@ -156,17 +212,32 @@
             <q-separator />
             <q-card-actions align="around">
               <div class="row items-center q-gutter-x-sm text-grey-7">
-                <q-btn flat round size="sm" :icon="post.isLiked ? 'fa-solid fa-heart' : 'fa-regular fa-heart'"
-                  :color="post.isLiked ? 'red' : 'grey'" />
+                <q-btn
+                  flat
+                  round
+                  size="sm"
+                  :icon="
+                    post.isLiked ? 'fa-solid fa-heart' : 'fa-regular fa-heart'
+                  "
+                  :color="post.isLiked ? 'red' : 'grey'"
+                />
                 <span>{{ post.likes }}</span>
                 <q-space />
                 <span>
-                  <q-icon name="fa-regular fa-comment-dots" size="xs" class="q-mr-xs" />
+                  <q-icon
+                    name="fa-regular fa-comment-dots"
+                    size="xs"
+                    class="q-mr-xs"
+                  />
                   {{ post.comments }} comments
                 </span>
                 <span>•</span>
                 <span>
-                  <q-icon name="fa-solid fa-share-nodes" size="xs" class="q-mr-xs" />
+                  <q-icon
+                    name="fa-solid fa-share-nodes"
+                    size="xs"
+                    class="q-mr-xs"
+                  />
                   {{ post.shares }} shares
                 </span>
               </div>
@@ -177,7 +248,12 @@
     </div>
 
     <!-- Create Post Dialog -->
-    <q-dialog v-model="createPostDialog" maximized transition-show="slide-up" transition-hide="slide-down">
+    <q-dialog
+      v-model="createPostDialog"
+      maximized
+      transition-show="slide-up"
+      transition-hide="slide-down"
+    >
       <q-card class="column">
         <q-card-section class="row items-center q-pb-none">
           <div class="text-h6">Create Post</div>
@@ -194,12 +270,25 @@
             </q-avatar>
             <div class="q-ml-md">
               <div class="text-weight-bold">Your Name</div>
-              <q-btn dense flat size="sm" icon="fas fa-globe-americas" label="Public" />
+              <q-btn
+                dense
+                flat
+                size="sm"
+                icon="fas fa-globe-americas"
+                label="Public"
+              />
             </div>
           </div>
 
-          <q-input v-model="newPost" type="textarea" placeholder="What do you want to share?" autogrow class="text-h6"
-            borderless maxlength="500" />
+          <q-input
+            v-model="newPost"
+            type="textarea"
+            placeholder="What do you want to share?"
+            autogrow
+            class="text-h6"
+            borderless
+            maxlength="500"
+          />
 
           <div class="row q-mt-lg">
             <q-btn flat color="primary" class="full-width">
@@ -214,8 +303,14 @@
         <q-separator />
 
         <q-card-actions align="right" class="q-pa-md">
-          <q-btn unelevated color="primary" label="Post" :disable="!newPost.trim()" @click="submitPost"
-            class="full-width" />
+          <q-btn
+            unelevated
+            color="primary"
+            label="Post"
+            :disable="!newPost.trim()"
+            @click="submitPost"
+            class="full-width"
+          />
         </q-card-actions>
       </q-card>
     </q-dialog>
@@ -223,18 +318,18 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted } from 'vue';
 
-const createPostDialog = ref(false)
-const newPost = ref('')
-const loading = ref(true)
+const createPostDialog = ref(false);
+const newPost = ref('');
+const loading = ref(true);
 
 // Simulate loading
 onMounted(() => {
   setTimeout(() => {
-    loading.value = false
-  }, 2000)
-})
+    loading.value = false;
+  }, 2000);
+});
 
 // Sample posts data
 const posts = ref([
@@ -243,41 +338,43 @@ const posts = ref([
     authorName: 'Jane Doe',
     authorAvatar: 'https://cdn.quasar.dev/img/avatar2.jpg',
     timestamp: '2h ago',
-    content: 'Just attended an amazing self-defense workshop! Learning these skills makes me feel more confident and secure.',
+    content:
+      'Just attended an amazing self-defense workshop! Learning these skills makes me feel more confident and secure.',
     images: [
       'https://cdn.quasar.dev/img/parallax2.jpg',
       'https://cdn.quasar.dev/img/parallax1.jpg',
       'https://cdn.quasar.dev/img/mountains.jpg',
       'https://cdn.quasar.dev/img/parallax2.jpg',
-      'https://cdn.quasar.dev/img/parallax1.jpg'
+      'https://cdn.quasar.dev/img/parallax1.jpg',
     ],
     likes: 45,
     comments: 12,
     shares: 5,
     isLiked: false,
-    tags: ['SelfDefense', 'WomenEmpowerment']
+    tags: ['SelfDefense', 'WomenEmpowerment'],
   },
   {
     id: 2,
     authorName: 'John Smith',
     authorAvatar: 'https://cdn.quasar.dev/img/avatar3.jpg',
     timestamp: '5h ago',
-    content: 'Important safety tips for everyone in our community. Stay alert and stay safe! 🚨',
+    content:
+      'Important safety tips for everyone in our community. Stay alert and stay safe! 🚨',
     images: [
       'https://cdn.quasar.dev/img/mountains.jpg',
-      'https://cdn.quasar.dev/img/parallax1.jpg'
+      'https://cdn.quasar.dev/img/parallax1.jpg',
     ],
     likes: 89,
     comments: 23,
     shares: 15,
     isLiked: true,
-    tags: ['SafetyFirst', 'CommunityAlert']
-  }
-])
+    tags: ['SafetyFirst', 'CommunityAlert'],
+  },
+]);
 
 const openCreatePostDialog = () => {
-  createPostDialog.value = true
-}
+  createPostDialog.value = true;
+};
 
 const submitPost = () => {
   if (newPost.value.trim()) {
@@ -292,20 +389,20 @@ const submitPost = () => {
       comments: 0,
       shares: 0,
       isLiked: false,
-      tags: []
-    })
-    newPost.value = ''
-    createPostDialog.value = false
+      tags: [],
+    });
+    newPost.value = '';
+    createPostDialog.value = false;
   }
-}
+};
 
-const likePost = (postId: number) => {
-  const post = posts.value.find((p) => p.id === postId)
-  if (post) {
-    post.isLiked = !post.isLiked
-    post.likes += post.isLiked ? 1 : -1
-  }
-}
+// const likePost = (postId: number) => {
+//   const post = posts.value.find((p) => p.id === postId)
+//   if (post) {
+//     post.isLiked = !post.isLiked
+//     post.likes += post.isLiked ? 1 : -1
+//   }
+// }
 </script>
 
 <style scoped>

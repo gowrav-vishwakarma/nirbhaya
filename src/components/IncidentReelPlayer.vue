@@ -1,10 +1,16 @@
 <template>
   <div class="incident-reel-player" v-intersection="onIntersect">
-    <div class="reelText">
-      Shorts <q-icon name="mdi-chevron-down"></q-icon>
-    </div>
-    <video v-if="reel.videoSource === 'normal'" ref="videoRef" :src="reel.videoUrl" loop
-      :muted="!isVisible || !isActive" playsinline preload="auto" @loadedmetadata="onVideoLoaded"></video>
+    <div class="reelText">Shorts <q-icon name="mdi-chevron-down"></q-icon></div>
+    <video
+      v-if="reel.videoSource === 'normal'"
+      ref="videoRef"
+      :src="reel.videoUrl"
+      loop
+      :muted="!isVisible || !isActive"
+      playsinline
+      preload="auto"
+      @loadedmetadata="onVideoLoaded"
+    ></video>
     <div v-else class="youtube-container">
       <div :id="youtubeIframeId"></div>
     </div>
@@ -13,47 +19,87 @@
       <h3>{{ reel.title }}</h3>
       <p>{{ reel.description }}</p>
     </div> -->
-    <div class="reel-actions" style="text-align: center;">
-      <q-icon @click="handleLike(reel)" :class="{ 'heartbeat': wasLiked }"
-        :style="{ marginBottom: '2px', color: isLiked ? 'red' : 'white' }" class="action-font-size"
-        :name="isLiked ? 'mdi-heart' : 'mdi-heart-outline'"></q-icon>
+    <div class="reel-actions" style="text-align: center">
+      <q-icon
+        @click="handleLike(reel)"
+        :class="{ heartbeat: wasLiked }"
+        :style="{ marginBottom: '2px', color: isLiked ? 'red' : 'white' }"
+        class="action-font-size"
+        :name="isLiked ? 'mdi-heart' : 'mdi-heart-outline'"
+      ></q-icon>
       <br />
       <span class="text-white">{{ reel.likes }}</span>
       <br />
-      <q-btn color="white" style="margin-top: 7px;" flat round @click="showComments(reel, true)">
+      <q-btn
+        color="white"
+        style="margin-top: 7px"
+        flat
+        round
+        @click="showComments(reel, true)"
+      >
         <q-icon class="action-font-size" name="mdi-message-outline"></q-icon>
       </q-btn>
       <br />
       <span class="text-white">{{ reel.comments }}</span>
       <br />
-      <q-btn color="white" style="margin-top: 3px; margin-bottom: 4px;" flat round @click="handleShare(reel)">
-        <q-icon style="transform: rotate(-20deg);" class="action-font-size" name="mdi-send"></q-icon>
+      <q-btn
+        color="white"
+        style="margin-top: 3px; margin-bottom: 4px"
+        flat
+        round
+        @click="handleShare(reel)"
+      >
+        <q-icon
+          style="transform: rotate(-20deg)"
+          class="action-font-size"
+          name="mdi-send"
+        ></q-icon>
       </q-btn>
       <br />
       <span class="text-white marginLeftone">{{ reel.shares }}</span>
     </div>
     <div>
       <q-dialog v-model="commentDialog" position="bottom">
-        <q-card style="width: 100%;">
+        <q-card style="width: 100%">
           <div class="">
             <div v-if="allComments.length">
               <h6 class="q-ma-none q-mt-sm q-ml-sm q-mb-sm">Comments</h6>
-              <div class="comments-container" style="max-height:60vh; overflow-y: auto;" ref="commentsContainer">
+              <div
+                class="comments-container"
+                style="max-height: 60vh; overflow-y: auto"
+                ref="commentsContainer"
+              >
                 <div v-for="comment in allComments" :key="comment.id">
                   <div class="q-px-sm">
-                    <q-chat-message bg-color="pink-1"
-                      :name="userStore.user.id === comment.userId ? 'You' : comment.user.name"
+                    <q-chat-message
+                      bg-color="pink-1"
+                      :name="
+                        userStore.user.id === comment.userId
+                          ? 'You'
+                          : comment.user.name
+                      "
                       avatar="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSm7wK5SMj8ezoK-caLkRu5P7vwbLyfbGShLXdbUaEtj5_jifktQUqHdtBDKXF3zJDh4HI&usqp=CAU"
-                      :text="[comment.comment_text]" :sent="false" />
+                      :text="[comment.comment_text]"
+                      :sent="false"
+                    />
                   </div>
                 </div>
               </div>
             </div>
-            <div style="width: 100%;" class="q-px-md q-pb-xs">
-              <q-input style="width: 100%;" v-model="newComment" label="Add a comment"
-                @keyup.enter="submitComment(reel)">
+            <div style="width: 100%" class="q-px-md q-pb-xs">
+              <q-input
+                style="width: 100%"
+                v-model="newComment"
+                label="Add a comment"
+                @keyup.enter="submitComment(reel)"
+              >
                 <template v-slot:append>
-                  <q-icon name="mdi-send" color="pink" @click="submitComment(reel)" class="cursor-pointer" />
+                  <q-icon
+                    name="mdi-send"
+                    color="pink"
+                    @click="submitComment(reel)"
+                    class="cursor-pointer"
+                  />
                 </template>
               </q-input>
             </div>
@@ -61,8 +107,7 @@
         </q-card>
       </q-dialog>
     </div>
-    <div class="centered-div" @click="handleClick">
-    </div>
+    <div class="centered-div" @click="handleClick"></div>
   </div>
 </template>
 
@@ -81,9 +126,11 @@ const props = defineProps<{
 
 const isYTReady = ref(false);
 const player = ref<YTPlayer | null>(null);
-const youtubeIframeId = computed(() => `youtube-player-${props.reel.id}-${Date.now()}`);
+const youtubeIframeId = computed(
+  () => `youtube-player-${props.reel.id}-${Date.now()}`
+);
 const playerState = ref<number | null>(null);
-const canTogglePlayPause = ref(false);
+// const canTogglePlayPause = ref(false);
 const isInitializing = ref(false);
 const isPlayerReady = ref(false);
 
@@ -100,19 +147,20 @@ declare global {
 }
 
 // Update the YouTube embed URL function
-const getYoutubeEmbedUrl = (videoId: string) => {
-  // Extract video ID if full URL is provided
-  const extractVideoId = (url: string) => {
-    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
-    const match = url.match(regExp);
-    return (match && match[2].length === 11) ? match[2] : url;
-  };
+// const getYoutubeEmbedUrl = (videoId: string) => {
+//   // Extract video ID if full URL is provided
+//   const extractVideoId = (url: string) => {
+//     const regExp =
+//       /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+//     const match = url.match(regExp);
+//     return match && match[2].length === 11 ? match[2] : url;
+//   };
 
-  const id = extractVideoId(videoId);
-  return `https://www.youtube.com/embed/${id}?enablejsapi=1&controls=0&rel=0&playsinline=1&origin=${window.location.origin}&autoplay=1&mute=1`;
-};
+//   const id = extractVideoId(videoId);
+//   return `https://www.youtube.com/embed/${id}?enablejsapi=1&controls=0&rel=0&playsinline=1&origin=${window.location.origin}&autoplay=1&mute=1`;
+// };
 
-let ytPlayer: YTPlayer | null = null;
+// let ytPlayer: YTPlayer | null = null;
 
 // Update the loadYouTubeAPI function
 const loadYouTubeAPI = () => {
@@ -162,7 +210,7 @@ const createYoutubePlayer = async () => {
         throw new Error('Container not found after maximum attempts');
       }
       attempts++;
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise((resolve) => setTimeout(resolve, 100));
       return waitForContainer();
     };
 
@@ -187,7 +235,7 @@ const createYoutubePlayer = async () => {
       videoId,
       containerId: youtubeIframeId.value,
       isActive: props.isActive,
-      isVisible: props.isVisible
+      isVisible: props.isVisible,
     });
 
     const playerConfig = {
@@ -201,7 +249,7 @@ const createYoutubePlayer = async () => {
         loop: 1,
         playlist: videoId,
         enablejsapi: 1,
-        origin: window.location.origin
+        origin: window.location.origin,
       },
       events: {
         onReady: (event: { target: YTPlayer }) => {
@@ -230,8 +278,8 @@ const createYoutubePlayer = async () => {
         onError: (event: any) => {
           console.error('YouTube player error:', event);
           isPlayerReady.value = false;
-        }
-      }
+        },
+      },
     };
 
     player.value = new window.YT.Player(youtubeIframeId.value, playerConfig);
@@ -244,27 +292,27 @@ const createYoutubePlayer = async () => {
 };
 
 // Update the toggleYoutubePlayPause function
-const toggleYoutubePlayPause = () => {
-  if (!player.value || typeof player.value.playVideo !== 'function') {
-    console.error('YouTube player not initialized or playVideo is not a function');
-    createYoutubePlayer();
-    return;
-  }
+// const toggleYoutubePlayPause = () => {
+//   if (!player.value || typeof player.value.playVideo !== 'function') {
+//     console.error('YouTube player not initialized or playVideo is not a function');
+//     createYoutubePlayer();
+//     return;
+//   }
 
-  try {
-    const YT = window.YT;
-    const currentState = playerState.value;
+//   try {
+//     const YT = window.YT;
+//     const currentState = playerState.value;
 
-    if (currentState === YT.PlayerState.PLAYING) {
-      player.value.pauseVideo();
-    } else {
-      player.value.playVideo();
-    }
-  } catch (error) {
-    console.error('Error toggling YouTube video:', error);
-    createYoutubePlayer();
-  }
-};
+//     if (currentState === YT.PlayerState.PLAYING) {
+//       player.value.pauseVideo();
+//     } else {
+//       player.value.playVideo();
+//     }
+//   } catch (error) {
+//     console.error('Error toggling YouTube video:', error);
+//     createYoutubePlayer();
+//   }
+// };
 
 // Initialize YouTube player when API is ready
 window.onYouTubeIframeAPIReady = () => {
@@ -363,22 +411,26 @@ const handleLike = async (reel: any) => {
   await api.post('/incidents/like-incident', {
     userId: userStore.user.id,
     incidentId: reel.id,
-    isLiked: isLiked.value
+    isLiked: isLiked.value,
   });
   if (isLiked.value) {
-    reel.likes++
+    reel.likes++;
   } else {
-    reel.likes--
+    reel.likes--;
   }
 };
 
-const handleShare = async (reel: { videoUrl: string; id: string; shares: number; }) => {
+const handleShare = async (reel: {
+  videoUrl: string;
+  id: string;
+  shares: number;
+}) => {
   try {
     if (navigator.share && navigator.canShare) {
       const shareData = {
         title: props.reel.title || 'Check out this video',
         text: props.reel.description || 'Watch this interesting video',
-        url: reel.videoUrl
+        url: reel.videoUrl,
       };
 
       if (navigator.canShare(shareData)) {
@@ -416,7 +468,7 @@ const fallbackShare = (reel: { videoUrl: string }) => {
     message: 'Link copied to clipboard!',
     color: 'black',
     position: 'top-right',
-    timeout: 2000
+    timeout: 2000,
   });
 };
 
@@ -428,7 +480,7 @@ const scrollToBottom = () => {
   });
 };
 
-const showComments = async (reel: { id: string; }, runScroolToBottom = true) => {
+const showComments = async (reel: { id: string }, runScroolToBottom = true) => {
   commentDialog.value = true;
   const response = await api.get('/incidents/reels-comments', {
     params: { incidentId: reel.id, limit: 50 }, // Fetch the latest 5 comments
@@ -446,7 +498,7 @@ const showComments = async (reel: { id: string; }, runScroolToBottom = true) => 
   }
 };
 
-const submitComment = async (reel: { id: string; comments: number; }) => {
+const submitComment = async (reel: { id: string; comments: number }) => {
   if (newComment.value.trim()) {
     const res = await api.post('/incidents/add-comment', {
       incidentId: props.reel.id,
@@ -455,7 +507,7 @@ const submitComment = async (reel: { id: string; comments: number; }) => {
     });
     newComment.value = '';
     if (res) {
-      reel.comments++
+      reel.comments++;
     }
     await showComments(props.reel, true);
   }
@@ -491,7 +543,6 @@ const checkIfLiked = async () => {
     });
     console.log('response,,,,,,,,,', response);
 
-
     isLiked.value = response.data;
   } catch (error) {
     console.error('Error checking if liked:', error);
@@ -503,7 +554,9 @@ const intervalId = ref<ReturnType<typeof setInterval> | null>(null);
 onMounted(async () => {
   if (props.reel.videoSource !== 'normal') {
     if (props.isActive && props.isVisible) {
-      console.log(`Initializing YouTube player for reel ${props.reel.id} on mount`);
+      console.log(
+        `Initializing YouTube player for reel ${props.reel.id} on mount`
+      );
       await createYoutubePlayer();
     }
   }
@@ -526,7 +579,8 @@ onUnmounted(() => {
 // Watch for changes in commentDialog to clear the interval when closed
 watch(commentDialog, (newValue) => {
   if (!newValue) {
-    if (intervalId.value) { // Check if intervalId is defined
+    if (intervalId.value) {
+      // Check if intervalId is defined
       clearInterval(intervalId.value);
     }
   }
@@ -570,7 +624,7 @@ watch(
       isActive,
       isVisible,
       hasPlayer: !!player.value,
-      isPlayerReady: isPlayerReady.value
+      isPlayerReady: isPlayerReady.value,
     });
 
     if (props.reel.videoSource !== 'normal') {
@@ -676,7 +730,7 @@ interface Comment {
 const extractVideoId = (url: string) => {
   const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
   const match = url.match(regExp);
-  return (match && match[2].length === 11) ? match[2] : url;
+  return match && match[2].length === 11 ? match[2] : url;
 };
 
 // Add this at the top of the script section
@@ -685,7 +739,7 @@ const logVisibilityChange = () => {
     isActive: props.isActive,
     isVisible: props.isVisible,
     isVideoLoaded: isVideoLoaded.value,
-    playerState: playerState.value
+    playerState: playerState.value,
   });
 };
 
@@ -745,11 +799,10 @@ watch(
   }
 
   .heartbeat {
-    animation: heartbeat .6s ease forwards;
+    animation: heartbeat 0.6s ease forwards;
   }
 
   @keyframes heartbeat {
-
     0%,
     100% {
       transform: scale(1);

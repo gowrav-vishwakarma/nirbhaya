@@ -101,8 +101,8 @@ const fetchReels = async () => {
   }
 };
 
-let lastScrollTop = 0;
-let lastScrollTime = 0;
+// let lastScrollTop = 0;
+// let lastScrollTime = 0;
 
 const handleScroll = () => {
   if (!reelsContainerRef.value) return;

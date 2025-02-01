@@ -1,7 +1,19 @@
 <template>
-  <q-dialog style="padding-bottom: env(safe-area-inset-bottom);" ref="dialogRef" v-model="dialogModel" position="bottom"
-    persistent :maximized="false" transition-show="slide-up" transition-hide="slide-down" @hide="onDialogHide">
-    <q-card class="column dialog-card" :style="{ '--swipe-progress': swipeProgress }">
+  <q-dialog
+    style="padding-bottom: env(safe-area-inset-bottom)"
+    ref="dialogRef"
+    v-model="dialogModel"
+    position="bottom"
+    persistent
+    :maximized="false"
+    transition-show="slide-up"
+    transition-hide="slide-down"
+    @hide="onDialogHide"
+  >
+    <q-card
+      class="column dialog-card"
+      :style="{ '--swipe-progress': swipeProgress }"
+    >
       <!-- Swipe indicator -->
       <div class="swipe-indicator"></div>
 
@@ -15,8 +27,17 @@
       </div>
 
       <!-- Likes List -->
-      <div ref="likesListRef" class="likes-list q-px-md custom-scroll"
-        style="flex: 1; overflow-y: auto; max-height: 60vh; -webkit-overflow-scrolling: touch;" @scroll="handleScroll">
+      <div
+        ref="likesListRef"
+        class="likes-list q-px-md custom-scroll"
+        style="
+          flex: 1;
+          overflow-y: auto;
+          max-height: 60vh;
+          -webkit-overflow-scrolling: touch;
+        "
+        @scroll="handleScroll"
+      >
         <!-- Initial loading state -->
         <div v-if="isLoading && !likes.length" class="text-center q-pa-md">
           <q-spinner color="primary" size="2em" />
@@ -31,14 +52,26 @@
           <!-- Likes list -->
           <div v-for="like in likes" :key="like.id" class="like-item q-py-md">
             <div class="row no-wrap items-center">
-              <q-avatar size="32px" class="q-mr-sm cursor-pointer" @click="openUserProfile(like.user.id)">
-                <img :src="Number(like.user.id) === 1
-                  ? '/sos_logo_1080_1080.png'
-                  : '/profile.png'
-                  " :alt="like.user.name + '\'s profile'" style="object-fit: cover" />
+              <q-avatar
+                size="32px"
+                class="q-mr-sm cursor-pointer"
+                @click="openUserProfile(like.user.id)"
+              >
+                <img
+                  :src="
+                    Number(like.user.id) === 1
+                      ? '/sos_logo_1080_1080.png'
+                      : '/profile.png'
+                  "
+                  :alt="like.user.name + '\'s profile'"
+                  style="object-fit: cover"
+                />
               </q-avatar>
               <div class="col">
-                <div class="user-name text-capitalize cursor-pointer" @click="openUserProfile(like.user.id)">
+                <div
+                  class="user-name text-capitalize cursor-pointer"
+                  @click="openUserProfile(like.user.id)"
+                >
                   {{ like.user.name }}
                 </div>
                 <div class="text-grey-6 text-caption">
@@ -55,7 +88,10 @@
           </div>
 
           <!-- End of list indicator -->
-          <div v-if="!hasMoreLikes && likes.length > 0" class="text-grey text-center q-pa-md">
+          <div
+            v-if="!hasMoreLikes && likes.length > 0"
+            class="text-grey text-center q-pa-md"
+          >
             No more likes to load
           </div>
         </template>
@@ -65,7 +101,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, nextTick } from 'vue';
+import { ref, computed } from 'vue';
 import { useDialogPluginComponent, useQuasar } from 'quasar';
 import { communityPostService } from 'src/services/communityPostService';
 import { useRouter } from 'vue-router';
@@ -80,18 +116,20 @@ const emit = defineEmits(['update:modelValue']);
 // Dialog plugin setup
 const { dialogRef, onDialogHide } = useDialogPluginComponent();
 
-const likes = ref<Array<{
-  id: number;
-  userId: number;
-  postId: number;
-  createdAt: string;
-  updatedAt: string;
-  user: {
+const likes = ref<
+  Array<{
     id: number;
-    name: string;
-    email: string | null;
-  };
-}>>([]);
+    userId: number;
+    postId: number;
+    createdAt: string;
+    updatedAt: string;
+    user: {
+      id: number;
+      name: string;
+      email: string | null;
+    };
+  }>
+>([]);
 const isLoading = ref(false);
 const page = ref(1);
 const pageSize = ref(10);
@@ -119,7 +157,7 @@ const loadMoreLikes = async (loadMore = false) => {
   try {
     const response = await communityPostService.getLikes(props.postId, {
       page: page.value,
-      pageSize: pageSize.value
+      pageSize: pageSize.value,
     });
 
     const { likes: likesData, totalPages: total } = response.data;
@@ -128,19 +166,18 @@ const loadMoreLikes = async (loadMore = false) => {
     // Simply append new likes to existing ones for loadMore
     if (likesData && likesData.length > 0) {
       likes.value = loadMore
-        ? [...likes.value, ...likesData]  // Append to end for loading more
-        : likesData;                      // Replace all for initial load
+        ? [...likes.value, ...likesData] // Append to end for loading more
+        : likesData; // Replace all for initial load
       page.value++;
     }
 
     hasMoreLikes.value = page.value <= totalPages.value;
-
   } catch (error) {
     console.error('Error loading likes:', error);
     $q.notify({
       message: 'Error loading likes',
       color: 'negative',
-      position:'top-right'
+      position: 'top-right',
     });
   } finally {
     isLoading.value = false;
@@ -200,7 +237,7 @@ const openUserProfile = (userId: string | number) => {
     $q.notify({
       message: 'Unable to open user profile',
       color: 'negative',
-      position:'top-right'
+      position: 'top-right',
     });
   }
 };

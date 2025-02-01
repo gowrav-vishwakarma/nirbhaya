@@ -12,28 +12,28 @@ export function useMediaPermissions() {
   };
 
   // Override getUserMedia to prevent media access on restricted routes
-  const overrideGetUserMedia = () => {
-    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-      console.warn('getUserMedia is not supported in this browser.');
-      return; // Exit if not supported
-    }
+  // const overrideGetUserMedia = () => {
+  //   if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+  //     console.warn('getUserMedia is not supported in this browser.');
+  //     return; // Exit if not supported
+  //   }
 
-    const originalGetUserMedia = navigator.mediaDevices.getUserMedia.bind(
-      navigator.mediaDevices
-    );
+  //   const originalGetUserMedia = navigator.mediaDevices.getUserMedia.bind(
+  //     navigator.mediaDevices
+  //   );
 
-    navigator.mediaDevices.getUserMedia = async function (
-      constraints: MediaStreamConstraints
-    ) {
-      if (isRestrictedRoute()) {
-        console.log('Blocking media access on restricted route');
-        return Promise.reject(new Error('Media access blocked on this route'));
-      }
-      const stream = await originalGetUserMedia(constraints);
-      activeStreams.value.push(stream);
-      return stream;
-    };
-  };
+  //   navigator.mediaDevices.getUserMedia = async function (
+  //     constraints: MediaStreamConstraints
+  //   ) {
+  //     if (isRestrictedRoute()) {
+  //       console.log('Blocking media access on restricted route');
+  //       return Promise.reject(new Error('Media access blocked on this route'));
+  //     }
+  //     const stream = await originalGetUserMedia(constraints);
+  //     activeStreams.value.push(stream);
+  //     return stream;
+  //   };
+  // };
 
   const stopAllMediaStreams = async () => {
     try {
