@@ -334,6 +334,10 @@ export default {
   nearbyVolunteers: 'आस-पास के स्वयंसेवक',
   viewAll: 'सभी देखें',
   volunteersNearby: 'आस-पास के स्वयंसेवक',
+  addEmergencyContactToUseSOS:
+    'आपातकालीन सेवाओं का उपयोग करने के लिए आपातकालीन संपर्क जोड़ें। यहां क्लिक करें और जोड़ें।',
+  addVolunteerLocationToVolunteer:
+    'स्वयंसेवक अवस्था के लिए स्थान जोड़ें। यहां क्लिक करें और जोड़ें।',
   // CommunityImpactPage
   communityImpact: 'सामुदायिक प्रभाव',
   yourReferralId: 'आपकी रेफरल आईडी',

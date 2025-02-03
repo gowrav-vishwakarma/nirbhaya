@@ -73,6 +73,10 @@ export default {
   retry: 'પુનઃ પ્રયાસ કરો',
   autoNotifyNearbyAfterDelay:
     'નજીકના વ્યક્તિઓને યાતરીમાં નથી તેવું જો તેઓ જોઈએ તો 3 મિનિટમાં સૂચિત કરો',
+  addEmergencyContactToUseSOS:
+    'આપાતકાળીન સંપર્ક ઉમેરવામાં આવે છે જેથી SOS વપરાશ કરી શકો.',
+  addVolunteerLocationToVolunteer:
+    'સ્વયંસેવકોની સ્થાન ઉમેરવામાં આવે છે જેથી સ્વયંસેવકોની સ્થાન સુધારી શકો.',
   // Profile Page
   myProfile: 'મારું પ્રોફાઇલ',
   emergencyContact: 'આપાતકાળીન સંપર્ક',

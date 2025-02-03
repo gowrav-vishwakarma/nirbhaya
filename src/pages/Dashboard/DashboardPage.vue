@@ -16,7 +16,7 @@
         <template v-slot:avatar>
           <q-icon name="warning" color="white" />
         </template>
-        Add an emergency contact to use SOS features.
+        {{ $t('common.addEmergencyContactToUseSOS') }}
       </q-banner>
 
       <!-- Volunteer Location Warning Banner -->
@@ -28,7 +28,7 @@
         <template v-slot:avatar>
           <q-icon name="warning" color="white" />
         </template>
-        Set location for volunteer opportunities.
+        {{ $t('common.addVolunteerLocationToVolunteer') }}
       </q-banner>
 
       <!-- Buttons Section -->
