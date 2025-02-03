@@ -231,7 +231,7 @@ export default {
     'वे स्थान जोड़ें जहाँ आप SOS सूचनाएँ प्राप्त करना चाहते हैं',
   locationName: 'स्थान नाम',
   useCurrentLocation: 'वर्तमान स्थान का उपयोग करें',
-  addNotificationLocation: 'सूचना स्थान जोड़ें',
+  addNotificationLocation: 'अधिक सूचना स्थान जोड़ें',
   addLocation: 'स्थान जोड़ें',
   availableForCommunity: 'समुदाय सहायता के लिए उपलब्ध',
   availableForCommunityDescription:

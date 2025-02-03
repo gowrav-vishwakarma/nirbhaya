@@ -235,7 +235,7 @@ export default {
   locationName: 'Location Name',
   useCurrentLocation: 'Use Current Location',
   selectFromMapLocation: 'Select Location From Map',
-  addNotificationLocation: 'Add Notification Location',
+  addNotificationLocation: 'Add More Notification Location',
   addLocation: 'Add Location',
   availableForCommunity: 'Available for Community Assistance',
   availableForCommunityDescription:
