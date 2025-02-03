@@ -673,7 +673,9 @@ const formatDate = (dateString: string | null) => {
 
     // Less than an hour
     if (diffInMinutes < 60 && diffInMinutes >= 0) {
-      return `${diffInMinutes} ${diffInMinutes === 1 ? 'minute' : 'minutes'} ago`;
+      return `${diffInMinutes} ${
+        diffInMinutes === 1 ? 'minute' : 'minutes'
+      } ago`;
     }
 
     // Less than a day
@@ -1604,12 +1606,7 @@ const makeLinksClickable = (text: string, priority?: string) => {
   const urlPattern =
     /(https?:\/\/[^\s]+)|(www\.[^\s]+)|([a-zA-Z0-9._-]+\.[a-zA-Z]{2,6}(\/[^\s]*)?)/g;
 
-  // For low priority posts, just return the text
-  if (!priority || priority === 'low') {
-    return text;
-  }
-
-  // For other priorities, make links clickable
+  // Remove the priority check and always make links clickable
   const htmlContent = text.replace(urlPattern, (url) => {
     let href = url;
     if (url.startsWith('www.')) {

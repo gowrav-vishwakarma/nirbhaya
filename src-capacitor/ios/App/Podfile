@@ -21,8 +21,8 @@ def capacitor_pods
   pod 'CapacitorNetwork', :path => '../../node_modules/@capacitor/network'
   pod 'CapacitorPushNotifications', :path => '../../node_modules/@capacitor/push-notifications'
   pod 'CapacitorStatusBar', :path => '../../node_modules/@capacitor/status-bar'
-  pod 'CapgoCapacitorUpdater', :path => '../../../node_modules/@capgo/capacitor-updater'
-  pod 'CapacitorJitsiMeet', :path => '../../../node_modules/capacitor-jitsi-meet'
+  pod 'CapgoCapacitorUpdater', :path => '../../node_modules/@capgo/capacitor-updater'
+  pod 'CapacitorJitsiMeet', :path => '../../node_modules/capacitor-jitsi-meet'
   pod 'CordovaPlugins', :path => '../capacitor-cordova-ios-plugins'
 end
 
@@ -48,5 +48,23 @@ post_install do |installer|
     target.build_configurations.each do |config|
       config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '15.1'
     end
+  end
+  bitcode_strip_path = `xcrun --find bitcode_strip`.chop!
+
+  def strip_bitcode_from_framework(bitcode_strip_path, framework_relative_path)
+    framework_path = File.join(Dir.pwd, framework_relative_path)
+    command = "#{bitcode_strip_path} #{framework_path} -r -o #{framework_path}"
+    puts "Stripping bitcode: #{command}"
+    system(command)
+  end
+
+  framework_paths = [
+    "Pods/Giphy/GiphySDK/GiphyUISDK.xcframework/ios-arm64/GiphyUISDK.framework/GiphyUISDK",
+    "Pods/Giphy/GiphySDK/GiphyUISDK.xcframework/ios-arm64_x86_64-maccatalyst/GiphyUISDK.framework/GiphyUISDK",
+    "Pods/Giphy/GiphySDK/GiphyUISDK.xcframework/ios-arm64_x86_64-simulator/GiphyUISDK.framework/GiphyUISDK",
+  ]
+
+  framework_paths.each do |framework_relative_path|
+    strip_bitcode_from_framework(bitcode_strip_path, framework_relative_path)
   end
 end
