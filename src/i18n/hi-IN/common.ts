@@ -449,4 +449,9 @@ export default {
   inviteMessage:
     'नमस्ते, {name} आपको {appName} पर आपातकालीन संपर्क के रूप में जोड़ना चाहते हैं। ऐप यहां से डाउनलोड करें: [APP_LINK]',
   inviteError: 'आमंत्रण भेजने में त्रुटि',
+  youAsEmergencyContacts: 'आपको आपातकालीन संपर्क के रूप में',
+  youNotInEmergencyContacts:
+    'आप अभी तक किसी की आपातकालीन संपर्क सूची में नहीं हैं',
+  encourageAddEmergencyContact:
+    'अपने परिवार और दोस्तों को जरूरत के समय उनकी मदद करने के लिए आपको आपातकालीन संपर्क के रूप में जोड़ने के लिए कहें',
 };

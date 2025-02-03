@@ -401,4 +401,8 @@ export default {
   inviteMessage:
     'નમસ્તે, {name} તમને {appName} પર કટોકટી સંપર્ક તરીકે ઉમેરવા માંગે છે. એપ અહીંથી ડાઉનલોડ કરો: [APP_LINK]',
   inviteError: 'આમંત્રણ મોકલવામાં ભૂલ',
+  youAsEmergencyContacts: 'તમને કટોકટી સંપર્ક તરીકે',
+  youNotInEmergencyContacts: 'તમે હજુ કોઈની કટોકટી સંપર્ક સૂચિમાં નથી',
+  encourageAddEmergencyContact:
+    'તમારા પરિવાર અને મિત્રોને જરૂર પડે ત્યારે તેમની મદદ કરવા માટે તમને કટોકટી સંપર્ક તરીકે ઉમેરવા કહો',
 };

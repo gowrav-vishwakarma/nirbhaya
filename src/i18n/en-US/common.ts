@@ -90,6 +90,7 @@ export default {
   userType: 'Age Group',
   dob: 'Date Of Birth',
   emergencyContacts: 'Emergency Contacts',
+  youAsEmergencyContacts: 'You as Emergency Contact for',
   emergencyContactsHelp:
     'Add atlest 3 emergency contacts who will be notified in case of an emergency.',
   addEmergencyContact: 'Add New',
@@ -627,4 +628,9 @@ export default {
   inviteMessage:
     'Hi, {name} wants to add you as an emergency contact on {appName}. Download the app here: [APP_LINK]',
   inviteError: 'Error sending invitation',
+
+  youNotInEmergencyContacts:
+    "You are not in anyone's emergency contact list yet",
+  encourageAddEmergencyContact:
+    'Ask your family and friends to add you as their emergency contact to help them in need',
 };
