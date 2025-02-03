@@ -274,7 +274,7 @@ export default {
   threat: 'Threat',
   accept: 'Accept',
   discard: 'Discard',
-  follow: 'Follow',
+  follow: 'Get Direction',
   notificationAcceptedSuccess: 'Notification accepted successfully',
   notificationAcceptedError: 'Failed to accept notification',
   muteAudio: 'Mute Audio',
@@ -646,4 +646,13 @@ export default {
   inviteButtonLabel: 'Send Invite to {name}',
   inviteMessage:
     "{name} hasn't registered on SOS Bharat yet. Send them an invite so they can help you when you need them.",
+
+  broadcastHelp: 'Send Alert to Nearby Volunteers',
+  broadcastDescription:
+    "If you can't help {name} right now, click below to alert nearby volunteers who might be able to assist.",
+  notificationBroadcastSuccess: 'Successfully alerted nearby volunteers',
+  notificationBroadcastError: 'Failed to alert volunteers. Please try again.',
+  dismiss: 'Dismiss',
+
+  confirmDiscard: 'Are you sure you want to discard this notification?',
 };

@@ -237,7 +237,7 @@ export default {
   threat: 'ખતરો',
   accept: 'સ્વીકારો',
   discard: 'અવગણો',
-  follow: 'અનુસરો',
+  follow: 'દિશા મેળવો',
   notificationAcceptedSuccess: 'સૂચના સફળતાપૂર્વક સ્વીકારવામાં આવી',
   notificationAcceptedError: 'સૂચના સ્વીકારવામાં નિષ્ફળ',
   mute: 'મૂટા કરો',
@@ -420,4 +420,12 @@ export default {
     'Android: https://play.google.com/store/apps/details?id=com.xavoc.shoutout\n' +
     'iPhone: https://apps.apple.com/app/6738719612\n\n' +
     'સલામતી માટે સાથે મળીને - એક સુરક્ષિત ભારત માટે।',
+  broadcastHelp: 'નજીકના સ્વયંસેવકોને સૂચિત કરો',
+  broadcastDescription:
+    'જો તમે અત્યારે {name}ની મદદ ન કરી શકો, તો નજીકના સ્વયંસેવકોને સૂચિત કરવા માટે નીચે ક્લિક કરો જે મદદ કરી શકે છે.',
+  notificationBroadcastSuccess: 'નજીકના સ્વયંસેવકોને સફળતાપૂર્વક સૂચિત કર્યા',
+  notificationBroadcastError:
+    'સ્વયંસેવકોને સૂચિત કરવામાં નિષ્ફળ. કૃપા કરી ફરી પ્રયાસ કરો.',
+  dismiss: 'રદ કરો',
+  confirmDiscard: 'શું તમે આ સૂચના રદ કરવા માંગો છો?',
 };

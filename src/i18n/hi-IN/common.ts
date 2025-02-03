@@ -259,7 +259,7 @@ export default {
   threat: 'खतरा',
   accept: 'स्वीकार करें',
   discard: 'अवगाहन',
-  follow: 'फॉलो करें',
+  follow: 'दिशा-निर्देश पाएं',
   notificationAcceptedSuccess: 'सूचना सफलतापूर्वक स्वीकार की गई',
   notificationAcceptedError: 'सूचना स्वीकार करने में विफल',
   mute: 'मूट करें',
@@ -465,4 +465,13 @@ export default {
     'Android: https://play.google.com/store/apps/details?id=com.xavoc.shoutout\n' +
     'iPhone: https://apps.apple.com/app/6738719612\n\n' +
     'आपात स्थिति में एक साथ - एक सुरक्षित भारत के लिए।',
+  broadcastHelp: 'आस-पास के स्वयंसेवकों को सूचित करें',
+  broadcastDescription:
+    'यदि आप अभी {name} की मदद नहीं कर सकते हैं, तो आस-पास के स्वयंसेवकों को सूचित करने के लिए नीचे क्लिक करें जो मदद कर सकते हैं।',
+  notificationBroadcastSuccess:
+    'आस-पास के स्वयंसेवकों को सफलतापूर्वक सूचित किया गया',
+  notificationBroadcastError:
+    'स्वयंसेवकों को सूचित करने में विफल। कृपया पुनः प्रयास करें।',
+  dismiss: 'ख़ारिज करें',
+  confirmDiscard: 'क्या आप इस सूचना को ख़ारिज करना चाहते हैं?',
 };

@@ -100,30 +100,58 @@
                         />
                         <q-btn
                           v-else-if="notification.status === 'accepted'"
-                          color="secondary"
+                          color="blue"
                           :label="$t('common.follow')"
                           @click="
                             followLocation(notification.sosEvent.location)
                           "
                           dense
                           no-caps
+                          icon="directions"
+                          flat
                         />
                         <AudioControl
                           v-if="notification.status === 'accepted'"
                           :sos-event-id="notification.sosEvent.id"
                         />
-                        <q-btn
+
+                        <q-card-section
                           v-if="
                             notification.recipientType ===
                               'emergency_contact' &&
                             notification.status === 'accepted'
                           "
-                          color="red"
-                          :label="$t('common.broadcast')"
-                          @click="broadcastNotification(notification.id)"
-                          dense
-                          no-caps
-                        />
+                          class="broadcast-section q-pa-sm"
+                        >
+                          <div class="broadcast-description q-mb-sm">
+                            <q-icon
+                              name="info"
+                              size="20px"
+                              color="grey-7"
+                              class="q-mr-sm"
+                            />
+                            <span class="text-grey-7 text-subtitle2">
+                              {{
+                                $t('common.broadcastDescription', {
+                                  name: notification.userLocationName,
+                                })
+                              }}
+                            </span>
+                          </div>
+                          <div class="text-right">
+                            <q-btn
+                              outline
+                              color="black"
+                              :label="$t('common.broadcastHelp')"
+                              @click="broadcastNotification(notification.id)"
+                              no-caps
+                              icon="campaign"
+                              size="md"
+                              dense
+                            >
+                            </q-btn>
+                          </div>
+                        </q-card-section>
                         <q-btn
                           color="negative"
                           :label="$t('common.discard')"
@@ -255,7 +283,7 @@ const getNotificationTitle = (notification: Notification) => {
 const getStatusColor = (status: string) => {
   switch (status) {
     case 'active':
-      return 'red';
+      return 'green';
     case 'sent':
       return 'red';
     case 'received':
@@ -626,4 +654,38 @@ const emit = defineEmits(['notifications-updated']);
 .notification-icon {
   // padding-left: 20px;
 }
+
+.broadcast-section {
+  background-color: rgba(255, 0, 0, 0.05);
+  border-top: 1px solid rgba(255, 0, 0, 0.1);
+}
+
+.broadcast-description {
+  display: flex;
+  align-items: flex-start;
+  font-size: 0.9em;
+  line-height: 1.3;
+}
+
+// .broadcast-btn {
+//   animation: pulse 2s infinite;
+
+//   .broadcast-content {
+//     display: flex;
+//     align-items: center;
+//     justify-content: center;
+//     gap: 4px;
+//   }
+// }
+// @keyframes pulse {
+//   0% {
+//     box-shadow: 0 0 0 0 rgba(255, 0, 0, 0.4);
+//   }
+//   70% {
+//     box-shadow: 0 0 0 10px rgba(255, 0, 0, 0);
+//   }
+//   100% {
+//     box-shadow: 0 0 0 0 rgba(255, 0, 0, 0);
+//   }
+// }
 </style>
