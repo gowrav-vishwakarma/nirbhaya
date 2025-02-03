@@ -280,10 +280,13 @@ const { t } = useI18n();
 const $q = useQuasar();
 const userStore = useUserStore();
 
-const { values, errors, isLoading, validateAndSubmit, callbacks } =
-  useForm<FormValues>(api, 'user/emergency-contacts-add', {
+const { values, errors, validateAndSubmit, callbacks } = useForm<FormValues>(
+  api,
+  'user/emergency-contacts-add',
+  {
     emergencyContacts: [] as EmergencyContact[],
-  });
+  }
+);
 
 const loadUserData = async () => {
   const userData = userStore.user;
@@ -298,6 +301,7 @@ const loadUserData = async () => {
     values.value.emergencyContacts = values.value.emergencyContacts.map(
       (contact: EmergencyContact) => {
         const status = contactsStatus.find(
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           (c: any) => c.contactPhone === contact.contactPhone
         );
         return {
@@ -476,42 +480,42 @@ const hasEmergencyContacts = computed(
   () => values.value.emergencyContacts.length > 0
 );
 
-const isFormValid = computed(() => {
-  const hasValidContacts = values.value.emergencyContacts.length > 0;
+// const isFormValid = computed(() => {
+//   const hasValidContacts = values.value.emergencyContacts.length > 0;
 
-  // Check if there are any non-empty contacts
-  const hasNonEmptyContacts = values.value.emergencyContacts.some(
-    (contact: EmergencyContact) =>
-      contact.contactName?.trim() || contact.contactPhone?.trim()
-  );
+//   // Check if there are any non-empty contacts
+//   const hasNonEmptyContacts = values.value.emergencyContacts.some(
+//     (contact: EmergencyContact) =>
+//       contact.contactName?.trim() || contact.contactPhone?.trim()
+//   );
 
-  // Validate all non-empty contacts
-  const allContactsHaveData = values.value.emergencyContacts.every(
-    (contact: EmergencyContact) => {
-      // If the contact has any data, require both fields
-      if (contact.contactName?.trim() || contact.contactPhone?.trim()) {
-        return (
-          contact.contactName?.trim() &&
-          contact.contactPhone?.trim() &&
-          contact.contactPhone.length === 10
-        );
-      }
-      // Empty contacts are considered valid (they'll be filtered out on submit)
-      return true;
-    }
-  );
+//   // Validate all non-empty contacts
+//   const allContactsHaveData = values.value.emergencyContacts.every(
+//     (contact: EmergencyContact) => {
+//       // If the contact has any data, require both fields
+//       if (contact.contactName?.trim() || contact.contactPhone?.trim()) {
+//         return (
+//           contact.contactName?.trim() &&
+//           contact.contactPhone?.trim() &&
+//           contact.contactPhone.length === 10
+//         );
+//       }
+//       // Empty contacts are considered valid (they'll be filtered out on submit)
+//       return true;
+//     }
+//   );
 
-  const noErrors = Object.keys(errors.value).length === 0;
+//   const noErrors = Object.keys(errors.value).length === 0;
 
-  // Form is valid if:
-  // 1. There is at least one contact
-  // 2. At least one contact has data
-  // 3. All contacts with any data are completely filled
-  // 4. There are no validation errors
-  return (
-    hasValidContacts && hasNonEmptyContacts && allContactsHaveData && noErrors
-  );
-});
+//   // Form is valid if:
+//   // 1. There is at least one contact
+//   // 2. At least one contact has data
+//   // 3. All contacts with any data are completely filled
+//   // 4. There are no validation errors
+//   return (
+//     hasValidContacts && hasNonEmptyContacts && allContactsHaveData && noErrors
+//   );
+// });
 
 const validatePhoneNumber = async (
   phoneNumber: string,
@@ -556,49 +560,50 @@ const validatePhoneNumber = async (
   }
 };
 
-const handleSubmit = async () => {
-  try {
-    // Mark all contacts as touched before submission
-    values.value.emergencyContacts.forEach((contact: EmergencyContact) => {
-      contact.touched = true;
-    });
+// const handleSubmit = async () => {
+//   try {
+//     // Mark all contacts as touched before submission
+//     values.value.emergencyContacts.forEach((contact: EmergencyContact) => {
+//       contact.touched = true;
+//     });
 
-    // Clear any existing errors
-    errors.value = {};
+//     // Clear any existing errors
+//     errors.value = {};
 
-    // Filter out empty contacts before submission
-    values.value.emergencyContacts = values.value.emergencyContacts.filter(
-      (contact: EmergencyContact) =>
-        contact.contactName?.trim() || contact.contactPhone?.trim()
-    );
+//     // Filter out empty contacts before submission
+//     values.value.emergencyContacts = values.value.emergencyContacts.filter(
+//       (contact: EmergencyContact) =>
+//         contact.contactName?.trim() || contact.contactPhone?.trim()
+//     );
 
-    // Rest of the validation logic...
-    if (values.value.emergencyContacts.length > 0) {
-      const validationPromises = values.value.emergencyContacts.map(
-        (contact: EmergencyContact, index: number) =>
-          validatePhoneNumber(contact.contactPhone, index)
-      );
+//     // Rest of the validation logic...
+//     if (values.value.emergencyContacts.length > 0) {
+//       const validationPromises = values.value.emergencyContacts.map(
+//         (contact: EmergencyContact, index: number) =>
+//           validatePhoneNumber(contact.contactPhone, index)
+//       );
 
-      const validationResults = await Promise.all(validationPromises);
+//       const validationResults = await Promise.all(validationPromises);
 
-      if (validationResults.includes(false)) {
-        return;
-      }
-    }
+//       if (validationResults.includes(false)) {
+//         return;
+//       }
+//     }
 
-    await validateAndSubmit(false);
-  } catch (error) {
-    console.error('Error in handleSubmit:', error);
-    $q.notify({
-      color: 'negative',
-      message: t('common.unexpectedError'),
-      icon: 'error',
-      position: 'top-right',
-    });
-  }
-};
+//     await validateAndSubmit(false);
+//   } catch (error) {
+//     console.error('Error in handleSubmit:', error);
+//     $q.notify({
+//       color: 'negative',
+//       message: t('common.unexpectedError'),
+//       icon: 'error',
+//       position: 'top-right',
+//     });
+//   }
+// };
 
 callbacks.onSuccess = (data) => {
+  console.log(data);
   // Update the store with new emergency contacts
   userStore.updateUser({
     ...userStore.user,
@@ -617,6 +622,7 @@ callbacks.onSuccess = (data) => {
   });
 };
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 callbacks.onError = async (error: any): Promise<void> => {
   console.error('Error updating emergency contacts', error);
   $q.notify({

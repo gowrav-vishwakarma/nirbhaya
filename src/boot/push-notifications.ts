@@ -99,6 +99,7 @@ export default boot(async ({ router }) => {
         );
 
         // Some issue with our setup and push will not work
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         PushNotifications.addListener('registrationError', (error: any) => {
           console.log('Error on registration:', error);
         });

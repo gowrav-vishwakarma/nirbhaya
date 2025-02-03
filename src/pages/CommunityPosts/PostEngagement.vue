@@ -191,7 +191,7 @@ import CommentsDialog from './CommentsDialog.vue';
 import { Share } from '@capacitor/share';
 import { Filesystem, Directory } from '@capacitor/filesystem';
 import Konva from 'konva';
-import { communityService } from 'src/services/communityService';
+// import { communityService } from 'src/services/communityService';
 import LikesDialog from './LikesDialog.vue';
 
 // Define a type that matches the actual post structure
@@ -342,7 +342,7 @@ const handleShare = async () => {
   try {
     const shareTitle = props.post.title || '';
     const shareText = props.post.description || '';
-    const shareUrl = window.location.href;
+    // const shareUrl = window.location.href;
 
     // For video posts
     if (props.post.videoUrl) {

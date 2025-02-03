@@ -257,7 +257,7 @@
 <script setup lang="ts">
 import { ref, reactive, computed, onMounted } from 'vue';
 import { useQuasar } from 'quasar';
-import { Geolocation } from '@capacitor/geolocation';
+// import { Geolocation } from '@capacitor/geolocation';
 import { useI18n } from 'vue-i18n';
 import { api } from 'src/boot/axios';
 import { useUserStore } from 'src/stores/user-store';
@@ -266,16 +266,16 @@ import ManageCatalogDialog from 'src/components/ManageCatalogDialog.vue';
 import businessCategoriesData from 'src/jsondata/businessCategories.json';
 
 const $q = useQuasar();
-const formRef = ref();
+// const formRef = ref();
 const loading = ref(false);
-const isLoadingLocation = ref(false);
+// const isLoadingLocation = ref(false);
 const userStore = useUserStore();
 const showInputFields = ref(false);
 const showLocationSelector = ref(false);
 const showManageCatalogDialog = ref(false);
-const selectedLocation = ref<{ type: string; coordinates: number[] } | null>(
-  null
-);
+// const selectedLocation = ref<{ type: string; coordinates: number[] } | null>(
+//   null
+// );
 
 const props = defineProps<{
   reloadComponents?: () => void;
@@ -292,10 +292,10 @@ interface BusinessData {
   businessCategory: string | null;
 }
 
-interface LocationPoint {
-  type: 'Point';
-  coordinates: [number, number];
-}
+// interface LocationPoint {
+//   type: 'Point';
+//   coordinates: [number, number];
+// }
 
 interface UserLocation {
   id: number;
@@ -341,44 +341,44 @@ const validatePhoneNumber = (value: number | string) => {
   }
 };
 
-const getCurrentLocation = async () => {
-  try {
-    isLoadingLocation.value = true;
+// const getCurrentLocation = async () => {
+//   try {
+//     isLoadingLocation.value = true;
 
-    // Request location permissions
-    const permissionStatus = await Geolocation.checkPermissions();
-    if (permissionStatus.location !== 'granted') {
-      await Geolocation.requestPermissions();
-    }
+//     // Request location permissions
+//     const permissionStatus = await Geolocation.checkPermissions();
+//     if (permissionStatus.location !== 'granted') {
+//       await Geolocation.requestPermissions();
+//     }
 
-    // Get current position
-    const position = await Geolocation.getCurrentPosition({
-      enableHighAccuracy: true,
-      timeout: 10000,
-    });
+//     // Get current position
+//     const position = await Geolocation.getCurrentPosition({
+//       enableHighAccuracy: true,
+//       timeout: 10000,
+//     });
 
-    if (position) {
-      businessData.latitude = position.coords.latitude;
-      businessData.longitude = position.coords.longitude;
+//     if (position) {
+//       businessData.latitude = position.coords.latitude;
+//       businessData.longitude = position.coords.longitude;
 
-      $q.notify({
-        type: 'black',
-        message: t('common.locationUpdated'),
-        position: 'top-right',
-      });
-    }
-  } catch (error) {
-    console.error('Location error:', error);
-    $q.notify({
-      type: 'negative',
-      message:
-        error instanceof Error ? error.message : t('common.locationError'),
-      position: 'top-right',
-    });
-  } finally {
-    isLoadingLocation.value = false;
-  }
-};
+//       $q.notify({
+//         type: 'black',
+//         message: t('common.locationUpdated'),
+//         position: 'top-right',
+//       });
+//     }
+//   } catch (error) {
+//     console.error('Location error:', error);
+//     $q.notify({
+//       type: 'negative',
+//       message:
+//         error instanceof Error ? error.message : t('common.locationError'),
+//       position: 'top-right',
+//     });
+//   } finally {
+//     isLoadingLocation.value = false;
+//   }
+// };
 
 const handleSubmit = async () => {
   if (!isFormValid.value) {
@@ -595,10 +595,10 @@ const removeBusinessInfo = async () => {
   }
 };
 
-const openGoogleMaps = (latitude: number, longitude: number) => {
-  const url = `https://www.google.com/maps/search/?api=1&query=${latitude},${longitude}`;
-  window.open(url, '_blank');
-};
+// const openGoogleMaps = (latitude: number, longitude: number) => {
+//   const url = `https://www.google.com/maps/search/?api=1&query=${latitude},${longitude}`;
+//   window.open(url, '_blank');
+// };
 
 const businessLocation = computed(() => {
   return userStore.user?.locations?.find((loc) => loc.isBusinessLocation);
@@ -668,6 +668,7 @@ const businessCategories = computed(() => {
         id: `${categoryIndex}_${optIndex}`,
       })),
     ];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   }, [] as Array<any>);
 });
 

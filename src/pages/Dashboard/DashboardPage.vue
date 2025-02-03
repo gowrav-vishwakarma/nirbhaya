@@ -174,8 +174,15 @@ onMounted(async () => {
 </script>
 
 <style lang="scss" scoped>
+@use 'sass:color';
+
 .dashboard-page {
-  background: linear-gradient(135deg, $primary, darken($primary, 20%));
+  // background: linear-gradient(135deg, $primary, darken($primary, 20%));
+  background: linear-gradient(
+    135deg,
+    $primary,
+    color.adjust($primary, $lightness: -20%)
+  );
   min-height: 100vh;
 }
 

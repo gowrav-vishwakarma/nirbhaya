@@ -328,15 +328,19 @@ const getCategoryLabel = (value: string) => {
   return newsCategories.find((cat) => cat.value === value)?.label || value;
 };
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const getNewsTitle = (newsItem: any) => {
   const translation = newsItem.translations?.find(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (t: any) => t.languageCode === selectedLanguage.value
   );
   return translation?.title || newsItem.title;
 };
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const getNewsContent = (newsItem: any) => {
   const translation = newsItem.translations?.find(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (t: any) => t.languageCode === selectedLanguage.value
   );
   return translation?.content || newsItem.content;
@@ -353,8 +357,10 @@ const getLanguageLabel = (value: string) => {
   return languageOptions.find((lang) => lang.value === value)?.label || value;
 };
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const getCurrentLanguageLabel = (newsItem: any) => {
   const hasTranslation = newsItem.translations?.some(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (t: any) => t.languageCode === selectedLanguage.value
   );
 
@@ -839,14 +845,14 @@ const formatDate = (dateString: string | null) => {
     }
 
     // More than a week, format the date
-    const options: Intl.DateTimeFormatOptions = {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: true,
-    };
+    // const options: Intl.DateTimeFormatOptions = {
+    //   year: 'numeric',
+    //   month: 'short',
+    //   day: 'numeric',
+    //   hour: '2-digit',
+    //   minute: '2-digit',
+    //   hour12: true,
+    // };
 
     return date.formatDate(parsedDate, 'YYYY-MM-DDTHH:mm:ss.SSSZ'); // Format the date for display
   } catch (error) {

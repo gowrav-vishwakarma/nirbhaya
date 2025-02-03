@@ -120,7 +120,7 @@ import { api } from 'src/boot/axios';
 import { Capacitor, Plugins } from '@capacitor/core';
 import { Geolocation } from '@capacitor/geolocation';
 import { Camera } from '@capacitor/camera';
-import { useMediaPermissions } from '../../composables/useMediaPermissions';
+// import { useMediaPermissions } from '../../composables/useMediaPermissions';
 
 // Define interface for values
 interface SOSSettings {
@@ -168,7 +168,7 @@ onMounted(() => {
 });
 
 // Add STREAM_SAVE constant
-const STREAM_SAVE = computed(() => process.env.STREAM_SAVE);
+// const STREAM_SAVE = computed(() => process.env.STREAM_SAVE);
 
 // Add isNavigatorMediaSupported computed property
 const isNavigatorMediaSupported = computed(() => {

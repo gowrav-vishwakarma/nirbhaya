@@ -86,13 +86,13 @@
 
 <script lang="ts" setup>
 import { ref, onMounted } from 'vue';
-import { useQuasar } from 'quasar';
-import { useI18n } from 'vue-i18n';
+// import { useQuasar } from 'quasar';
+// import { useI18n } from 'vue-i18n';
 import { api } from 'src/boot/axios';
 import { useDialogPluginComponent } from 'quasar';
 
-const { t } = useI18n();
-const $q = useQuasar();
+// const { t } = useI18n();
+// const $q = useQuasar();
 
 const { dialogRef } = useDialogPluginComponent();
 

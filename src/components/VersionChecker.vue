@@ -10,6 +10,7 @@ CapacitorUpdater.notifyAppReady();
 
 const isLoading = ref(false);
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const handleDownloadComplete = async (data: any) => {
   isLoading.value = false;
   console.log('capgo update: Download complete', JSON.stringify(data));

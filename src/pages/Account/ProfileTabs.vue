@@ -205,7 +205,7 @@
   </div>
 </template>
 <script setup lang="ts">
-import { ref, provide, computed, onMounted } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useQuasar } from 'quasar';
 import ProfilePage from './ProfilePage.vue';
@@ -294,10 +294,10 @@ const handleFileChange = async (event: Event) => {
   }
 };
 
-const goToStapper = (stap: number) => {
-  console.log('stap....', stap);
-  router.push({ name: 'stapper', query: { stap: stap } });
-};
+// const goToStapper = (stap: number) => {
+//   console.log('stap....', stap);
+//   router.push({ name: 'stapper', query: { stap: stap } });
+// };
 
 const resizeImage = (file: File): Promise<Blob> => {
   return new Promise<Blob>((resolve, reject) => {
@@ -332,7 +332,11 @@ const resizeImage = (file: File): Promise<Blob> => {
         canvas.width = width;
         canvas.height = height;
 
-        const ctx = canvas.getContext('2d')!;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) {
+          console.error('Failed to get canvas context');
+          return; // Handle the error appropriately
+        }
         ctx.imageSmoothingEnabled = true;
         ctx.imageSmoothingQuality = 'high';
         ctx.drawImage(img, 0, 0, width, height);
@@ -426,6 +430,7 @@ onMounted(() => {
 });
 </script>
 <style lang="scss" scoped>
+@use 'sass:color';
 .my-posts-btn {
   background: rgba(229, 185, 192, 0.15); // Light pink with transparency
   color: $primary;
@@ -921,7 +926,12 @@ onMounted(() => {
   margin-top: 40px;
   width: 200px;
   font-weight: 900;
-  background: linear-gradient(135deg, $primary, darken($primary, 20%));
+  // background: linear-gradient(135deg, $primary, darken($primary, 20%));
+  background: linear-gradient(
+    135deg,
+    $primary,
+    color.adjust($primary, $lightness: -20%)
+  );
   padding: 7px;
   color: whitesmoke;
   border-radius: 10px;

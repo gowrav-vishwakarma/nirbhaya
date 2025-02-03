@@ -182,7 +182,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch, onBeforeUnmount, defineEmits } from 'vue';
+import { ref, onMounted, watch, onBeforeUnmount } from 'vue';
 import { useForm } from 'src/qnatk/composibles/use-form';
 import { api } from 'boot/axios';
 import { useQuasar } from 'quasar';

@@ -165,11 +165,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onBeforeUnmount, reactive } from 'vue';
+import { ref, computed, watch, onBeforeUnmount } from 'vue';
 import { api } from 'src/boot/axios';
 import CartInput from './CartInput.vue';
 import { useQuasar } from 'quasar';
-import { useDraggable } from '@vueuse/core';
 
 // Add CDN URL constant
 const imageCdn =
@@ -274,6 +273,7 @@ const imageTransform = computed(() => {
 });
 
 // Replace the onPan handler with this new implementation
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const onPan = (evt: any) => {
   if (zoom.value <= 1) return;
   isDragging.value = true;
@@ -346,8 +346,8 @@ const onTouchMove = (evt: TouchEvent) => {
         zoom.value = newZoom;
 
         // Calculate center point of the pinch
-        const centerX = (evt.touches[0].clientX + evt.touches[1].clientX) / 2;
-        const centerY = (evt.touches[0].clientY + evt.touches[1].clientY) / 2;
+        // const centerX = (evt.touches[0].clientX + evt.touches[1].clientX) / 2;
+        // const centerY = (evt.touches[0].clientY + evt.touches[1].clientY) / 2;
 
         // Adjust position based on pinch center
         const maxPanX = ((zoom.value - 1) * window.innerWidth) / 1.8;

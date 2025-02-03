@@ -548,7 +548,7 @@ import { useUserStore } from 'src/stores/user-store';
 // import { communityPostService } from 'src/services/communityPostService';
 import type { CommunityPost } from 'src/types/CommunityPost';
 import PostEngagement from 'src/pages/CommunityPosts/PostEngagement.vue';
-import { Dialog } from 'quasar';
+// import { Dialog } from 'quasar';
 import LocationSelectionDialog from 'src/components/Location/LocationSelectionDialog.vue';
 import { Geolocation } from '@capacitor/geolocation';
 import SearchPostDialog from 'src/components/Community/SearchPostDialog.vue';
@@ -571,14 +571,14 @@ interface Post extends Omit<CommunityPost, 'liked'> {
 }
 
 // Add this interface after the Post interface
-interface UserInteractionLimits {
-  dailyLikeLimit: number;
-  dailyCommentLimit: number;
-  dailyPostLimit: number;
-  usedLikeCount: number;
-  usedCommentCount: number;
-  usedPostCount: number;
-}
+// interface UserInteractionLimits {
+//   dailyLikeLimit: number;
+//   dailyCommentLimit: number;
+//   dailyPostLimit: number;
+//   usedLikeCount: number;
+//   usedCommentCount: number;
+//   usedPostCount: number;
+// }
 
 const userStore = useUserStore();
 const locationStore = useLocationStore();
@@ -697,10 +697,10 @@ const formatDate = (dateString: string | null) => {
 };
 
 // Add these new refs near the top of the script section
-const userLocation = ref({
-  latitude: null as number | null,
-  longitude: null as number | null,
-});
+// const userLocation = ref({
+//   latitude: null as number | null,
+//   longitude: null as number | null,
+// });
 
 // Update the loadPosts function
 const loadPosts = async (loadMore = false) => {
@@ -965,6 +965,7 @@ onMounted(async () => {
 
     try {
       const location = await Promise.race([locationPromise, timeoutPromise]);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       selectedLocation.value = location as any;
     } catch (timeoutError) {
       // If timeout or no stored location, check volunteering locations
@@ -1025,9 +1026,9 @@ onUnmounted(() => {
 });
 
 // Replace dialog methods with navigation method
-const goToCommunityPage = () => {
-  router.push('/community');
-};
+// const goToCommunityPage = () => {
+//   router.push('/community');
+// };
 const createPost = () => {
   if (!userInteractionRules.value) {
     return;
@@ -1071,9 +1072,9 @@ const activeCarouselPost = ref<string | null>(null);
 const carouselSlide = ref(0);
 
 // First, add a computed property to check if we're on the last slide
-const isLastSlide = computed(() => {
-  return currentIndex.value === totalSlides.value - 1;
-});
+// const isLastSlide = computed(() => {
+//   return currentIndex.value === totalSlides.value - 1;
+// });
 
 // Update the showCarousel method to handle number conversion
 const showCarousel = (postId: string | number, startIndex: number) => {
@@ -1600,6 +1601,7 @@ const getLocationDisplayName = computed(() => {
 
 // Update the makeLinksClickable function to handle priority
 const makeLinksClickable = (text: string, priority?: string) => {
+  console.log(text, priority);
   if (!text) return '';
 
   // URL regex pattern
@@ -1621,9 +1623,9 @@ const makeLinksClickable = (text: string, priority?: string) => {
 };
 
 // Add this method to safely handle HTML content
-const createMarkup = (content: string) => {
-  return { __html: makeLinksClickable(content) };
-};
+// const createMarkup = (content: string) => {
+//   return { __html: makeLinksClickable(content) };
+// };
 
 // Add this computed property after other computed properties
 const getPostCardClass = (post: Post) => {

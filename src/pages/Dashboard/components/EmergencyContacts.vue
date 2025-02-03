@@ -56,11 +56,7 @@ const { emergencyServices, callEmergencyService } = useEmergencyServices();
 }
 
 .button-background {
-  background: linear-gradient(
-    135deg,
-    white,
-    darken(rgb(255, 255, 255), 0%)
-  ) !important;
+  background: linear-gradient(135deg, white, white) !important;
   border: 1px solid rgba(221, 218, 218, 0.418) !important;
   width: 220px;
 }
