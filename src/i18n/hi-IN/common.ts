@@ -110,7 +110,7 @@ export default {
   dob: 'जन्म तिथि',
   emergencyContacts: 'आपातकालीन सेवाओं को कॉल करें',
   emergencyContactsHelp:
-    'आपातकाल की स्थिति में सूचित किए जाने वाले 3 आपातकालीन संपर्क जोड़ें।',
+    'आपातकाल की स्थिति में सूचित किए जाने वाले आपातकालीन संपर्क जोड़ें।',
   addEmergencyContact: 'संपर्क जोड़ें',
   contactName: 'संपर्क नाम',
   contactNumber: 'संपर्क नंबर',
@@ -121,7 +121,8 @@ export default {
   profileUpdateError: 'प्रोफ़ाइल अपडेट करने में विफल',
   pleaseSelectLocation: 'कृपया स्थान चुनें',
   contactNumberRequired: 'संपर्क नंबर आवश्यक है',
-  contactNameRequired: 'संपर्क नाम आवश्यक है',
+  contactNameRequired:
+    'संपर्क नाम आवश्यक है और केवल अक्षर और संख्याएं स्वीकार करता है',
   profession: 'व्यवसाय',
   hospital: 'हॉस्पिटल',
   doctorGeneral: 'डॉक्टर जेनरल',
@@ -157,7 +158,7 @@ export default {
   broadcastAudioOnSos:
     'SOS पर ऑडियो ब्रॉडकास्ट शर्तें (स्वयंसेवा के व्यक्तियों को)',
   emergencyContactRequests: 'अनुरोध',
-  noEmergencyContacts: 'आप किसी के आपातकालीन संपर्क में नहीं हैं',
+  noEmergencyContacts: 'आपने अभी तक कोई आपातकालीन संपर्क नहीं जोड़ा है।',
   approve: 'स्वीकार करें',
   reject: 'अवगाहन',
   remove: 'हटाएं',
@@ -230,7 +231,7 @@ export default {
     'वे स्थान जोड़ें जहाँ आप SOS सूचनाएँ प्राप्त करना चाहते हैं',
   locationName: 'स्थान नाम',
   useCurrentLocation: 'वर्तमान स्थान का उपयोग करें',
-  addNotificationLocation: 'सूचना स्थान जोड़ें',
+  addNotificationLocation: 'अधिक सूचना स्थान जोड़ें',
   addLocation: 'स्थान जोड़ें',
   availableForCommunity: 'समुदाय सहायता के लिए उपलब्ध',
   availableForCommunityDescription:
@@ -444,4 +445,20 @@ export default {
   autoNotifyNearbyDefault: 'स्वचालित रूप से पास के स्वयंसेवकों को सूचित करें',
   autoNotifyNearbyDefaultDesc:
     'जब सक्षम हो, यदि 3 मिनट के भीतर कोई संपर्क प्रतिक्रिया नहीं देता है तो SOS अलर्ट स्वचालित रूप से पास के स्वयंसेवकों को सूचित करेगा',
+  invite: 'आमंत्रित करें',
+  inviteButtonLabel: '{name} को आमंत्रण भेजें',
+  inviteMessage:
+    '{name} अभी तक SOS भारत में पंजीकृत नहीं हैं। उन्हें आमंत्रण भेजें ताकि आपकी जरूरत के समय वे आपकी मदद कर सकें।',
+  inviteError: 'आमंत्रण भेजने में त्रुटि',
+  youAsEmergencyContacts: 'आपको आपातकालीन संपर्क के रूप में',
+  youNotInEmergencyContacts:
+    'आप अभी तक किसी की आपातकालीन संपर्क सूची में नहीं हैं',
+  encourageAddEmergencyContact:
+    'अपने परिवार और दोस्तों को जरूरत के समय उनकी मदद करने के लिए आपको आपातकालीन संपर्क के रूप में जोड़ने के लिए कहें',
+  whatsappInviteMessage:
+    '{sender_name} ने आपको SOS भारत ऐप पर अपना सुरक्षा साथी बनाया है। आपकी मदद किसी की जिंदगी में बड़ा बदलाव ला सकती है।\n\n' +
+    'ऐप डाउनलोड करें:\n' +
+    'Android: https://play.google.com/store/apps/details?id=com.xavoc.shoutout\n' +
+    'iPhone: https://apps.apple.com/app/6738719612\n\n' +
+    'आपात स्थिति में एक साथ - एक सुरक्षित भारत के लिए।',
 };

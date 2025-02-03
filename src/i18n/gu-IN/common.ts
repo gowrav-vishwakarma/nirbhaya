@@ -97,7 +97,8 @@ export default {
   profileUpdateError: 'પ્રોફાઇલ અપડેટ કરવામાં નિષ્ફળ',
   pleaseSelectLocation: 'કૃપા કરીને સ્થાન પસંદ કરો',
   contactNumberRequired: 'સંપર્ક નંબર જરૂરી છે',
-  contactNameRequired: 'સંપર્કનું નામ જરૂરી છે',
+  contactNameRequired:
+    'સંપર્કનું નામ જરૂરી છે અને માત્ર અક્ષરો અને નંબરો જ સ્વીકારે છે',
   profession: 'વ્યવસાય',
   hospital: 'આસ્પતાલ',
   doctorGeneral: 'ડોક્ટર જેનેરલ',
@@ -132,7 +133,7 @@ export default {
   streamAudioVideoOnSos: 'SOS પર ઓડિયો/વિડિયો સ્ટ્રીમ શરતો (સર્વર પર)',
   broadcastAudioOnSos: 'SOS પર ઓડિયો બ્રોડ્કાસ્ટ શરતો (સ્વયંસેવાના વ્યક્તિઓને)',
   emergencyContactRequests: 'કટોકટી સંપર્ક વિનંતી',
-  noEmergencyContacts: 'તમે કોઈના કટોકટી સંપર્ક યાતરીમાં નથી',
+  noEmergencyContacts: 'તમે હજુ સુધી કોઈ કટોકટીના સંપર્કો ઉમેર્યા નથી.',
   approve: 'સ્વીકારો',
   reject: 'અવગણો',
   remove: 'દૂર કરો',
@@ -205,7 +206,7 @@ export default {
     'જ્યાં તમે SOS સૂચનાઓ પ્રાપ્ત કરવા માંગો છો તે સ્થાનો ઉમેરો',
   locationName: 'સ્થાનનું નામ',
   useCurrentLocation: 'વર્તમાન સ્થાનનો ઉપયોગ કરો',
-  addNotificationLocation: 'સૂચના સ્થાન ઉમેરો',
+  addNotificationLocation: 'વધુ સૂચના સ્થાન ઉમેરો',
   addLocation: 'સ્થાન ઉમેરો',
   availableForCommunity: 'સમુદાય સહાય માટે ઉપલબ્ધ',
   availableForCommunityDescription:
@@ -265,7 +266,7 @@ export default {
   openInSafari: 'Safari માં ખોલો',
   useSafariTitle: 'શ્રેષ્ઠ અનુભવ માટે Safari નો ઉપયોગ કરો',
   useSafariMessage:
-    'શ્રેષ્ઠ અને સૌથી સુરક્ષિત અનુભવ માટે, અમે તમારા iOS ઉપકરણ પર Safari નો ઉપયોગ કરવાની ભલામણ કરીએ છીએ. શું તમે હવે Safari ખોલવા માંગો છો?',
+    'શ્રેષ્ઠ અનુભવ માટે, અમે તમારા iOS ઉપકરણ પર Safari નો ઉપયોગ કરવાની ભલામણ કરીએ છીએ. શું તમે હવે Safari ખોલવા માંગો છો?',
   openSafari: 'Safari ખોલો',
   failedToOpenSafari:
     'Safari ખોલવામાં નિષ્ફળ. કૃપા કરીને Safari ને મેન્યુઅલી ખોલો અને આ વેબસાઇટ પર નેવિગેટ કરો.',
@@ -396,4 +397,23 @@ export default {
   autoNotifyNearbyDefault: 'આસપાસના સ્વયંસેવકોને આપમેળે સૂચિત કરો',
   autoNotifyNearbyDefaultDesc:
     'જ્યારે સક્ષમ હોય, જો 3 મિનિટની અંદર કોઈ સંપર્ક પ્રતિસાદ ન આપે તો SOS એલર્ટ આપમેળે નજીકના સ્વયંસેવકોને સૂચિત કરશે',
+  invite: 'આમંત્રણ',
+  inviteButtonLabel: '{name} ને આમંત્રણ મોકલો',
+  inviteMessage:
+    '{sender_name} એ તમને SOS ભારત એપમાં સુરક્ષા સંપર્ક તરીકે જોડ્યા છે। તમારી મદદ કોઈની જિંદગીમાં મહત્વપૂર્ણ બની શકે છે।\n\n' +
+    'એપ ડાઉનલોડ કરો:\n' +
+    '📱 Android: https://play.google.com/store/apps/details?id=com.xavoc.shoutout\n' +
+    '📱 iPhone: https://apps.apple.com/app/6738719612\n\n' +
+    'સલામતી માટે સાથે મળીને - એક સુરક્ષિત ભારત માટે।',
+  inviteError: 'આમંત્રણ મોકલવામાં ભૂલ',
+  youAsEmergencyContacts: 'તમને કટોકટી સંપર્ક તરીકે',
+  youNotInEmergencyContacts: 'તમે હજુ કોઈની કટોકટી સંપર્ક સૂચિમાં નથી',
+  encourageAddEmergencyContact:
+    'તમારા પરિવાર અને મિત્રોને જરૂર પડે ત્યારે તેમની મદદ કરવા માટે તમને કટોકટી સંપર્ક તરીકે ઉમેરવા કહો',
+  whatsappInviteMessage:
+    '{sender_name} એ તમને SOS ભારત એપમાં સુરક્ષા સંપર્ક તરીકે જોડ્યા છે। તમારી મદદ કોઈની જિંદગીમાં મહત્વપૂર્ણ બની શકે છે।\n\n' +
+    'એપ ડાઉનલોડ કરો:\n' +
+    'Android: https://play.google.com/store/apps/details?id=com.xavoc.shoutout\n' +
+    'iPhone: https://apps.apple.com/app/6738719612\n\n' +
+    'સલામતી માટે સાથે મળીને - એક સુરક્ષિત ભારત માટે।',
 };

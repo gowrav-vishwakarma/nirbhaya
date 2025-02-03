@@ -37,23 +37,8 @@
       </q-card>
 
       <div class="scrollable-inputs q-px-md">
-        <!-- Add Location Button -->
-        <q-btn
-          v-if="values.locations.length < 10"
-          icon="add"
-          color="primary"
-          class="full-width custom-radius q-mb-md"
-          @click="
-            (showInputFields = !showInputFields),
-              (showLocationSelector = showInputFields)
-          "
-          :label="$t('common.addNotificationLocation')"
-          style="border-radius: 10px !important"
-          :disable="!values.availableForCommunity"
-        />
-
         <!-- New Location Input Fields -->
-        <div v-if="showInputFields" class="input-fields">
+        <div v-if="!hasLocations || showInputFields" class="input-fields">
           <div class="custom-input">
             <label>{{ $t('common.locationName') }}</label>
             <q-input
@@ -63,10 +48,12 @@
               bg-color="pink-1"
               dense
               hide-bottom-space
+              placeholder="Home / Office / Shop"
             />
           </div>
 
           <div class="custom-input">
+            <!-- Location Selector button -->
             <q-btn
               flat
               color="white"
@@ -75,8 +62,13 @@
               class="full-width custom-radius bg-primary"
               @click="showLocationSelector = true"
               :loading="newLocationLoading"
-            >
-              {{ $t('common.setLocation') }}
+              >&nbsp;&nbsp; {{ $t('common.setLocation') }} &nbsp;&nbsp;
+              <!-- Show map icon if location is selected -->
+              <q-icon
+                v-if="newLocation.location?.coordinates[0]"
+                name="map"
+                class="q-ml-sm"
+              />
             </q-btn>
             <div
               v-if="newLocation.location?.coordinates[0]"
@@ -98,7 +90,7 @@
             </div>
             <div class="col-6">
               <q-btn
-                label="Add"
+                label="Save"
                 color="primary"
                 style="border-radius: 10px !important"
                 class="full-width custom-radius"
@@ -109,7 +101,20 @@
             </div>
           </div>
         </div>
-        <q-separator v-if="showInputFields" class="q-mt-md" />
+
+        <!-- Add Location Button -->
+        <q-btn
+          v-if="
+            hasLocations && values.locations.length < 10 && !showInputFields
+          "
+          icon="add"
+          color="primary"
+          class="full-width custom-radius q-mb-md"
+          @click="showInputFields = true"
+          :label="$t('common.addNotificationLocation')"
+          style="border-radius: 10px !important"
+          :disable="!values.availableForCommunity"
+        />
 
         <!-- Location Cards -->
         <div class="contact-cards q-mt-md" v-if="hasLocations">
@@ -218,6 +223,7 @@ const { values, isLoading, validateAndSubmit, callbacks } = useForm(
 );
 
 const locationLoading = ref<boolean[]>([]);
+const showInputFields = ref(false);
 
 const loadUserData = () => {
   const userData = userStore.user;
@@ -476,7 +482,6 @@ defineExpose({
 });
 
 // Add these refs
-const showInputFields = ref(false);
 const newLocation = ref<UserLocation>({
   name: '',
   location: {
