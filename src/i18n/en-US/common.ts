@@ -332,6 +332,10 @@ export default {
   nearbyVolunteers: 'Nearby Volunteers',
   viewAll: 'View All',
   volunteersNearby: 'volunteers nearby',
+  addEmergencyContactToUseSOS:
+    'Add an emergency contact to use SOS features. click here to add.',
+  addVolunteerLocationToVolunteer:
+    'Set location for volunteer opportunities. click here to add.',
   // CommunityImpactPage
   communityImpact: 'Community Impact',
   yourReferralId: 'Your Referral ID',

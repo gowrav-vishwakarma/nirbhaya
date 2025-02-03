@@ -9,7 +9,7 @@
       </p>
 
       <!-- Availability toggles -->
-      <q-card flat bordered class="q-mb-md">
+      <!-- <q-card flat bordered class="q-mb-md">
         <q-card-section>
           <div class="text-subtitle1 text-weight-bold q-mb-sm">
             {{ $t('common.availabilitySettings') }}
@@ -34,7 +34,7 @@
             </q-item>
           </q-list>
         </q-card-section>
-      </q-card>
+      </q-card> -->
 
       <div class="scrollable-inputs q-px-md">
         <!-- New Location Input Fields -->
