@@ -114,11 +114,11 @@ DEPENDENCIES:
   - "CapacitorDevice (from `../../node_modules/@capacitor/device`)"
   - "CapacitorFilesystem (from `../../node_modules/@capacitor/filesystem`)"
   - "CapacitorGeolocation (from `../../node_modules/@capacitor/geolocation`)"
-  - CapacitorJitsiMeet (from `../../../node_modules/capacitor-jitsi-meet`)
+  - CapacitorJitsiMeet (from `../../node_modules/capacitor-jitsi-meet`)
   - "CapacitorNetwork (from `../../node_modules/@capacitor/network`)"
   - "CapacitorPushNotifications (from `../../node_modules/@capacitor/push-notifications`)"
   - "CapacitorStatusBar (from `../../node_modules/@capacitor/status-bar`)"
-  - "CapgoCapacitorUpdater (from `../../../node_modules/@capgo/capacitor-updater`)"
+  - "CapgoCapacitorUpdater (from `../../node_modules/@capgo/capacitor-updater`)"
   - CordovaPlugins (from `../capacitor-cordova-ios-plugins`)
   - FirebaseMessaging
   - JitsiMeetSDK
@@ -159,7 +159,7 @@ EXTERNAL SOURCES:
   CapacitorGeolocation:
     :path: "../../node_modules/@capacitor/geolocation"
   CapacitorJitsiMeet:
-    :path: "../../../node_modules/capacitor-jitsi-meet"
+    :path: "../../node_modules/capacitor-jitsi-meet"
   CapacitorNetwork:
     :path: "../../node_modules/@capacitor/network"
   CapacitorPushNotifications:
@@ -167,7 +167,7 @@ EXTERNAL SOURCES:
   CapacitorStatusBar:
     :path: "../../node_modules/@capacitor/status-bar"
   CapgoCapacitorUpdater:
-    :path: "../../../node_modules/@capgo/capacitor-updater"
+    :path: "../../node_modules/@capgo/capacitor-updater"
   CordovaPlugins:
     :path: "../capacitor-cordova-ios-plugins"
 
@@ -202,6 +202,6 @@ SPEC CHECKSUMS:
   SSZipArchive: fe6a26b2a54d5a0890f2567b5cc6de5caa600aef
   Version: de5907f2c5d0f3cf21708db7801d1d5401139486
 
-PODFILE CHECKSUM: 4bfee43c828321d2aacf4bd52fa2f60ddb813ef7
+PODFILE CHECKSUM: bae19ea107315bd661ab2220897959f8205c8630
 
 COCOAPODS: 1.15.0
