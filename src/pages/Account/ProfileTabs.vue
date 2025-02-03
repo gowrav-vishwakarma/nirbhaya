@@ -222,7 +222,6 @@ import { useUserStore } from 'src/stores/user-store';
 import { api } from 'src/boot/axios';
 import { useI18n } from 'vue-i18n';
 import { useUserForm } from 'src/composables/use-user-form';
-import { col } from 'sequelize';
 const fileInput = ref<HTMLInputElement | null>(null);
 const isProcessingImages = ref(false);
 

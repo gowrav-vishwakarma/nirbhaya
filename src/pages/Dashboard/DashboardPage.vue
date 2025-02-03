@@ -10,7 +10,7 @@
       <!-- Emergency Contact Warning Banner -->
       <q-banner
         v-if="!hasEmergencyContacts"
-        class="bg-warning text-white q-mb-sm q-mt-sm"
+        class="bg-warning text-white q-mb-sm q-mt-sm animate-bounce"
         @click="goToAddEmergency"
       >
         <template v-slot:avatar>
@@ -22,7 +22,7 @@
       <!-- Volunteer Location Warning Banner -->
       <q-banner
         v-if="!hasVolunteer"
-        class="bg-warning text-white q-mb-sm q-mt-sm"
+        class="bg-warning text-white q-mb-sm q-mt-sm animate-bounce"
         @click="goToAddVolunteers"
       >
         <template v-slot:avatar>
@@ -32,7 +32,7 @@
       </q-banner>
 
       <!-- Buttons Section -->
-      <div class="row q-col-gutter-md">
+      <!-- <div class="row q-col-gutter-md">
         <div class="col-12" v-if="!hasEmergencyContacts || !hasVolunteer">
           <q-btn
             v-if="!hasEmergencyContacts"
@@ -64,7 +64,7 @@
             </q-tooltip>
           </q-btn>
         </div>
-      </div>
+      </div> -->
 
       <SOSButtons v-if="hasEmergencyContacts" @initiate-sos="handleSOSClick" />
       <SOSButtons v-else @initiate-sos="handleSOSClick" disabled />
@@ -221,7 +221,7 @@ onMounted(async () => {
     right: -3px;
     bottom: -3px;
     border-radius: 10px;
-    border: 2px solid #ff4081;
+    border: 2px solid #fff;
     animation: pulse 2s infinite;
   }
 }
