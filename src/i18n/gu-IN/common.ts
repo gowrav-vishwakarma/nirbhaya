@@ -97,7 +97,8 @@ export default {
   profileUpdateError: 'પ્રોફાઇલ અપડેટ કરવામાં નિષ્ફળ',
   pleaseSelectLocation: 'કૃપા કરીને સ્થાન પસંદ કરો',
   contactNumberRequired: 'સંપર્ક નંબર જરૂરી છે',
-  contactNameRequired: 'સંપર્કનું નામ જરૂરી છે',
+  contactNameRequired:
+    'સંપર્કનું નામ જરૂરી છે અને માત્ર અક્ષરો અને નંબરો જ સ્વીકારે છે',
   profession: 'વ્યવસાય',
   hospital: 'આસ્પતાલ',
   doctorGeneral: 'ડોક્ટર જેનેરલ',
@@ -132,7 +133,7 @@ export default {
   streamAudioVideoOnSos: 'SOS પર ઓડિયો/વિડિયો સ્ટ્રીમ શરતો (સર્વર પર)',
   broadcastAudioOnSos: 'SOS પર ઓડિયો બ્રોડ્કાસ્ટ શરતો (સ્વયંસેવાના વ્યક્તિઓને)',
   emergencyContactRequests: 'કટોકટી સંપર્ક વિનંતી',
-  noEmergencyContacts: 'તમે કોઈના કટોકટી સંપર્ક યાતરીમાં નથી',
+  noEmergencyContacts: 'તમે હજુ સુધી કોઈ કટોકટીના સંપર્કો ઉમેર્યા નથી.',
   approve: 'સ્વીકારો',
   reject: 'અવગણો',
   remove: 'દૂર કરો',
@@ -265,7 +266,7 @@ export default {
   openInSafari: 'Safari માં ખોલો',
   useSafariTitle: 'શ્રેષ્ઠ અનુભવ માટે Safari નો ઉપયોગ કરો',
   useSafariMessage:
-    'શ્રેષ્ઠ અને સૌથી સુરક્ષિત અનુભવ માટે, અમે તમારા iOS ઉપકરણ પર Safari નો ઉપયોગ કરવાની ભલામણ કરીએ છીએ. શું તમે હવે Safari ખોલવા માંગો છો?',
+    'શ્રેષ્ઠ અનુભવ માટે, અમે તમારા iOS ઉપકરણ પર Safari નો ઉપયોગ કરવાની ભલામણ કરીએ છીએ. શું તમે હવે Safari ખોલવા માંગો છો?',
   openSafari: 'Safari ખોલો',
   failedToOpenSafari:
     'Safari ખોલવામાં નિષ્ફળ. કૃપા કરીને Safari ને મેન્યુઅલી ખોલો અને આ વેબસાઇટ પર નેવિગેટ કરો.',
@@ -396,4 +397,8 @@ export default {
   autoNotifyNearbyDefault: 'આસપાસના સ્વયંસેવકોને આપમેળે સૂચિત કરો',
   autoNotifyNearbyDefaultDesc:
     'જ્યારે સક્ષમ હોય, જો 3 મિનિટની અંદર કોઈ સંપર્ક પ્રતિસાદ ન આપે તો SOS એલર્ટ આપમેળે નજીકના સ્વયંસેવકોને સૂચિત કરશે',
+  invite: 'આમંત્રણ',
+  inviteMessage:
+    'નમસ્તે, {name} તમને {appName} પર કટોકટી સંપર્ક તરીકે ઉમેરવા માંગે છે. એપ અહીંથી ડાઉનલોડ કરો: [APP_LINK]',
+  inviteError: 'આમંત્રણ મોકલવામાં ભૂલ',
 };

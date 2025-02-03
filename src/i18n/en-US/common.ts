@@ -91,7 +91,7 @@ export default {
   dob: 'Date Of Birth',
   emergencyContacts: 'Emergency Contacts',
   emergencyContactsHelp:
-    'Add up to 3 emergency contacts who will be notified in case of an emergency.',
+    'Add atlest 3 emergency contacts who will be notified in case of an emergency.',
   addEmergencyContact: 'Add New',
   contactName: 'Contact Name',
   contactNumber: 'Contact Number',
@@ -103,7 +103,8 @@ export default {
   profileUpdateError: 'Failed to update profile',
   pleaseSelectLocation: 'Please select location',
   contactNumberRequired: 'Contact number is required',
-  contactNameRequired: 'Contact name is required',
+  contactNameRequired:
+    'Contact name is required and accept only letter and number',
   profession: 'Profession',
   hospital: 'Hospital',
   doctorGeneral: 'Doctor General',
@@ -139,7 +140,7 @@ export default {
   streamAudioVideoOnSos: 'Stream Audio/Video on SOS (on server)',
   broadcastAudioOnSos: 'Broadcast Audio on SOS (to volunteers)',
   emergencyContactRequests: 'Requests',
-  noEmergencyContacts: "You are not in anyone's emergency contact list",
+  noEmergencyContacts: "You haven't added any emergency contacts yet.",
   approve: 'Approve',
   reject: 'Reject',
   remove: 'Remove',
@@ -620,4 +621,10 @@ export default {
   autoNotifyNearbyDefault: 'Auto-notify nearby volunteers by default',
   autoNotifyNearbyDefaultDesc:
     'When enabled, SOS alerts will automatically notify nearby volunteers if no contacts respond within 3 minute',
+
+  // Add these new translations
+  invite: 'Invite',
+  inviteMessage:
+    'Hi, {name} wants to add you as an emergency contact on {appName}. Download the app here: [APP_LINK]',
+  inviteError: 'Error sending invitation',
 };

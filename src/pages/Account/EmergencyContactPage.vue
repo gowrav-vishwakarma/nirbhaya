@@ -3,7 +3,7 @@
     <q-card flat class="emergency-contacts-card">
       <q-card-section>
         <h5 class="text-h6 q-mb-sm q-ma-none">Emergency Contacts</h5>
-        <p class="q-ma-none q-mb-sm">Add Your emergency contacts below.</p>
+        <p class="q-ma-none q-mb-sm">Your emergency contacts.</p>
 
         <div class="scrollable-inputs">
           <!-- Button group for Add Emergency Contact and Emergency Contact Requests -->
@@ -33,12 +33,16 @@
           </div>
 
           <!-- Input Fields Section -->
-          <div v-if="showInputFields" class="input-fields">
+          <div v-if="showInputFields" class="input-fields bg-light-grey">
             <div class="custom-input">
               <label>{{ t('common.name') }}</label>
               <q-input
                 v-model="newContact.contactName"
-                :rules="[(val) => !!val || t('common.nameRequired')]"
+                :rules="[
+                  (val) => !!val || t('common.nameRequired'),
+                  (val) =>
+                    /^[a-zA-Z0-9\s]*$/.test(val) || t('common.nameRequired'),
+                ]"
                 filled
                 class="custom-radius"
                 bg-color="pink-1"
@@ -61,7 +65,13 @@
                 dense
                 type="tel"
                 mask="##########"
+                :rules="[
+                  (val) =>
+                    (val && val.length === 10) ||
+                    t('common.invalidPhoneNumberLength'),
+                ]"
                 hide-bottom-space
+                @update:model-value="clearPhoneError"
               />
             </div>
 
@@ -84,7 +94,7 @@
               </div>
               <div class="col-6">
                 <q-btn
-                  label="Add"
+                  label="Save"
                   color="primary"
                   style="border-radius: 10px !important"
                   class="full-width custom-radius"
@@ -102,54 +112,72 @@
 
           <!-- Contact Cards -->
           <div class="contact-cards q-mt-md" v-if="hasEmergencyContacts">
-            <q-card
-              v-for="(contact, index) in values.emergencyContacts"
-              :key="index"
-              flat
-              bordered
-              class="contact-card q-mb-sm"
-            >
-              <q-card-section class="row items-center" style="width: 100%">
-                <div class="col-auto">
-                  <q-avatar>
-                    <img src="/profile.png" alt="/profile.png" />
-                  </q-avatar>
-                </div>
-                <div class="col">
-                  <div class="text-subtitle2 row items-center">
-                    {{ contact.contactName }}
-                    <q-icon
-                      v-if="contact.is_primary"
-                      name="check_circle"
-                      color="positive"
-                      size="xs"
-                      class="q-ml-sm"
-                    >
-                      <q-tooltip>Primary Contact</q-tooltip>
-                    </q-icon>
+            <q-card flat bordered class="q-mb-sm contact-card">
+              <q-card-section
+                class=""
+                v-for="(contact, index) in values.emergencyContacts"
+                :key="index"
+              >
+                <div class="row items-center">
+                  <div class="col-auto">
+                    <q-avatar>
+                      <img src="/profile.png" alt="/profile.png" />
+                    </q-avatar>
                   </div>
-                  <div class="text-caption">{{ contact.contactPhone }}</div>
-                  <div>
-                    Approval Status: ({{
-                      contact.consentGiven ? 'Approved' : 'Pending'
-                    }})
+                  <div class="col">
+                    <div class="text-subtitle2 row items-center">
+                      {{ contact.contactName }}
+                      <q-icon
+                        v-if="contact.is_primary"
+                        name="check_circle"
+                        color="positive"
+                        size="xs"
+                        class="q-ml-sm"
+                      >
+                        <q-tooltip>Primary Contact</q-tooltip>
+                      </q-icon>
+                    </div>
+                    <div class="text-caption">{{ contact.contactPhone }}</div>
+                    <div>
+                      Approval Status: ({{
+                        contact.consentGiven ? 'Approved' : 'Pending'
+                      }})
+                    </div>
+                  </div>
+                  <div class="col-auto q-ml-auto">
+                    <q-btn
+                      class="remove-btn"
+                      flat
+                      label="Remove"
+                      style="border-radius: 10px !important"
+                      @click="removeEmergencyContact(index)"
+                    />
                   </div>
                 </div>
-                <div class="col-auto q-ml-auto">
-                  <q-btn
-                    class="remove-btn"
-                    flat
-                    label="Remove"
-                    style="border-radius: 10px !important"
-                    @click="removeEmergencyContact(index)"
-                  />
-                </div>
+                <q-separator class="q-mt-md" />
               </q-card-section>
             </q-card>
           </div>
-          <p v-else class="text-negative q-mt-sm">
-            {{ t('common.noEmergencyContacts') }}
-          </p>
+          <div
+            v-else-if="!showInputFields"
+            class="empty-state q-mt-md text-center"
+          >
+            <q-icon name="contacts" size="48px" color="grey-6" />
+            <p class="text-negative q-mt-sm q-mb-none">
+              {{ t('common.noEmergencyContacts') }}
+            </p>
+            <p class="text-grey-7 q-mt-sm text-caption">
+              {{ t('common.emergencyContactsHelp') }}
+            </p>
+            <q-btn
+              flat
+              color="primary"
+              :label="t('common.addEmergencyContact')"
+              class="q-mt-sm"
+              icon="add"
+              @click="showInputFields = true"
+            />
+          </div>
         </div>
       </q-card-section>
     </q-card>
@@ -421,7 +449,16 @@ const validatePhoneNumber = async (
   index: number,
   contactName?: string
 ): Promise<boolean> => {
+  const phoneRegex = /^\d{10}$/; // Regex to check for exactly 10 digits
+
   try {
+    if (!phoneRegex.test(phoneNumber)) {
+      errors.value[`emergencyContact${index}`] = t(
+        'common.invalidPhoneNumberLength'
+      );
+      return false;
+    }
+
     // First check if the number is user's own number
     if (phoneNumber === userStore.user.phoneNumber) {
       errors.value[`emergencyContact${index}`] = t('common.cantAddOwnNumber');
@@ -530,6 +567,13 @@ const openEmergencyContactRequests = () => {
 const newContactErrorIndex = computed(() => {
   return values.value?.emergencyContacts?.length || 0;
 });
+
+// Add this new function to clear phone error when typing
+const clearPhoneError = () => {
+  if (errors.value[`emergencyContact${newContactErrorIndex.value}`]) {
+    delete errors.value[`emergencyContact${newContactErrorIndex.value}`];
+  }
+};
 </script>
 
 <style lang="scss" scoped>
@@ -574,9 +618,9 @@ const newContactErrorIndex = computed(() => {
 
 .contact-card {
   border-radius: 10px;
-  display: flex;
-  align-items: center;
-  border-left: 3px solid transparent;
+  // display: flex;
+  // align-items: center;
+  // border-left: 3px solid transparent;
 }
 
 .contact-card:has(.q-icon[name='check_circle']) {
@@ -618,5 +662,18 @@ const newContactErrorIndex = computed(() => {
 
 :deep(.q-page) {
   min-height: unset !important;
+}
+
+.bg-light-grey {
+  padding: 12px;
+  border-radius: 10px;
+  background: #f9f9f9;
+  border: 1px solid#ddd;
+}
+.empty-state {
+  padding: 24px;
+  border-radius: 10px;
+  background: #f9f9f9;
+  border: 1px dashed #ddd;
 }
 </style>
