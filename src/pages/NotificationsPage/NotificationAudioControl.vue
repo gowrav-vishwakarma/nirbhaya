@@ -1,12 +1,13 @@
 <template>
   <div>
     <q-btn
-      round
       :color="isJoined ? 'primary' : 'grey'"
       icon="videocam"
       @click="toggleConference"
       :loading="isLoading"
       :disable="isLoading"
+      label="Join"
+      size="sm"
     >
       <q-tooltip>{{ $t(isJoined ? 'muteAudio' : 'unmuteAudio') }}</q-tooltip>
     </q-btn>
