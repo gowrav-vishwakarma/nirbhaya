@@ -446,12 +446,19 @@ export default {
   autoNotifyNearbyDefaultDesc:
     'जब सक्षम हो, यदि 3 मिनट के भीतर कोई संपर्क प्रतिक्रिया नहीं देता है तो SOS अलर्ट स्वचालित रूप से पास के स्वयंसेवकों को सूचित करेगा',
   invite: 'आमंत्रित करें',
+  inviteButtonLabel: '{name} को आमंत्रण भेजें',
   inviteMessage:
-    'नमस्ते, {name} आपको {appName} पर आपातकालीन संपर्क के रूप में जोड़ना चाहते हैं। ऐप यहां से डाउनलोड करें: [APP_LINK]',
+    '{name} अभी तक SOS भारत में पंजीकृत नहीं हैं। उन्हें आमंत्रण भेजें ताकि आपकी जरूरत के समय वे आपकी मदद कर सकें।',
   inviteError: 'आमंत्रण भेजने में त्रुटि',
   youAsEmergencyContacts: 'आपको आपातकालीन संपर्क के रूप में',
   youNotInEmergencyContacts:
     'आप अभी तक किसी की आपातकालीन संपर्क सूची में नहीं हैं',
   encourageAddEmergencyContact:
     'अपने परिवार और दोस्तों को जरूरत के समय उनकी मदद करने के लिए आपको आपातकालीन संपर्क के रूप में जोड़ने के लिए कहें',
+  whatsappInviteMessage:
+    '{sender_name} ने आपको SOS भारत ऐप पर अपना सुरक्षा साथी बनाया है। आपकी मदद किसी की जिंदगी में बड़ा बदलाव ला सकती है।\n\n' +
+    'ऐप डाउनलोड करें:\n' +
+    'Android: https://play.google.com/store/apps/details?id=com.xavoc.shoutout\n' +
+    'iPhone: https://apps.apple.com/app/6738719612\n\n' +
+    'आपात स्थिति में एक साथ - एक सुरक्षित भारत के लिए।',
 };

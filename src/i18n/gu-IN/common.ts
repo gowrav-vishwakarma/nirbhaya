@@ -398,11 +398,22 @@ export default {
   autoNotifyNearbyDefaultDesc:
     'જ્યારે સક્ષમ હોય, જો 3 મિનિટની અંદર કોઈ સંપર્ક પ્રતિસાદ ન આપે તો SOS એલર્ટ આપમેળે નજીકના સ્વયંસેવકોને સૂચિત કરશે',
   invite: 'આમંત્રણ',
+  inviteButtonLabel: '{name} ને આમંત્રણ મોકલો',
   inviteMessage:
-    'નમસ્તે, {name} તમને {appName} પર કટોકટી સંપર્ક તરીકે ઉમેરવા માંગે છે. એપ અહીંથી ડાઉનલોડ કરો: [APP_LINK]',
+    '{sender_name} એ તમને SOS ભારત એપમાં સુરક્ષા સંપર્ક તરીકે જોડ્યા છે। તમારી મદદ કોઈની જિંદગીમાં મહત્વપૂર્ણ બની શકે છે।\n\n' +
+    'એપ ડાઉનલોડ કરો:\n' +
+    '📱 Android: https://play.google.com/store/apps/details?id=com.xavoc.shoutout\n' +
+    '📱 iPhone: https://apps.apple.com/app/6738719612\n\n' +
+    'સલામતી માટે સાથે મળીને - એક સુરક્ષિત ભારત માટે।',
   inviteError: 'આમંત્રણ મોકલવામાં ભૂલ',
   youAsEmergencyContacts: 'તમને કટોકટી સંપર્ક તરીકે',
   youNotInEmergencyContacts: 'તમે હજુ કોઈની કટોકટી સંપર્ક સૂચિમાં નથી',
   encourageAddEmergencyContact:
     'તમારા પરિવાર અને મિત્રોને જરૂર પડે ત્યારે તેમની મદદ કરવા માટે તમને કટોકટી સંપર્ક તરીકે ઉમેરવા કહો',
+  whatsappInviteMessage:
+    '{sender_name} એ તમને SOS ભારત એપમાં સુરક્ષા સંપર્ક તરીકે જોડ્યા છે। તમારી મદદ કોઈની જિંદગીમાં મહત્વપૂર્ણ બની શકે છે।\n\n' +
+    'એપ ડાઉનલોડ કરો:\n' +
+    'Android: https://play.google.com/store/apps/details?id=com.xavoc.shoutout\n' +
+    'iPhone: https://apps.apple.com/app/6738719612\n\n' +
+    'સલામતી માટે સાથે મળીને - એક સુરક્ષિત ભારત માટે।',
 };

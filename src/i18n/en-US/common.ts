@@ -625,12 +625,21 @@ export default {
 
   // Add these new translations
   invite: 'Invite',
-  inviteMessage:
-    'Hi, {name} wants to add you as an emergency contact on {appName}. Download the app here: [APP_LINK]',
   inviteError: 'Error sending invitation',
 
   youNotInEmergencyContacts:
     "You are not in anyone's emergency contact list yet",
   encourageAddEmergencyContact:
     'Ask your family and friends to add you as their emergency contact to help them in need',
+
+  whatsappInviteMessage:
+    '{sender_name} has chosen you as their emergency contact on SOS Bharat app. Your support could make a crucial difference when needed.\n\n' +
+    'Download the app to stay connected:\n' +
+    'Android: https://play.google.com/store/apps/details?id=com.xavoc.shoutout\n' +
+    'iPhone: https://apps.apple.com/app/6738719612\n\n' +
+    "Join India's largest safety network - because every minute counts.",
+
+  inviteButtonLabel: 'Send Invite to {name}',
+  inviteMessage:
+    "{name} hasn't registered on SOS Bharat yet. Send them an invite so they can help you when you need them.",
 };

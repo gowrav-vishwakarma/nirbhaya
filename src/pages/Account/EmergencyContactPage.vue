@@ -176,6 +176,41 @@
                         @click="removeEmergencyContact(index)"
                       />
                     </div>
+                    <!-- New UX for Invite Section -->
+                    <div
+                      v-if="!contact.isVerified && contact.isCreatedByEmg"
+                      class="invite-section q-mt-md"
+                    >
+                      <div
+                        class="invite-content bg-grey-2 q-pa-md rounded-borders"
+                      >
+                        <p class="text-caption q-mb-md text-grey-8">
+                          <!-- {{ contact.contactName }} hasn't registered on SOS
+                          Bharat yet. Send them an invite so they can help you
+                          when you need them. -->
+                          {{
+                            t('common.inviteMessage', {
+                              name: contact.contactName,
+                            })
+                          }}
+                        </p>
+                        <!-- :label="t('common.inviteButtonLabel', { name: contact.contactName })" -->
+                        <q-btn
+                          icon="fab fa-whatsapp"
+                          :label="
+                            t('common.inviteButtonLabel', {
+                              name: contact.contactName,
+                            })
+                          "
+                          color="positive"
+                          class="full-width"
+                          style="border-radius: 10px !important"
+                          @click="sendWhatsAppInvite(contact)"
+                        >
+                          <q-tooltip>Send invitation via WhatsApp </q-tooltip>
+                        </q-btn>
+                      </div>
+                    </div>
                   </div>
                   <q-separator class="q-mt-md" />
                 </q-card-section>
@@ -227,6 +262,8 @@ interface EmergencyContact {
   consentGiven: boolean;
   touched?: boolean;
   is_primary?: boolean;
+  isVerified?: boolean;
+  isCreatedByEmg?: boolean;
 }
 const props = defineProps<{
   reloadComponents?: () => void;
@@ -266,6 +303,8 @@ const loadUserData = async () => {
         return {
           ...contact,
           consentGiven: status ? status.consentGiven : false,
+          isVerified: status ? status.isVerified : false,
+          isCreatedByEmg: status ? status.isCreatedByEmg : false,
         };
       }
     );
@@ -287,6 +326,8 @@ const newContact = ref({
   priority: 0,
   consentGiven: false,
   is_primary: false,
+  isVerified: false,
+  isCreatedByEmg: false,
 });
 
 const clearInputFields = () => {
@@ -298,6 +339,8 @@ const clearInputFields = () => {
     priority: 0,
     consentGiven: false,
     is_primary: false,
+    isVerified: false,
+    isCreatedByEmg: false,
   };
   showInputFields.value = false;
 };
@@ -343,6 +386,8 @@ const addEmergencyContact = async () => {
         consentGiven: false,
         is_primary: newContact.value.is_primary,
         touched: true,
+        isVerified: false,
+        isCreatedByEmg: false,
       });
 
       // Save all contacts
@@ -598,6 +643,52 @@ const clearPhoneError = () => {
     delete errors.value[`emergencyContact${newContactErrorIndex.value}`];
   }
 };
+
+const sendWhatsAppInvite = async (contact: EmergencyContact) => {
+  try {
+    contact.contactPhone = '8559846603';
+    const text = t('common.whatsappInviteMessage', {
+      sender_name: userStore.user.name,
+    });
+    const encodedText = encodeURIComponent(text);
+
+    // Create both universal and app-specific URLs
+    const universalUrl = `https://wa.me/91${contact.contactPhone}?text=${encodedText}`;
+    const appUrl = `whatsapp://send?phone=91${contact.contactPhone}&text=${encodedText}`;
+
+    const a = document.createElement('a');
+    // Try to open WhatsApp app first
+    const openApp = async () => {
+      a.href = appUrl;
+      a.target = '_blank';
+      a.rel = 'noopener noreferrer';
+      a.style.display = 'none';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    };
+
+    // Fallback to universal link after a short delay
+    await openApp();
+    setTimeout(() => {
+      const fallbackLink = a;
+      fallbackLink.href = universalUrl;
+      fallbackLink.target = '_blank';
+      fallbackLink.rel = 'noopener noreferrer';
+      fallbackLink.style.display = 'none';
+      document.body.appendChild(fallbackLink);
+      fallbackLink.click();
+      document.body.removeChild(fallbackLink);
+    }, 500);
+  } catch (error) {
+    console.error('Error opening WhatsApp:', error);
+    $q.notify({
+      message: 'Unable to connect via WhatsApp',
+      color: 'negative',
+      position: 'top-right',
+    });
+  }
+};
 </script>
 
 <style lang="scss" scoped>
@@ -699,5 +790,33 @@ const clearPhoneError = () => {
   border-radius: 10px;
   background: #f9f9f9;
   border: 1px dashed #ddd;
+}
+
+.invite-btn {
+  font-size: 12px;
+  text-transform: capitalize;
+}
+
+.invite-section {
+  margin: 16px 0;
+
+  .invite-content {
+    border: 1px solid #e0e0e0;
+    transition: all 0.3s ease;
+
+    &:hover {
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+  }
+
+  .q-btn {
+    text-transform: none;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+  }
+}
+
+.rounded-borders {
+  border-radius: 12px;
 }
 </style>
