@@ -273,6 +273,7 @@ const imageTransform = computed(() => {
 });
 
 // Replace the onPan handler with this new implementation
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const onPan = (evt: any) => {
   if (zoom.value <= 1) return;
   isDragging.value = true;

@@ -237,19 +237,19 @@ const loadUserData = () => {
 
 onMounted(loadUserData);
 
-const addNotificationLocation = () => {
-  if (values.value.locations.length < 10) {
-    const newLocation = {
-      name: '',
-      location: {
-        type: 'Point',
-        coordinates: [null, null],
-      },
-    };
-    values.value.locations.push(newLocation);
-    locationLoading.value.push(false);
-  }
-};
+// const addNotificationLocation = () => {
+//   if (values.value.locations.length < 10) {
+//     const newLocation = {
+//       name: '',
+//       location: {
+//         type: 'Point',
+//         coordinates: [null, null],
+//       },
+//     };
+//     values.value.locations.push(newLocation);
+//     locationLoading.value.push(false);
+//   }
+// };
 
 const removeNotificationLocation = async (index: number) => {
   try {
@@ -357,17 +357,17 @@ const updateLocationCoordinates = async (index: number) => {
   }
 };
 
-const getLocationHint = (location: {
-  location: { coordinates: [number, number] };
-}) => {
-  const [longitude, latitude] = location.location.coordinates;
-  if (latitude && longitude) {
-    return `${t('common.coordinates')}: ${latitude.toFixed(
-      6
-    )}, ${longitude.toFixed(6)}`;
-  }
-  return t('common.noLocationSet');
-};
+// const getLocationHint = (location: {
+//   location: { coordinates: [number, number] };
+// }) => {
+//   const [longitude, latitude] = location.location.coordinates;
+//   if (latitude && longitude) {
+//     return `${t('common.coordinates')}: ${latitude.toFixed(
+//       6
+//     )}, ${longitude.toFixed(6)}`;
+//   }
+//   return t('common.noLocationSet');
+// };
 
 const isLocationValid = (location: {
   location: { coordinates: [number | null, number | null] };
@@ -417,6 +417,7 @@ callbacks.onSuccess = (data) => {
   clearInputFields();
 };
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 callbacks.onError = async (error: any) => {
   console.error('Error updating volunteering info', error);
   $q.notify({

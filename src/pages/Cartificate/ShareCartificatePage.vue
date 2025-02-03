@@ -352,6 +352,7 @@ watch(referralId, (newId) => {
 </script>
 
 <style scoped lang="scss">
+@use 'sass:color';
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Montserrat:wght@400;700&display=swap');
 
 .certificate-page {
@@ -361,7 +362,12 @@ watch(referralId, (newId) => {
   min-height: 60vh;
   background: #f5f5f5;
   padding: 1px;
-  background: linear-gradient(135deg, $primary, darken($primary, 20%));
+  // background: linear-gradient(135deg, $primary, darken($primary, 20%));
+  background: linear-gradient(
+    135deg,
+    $primary,
+    color.adjust($primary, $lightness: -20%)
+  );
 }
 
 .container {

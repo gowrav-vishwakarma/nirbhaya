@@ -423,7 +423,11 @@ const resizeImage = (file: File): Promise<Blob> => {
         canvas.width = width;
         canvas.height = height;
 
-        const ctx = canvas.getContext('2d')!;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) {
+          console.error('Failed to get canvas context');
+          return;
+        }
         ctx.imageSmoothingEnabled = true;
         ctx.imageSmoothingQuality = 'high';
         ctx.drawImage(img, 0, 0, width, height);
@@ -754,6 +758,7 @@ const businessCategories = computed(() => {
         id: `${categoryIndex}_${optIndex}`,
       })),
     ];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   }, [] as Array<any>);
 });
 

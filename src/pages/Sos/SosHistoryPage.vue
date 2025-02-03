@@ -115,12 +115,12 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { api } from 'src/boot/axios';
-import { useRouter } from 'vue-router';
+// import { useRouter } from 'vue-router';
 import { useUserStore } from 'src/stores/user-store';
 import { useQuasar } from 'quasar';
 import SosRating from './SosRating.vue';
-import { Capacitor } from '@capacitor/core';
-import { Filesystem, Directory } from '@capacitor/filesystem';
+// import { Capacitor } from '@capacitor/core';
+// import { Filesystem, Directory } from '@capacitor/filesystem';
 const userStore = useUserStore();
 const $q = useQuasar();
 
@@ -144,7 +144,7 @@ interface SOS {
   helper?: Helper;
 }
 
-const router = useRouter();
+// const router = useRouter();
 // const sosHistory = ref<SOS[]>([]);
 const loading = ref(true);
 
@@ -318,74 +318,74 @@ const loadMore = async () => {
   buttonLoading.value = false;
 };
 
-const playLocalVideo = async (sosId: string | number) => {
-  try {
-    const isIOS = Capacitor.getPlatform() === 'ios';
-    const extension = isIOS ? 'mp4' : 'webm';
-    const fileName = `sos_recording_${sosId}.${extension}`;
+// const playLocalVideo = async (sosId: string | number) => {
+//   try {
+//     const isIOS = Capacitor.getPlatform() === 'ios';
+//     const extension = isIOS ? 'mp4' : 'webm';
+//     const fileName = `sos_recording_${sosId}.${extension}`;
 
-    if (Capacitor.isNativePlatform()) {
-      // For native platforms, use system video player
-      const filePath = `DCIM/Nirbhaya/${fileName}`;
-      const fileInfo = await Filesystem.getUri({
-        path: filePath,
-        directory: Directory.ExternalStorage,
-      });
+//     if (Capacitor.isNativePlatform()) {
+//       // For native platforms, use system video player
+//       const filePath = `DCIM/Nirbhaya/${fileName}`;
+//       const fileInfo = await Filesystem.getUri({
+//         path: filePath,
+//         directory: Directory.ExternalStorage,
+//       });
 
-      window.open(fileInfo.uri, '_system');
-    } else {
-      // For web, download the file
-      const result = await Filesystem.readFile({
-        path: `DCIM/Nirbhaya/${fileName}`,
-        directory: Directory.ExternalStorage,
-      });
+//       window.open(fileInfo.uri, '_system');
+//     } else {
+//       // For web, download the file
+//       const result = await Filesystem.readFile({
+//         path: `DCIM/Nirbhaya/${fileName}`,
+//         directory: Directory.ExternalStorage,
+//       });
 
-      const blob = base64ToBlob(
-        result.data,
-        isIOS ? 'video/mp4' : 'video/webm'
-      );
-      const url = URL.createObjectURL(blob);
-      window.open(url, '_blank');
-    }
-  } catch (error) {
-    console.error('Error playing local video:', error);
-    $q.notify({
-      message: 'No local video recording found',
-      color: 'negative',
-      position: 'top',
-      timeout: 2000,
-    });
-  }
-};
+//       const blob = base64ToBlob(
+//         result.data,
+//         isIOS ? 'video/mp4' : 'video/webm'
+//       );
+//       const url = URL.createObjectURL(blob);
+//       window.open(url, '_blank');
+//     }
+//   } catch (error) {
+//     console.error('Error playing local video:', error);
+//     $q.notify({
+//       message: 'No local video recording found',
+//       color: 'negative',
+//       position: 'top',
+//       timeout: 2000,
+//     });
+//   }
+// };
 
-const playRemoteVideo = async (sosId: string | number) => {
-  try {
-    const { data } = await api.get(`/sos/get-video-url/${sosId}`);
-    if (data.url) {
-      window.open(data.url, '_blank');
-    } else {
-      throw new Error('No remote video URL found');
-    }
-  } catch (error) {
-    console.error('Error playing remote video:', error);
-    $q.notify({
-      message: 'No remote video recording found',
-      color: 'negative',
-      position: 'top',
-      timeout: 2000,
-    });
-  }
-};
+// const playRemoteVideo = async (sosId: string | number) => {
+//   try {
+//     const { data } = await api.get(`/sos/get-video-url/${sosId}`);
+//     if (data.url) {
+//       window.open(data.url, '_blank');
+//     } else {
+//       throw new Error('No remote video URL found');
+//     }
+//   } catch (error) {
+//     console.error('Error playing remote video:', error);
+//     $q.notify({
+//       message: 'No remote video recording found',
+//       color: 'negative',
+//       position: 'top',
+//       timeout: 2000,
+//     });
+//   }
+// };
 
-const base64ToBlob = (base64: string, type: string) => {
-  const binaryString = window.atob(base64);
-  const len = binaryString.length;
-  const bytes = new Uint8Array(len);
-  for (let i = 0; i < len; i++) {
-    bytes[i] = binaryString.charCodeAt(i);
-  }
-  return new Blob([bytes], { type: type });
-};
+// const base64ToBlob = (base64: string, type: string) => {
+//   const binaryString = window.atob(base64);
+//   const len = binaryString.length;
+//   const bytes = new Uint8Array(len);
+//   for (let i = 0; i < len; i++) {
+//     bytes[i] = binaryString.charCodeAt(i);
+//   }
+//   return new Blob([bytes], { type: type });
+// };
 
 onMounted(() => {
   fetchSosHistory();

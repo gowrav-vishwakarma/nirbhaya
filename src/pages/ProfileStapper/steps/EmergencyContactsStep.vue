@@ -167,7 +167,7 @@
 </template>
 
 <script lang="ts" setup>
-import { defineProps, defineEmits, ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { useUserStore } from 'src/stores/user-store';
 import { api } from 'src/boot/axios';
 import { useQuasar } from 'quasar';

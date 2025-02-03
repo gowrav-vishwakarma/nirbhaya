@@ -538,6 +538,7 @@ callbacks.onSuccess = (data) => {
   emit('reloadComponents');
 };
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 callbacks.onError = async (error: any): Promise<void> => {
   console.error('Error updating profile', error);
   $q.notify({
@@ -641,21 +642,21 @@ const isReferralIdStored = computed(() => {
   return !!userStore.user.referredBy;
 });
 
-const minDate = computed(() => {
-  const date = new Date();
-  date.setFullYear(date.getFullYear() - 150); // 100 years ago
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-based
-  return `${year}/${month}`;
-});
+// const minDate = computed(() => {
+//   const date = new Date();
+//   date.setFullYear(date.getFullYear() - 150); // 100 years ago
+//   const year = date.getFullYear();
+//   const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-based
+//   return `${year}/${month}`;
+// });
 
-const maxDate = computed(() => {
-  const date = new Date();
-  date.setFullYear(date.getFullYear() - 13); // Must be at least 13 years old
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-based
-  return `${year}/${month}`;
-});
+// const maxDate = computed(() => {
+//   const date = new Date();
+//   date.setFullYear(date.getFullYear() - 13); // Must be at least 13 years old
+//   const year = date.getFullYear();
+//   const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-based
+//   return `${year}/${month}`;
+// });
 
 // const showDatePicker = ref(false);
 </script>

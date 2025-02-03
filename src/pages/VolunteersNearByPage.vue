@@ -144,7 +144,7 @@ const getCurrentLocation = async () => {
       color: 'negative',
       message: t('common.locationError'),
       icon: 'error',
-      position:'top-right'
+      position: 'top-right',
     });
   } finally {
     locationLoading.value = false;
@@ -166,7 +166,7 @@ const fetchVolunteers = async () => {
       color: 'negative',
       message: t('common.fetchVolunteersError'),
       icon: 'error',
-      position:'top-right'
+      position: 'top-right',
     });
   }
 };
@@ -251,7 +251,7 @@ onMounted(() => {
       color: 'negative',
       message: t('common.loginToViewVolunteers'),
       icon: 'error',
-      position:'top-right'
+      position: 'top-right',
     });
     router.push('/login');
   } else {
@@ -261,8 +261,14 @@ onMounted(() => {
 </script>
 
 <style lang="scss" scoped>
+@use 'sass:color'; // Place this at the top of the style block
+
 .volunteers-nearby-page {
-  background: linear-gradient(135deg, $primary, darken($primary, 20%));
+  background: linear-gradient(
+    135deg,
+    $primary,
+    color.adjust($primary, $lightness: -20%)
+  );
   min-height: 100vh;
 }
 
@@ -317,7 +323,11 @@ onMounted(() => {
 }
 
 .volunteers-bg-color {
-  background: linear-gradient(135deg, $primary, darken($primary, 10%));
+  background: linear-gradient(
+    135deg,
+    $primary,
+    color.adjust($primary, $lightness: -10%)
+  );
   color: whitesmoke;
 
   // Add these styles for better button spacing and hover effect

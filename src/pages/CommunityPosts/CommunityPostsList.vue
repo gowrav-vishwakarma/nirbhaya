@@ -965,6 +965,7 @@ onMounted(async () => {
 
     try {
       const location = await Promise.race([locationPromise, timeoutPromise]);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       selectedLocation.value = location as any;
     } catch (timeoutError) {
       // If timeout or no stored location, check volunteering locations

@@ -20,9 +20,19 @@
               </q-item-label>
             </q-item-section>
             <q-item-section side>
-              <q-btn v-if="!contact.consentGiven" flat color="positive" @click="approveContact(contact.id)"
-                :label="$t('common.approve')" />
-              <q-btn flat color="negative" @click="removeContact(contact.id)" :label="$t('common.remove')" />
+              <q-btn
+                v-if="!contact.consentGiven"
+                flat
+                color="positive"
+                @click="approveContact(contact.id)"
+                :label="$t('common.approve')"
+              />
+              <q-btn
+                flat
+                color="negative"
+                @click="removeContact(contact.id)"
+                :label="$t('common.remove')"
+              />
             </q-item-section>
           </q-item>
         </q-list>
@@ -40,13 +50,13 @@
 
 <script lang="ts" setup>
 import { ref, onMounted } from 'vue';
-import { useQuasar } from 'quasar';
-import { useI18n } from 'vue-i18n';
+// import { useQuasar } from 'quasar';
+// import { useI18n } from 'vue-i18n';
 import { api } from 'src/boot/axios';
 import { useDialogPluginComponent } from 'quasar';
 
-const { t } = useI18n();
-const $q = useQuasar();
+// const { t } = useI18n();
+// const $q = useQuasar();
 
 const { dialogRef } = useDialogPluginComponent();
 

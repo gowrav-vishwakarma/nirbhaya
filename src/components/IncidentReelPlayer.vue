@@ -119,6 +119,7 @@ import type { YTPlayer, YT } from '../youtube';
 // import { useIntersectionObserver } from '@vueuse/core'
 
 const props = defineProps<{
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   reel: any;
   isActive: boolean;
   isVisible: boolean;
@@ -275,6 +276,7 @@ const createYoutubePlayer = async () => {
             }
           }
         },
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         onError: (event: any) => {
           console.error('YouTube player error:', event);
           isPlayerReady.value = false;
@@ -400,6 +402,7 @@ const togglePlayPause = () => {
   }
 };
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const handleLike = async (reel: any) => {
   wasLiked.value = true;
   isLiked.value = !isLiked.value;
