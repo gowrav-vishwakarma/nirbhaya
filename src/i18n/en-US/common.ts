@@ -92,7 +92,7 @@ export default {
   emergencyContacts: 'Emergency Contacts',
   youAsEmergencyContacts: 'You as Emergency Contact for',
   emergencyContactsHelp:
-    'Add atlest 3 emergency contacts who will be notified in case of an emergency.',
+    'Add atlest 1 emergency contacts who will be notified in case of an emergency.',
   addEmergencyContact: 'Add New',
   contactName: 'Contact Name',
   contactNumber: 'Contact Number',

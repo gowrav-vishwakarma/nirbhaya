@@ -90,7 +90,7 @@ export default {
   dob: 'જન્મ તારીખ',
   emergencyContacts: 'કટોકટીના સંપર્કો',
   emergencyContactsHelp:
-    'કટોકટીની સ્થિતિમાં સૂચિત કરવા માટે 3 કટોકટીના સંપર્કો ઉમેરો.',
+    'કટોકટીની સ્થિતિમાં સૂચિત કરવા માટે 1 કટોકટીના સંપર્કો ઉમેરો.',
   addEmergencyContact: 'નવો સંપર્ક',
   contactName: 'સંપર્કનું નામ',
   contactNumber: 'સંપર્ક નંબર',
