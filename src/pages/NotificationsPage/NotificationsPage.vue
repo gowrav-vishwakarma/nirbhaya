@@ -387,8 +387,6 @@ const broadcastNotification = async (notificationId: number) => {
       message: t('common.notificationBroadcastSuccess'),
       icon: 'check',
       position: 'top-right',
-<<<<<<< HEAD
-=======
     });
   } catch (error) {
     console.error('Error broadcasting notification:', error);
@@ -429,7 +427,6 @@ const discardNotification = async (notificationId: number) => {
         icon: 'check',
         position: 'top-right',
       });
->>>>>>> develop
     });
   } catch (error) {
     console.error('Error discarding notification:', error);
