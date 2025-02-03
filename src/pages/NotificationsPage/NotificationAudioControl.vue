@@ -3,7 +3,7 @@
     <q-btn
       round
       :color="isJoined ? 'primary' : 'grey'"
-      :icon="$t('common.icons.volumeUp')"
+      icon="videocam"
       @click="toggleConference"
       :loading="isLoading"
       :disable="isLoading"

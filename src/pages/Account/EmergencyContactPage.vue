@@ -652,7 +652,6 @@ const clearPhoneError = () => {
 
 const sendWhatsAppInvite = async (contact: EmergencyContact) => {
   try {
-    contact.contactPhone = '8559846603';
     const text = t('common.whatsappInviteMessage', {
       sender_name: userStore.user.name,
     });

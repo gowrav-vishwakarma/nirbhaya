@@ -113,6 +113,18 @@
                           :sos-event-id="notification.sosEvent.id"
                         />
                         <q-btn
+                          v-if="
+                            notification.recipientType ===
+                              'emergency_contact' &&
+                            notification.status === 'accepted'
+                          "
+                          color="red"
+                          :label="$t('common.broadcast')"
+                          @click="broadcastNotification(notification.id)"
+                          dense
+                          no-caps
+                        />
+                        <q-btn
                           color="negative"
                           :label="$t('common.discard')"
                           @click="discardNotification(notification.id)"
@@ -367,17 +379,57 @@ const refreshNotifications = async () => {
   await fetchUnreadNotificationCount();
 };
 
-const discardNotification = async (notificationId: number) => {
+const broadcastNotification = async (notificationId: number) => {
   try {
-    await api.post(`/notifications/${notificationId}/discard`); // Call the discard API
-    responseData.value = responseData.value.filter(
-      (n) => n.id !== notificationId
-    ); // Remove the discarded notification from the list
+    await api.post(`/notifications/${notificationId}/broadcast`);
     $q.notify({
       color: 'black',
-      message: t('common.notificationDiscardedSuccess'),
+      message: t('common.notificationBroadcastSuccess'),
       icon: 'check',
       position: 'top-right',
+<<<<<<< HEAD
+=======
+    });
+  } catch (error) {
+    console.error('Error broadcasting notification:', error);
+    $q.notify({
+      color: 'negative',
+      message: t('common.notificationBroadcastError'),
+      icon: 'error',
+      position: 'top-right',
+    });
+  }
+};
+
+const discardNotification = async (notificationId: number) => {
+  try {
+    // Show confirmation dialog
+    $q.dialog({
+      title: t('common.confirm'),
+      message: t('common.confirmDiscard'),
+      cancel: true,
+      persistent: true,
+      ok: {
+        color: 'negative',
+        label: t('common.discard'),
+      },
+      cancel: {
+        color: 'grey',
+        flat: true,
+        label: t('common.cancel'),
+      },
+    }).onOk(async () => {
+      await api.post(`/notifications/${notificationId}/discard`); // Call the discard API
+      responseData.value = responseData.value.filter(
+        (n) => n.id !== notificationId
+      ); // Remove the discarded notification from the list
+      $q.notify({
+        color: 'black',
+        message: t('common.notificationDiscardedSuccess'),
+        icon: 'check',
+        position: 'top-right',
+      });
+>>>>>>> develop
     });
   } catch (error) {
     console.error('Error discarding notification:', error);
