@@ -362,7 +362,6 @@ watch(referralId, (newId) => {
   min-height: 60vh;
   background: #f5f5f5;
   padding: 1px;
-  // background: linear-gradient(135deg, $primary, darken($primary, 20%));
   background: linear-gradient(
     135deg,
     $primary,

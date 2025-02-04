@@ -6,18 +6,18 @@
       padding-bottom: env(safe-area-inset-bottom);
     "
   >
-  <div
-        class="row items-center"
-        style="padding-top: 5px; padding-left: 10px"
-        v-if="userStore.user.id"
-      >
-        <q-btn size="sm" flat class="back-button" @click="router.go(-1)">
-          <i style="font-size: 14px" class="fa-solid fa-arrow-left-long"></i>
-        </q-btn>
-        <!-- <span class="text-weight-bold text-primary q-ml-sm text-h4"
+    <div
+      class="row items-center"
+      style="padding-top: 5px; padding-left: 10px"
+      v-if="userStore.user.id"
+    >
+      <q-btn size="sm" flat class="back-button" @click="router.go(-1)">
+        <i style="font-size: 14px" class="fa-solid fa-arrow-left-long"></i>
+      </q-btn>
+      <!-- <span class="text-weight-bold text-primary q-ml-sm text-h4"
           >Profile Page</span
         > -->
-      </div>
+    </div>
     <div class="container q-pa-md">
       <!-- Add Suggestion Button -->
       <!-- <div class="suggestion-button-container q-mb-md">
@@ -1056,11 +1056,11 @@ watch(
 // };
 </script>
 <style scoped lang="scss">
+@use 'sass:color';
 .container {
   max-width: 1200px;
   margin: 0 auto;
   padding: 0px;
-  //background: linear-gradient(135deg, $primary, darken($primary, 20%));
 }
 
 .post-card {
@@ -2105,7 +2105,8 @@ watch(
   color: white;
 
   &:hover {
-    background: darken($primary, 5%);
+    // background: darken($primary, 5%);
+    background: color.adjust($primary, $lightness: -5%);
   }
 }
 
@@ -2266,5 +2267,5 @@ watch(
   justify-content: center;
   align-items: center;
   color: whitesmoke;
-} 
+}
 </style>

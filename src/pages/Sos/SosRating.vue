@@ -456,7 +456,6 @@ textarea {
 }
 
 .rating-bg-color {
-  // background: linear-gradient(135deg, $primary, darken($primary, 10%));
   background: linear-gradient(
     135deg,
     $primary,
@@ -469,7 +468,6 @@ textarea {
 }
 
 .color-primary {
-  // background: linear-gradient(95deg, $primary, darken($primary, 10%));
   background: linear-gradient(
     135deg,
     $primary,

@@ -235,6 +235,7 @@ const hasMorePages = ref(true);
 const pageSize = 10; // Number of items per page
 
 const groupedNotifications = computed(() => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const groups: { [key: string]: { likes: any[]; comments: any[] } } = {};
 
   notifications.value.forEach((post) => {
@@ -283,6 +284,7 @@ const groupedNotifications = computed(() => {
     .reduce((acc, key) => {
       acc[key] = groups[key];
       return acc;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     }, {} as { [key: string]: { likes: any[]; comments: any[] } });
 });
 
@@ -334,26 +336,26 @@ const formatCommentNames = (comments: Comment[]) => {
   )} and ${comments.length - 2} others`;
 };
 
-const formatDateHeader = (dateStr: string) => {
-  const notificationDate = new Date(dateStr);
-  const today = new Date();
-  const yesterday = new Date(today);
-  yesterday.setDate(yesterday.getDate() - 1);
+// const formatDateHeader = (dateStr: string) => {
+//   const notificationDate = new Date(dateStr);
+//   const today = new Date();
+//   const yesterday = new Date(today);
+//   yesterday.setDate(yesterday.getDate() - 1);
 
-  if (
-    date.formatDate(notificationDate, 'YYYY-MM-DD') ===
-    date.formatDate(today, 'YYYY-MM-DD')
-  ) {
-    return 'Today';
-  }
-  if (
-    date.formatDate(notificationDate, 'YYYY-MM-DD') ===
-    date.formatDate(yesterday, 'YYYY-MM-DD')
-  ) {
-    return 'Yesterday';
-  }
-  return date.formatDate(notificationDate, 'MMM D, YYYY');
-};
+//   if (
+//     date.formatDate(notificationDate, 'YYYY-MM-DD') ===
+//     date.formatDate(today, 'YYYY-MM-DD')
+//   ) {
+//     return 'Today';
+//   }
+//   if (
+//     date.formatDate(notificationDate, 'YYYY-MM-DD') ===
+//     date.formatDate(yesterday, 'YYYY-MM-DD')
+//   ) {
+//     return 'Yesterday';
+//   }
+//   return date.formatDate(notificationDate, 'MMM D, YYYY');
+// };
 
 const fetchNotifications = async (page: number) => {
   try {
@@ -418,13 +420,13 @@ watch(
   { deep: true }
 );
 
-const allLikes = computed(() => {
-  return notifications.value.flatMap((post) => post.likes);
-});
+// const allLikes = computed(() => {
+//   return notifications.value.flatMap((post) => post.likes);
+// });
 
-const allComments = computed(() => {
-  return notifications.value.flatMap((post) => post.comments);
-});
+// const allComments = computed(() => {
+//   return notifications.value.flatMap((post) => post.comments);
+// });
 
 const $q = useQuasar();
 

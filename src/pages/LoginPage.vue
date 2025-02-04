@@ -287,6 +287,7 @@ callbacks.onSuccess = async (userData) => {
   isLoading.value = false;
 };
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 callbacks.onError = async (error: any) => {
   console.log('Error in login page', error);
   isLoading.value = false;
@@ -367,6 +368,7 @@ onUnmounted(() => {
 </script>
 
 <style scoped lang="scss">
+@use 'sass:color';
 .login-card {
   max-width: 400px;
   width: 90%;
@@ -381,7 +383,11 @@ onUnmounted(() => {
 }
 
 .q-page {
-  background: linear-gradient(135deg, $primary, darken($primary, 20%));
+  background: linear-gradient(
+    135deg,
+    $primary,
+    color.adjust($primary, $lightness: -20%)
+  );
 }
 
 .versiontextcolor {

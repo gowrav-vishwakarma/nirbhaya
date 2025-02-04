@@ -256,9 +256,9 @@ watch(
   }
 );
 
-const isBlinking = (status: string) => {
-  return status === 'active';
-};
+// const isBlinking = (status: string) => {
+//   return status === 'active';
+// };
 
 const getNotificationTitle = (notification: Notification) => {
   const eventType = notification.sosEvent?.threat || 'SOS';
@@ -402,10 +402,10 @@ const formatRelativeTime = (dateString: string) => {
   return `${relativeTime}\n${formattedDateTime}`;
 };
 
-const refreshNotifications = async () => {
-  await validateAndSubmit(false);
-  await fetchUnreadNotificationCount();
-};
+// const refreshNotifications = async () => {
+//   await validateAndSubmit(false);
+//   await fetchUnreadNotificationCount();
+// };
 
 const broadcastNotification = async (notificationId: number) => {
   try {
@@ -573,8 +573,13 @@ const emit = defineEmits(['notifications-updated']);
 </script>
 
 <style lang="scss" scoped>
+@use 'sass:color';
 .notifications-page {
-  background: linear-gradient(135deg, $primary, darken($primary, 20%));
+  background: linear-gradient(
+    135deg,
+    $primary,
+    color.adjust($primary, $lightness: -20%)
+  );
   min-height: 100vh;
   padding: 0;
 }

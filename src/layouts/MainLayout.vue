@@ -717,8 +717,6 @@ const getCurrentLocation = async () => {
 @use 'sass:color';
 
 .mainlayout-page-bg-color {
-  // background: linear-gradient(135deg, $primary, darken($primary, 20%));
-
   background: linear-gradient(
     135deg,
     $primary,

@@ -7,8 +7,15 @@
             {{ $t('common.help') }}
           </div>
 
-          <q-tabs v-model="activeTab" dense class="text-grey" active-color="primary" indicator-color="primary"
-            align="justify" narrow-indicator>
+          <q-tabs
+            v-model="activeTab"
+            dense
+            class="text-grey"
+            active-color="primary"
+            indicator-color="primary"
+            align="justify"
+            narrow-indicator
+          >
             <!-- <q-tab name="app" :label="$t('common.appHelp')" /> -->
             <q-tab name="permissions" :label="$t('common.permissionsHelp')" />
           </q-tabs>
@@ -28,23 +35,37 @@
             </q-tab-panel> -->
 
             <q-tab-panel name="permissions">
-              <div v-for="permission in permissions" :key="permission.name" class="q-mb-lg">
+              <div
+                v-for="permission in permissions"
+                :key="permission.name"
+                class="q-mb-lg"
+              >
                 <h2 :id="permission.name" class="text-h6 q-mb-sm">
                   {{ $t(permission.name) }}
                 </h2>
                 <p>{{ $t(permission.name + 'PermissionHelp') }}</p>
                 <div class="row q-col-gutter-sm q-mt-sm">
                   <div class="col-12 col-sm-6">
-                    <q-btn :label="permission.granted
-                      ? $t('common.permissionGranted')
-                      : $t('common.requestPermission')
-                      " :color="permission.granted ? 'positive' : 'primary'"
-                      @click="handleRequestPermission(permission.name)" class="full-width"
-                      :disable="permission.granted" />
+                    <q-btn
+                      :label="
+                        permission.granted
+                          ? $t('common.permissionGranted')
+                          : $t('common.requestPermission')
+                      "
+                      :color="permission.granted ? 'positive' : 'primary'"
+                      @click="handleRequestPermission(permission.name)"
+                      class="full-width"
+                      :disable="permission.granted"
+                    />
                   </div>
                   <div class="col-12 col-sm-6">
-                    <q-btn :label="$t('common.howToEnable')" color="secondary" outline
-                      @click="showPlatformSpecificHelp(permission.name)" class="full-width" />
+                    <q-btn
+                      :label="$t('common.howToEnable')"
+                      color="secondary"
+                      outline
+                      @click="showPlatformSpecificHelp(permission.name)"
+                      class="full-width"
+                    />
                   </div>
                 </div>
               </div>
@@ -64,7 +85,11 @@
 
         <q-card-section>
           <div class="video-container">
-            <iframe :src="currentVideoUrl" frameborder="0" allowfullscreen></iframe>
+            <iframe
+              :src="currentVideoUrl"
+              frameborder="0"
+              allowfullscreen
+            ></iframe>
           </div>
         </q-card-section>
       </q-card>
@@ -106,26 +131,26 @@ const currentPlatformHelp = ref('');
 
 const { permissions, checkPermissions, requestPermission } = usePermissions();
 
-const appHelpSections = [
-  {
-    id: 'getting-started',
-    title: 'common.gettingStarted',
-    content: 'common.gettingStartedContent',
-    videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
-  },
-  {
-    id: 'using-sos',
-    title: 'common.usingSOS',
-    content: 'common.usingSOSContent',
-    videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
-  },
-  {
-    id: 'volunteering',
-    title: 'common.volunteeringHelp',
-    content: 'common.volunteeringHelpContent',
-    videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
-  },
-];
+// const appHelpSections = [
+//   {
+//     id: 'getting-started',
+//     title: 'common.gettingStarted',
+//     content: 'common.gettingStartedContent',
+//     videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
+//   },
+//   {
+//     id: 'using-sos',
+//     title: 'common.usingSOS',
+//     content: 'common.usingSOSContent',
+//     videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
+//   },
+//   {
+//     id: 'volunteering',
+//     title: 'common.volunteeringHelp',
+//     content: 'common.volunteeringHelpContent',
+//     videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
+//   },
+// ];
 
 const handleRequestPermission = async (permissionName: string) => {
   const granted = await requestPermission(permissionName);
@@ -136,29 +161,29 @@ const handleRequestPermission = async (permissionName: string) => {
         permission: t(permissionName),
       }),
       icon: 'check',
-      position:'top-right'
+      position: 'top-right',
     });
   } else {
     $q.notify({
       color: 'negative',
       message: t('common.permissionDenied', { permission: t(permissionName) }),
       icon: 'error',
-      position:'top-right'
+      position: 'top-right',
     });
   }
   await checkPermissions();
 };
 
-const openVideoModal = (videoUrl: string) => {
-  currentVideoUrl.value = videoUrl;
-  videoModalOpen.value = true;
-};
+// const openVideoModal = (videoUrl: string) => {
+//   currentVideoUrl.value = videoUrl;
+//   videoModalOpen.value = true;
+// };
 
 const showPlatformSpecificHelp = (permissionName: string) => {
   const platform = Capacitor.getPlatform();
   const isIOS = platform === 'ios';
   const isAndroid = platform === 'android';
-  const isPWA = !isIOS && !isAndroid;
+  // const isPWA = !isIOS && !isAndroid;
 
   let helpContent = '';
 
@@ -218,8 +243,13 @@ onMounted(async () => {
 </script>
 
 <style lang="scss" scoped>
+@use 'sass:color';
 .help-page {
-  background: linear-gradient(135deg, $primary, darken($primary, 20%));
+  background: linear-gradient(
+    135deg,
+    $primary,
+    color.adjust($primary, $lightness: -20%)
+  );
   min-height: 100vh;
 }
 

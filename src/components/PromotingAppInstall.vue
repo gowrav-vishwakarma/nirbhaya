@@ -1,13 +1,27 @@
 <template>
-  <q-dialog ref="dialogRef" v-if="!isInstalled" position="bottom" @hide="handleDialogHide" @click="checkSwipeToClose"
-    @touchstart="handleTouchStart" @touchmove.prevent="handleTouchMove" @touchend="handleTouchEnd" persistent
-    :maximized="false" transition-show="slide-up" transition-hide="slide-down">
+  <q-dialog
+    ref="dialogRef"
+    v-if="!isInstalled"
+    position="bottom"
+    @hide="handleDialogHide"
+    @click="checkSwipeToClose"
+    @touchstart="handleTouchStart"
+    @touchmove.prevent="handleTouchMove"
+    @touchend="handleTouchEnd"
+    persistent
+    :maximized="false"
+    transition-show="slide-up"
+    transition-hide="slide-down"
+  >
     <q-card class="dialog-card" :style="{ '--swipe-progress': swipeProgress }">
       <q-card-section>
         <div class="text-h5 q-mt-sm q-mb-xs">{{ $t('common.installApp') }}</div>
         <div class="row items-center">
           <div class="col-3" style="height: 80px">
-            <q-img src="/sosLogo_512_512.png" style="height: 80px; width: 80px"></q-img>
+            <q-img
+              src="/sosLogo_512_512.png"
+              style="height: 80px; width: 80px"
+            ></q-img>
           </div>
           <div class="col-9 q-pl-md text-body1">
             <p class="q-ma-none" style="font-weight: 600">
@@ -15,7 +29,10 @@
             </p>
           </div>
         </div>
-        <div v-if="$q.platform.is.safari || $q.platform.is.mac" class="text-subtitle2">
+        <div
+          v-if="$q.platform.is.safari || $q.platform.is.mac"
+          class="text-subtitle2"
+        >
           <ol>
             <li>Open your app in Safari.</li>
             <li>
@@ -26,7 +43,10 @@
             <li>Confirm by tapping "Add" in the top-right corner.</li>
           </ol>
         </div>
-        <div v-else-if="$q.platform.is.chrome || $q.platform.is.android" class="text-subtitle2">
+        <div
+          v-else-if="$q.platform.is.chrome || $q.platform.is.android"
+          class="text-subtitle2"
+        >
           <ul>
             <li>Open your app in Chrome.</li>
             <li>Tap the three-dot menu in the top-right corner.</li>
@@ -65,15 +85,16 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue';
 import { useQuasar, useDialogPluginComponent } from 'quasar';
-import { useI18n } from 'vue-i18n';
+// import { useI18n } from 'vue-i18n';
 import { useUserStore } from '../stores/user-store';
 
 const { dialogRef, onDialogHide } = useDialogPluginComponent();
 const $q = useQuasar();
 const showInstallPrompt = ref(false);
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const deferredPrompt = ref<any>(null);
 const isInstalled = ref<boolean>(false);
-const { t } = useI18n();
+// const { t } = useI18n();
 const userStore = useUserStore();
 
 // Add these new refs for touch handling

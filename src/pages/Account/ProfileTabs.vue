@@ -926,7 +926,6 @@ onMounted(() => {
   margin-top: 40px;
   width: 200px;
   font-weight: 900;
-  // background: linear-gradient(135deg, $primary, darken($primary, 20%));
   background: linear-gradient(
     135deg,
     $primary,

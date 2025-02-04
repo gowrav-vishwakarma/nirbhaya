@@ -1,7 +1,10 @@
 <template>
   <q-page class="flex flex-center">
     <q-card class="q-ma-none" flat>
-      <q-img src="/public/sosLogo_512_512.png" style="height: 100px; width: 100px"></q-img>
+      <q-img
+        src="/public/sosLogo_512_512.png"
+        style="height: 100px; width: 100px"
+      ></q-img>
       <!-- <q-card-section class="text-center">
         <div class="text-h3 text-weight-bold text-primary">Shoutout</div>
         <div class="text-subtitle1 text-weight-medium text-grey-7">
@@ -29,23 +32,41 @@
       </q-card-section>
       <q-card-section v-else class="text-center">
         <q-form @submit="handleSubmit" class="">
-          <q-input filled v-model="values.mobileNumber" :label="$t('common.mobileNumber')"
-            :error="!!errors.mobileNumber" :error-message="errors.mobileNumber?.join('; ')" mask="##########"
-            :disable="otpSent">
+          <q-input
+            filled
+            v-model="values.mobileNumber"
+            :label="$t('common.mobileNumber')"
+            :error="!!errors.mobileNumber"
+            :error-message="errors.mobileNumber?.join('; ')"
+            mask="##########"
+            :disable="otpSent"
+          >
             <template v-slot:prepend>
               <q-icon :name="$t('common.icons.phone')" color="primary" />
             </template>
           </q-input>
 
-          <q-input v-if="otpSent" filled v-model="values.otp" :label="$t('common.enterOTP')" :error="!!errors.otp"
-            :error-message="errors.otp?.join('; ')" mask="####">
+          <q-input
+            v-if="otpSent"
+            filled
+            v-model="values.otp"
+            :label="$t('common.enterOTP')"
+            :error="!!errors.otp"
+            :error-message="errors.otp?.join('; ')"
+            mask="####"
+          >
             <template v-slot:prepend>
               <q-icon :name="$t('common.icons.lock')" color="primary" />
             </template>
           </q-input>
 
-          <q-btn :label="otpSent ? $t('common.login') : $t('common.sendOTP')" type="submit" color="primary"
-            class="full-width q-py-sm" :loading="isLoading" />
+          <q-btn
+            :label="otpSent ? $t('common.login') : $t('common.sendOTP')"
+            type="submit"
+            color="primary"
+            class="full-width q-py-sm"
+            :loading="isLoading"
+          />
         </q-form>
       </q-card-section>
 
@@ -161,7 +182,7 @@ callbacks.onError = (error) => {
     message: otpSent.value
       ? 'Login failed. Please check your OTP and try again.'
       : 'Failed to send OTP. Please try again.',
-      position:'top-right'
+    position: 'top-right',
   });
 };
 
@@ -174,14 +195,14 @@ const resendOTP = async () => {
     Notify.create({
       type: 'black',
       message: 'OTP resent successfully',
-      position:'top-right'
+      position: 'top-right',
     });
   } catch (error) {
     console.error('Error resending OTP:', error);
     Notify.create({
       type: 'negative',
       message: 'Failed to resend OTP. Please try again.',
-      position:'top-right',
+      position: 'top-right',
     });
   } finally {
     isLoading.value = false;
@@ -194,6 +215,7 @@ const goToAboutUs = () => {
 </script>
 
 <style scoped lang="scss">
+@use 'sass:color';
 .login-card {
   max-width: 400px;
   width: 90%;
@@ -202,6 +224,10 @@ const goToAboutUs = () => {
 }
 
 .q-page {
-  background: linear-gradient(135deg, $primary, darken($primary, 20%));
+  background: linear-gradient(
+    135deg,
+    $primary,
+    color.adjust($primary, $lightness: -20%)
+  );
 }
 </style>

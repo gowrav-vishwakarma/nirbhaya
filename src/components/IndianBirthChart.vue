@@ -2,6 +2,7 @@
 import { computed } from 'vue';
 
 const props = defineProps<{
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   birthChart: Record<string, any>;
 }>();
 
@@ -100,7 +101,9 @@ function getPlanetsInHouse(houseName: string) {
     .map(([key, value]) => ({
       name: key,
       symbol: planetSymbols[key] || key,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       position: (value as any).position.toFixed(0),
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       retrograde: (value as any).retrograde,
     }));
 }

@@ -238,10 +238,10 @@ const userTypeOptions = [
   'Girl (13-18)',
   'Boy (13-18)',
   'Girl/Woman (18-35)',
-  'Woman (35+)',
-  'Senior Woman (60+)',
   'Boy/Man (18-35)',
+  'Woman (35+)',
   'Man (35+)',
+  'Senior Woman (60+)',
   'Senior Man (60+)',
   // 'Child (Under 18)',
   // 'Prefer not to say',
@@ -663,7 +663,6 @@ const isReferralIdStored = computed(() => {
 
 <style lang="scss" scoped>
 .profile-page {
-  // background: linear-gradient(135deg, $primary, darken($primary, 20%));
   min-height: 100% !important;
 }
 

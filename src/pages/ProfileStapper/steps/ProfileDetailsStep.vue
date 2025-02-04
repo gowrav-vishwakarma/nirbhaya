@@ -326,12 +326,12 @@ const $q = useQuasar();
 const { t } = useI18n();
 const userStore = useUserStore();
 
-interface City {
-  officename: string;
-  statename: string;
-  pincode: string;
-  city?: string;
-}
+// interface City {
+//   officename: string;
+//   statename: string;
+//   pincode: string;
+//   city?: string;
+// }
 
 interface UserLocation {
   name: string;
@@ -342,14 +342,14 @@ interface UserLocation {
   isBusinessLocation?: boolean;
 }
 
-interface BusinessInfo {
-  businessName: string;
-  whatsappNumber: string | number;
-  locationName: string;
-  latitude: number;
-  longitude: number;
-  businessCategory: string | null;
-}
+// interface BusinessInfo {
+//   businessName: string;
+//   whatsappNumber: string | number;
+//   locationName: string;
+//   latitude: number;
+//   longitude: number;
+//   businessCategory: string | null;
+// }
 
 interface FormValues {
   name: string;
@@ -422,10 +422,10 @@ const userTypes = [
   'Girl (13-18)',
   'Boy (13-18)',
   'Girl/Woman (18-35)',
-  'Woman (35+)',
-  'Senior Woman (60+)',
   'Boy/Man (18-35)',
+  'Woman (35+)',
   'Man (35+)',
+  'Senior Woman (60+)',
   'Senior Man (60+)',
 ];
 
@@ -656,6 +656,7 @@ callbacks.onSuccess = (data) => {
   userStore.updateUser(updatedUserData);
 };
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 callbacks.onError = (error: any) => {
   console.error('Error updating profile details:', error);
   $q.notify({
@@ -721,10 +722,12 @@ callbacks.onError = (error: any) => {
 const lastCheckedReferralId = ref('');
 
 // Replace the debounce utility with properly typed version
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type DebouncedFunction<T extends (...args: any[]) => any> = (
   ...args: Parameters<T>
 ) => void;
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const debounce = <T extends (...args: any[]) => any>(
   fn: T,
   delay: number

@@ -363,29 +363,29 @@ const isLoadingLocations = ref(false);
 const selectedLocationId = ref<string | number | null>(
   props.post.location ? 'post-location' : null
 );
-const savedLocations = ref([
-  { id: 0, name: 'Current Location' },
-  ...(userStore.user?.locations?.map((loc) => ({
-    id: Math.random(),
-    name: loc.name,
-    location: loc.location,
-    isBusinessLocation: loc.isBusinessLocation,
-  })) || []),
-  ...(props.post.location
-    ? [
-        {
-          id: Math.random(),
-          name: 'Post Location',
-          location: {
-            type: 'Point',
-            coordinates: [props.post.location.x, props.post.location.y],
-          },
-          isBusinessLocation: props.post.isBusinessPost,
-        },
-      ]
-    : []),
-  { id: -1, name: 'Select on Map' },
-]);
+// const savedLocations = ref([
+//   { id: 0, name: 'Current Location' },
+//   ...(userStore.user?.locations?.map((loc) => ({
+//     id: Math.random(),
+//     name: loc.name,
+//     location: loc.location,
+//     isBusinessLocation: loc.isBusinessLocation,
+//   })) || []),
+//   ...(props.post.location
+//     ? [
+//         {
+//           id: Math.random(),
+//           name: 'Post Location',
+//           location: {
+//             type: 'Point',
+//             coordinates: [props.post.location.x, props.post.location.y],
+//           },
+//           isBusinessLocation: props.post.isBusinessPost,
+//         },
+//       ]
+//     : []),
+//   { id: -1, name: 'Select on Map' },
+// ]);
 const isBusinessPost = ref(props.post.isBusinessPost || false);
 
 // Add computed properties
@@ -514,8 +514,12 @@ const resizeImage = (file: File): Promise<Blob> => {
 
         canvas.width = width;
         canvas.height = height;
-        const ctx = canvas.getContext('2d')!;
-        ctx.drawImage(img, 0, 0, width, height);
+        const ctx = canvas.getContext('2d');
+        if (ctx) {
+          ctx.drawImage(img, 0, 0, width, height);
+        } else {
+          console.error('Failed to get canvas context');
+        }
 
         let quality = 0.7;
         const compressImage = (q: number) => {
@@ -765,6 +769,7 @@ const businessCategories = computed(() => {
         id: `${categoryIndex}_${optIndex}`,
       })),
     ];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   }, [] as Array<any>);
 });
 
