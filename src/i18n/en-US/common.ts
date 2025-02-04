@@ -74,6 +74,9 @@ export default {
   getHelp: 'Get Help',
   notificationsPermissionHelp: 'notifications Permission Help',
   errorGettingLocation: 'Error getting location. Please try again.',
+  autoNotifyNearbyAfterDelay:
+    'Notify nearby volunteers if no contact joins in 3 minute',
+
   // Profile Page
   myProfile: 'My Profile',
   emergencyContact: 'Emergency Contact',
@@ -87,8 +90,9 @@ export default {
   userType: 'Age Group',
   dob: 'Date Of Birth',
   emergencyContacts: 'Emergency Contacts',
+  youAsEmergencyContacts: 'You as Emergency Contact for',
   emergencyContactsHelp:
-    'Add up to 3 emergency contacts who will be notified in case of an emergency.',
+    'Add atlest 1 emergency contacts who will be notified in case of an emergency.',
   addEmergencyContact: 'Add New',
   contactName: 'Contact Name',
   contactNumber: 'Contact Number',
@@ -100,7 +104,8 @@ export default {
   profileUpdateError: 'Failed to update profile',
   pleaseSelectLocation: 'Please select location',
   contactNumberRequired: 'Contact number is required',
-  contactNameRequired: 'Contact name is required',
+  contactNameRequired:
+    'Contact name is required and accept only letter and number',
   profession: 'Profession',
   hospital: 'Hospital',
   doctorGeneral: 'Doctor General',
@@ -136,7 +141,7 @@ export default {
   streamAudioVideoOnSos: 'Stream Audio/Video on SOS (on server)',
   broadcastAudioOnSos: 'Broadcast Audio on SOS (to volunteers)',
   emergencyContactRequests: 'Requests',
-  noEmergencyContacts: "You are not in anyone's emergency contact list",
+  noEmergencyContacts: "You haven't added any emergency contacts yet.",
   approve: 'Approve',
   reject: 'Reject',
   remove: 'Remove',
@@ -183,6 +188,8 @@ export default {
   attemptedKidnapping: 'Attempted Kidnapping',
   sexualAssault: 'Sexual Assault',
   domesticViolence: 'Domestic Violence',
+  medicalemergency: 'Medical Emergency',
+  safetyconcerns: 'Safety Concerns',
   unknown: 'Unknown',
   // Help Page
   locationPermission: 'Location Permission',
@@ -229,7 +236,7 @@ export default {
   locationName: 'Location Name',
   useCurrentLocation: 'Use Current Location',
   selectFromMapLocation: 'Select Location From Map',
-  addNotificationLocation: 'Add Notification Location',
+  addNotificationLocation: 'Add More Notification Location',
   addLocation: 'Add Location',
   availableForCommunity: 'Available for Community Assistance',
   availableForCommunityDescription:
@@ -267,7 +274,7 @@ export default {
   threat: 'Threat',
   accept: 'Accept',
   discard: 'Discard',
-  follow: 'Follow',
+  follow: 'Get Direction',
   notificationAcceptedSuccess: 'Notification accepted successfully',
   notificationAcceptedError: 'Failed to accept notification',
   muteAudio: 'Mute Audio',
@@ -325,6 +332,10 @@ export default {
   nearbyVolunteers: 'Nearby Volunteers',
   viewAll: 'View All',
   volunteersNearby: 'volunteers nearby',
+  addEmergencyContactToUseSOS:
+    'Add an emergency contact to use SOS features. click here to add.',
+  addVolunteerLocationToVolunteer:
+    'Set location for volunteer opportunities. click here to add.',
   // CommunityImpactPage
   communityImpact: 'Community Impact',
   yourReferralId: 'Your Referral ID',
@@ -613,4 +624,37 @@ export default {
   astroai: 'AstroAI',
 
   caretext: 'Report abuse, safety concerns, or violations to',
+
+  autoNotifyNearbyDefault: 'Auto-notify nearby volunteers by default',
+  autoNotifyNearbyDefaultDesc:
+    'When enabled, SOS alerts will automatically notify nearby volunteers if no contacts respond within 3 minute',
+
+  // Add these new translations
+  invite: 'Invite',
+  inviteError: 'Error sending invitation',
+
+  youNotInEmergencyContacts:
+    "You are not in anyone's emergency contact list yet",
+  encourageAddEmergencyContact:
+    'Ask your family and friends to add you as their emergency contact to help them in need',
+
+  whatsappInviteMessage:
+    '{sender_name} has chosen you as their emergency contact on SOS Bharat app. Your support could make a crucial difference when needed.\n\n' +
+    'Download the app to stay connected:\n' +
+    'Android: https://play.google.com/store/apps/details?id=com.xavoc.shoutout\n' +
+    'iPhone: https://apps.apple.com/app/6738719612\n\n' +
+    "Join India's largest safety network - because every minute counts.",
+
+  inviteButtonLabel: 'Send Invite to {name}',
+  inviteMessage:
+    "{name} hasn't registered on SOS Bharat yet. Send them an invite so they can help you when you need them.",
+
+  broadcastHelp: 'Send Alert to Nearby Volunteers',
+  broadcastDescription:
+    "If you can't help {name} right now, click below to alert nearby volunteers who might be able to assist.",
+  notificationBroadcastSuccess: 'Successfully alerted nearby volunteers',
+  notificationBroadcastError: 'Failed to alert volunteers. Please try again.',
+  dismiss: 'Dismiss',
+
+  confirmDiscard: 'Are you sure you want to discard this notification?',
 };

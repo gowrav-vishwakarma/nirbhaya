@@ -100,13 +100,21 @@ onMounted(async () => {
     'maps'
   )) as google.maps.MapsLibrary;
 
-  map = new Map(mapContainer.value!, {
-    center: { lat: latitude.value || 0, lng: longitude.value || 0 },
-    zoom: latitude.value && longitude.value ? 8 : 2,
-  });
+  if (mapContainer.value) {
+    map = new Map(mapContainer.value, {
+      center: { lat: latitude.value || 0, lng: longitude.value || 0 },
+      zoom: latitude.value && longitude.value ? 8 : 2,
+    });
+  } else {
+    console.error('Map container is not defined');
+  }
 
   map.addListener('click', (e: google.maps.MapMouseEvent) => {
-    placeMarker(e.latLng!);
+    if (e.latLng) {
+      placeMarker(e.latLng);
+    } else {
+      console.error('LatLng is not defined');
+    }
   });
 
   if (latitude.value && longitude.value) {

@@ -217,7 +217,7 @@
 </template>
 
 <script setup lang="ts">
-import { defineProps, defineEmits, ref, onMounted } from 'vue';
+import { ref, onMounted } from 'vue';
 import { api } from 'src/boot/axios';
 import { useQuasar } from 'quasar';
 
@@ -226,6 +226,7 @@ const loading = ref(false);
 const saving = ref(false);
 const itemDialog = ref(false);
 const savingItem = ref(false);
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const editingItem = ref<any>(null);
 
 // Define the image CDN value

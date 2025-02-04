@@ -100,6 +100,7 @@
             group="profile-tabs"
             icon="mdi-human-greeting-proximity"
             :label="t('common.emergencyContact')"
+            class="emergency-contact-section"
           >
             <EmergencyContactPage :reload-components="reloadComponents" />
           </q-expansion-item>
@@ -111,6 +112,7 @@
             group="profile-tabs"
             icon="volunteer_activism"
             :label="t('common.beVolunteers')"
+            class="volunteering-section"
           >
             <q-card>
               <VolunteeringPage @reload-components="reloadComponents" />
@@ -203,8 +205,8 @@
   </div>
 </template>
 <script setup lang="ts">
-import { ref, provide, computed } from 'vue';
-import { useRouter } from 'vue-router';
+import { ref, computed, onMounted } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
 import { useQuasar } from 'quasar';
 import ProfilePage from './ProfilePage.vue';
 import VolunteeringPage from './VolunteeringPage.vue';
@@ -220,13 +222,13 @@ import { useUserStore } from 'src/stores/user-store';
 import { api } from 'src/boot/axios';
 import { useI18n } from 'vue-i18n';
 import { useUserForm } from 'src/composables/use-user-form';
-import { col } from 'sequelize';
 const fileInput = ref<HTMLInputElement | null>(null);
 const isProcessingImages = ref(false);
 
 const { t } = useI18n();
 const userStore = useUserStore();
 const router = useRouter();
+const route = useRoute();
 const $q = useQuasar();
 const reloadKey = ref(0);
 const reloadComponents = () => {
@@ -292,10 +294,10 @@ const handleFileChange = async (event: Event) => {
   }
 };
 
-const goToStapper = (stap: number) => {
-  console.log('stap....', stap);
-  router.push({ name: 'stapper', query: { stap: stap } });
-};
+// const goToStapper = (stap: number) => {
+//   console.log('stap....', stap);
+//   router.push({ name: 'stapper', query: { stap: stap } });
+// };
 
 const resizeImage = (file: File): Promise<Blob> => {
   return new Promise<Blob>((resolve, reject) => {
@@ -330,7 +332,11 @@ const resizeImage = (file: File): Promise<Blob> => {
         canvas.width = width;
         canvas.height = height;
 
-        const ctx = canvas.getContext('2d')!;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) {
+          console.error('Failed to get canvas context');
+          return; // Handle the error appropriately
+        }
         ctx.imageSmoothingEnabled = true;
         ctx.imageSmoothingQuality = 'high';
         ctx.drawImage(img, 0, 0, width, height);
@@ -387,18 +393,44 @@ const logout = async () => {
 };
 
 const expandedItems = ref({
-  profile: !userStore.user?.name,
+  profile: false,
+  emergencyContact: false,
   volunteers: false,
-  myPosts: false,
   community: false,
   feedback: false,
-  rating: false,
   settings: false,
-  emergencyContact: false,
   business: false,
+});
+
+onMounted(() => {
+  // Check if the URL has the 'open' query parameter
+  if (route.query.open === 'emergency') {
+    expandedItems.value.emergencyContact = true; // Open the EmergencyContactPage expansion
+    // Scroll to the EmergencyContactPage section
+    setTimeout(() => {
+      const emergencySection = document.querySelector(
+        '.emergency-contact-section'
+      );
+      if (emergencySection) {
+        emergencySection.scrollIntoView({ behavior: 'smooth' });
+      }
+    }, 100); // Delay to ensure the expansion is opened before scrolling
+  } else if (route.query.open === 'volunteers') {
+    expandedItems.value.volunteers = true; // Open the VolunteeringPage expansion
+    // Scroll to the VolunteeringPage section
+    setTimeout(() => {
+      const volunteeringSection = document.querySelector(
+        '.volunteering-section'
+      );
+      if (volunteeringSection) {
+        volunteeringSection.scrollIntoView({ behavior: 'smooth' });
+      }
+    }, 100); // Delay to ensure the expansion is opened before scrolling
+  }
 });
 </script>
 <style lang="scss" scoped>
+@use 'sass:color';
 .my-posts-btn {
   background: rgba(229, 185, 192, 0.15); // Light pink with transparency
   color: $primary;
@@ -894,7 +926,11 @@ const expandedItems = ref({
   margin-top: 40px;
   width: 200px;
   font-weight: 900;
-  background: linear-gradient(135deg, $primary, darken($primary, 20%));
+  background: linear-gradient(
+    135deg,
+    $primary,
+    color.adjust($primary, $lightness: -20%)
+  );
   padding: 7px;
   color: whitesmoke;
   border-radius: 10px;

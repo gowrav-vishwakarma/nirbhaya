@@ -23,7 +23,9 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>UIBackgroundModes</key>
-	<array>
+  <array>
+    <string>audio</string>
+    <string>voip</string>
 		<string>remote-notification</string>
 	</array>
 	<key>UILaunchStoryboardName</key>
@@ -59,5 +61,7 @@
   <string>Allow access to your microphone to broadcast audio during your SOS event, either to your emergency contacts or nearby volunteers (depending on your choice), to verify the authenticity of the event and provide assistance.</string>
   <key>NSPhotoLibraryUsageDescription</key>
   <string>Allow access to your photo library to save recorded audio and video from your SOS events, and to set or update your profile picture, to let you add photos in your community posts</string>
+  <key>NSCalendarsUsageDescription</key>
+  <string>Allow access to your calendar to schedule and manage meetings, events, and reminders for upcoming SOS-related activities and community interactions.</string>
 </dict>
 </plist>

@@ -5,7 +5,10 @@
     <q-card class="q-mb-md">
       <q-card-section>
         <div class="text-h6">{{ $t('common.yourReferralId') }}</div>
-        <div class="text-h3 text-primary q-mt-sm q-pr-xl" style="position: relative">
+        <div
+          class="text-h3 text-primary q-mt-sm q-pr-xl"
+          style="position: relative"
+        >
           {{ userStore.user.referralId }}
           <q-btn flat round class="absolute-right" @click="copyReferralId">
             <q-icon name="content_copy"></q-icon>
@@ -112,9 +115,9 @@
 import { ref, onMounted, onUnmounted, watch } from 'vue';
 import { api } from 'src/boot/axios';
 import { useUserStore } from 'src/stores/user-store';
-import { copyToClipboard, openURL } from 'quasar';
+import { copyToClipboard } from 'quasar';
 import { Platform } from 'quasar';
-import { useQuasar } from 'quasar';
+// import { useQuasar } from 'quasar';
 
 const userStore = useUserStore();
 const impactInfo = ref({
@@ -124,11 +127,11 @@ const impactInfo = ref({
 });
 
 const videoPreview = ref<HTMLVideoElement | null>(null);
-const canvas = ref<HTMLCanvasElement | null>(null);
+// const canvas = ref<HTMLCanvasElement | null>(null);
 const mediaRecorder = ref<MediaRecorder | null>(null);
-const recordedChunks = ref<Blob[]>([]);
+// const recordedChunks = ref<Blob[]>([]);
 const isRecording = ref(false);
-const recordedVideoUrl = ref('');
+// const recordedVideoUrl = ref('');
 
 const overlayCanvas = ref<HTMLCanvasElement | null>(null);
 const watermarkConfig = ref({
@@ -144,8 +147,8 @@ const watermarkConfig = ref({
   textSize: 24,
 });
 
-const showWatermarkConfig = ref(false);
-const canvasStream = ref<MediaStream | null>(null);
+// const showWatermarkConfig = ref(false);
+// const canvasStream = ref<MediaStream | null>(null);
 
 const copyButtonLabel = ref('Copy');
 
@@ -197,141 +200,141 @@ const drawOverlay = () => {
 
 watch(watermarkConfig, drawOverlay, { deep: true });
 
-const startRecording = async () => {
-  try {
-    // Reset recorded video and chunks
-    recordedVideoUrl.value = '';
-    recordedChunks.value = [];
+// const startRecording = async () => {
+//   try {
+//     // Reset recorded video and chunks
+//     recordedVideoUrl.value = '';
+//     recordedChunks.value = [];
 
-    const stream = await navigator.mediaDevices.getUserMedia({
-      video: true,
-      audio: true,
-    });
-    if (videoPreview.value) {
-      videoPreview.value.srcObject = stream;
-      videoPreview.value.onloadedmetadata = () => {
-        if (overlayCanvas.value) {
-          overlayCanvas.value.width = videoPreview.value!.videoWidth;
-          overlayCanvas.value.height = videoPreview.value!.videoHeight;
-        }
-        drawOverlay();
-      };
-      await videoPreview.value.play();
-    }
+//     const stream = await navigator.mediaDevices.getUserMedia({
+//       video: true,
+//       audio: true,
+//     });
+//     if (videoPreview.value) {
+//       videoPreview.value.srcObject = stream;
+//       videoPreview.value.onloadedmetadata = () => {
+//         if (overlayCanvas.value) {
+//           overlayCanvas.value.width = videoPreview.value!.videoWidth;
+//           overlayCanvas.value.height = videoPreview.value!.videoHeight;
+//         }
+//         drawOverlay();
+//       };
+//       await videoPreview.value.play();
+//     }
 
-    if (!overlayCanvas.value) return;
+//     if (!overlayCanvas.value) return;
 
-    canvasStream.value = overlayCanvas.value.captureStream(30);
-    const audioTrack = stream.getAudioTracks()[0];
-    canvasStream.value.addTrack(audioTrack);
+//     canvasStream.value = overlayCanvas.value.captureStream(30);
+//     const audioTrack = stream.getAudioTracks()[0];
+//     canvasStream.value.addTrack(audioTrack);
 
-    const mimeType =
-      Platform.is.ios || Platform.is.safari ? 'video/mp4' : 'video/webm';
-    const options = {
-      mimeType: mimeType,
-      videoBitsPerSecond: 2500000, // 2.5 Mbps
-      audioBitsPerSecond: 128000, // 128 kbps
-    };
+//     const mimeType =
+//       Platform.is.ios || Platform.is.safari ? 'video/mp4' : 'video/webm';
+//     const options = {
+//       mimeType: mimeType,
+//       videoBitsPerSecond: 2500000, // 2.5 Mbps
+//       audioBitsPerSecond: 128000, // 128 kbps
+//     };
 
-    mediaRecorder.value = new MediaRecorder(canvasStream.value, options);
+//     mediaRecorder.value = new MediaRecorder(canvasStream.value, options);
 
-    mediaRecorder.value.ondataavailable = (event) => {
-      if (event.data.size > 0) {
-        recordedChunks.value.push(event.data);
-      }
-    };
+//     mediaRecorder.value.ondataavailable = (event) => {
+//       if (event.data.size > 0) {
+//         recordedChunks.value.push(event.data);
+//       }
+//     };
 
-    mediaRecorder.value.onstop = () => {
-      const blob = new Blob(recordedChunks.value, { type: mimeType });
-      recordedVideoUrl.value = URL.createObjectURL(blob);
-    };
+//     mediaRecorder.value.onstop = () => {
+//       const blob = new Blob(recordedChunks.value, { type: mimeType });
+//       recordedVideoUrl.value = URL.createObjectURL(blob);
+//     };
 
-    mediaRecorder.value.start();
-    isRecording.value = true;
-    drawOverlay();
-  } catch (error) {
-    console.error('Error accessing camera:', error);
-  }
-};
+//     mediaRecorder.value.start();
+//     isRecording.value = true;
+//     drawOverlay();
+//   } catch (error) {
+//     console.error('Error accessing camera:', error);
+//   }
+// };
 
-const stopRecording = () => {
-  if (mediaRecorder.value && isRecording.value) {
-    mediaRecorder.value.stop();
-    isRecording.value = false;
-    const tracks = videoPreview.value?.srcObject as MediaStream;
-    tracks?.getTracks().forEach((track) => track.stop());
-    canvasStream.value?.getTracks().forEach((track) => track.stop());
-  }
-};
+// const stopRecording = () => {
+//   if (mediaRecorder.value && isRecording.value) {
+//     mediaRecorder.value.stop();
+//     isRecording.value = false;
+//     const tracks = videoPreview.value?.srcObject as MediaStream;
+//     tracks?.getTracks().forEach((track) => track.stop());
+//     canvasStream.value?.getTracks().forEach((track) => track.stop());
+//   }
+// };
 
-const discardVideo = () => {
-  recordedVideoUrl.value = '';
-  recordedChunks.value = [];
-};
+// const discardVideo = () => {
+//   recordedVideoUrl.value = '';
+//   recordedChunks.value = [];
+// };
 
-const $q = useQuasar();
+// const $q = useQuasar();
 
-const shareToWhatsApp = async () => {
-  if (!recordedVideoUrl.value) {
-    $q.notify({
-      color: 'negative',
-      message: 'No video recorded to share',
-      icon: 'warning',
-      position:'top-right'
-    });
-    return;
-  }
+// const shareToWhatsApp = async () => {
+//   if (!recordedVideoUrl.value) {
+//     $q.notify({
+//       color: 'negative',
+//       message: 'No video recorded to share',
+//       icon: 'warning',
+//       position: 'top-right',
+//     });
+//     return;
+//   }
 
-  const message = `Check out my impact with SOSBharat! ${window.location.origin}/#/login/${userStore.user.referralId}`;
+//   const message = `Check out my impact with SOSBharat! ${window.location.origin}/#/login/${userStore.user.referralId}`;
 
-  try {
-    const response = await fetch(recordedVideoUrl.value);
-    const blob = await response.blob();
-    const file = new File(
-      [blob],
-      'sosbharat_impact.' + (Platform.is.ios ? 'mp4' : 'webm'),
-      { type: blob.type }
-    );
+//   try {
+//     const response = await fetch(recordedVideoUrl.value);
+//     const blob = await response.blob();
+//     const file = new File(
+//       [blob],
+//       'sosbharat_impact.' + (Platform.is.ios ? 'mp4' : 'webm'),
+//       { type: blob.type }
+//     );
 
-    if (navigator.share) {
-      await navigator.share({
-        files: [file],
-        title: 'My SOSBharat Impact',
-        text: message,
-      });
-    } else {
-      // Fallback for browsers that don't support Web Share API
-      const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
-      window.open(whatsappUrl, '_blank');
-      $q.dialog({
-        title: 'Share Video',
-        message:
-          'Please also share the recorded video manually as WhatsApp cannot receive it directly through this method.',
-        ok: 'Got it',
-      });
-    }
-  } catch (error) {
-    console.error('Error sharing:', error);
-    $q.notify({
-      color: 'negative',
-      message: 'Failed to share the video',
-      icon: 'error',
-      position:'top-right'
-    });
-  }
-};
+//     if (navigator.share) {
+//       await navigator.share({
+//         files: [file],
+//         title: 'My SOSBharat Impact',
+//         text: message,
+//       });
+//     } else {
+//       // Fallback for browsers that don't support Web Share API
+//       const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
+//       window.open(whatsappUrl, '_blank');
+//       $q.dialog({
+//         title: 'Share Video',
+//         message:
+//           'Please also share the recorded video manually as WhatsApp cannot receive it directly through this method.',
+//         ok: 'Got it',
+//       });
+//     }
+//   } catch (error) {
+//     console.error('Error sharing:', error);
+//     $q.notify({
+//       color: 'negative',
+//       message: 'Failed to share the video',
+//       icon: 'error',
+//       position: 'top-right',
+//     });
+//   }
+// };
 
-const downloadVideo = () => {
-  if (recordedVideoUrl.value) {
-    const a = document.createElement('a');
-    a.href = recordedVideoUrl.value;
-    const extension = Platform.is.ios ? 'mp4' : 'webm';
-    a.download = `recorded_video.${extension}`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-  }
-};
+// const downloadVideo = () => {
+//   if (recordedVideoUrl.value) {
+//     const a = document.createElement('a');
+//     a.href = recordedVideoUrl.value;
+//     const extension = Platform.is.ios ? 'mp4' : 'webm';
+//     a.download = `recorded_video.${extension}`;
+//     document.body.appendChild(a);
+//     a.click();
+//     document.body.removeChild(a);
+//   }
+// };
 
 onUnmounted(() => {
   if (mediaRecorder.value && isRecording.value) {
@@ -348,16 +351,16 @@ const fetchImpactInfo = async () => {
   }
 };
 
-const copyReferralLink = () => {
-  const url = `https://sosbharat.com/#/login/${userStore.user.referralId}`;
-  copyToClipboard(url)
-    .then(() => {
-      alert('Referral link copied to clipboard!');
-    })
-    .catch((err) => {
-      console.error('Failed to copy: ', err);
-    });
-};
+// const copyReferralLink = () => {
+//   const url = `https://sosbharat.com/#/login/${userStore.user.referralId}`;
+//   copyToClipboard(url)
+//     .then(() => {
+//       alert('Referral link copied to clipboard!');
+//     })
+//     .catch((err) => {
+//       console.error('Failed to copy: ', err);
+//     });
+// };
 
 onMounted(() => {
   console.log('platform', Platform.is);
@@ -395,6 +398,5 @@ watch(
   max-width: 640px;
   margin: 0 auto;
   background-color: #00000000;
-
 }
 </style>

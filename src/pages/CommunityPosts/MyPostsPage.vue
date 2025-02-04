@@ -191,7 +191,7 @@
                 >
                   <q-tooltip>Delete Post</q-tooltip>
                 </q-btn>
-                <!-- <q-btn
+                <q-btn
                   flat
                   round
                   color="primary"
@@ -201,7 +201,7 @@
                   v-if="Number(userStore.user?.id) == Number(props.id)"
                 >
                   <q-tooltip>Edit Post</q-tooltip>
-                </q-btn> -->
+                </q-btn>
               </div>
             </q-card-section>
 
@@ -497,8 +497,8 @@ import { useUserStore } from 'src/stores/user-store';
 // import { communityPostService } from 'src/services/communityPostService';
 import type { CommunityPost } from 'src/types/CommunityPost';
 import PostEngagement from 'src/pages/CommunityPosts/PostEngagement.vue';
-import { Dialog } from 'quasar';
-import { Geolocation } from '@capacitor/geolocation';
+// import { Dialog } from 'quasar';
+// import { Geolocation } from '@capacitor/geolocation';
 import EditPostDialog from 'src/components/Community/EditPostDialog.vue';
 import BusinessCatalog from 'src/components/Catalog/BusinessCatalog.vue';
 import { date } from 'quasar'; // Import Quasar date utilities
@@ -536,14 +536,14 @@ interface UserData {
 const findUserData = ref<UserData | null>(null);
 
 // Add this interface after the Post interface
-interface UserInteractionLimits {
-  dailyLikeLimit: number;
-  dailyCommentLimit: number;
-  dailyPostLimit: number;
-  usedLikeCount: number;
-  usedCommentCount: number;
-  usedPostCount: number;
-}
+// interface UserInteractionLimits {
+//   dailyLikeLimit: number;
+//   dailyCommentLimit: number;
+//   dailyPostLimit: number;
+//   usedLikeCount: number;
+//   usedCommentCount: number;
+//   usedPostCount: number;
+// }
 
 const userStore = useUserStore();
 
@@ -631,14 +631,14 @@ const formatDate = (dateString: string | null) => {
     }
 
     // More than a week, format the date
-    const options: Intl.DateTimeFormatOptions = {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: true,
-    };
+    // const options: Intl.DateTimeFormatOptions = {
+    //   year: 'numeric',
+    //   month: 'short',
+    //   day: 'numeric',
+    //   hour: '2-digit',
+    //   minute: '2-digit',
+    //   hour12: true,
+    // };
 
     return date.formatDate(parsedDate, 'YYYY-MM-DDTHH:mm:ss.SSSZ'); // Format the date for display
   } catch (error) {
@@ -902,9 +902,9 @@ onUnmounted(() => {
 });
 
 // Replace dialog methods with navigation method
-const goToCommunityPage = () => {
-  router.push('/community');
-};
+// const goToCommunityPage = () => {
+//   router.push('/community');
+// };
 const createPost = () => {
   if (!userInteractionRules.value) {
     return;
@@ -946,9 +946,9 @@ const activeCarouselPost = ref<string | null>(null);
 const carouselSlide = ref(0);
 
 // First, add a computed property to check if we're on the last slide
-const isLastSlide = computed(() => {
-  return currentIndex.value === totalSlides.value - 1;
-});
+// const isLastSlide = computed(() => {
+//   return currentIndex.value === totalSlides.value - 1;
+// });
 
 // Update the showCarousel method to handle number conversion
 const showCarousel = (postId: string | number, startIndex: number) => {
@@ -1295,14 +1295,14 @@ const updateInteractionRules = async () => {
 };
 
 // Add these refs and methods in the script section
-const showLocationDialog = ref(false);
-const selectedLocation = ref({
-  type: 'current' as 'current' | 'stored',
-  latitude: null as number | null,
-  longitude: null as number | null,
-  name: '' as string,
-  address: '' as string,
-});
+// const showLocationDialog = ref(false);
+// const selectedLocation = ref({
+//   type: 'current' as 'current' | 'stored',
+//   latitude: null as number | null,
+//   longitude: null as number | null,
+//   name: '' as string,
+//   address: '' as string,
+// });
 
 // Update the watcher to be more verbose
 // watch(showLocationDialog, (newVal) => {
@@ -1315,48 +1315,48 @@ const selectedLocation = ref({
 // });
 
 // Update the handleLocationSelected method
-const handleLocationSelected = async (location: {
-  type: string;
-  latitude: number;
-  longitude: number;
-  name?: string;
-  address?: string;
-}) => {
-  console.log('Location selected:', location);
+// const handleLocationSelected = async (location: {
+//   type: string;
+//   latitude: number;
+//   longitude: number;
+//   name?: string;
+//   address?: string;
+// }) => {
+//   console.log('Location selected:', location);
 
-  // Update selected location
-  selectedLocation.value = {
-    type: location.type as 'current' | 'stored',
-    latitude: location.latitude,
-    longitude: location.longitude,
-    name: location.name || '',
-    address: location.address || '',
-  };
+//   // Update selected location
+//   selectedLocation.value = {
+//     type: location.type as 'current' | 'stored',
+//     latitude: location.latitude,
+//     longitude: location.longitude,
+//     name: location.name || '',
+//     address: location.address || '',
+//   };
 
-  // Reset pagination and posts
-  page.value = 1;
-  posts.value = [];
-  hasMore.value = true;
-  loading.value = true;
+//   // Reset pagination and posts
+//   page.value = 1;
+//   posts.value = [];
+//   hasMore.value = true;
+//   loading.value = true;
 
-  try {
-    // Close location dialog
-    showLocationDialog.value = false;
+//   try {
+//     // Close location dialog
+//     showLocationDialog.value = false;
 
-    // Reload posts with new location
-    await loadPosts(false);
-  } catch (error) {
-    console.error('Error loading posts for new location:', error);
-    $q.notify({
-      color: 'negative',
-      message: 'Failed to load posts for selected location',
-      icon: 'error',
-      position: 'top-right',
-    });
-  } finally {
-    loading.value = false;
-  }
-};
+//     // Reload posts with new location
+//     await loadPosts(false);
+//   } catch (error) {
+//     console.error('Error loading posts for new location:', error);
+//     $q.notify({
+//       color: 'negative',
+//       message: 'Failed to load posts for selected location',
+//       icon: 'error',
+//       position: 'top-right',
+//     });
+//   } finally {
+//     loading.value = false;
+//   }
+// };
 
 // Add these methods in the script section
 const confirmDelete = (postId: number | string) => {
@@ -1488,16 +1488,12 @@ const formatDistance = (distance: number | undefined) => {
 
 // Add this new function in the script section after other functions
 const makeLinksClickable = (text: string, priority?: string) => {
+  console.log(text, priority);
   if (!text) return '';
 
   // URL regex pattern
   const urlPattern =
     /(https?:\/\/[^\s]+)|(www\.[^\s]+)|([a-zA-Z0-9._-]+\.[a-zA-Z]{2,6}(\/[^\s]*)?)/g;
-
-  // For low priority posts, just return the text
-  if (!priority || priority === 'low') {
-    return text;
-  }
 
   // For other priorities, make links clickable
   const htmlContent = text.replace(urlPattern, (url) => {
@@ -1581,7 +1577,6 @@ const openCatalog = (userId: number) => {
   max-width: 1200px;
   margin: 0 auto;
   padding: 0px;
-  //background: linear-gradient(135deg, $primary, darken($primary, 20%));
 }
 
 .post-card {

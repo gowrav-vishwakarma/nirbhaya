@@ -115,6 +115,7 @@ const businessCategories = computed(() => {
         id: `${categoryIndex}_${optIndex}`,
       })),
     ];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   }, [] as Array<any>);
 });
 

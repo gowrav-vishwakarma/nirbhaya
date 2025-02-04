@@ -9,7 +9,7 @@
       </p>
 
       <!-- Availability toggles -->
-      <q-card flat bordered class="q-mb-md">
+      <!-- <q-card flat bordered class="q-mb-md">
         <q-card-section>
           <div class="text-subtitle1 text-weight-bold q-mb-sm">
             {{ $t('common.availabilitySettings') }}
@@ -34,26 +34,11 @@
             </q-item>
           </q-list>
         </q-card-section>
-      </q-card>
+      </q-card> -->
 
       <div class="scrollable-inputs q-px-md">
-        <!-- Add Location Button -->
-        <q-btn
-          v-if="values.locations.length < 10"
-          icon="add"
-          color="primary"
-          class="full-width custom-radius q-mb-md"
-          @click="
-            (showInputFields = !showInputFields),
-              (showLocationSelector = showInputFields)
-          "
-          :label="$t('common.addNotificationLocation')"
-          style="border-radius: 10px !important"
-          :disable="!values.availableForCommunity"
-        />
-
         <!-- New Location Input Fields -->
-        <div v-if="showInputFields" class="input-fields">
+        <div v-if="!hasLocations || showInputFields" class="input-fields">
           <div class="custom-input">
             <label>{{ $t('common.locationName') }}</label>
             <q-input
@@ -63,10 +48,12 @@
               bg-color="pink-1"
               dense
               hide-bottom-space
+              placeholder="Home / Office / Shop"
             />
           </div>
 
           <div class="custom-input">
+            <!-- Location Selector button -->
             <q-btn
               flat
               color="white"
@@ -75,8 +62,13 @@
               class="full-width custom-radius bg-primary"
               @click="showLocationSelector = true"
               :loading="newLocationLoading"
-            >
-              {{ $t('common.setLocation') }}
+              >&nbsp;&nbsp; {{ $t('common.setLocation') }} &nbsp;&nbsp;
+              <!-- Show map icon if location is selected -->
+              <q-icon
+                v-if="newLocation.location?.coordinates[0]"
+                name="map"
+                class="q-ml-sm"
+              />
             </q-btn>
             <div
               v-if="newLocation.location?.coordinates[0]"
@@ -98,7 +90,7 @@
             </div>
             <div class="col-6">
               <q-btn
-                label="Add"
+                label="Save"
                 color="primary"
                 style="border-radius: 10px !important"
                 class="full-width custom-radius"
@@ -109,7 +101,20 @@
             </div>
           </div>
         </div>
-        <q-separator v-if="showInputFields" class="q-mt-md" />
+
+        <!-- Add Location Button -->
+        <q-btn
+          v-if="
+            hasLocations && values.locations.length < 10 && !showInputFields
+          "
+          icon="add"
+          color="primary"
+          class="full-width custom-radius q-mb-md"
+          @click="showInputFields = true"
+          :label="$t('common.addNotificationLocation')"
+          style="border-radius: 10px !important"
+          :disable="!values.availableForCommunity"
+        />
 
         <!-- Location Cards -->
         <div class="contact-cards q-mt-md" v-if="hasLocations">
@@ -218,6 +223,7 @@ const { values, isLoading, validateAndSubmit, callbacks } = useForm(
 );
 
 const locationLoading = ref<boolean[]>([]);
+const showInputFields = ref(false);
 
 const loadUserData = () => {
   const userData = userStore.user;
@@ -237,19 +243,19 @@ const loadUserData = () => {
 
 onMounted(loadUserData);
 
-const addNotificationLocation = () => {
-  if (values.value.locations.length < 10) {
-    const newLocation = {
-      name: '',
-      location: {
-        type: 'Point',
-        coordinates: [null, null],
-      },
-    };
-    values.value.locations.push(newLocation);
-    locationLoading.value.push(false);
-  }
-};
+// const addNotificationLocation = () => {
+//   if (values.value.locations.length < 10) {
+//     const newLocation = {
+//       name: '',
+//       location: {
+//         type: 'Point',
+//         coordinates: [null, null],
+//       },
+//     };
+//     values.value.locations.push(newLocation);
+//     locationLoading.value.push(false);
+//   }
+// };
 
 const removeNotificationLocation = async (index: number) => {
   try {
@@ -357,17 +363,17 @@ const updateLocationCoordinates = async (index: number) => {
   }
 };
 
-const getLocationHint = (location: {
-  location: { coordinates: [number, number] };
-}) => {
-  const [longitude, latitude] = location.location.coordinates;
-  if (latitude && longitude) {
-    return `${t('common.coordinates')}: ${latitude.toFixed(
-      6
-    )}, ${longitude.toFixed(6)}`;
-  }
-  return t('common.noLocationSet');
-};
+// const getLocationHint = (location: {
+//   location: { coordinates: [number, number] };
+// }) => {
+//   const [longitude, latitude] = location.location.coordinates;
+//   if (latitude && longitude) {
+//     return `${t('common.coordinates')}: ${latitude.toFixed(
+//       6
+//     )}, ${longitude.toFixed(6)}`;
+//   }
+//   return t('common.noLocationSet');
+// };
 
 const isLocationValid = (location: {
   location: { coordinates: [number | null, number | null] };
@@ -417,6 +423,7 @@ callbacks.onSuccess = (data) => {
   clearInputFields();
 };
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 callbacks.onError = async (error: any) => {
   console.error('Error updating volunteering info', error);
   $q.notify({
@@ -475,7 +482,6 @@ defineExpose({
 });
 
 // Add these refs
-const showInputFields = ref(false);
 const newLocation = ref<UserLocation>({
   name: '',
   location: {
@@ -497,21 +503,21 @@ const isNewLocationValid = computed(() => {
 });
 
 // Add these methods
-const handleAvailabilityToggle = async () => {
-  try {
-    await validateAndSubmit(false);
-    props.reloadComponents?.();
-    emit('reloadComponents');
-  } catch (error) {
-    console.error('Error updating availability:', error);
-    $q.notify({
-      color: 'negative',
-      message: t('common.updateError'),
-      icon: 'error',
-      position: 'top-right',
-    });
-  }
-};
+// const handleAvailabilityToggle = async () => {
+//   try {
+//     await validateAndSubmit(false);
+//     props.reloadComponents?.();
+//     emit('reloadComponents');
+//   } catch (error) {
+//     console.error('Error updating availability:', error);
+//     $q.notify({
+//       color: 'negative',
+//       message: t('common.updateError'),
+//       icon: 'error',
+//       position: 'top-right',
+//     });
+//   }
+// };
 
 const clearInputFields = () => {
   newLocation.value = {

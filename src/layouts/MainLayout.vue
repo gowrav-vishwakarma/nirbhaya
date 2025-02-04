@@ -364,28 +364,28 @@ const isAppOpenedToday = () => {
   return true; // App was already opened today
 };
 
-const checkEmergencyContactsAndLocation = () => {
-  try {
-    if (!userStore.isLoggedIn) return;
+// const checkEmergencyContactsAndLocation = () => {
+//   try {
+//     if (!userStore.isLoggedIn) return;
 
-    // First check emergency contacts
-    if (
-      !userStore.user.emergencyContacts ||
-      userStore.user.emergencyContacts.length === 0
-    ) {
-      router.push({ name: 'profile', query: { stap: '2' } });
-      return;
-    }
+//     // First check emergency contacts
+//     if (
+//       !userStore.user.emergencyContacts ||
+//       userStore.user.emergencyContacts.length === 0
+//     ) {
+//       router.push({ name: 'profile', query: { stap: '2' } });
+//       return;
+//     }
 
-    // If emergency contacts exist but location is missing, go to step 3
-    if (!userStore.user.locations || userStore.user.locations.length === 0) {
-      router.push({ name: 'profile', query: { stap: '3' } });
-      return;
-    }
-  } catch (error) {
-    console.error('Failed to check user details:', error);
-  }
-};
+//     // If emergency contacts exist but location is missing, go to step 3
+//     if (!userStore.user.locations || userStore.user.locations.length === 0) {
+//       router.push({ name: 'profile', query: { stap: '3' } });
+//       return;
+//     }
+//   } catch (error) {
+//     console.error('Failed to check user details:', error);
+//   }
+// };
 
 const checkFirstTimeOpen = async () => {
   const isSOSAppOpened = localStorage.getItem('isSOSAppOpened');
@@ -494,16 +494,16 @@ const goToDashboardPage = () => {
   router.push(userStore.defaultAppRoute);
 };
 const goToLoginPage = () => router.push('/login');
-const goToVolunteersPage = () => router.push('/volunteers');
+// const goToVolunteersPage = () => router.push('/volunteers');
 const goToCommunityPage = () => router.push('/comunity-post');
-const goToHomePage = () => {
-  router.push('/home');
-  drawer.value = false;
-};
-const goToAboutUsPage = () => {
-  router.push('/about-us');
-  drawer.value = false;
-};
+// const goToHomePage = () => {
+//   router.push('/home');
+//   drawer.value = false;
+// };
+// const goToAboutUsPage = () => {
+//   router.push('/about-us');
+//   drawer.value = false;
+// };
 const goToReelsPage = () => {
   router.push('/incident-reels');
   drawer.value = false;
@@ -601,7 +601,7 @@ const isMobileApp = computed(() => {
 
 watch(
   () => router.currentRoute.value.path,
-  async (newPath) => {
+  async () => {
     await nextTick();
 
     try {
@@ -717,8 +717,6 @@ const getCurrentLocation = async () => {
 @use 'sass:color';
 
 .mainlayout-page-bg-color {
-  // background: linear-gradient(135deg, $primary, darken($primary, 20%));
-
   background: linear-gradient(
     135deg,
     $primary,

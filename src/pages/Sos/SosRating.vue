@@ -1,20 +1,51 @@
 <template>
-  <q-dialog ref="dialogRef" position="bottom" @hide="handleDialogHide" @click="checkSwipeToClose"
-    @touchstart="handleTouchStart" @touchmove.prevent="handleTouchMove" @touchend="handleTouchEnd" persistent
-    :maximized="false" transition-show="slide-up" transition-hide="slide-down">
-    <q-card class="dialog-card" :style="{ '--swipe-progress': swipeProgress }" @touchstart="handleTouchStart"
-      @touchmove="handleTouchMove" @touchend="handleTouchEnd" @click="checkSwipeToClose">
+  <q-dialog
+    ref="dialogRef"
+    position="bottom"
+    @hide="handleDialogHide"
+    @click="checkSwipeToClose"
+    @touchstart="handleTouchStart"
+    @touchmove.prevent="handleTouchMove"
+    @touchend="handleTouchEnd"
+    persistent
+    :maximized="false"
+    transition-show="slide-up"
+    transition-hide="slide-down"
+  >
+    <q-card
+      class="dialog-card"
+      :style="{ '--swipe-progress': swipeProgress }"
+      @touchstart="handleTouchStart"
+      @touchmove="handleTouchMove"
+      @touchend="handleTouchEnd"
+      @click="checkSwipeToClose"
+    >
       <q-card-section class="row items-center q-pb-md">
         <div class="text-h6 q-mt-sm">
-          {{ volunteers && volunteers.length > 0 ?
-            'Rate Your Volunteer Heros!' : '' }}</div>
+          {{
+            volunteers && volunteers.length > 0
+              ? 'Rate Your Volunteer Heros!'
+              : ''
+          }}
+        </div>
         <q-space />
-        <q-btn icon="close" flat round dense v-close-popup style="position: absolute; top: 5px; right: 5px;" />
+        <q-btn
+          icon="close"
+          flat
+          round
+          dense
+          v-close-popup
+          style="position: absolute; top: 5px; right: 5px"
+        />
       </q-card-section>
-      <div v-if="volunteers.length == 0 && !loading" style="text-align: center;">
-        <q-img style="width: 60%; margin: auto;"
-          src="https://cdn2.iconfinder.com/data/icons/business-1381/1000/accounts___account_user_profile_person_people_not_found_search_find_lost_blocked-512.png"></q-img>
-        <p style="font-size: 14px; font-weight: 900; margin-top: 20px;">Volunteer Not Found For this Event !</p>
+      <div v-if="volunteers.length == 0 && !loading" style="text-align: center">
+        <q-img
+          style="width: 60%; margin: auto"
+          src="https://cdn2.iconfinder.com/data/icons/business-1381/1000/accounts___account_user_profile_person_people_not_found_search_find_lost_blocked-512.png"
+        ></q-img>
+        <p style="font-size: 14px; font-weight: 900; margin-top: 20px">
+          Volunteer Not Found For this Event !
+        </p>
       </div>
 
       <q-card-section class="custom-scroll">
@@ -43,37 +74,66 @@
 
           <!-- Actual content -->
           <template v-else>
-            <div v-for="volunteer in volunteers" :key="volunteer.id" class="volunteer-section">
+            <div
+              v-for="volunteer in volunteers"
+              :key="volunteer.id"
+              class="volunteer-section"
+            >
               <div class="volunteer-card">
-                <img :src="volunteer.profileImage" alt="Profile" class="profile-image" />
+                <img
+                  :src="volunteer.profileImage"
+                  alt="Profile"
+                  class="profile-image"
+                />
                 <div class="volunteer-info">
                   <p>{{ volunteer.name }}</p>
                 </div>
               </div>
 
               <div class="threat-name q-pb-md text-capitalize">
-                SOS Event: {{ volunteer.threatName ? volunteer.threatName : 'Emergency Alert' }}
+                SOS Event:
+                {{
+                  volunteer.threatName
+                    ? volunteer.threatName
+                    : 'Emergency Alert'
+                }}
                 <br />
-                <p style="font-size: 10px; margin-top: -3px; font-weight: 700;">
+                <p style="font-size: 10px; margin-top: -3px; font-weight: 700">
                   {{ volunteer.createdAt }}
                 </p>
               </div>
 
               <div class="stars">
-                <span v-for="star in 5" :key="star" class="star"
-                  @click="!volunteer.feedbackAdded && setRating(volunteer.id, star)">
-                  <i :class="[
-                    star <= volunteer.rating ? 'fas fa-star' : 'far fa-star',
-                    { 'disabled-star': volunteer.feedbackAdded }
-                  ]"></i>
+                <span
+                  v-for="star in 5"
+                  :key="star"
+                  class="star"
+                  @click="
+                    !volunteer.feedbackAdded && setRating(volunteer.id, star)
+                  "
+                >
+                  <i
+                    :class="[
+                      star <= volunteer.rating ? 'fas fa-star' : 'far fa-star',
+                      { 'disabled-star': volunteer.feedbackAdded },
+                    ]"
+                  ></i>
                 </span>
               </div>
 
               <template v-if="!volunteer.feedbackAdded">
-                <textarea v-model="volunteer.feedback" placeholder="Leave your feedback here..."></textarea>
-                <q-btn size="sm" class="rating-bg-color full-width" :loading="loading"
-                  :disabled="!isRatingSet(volunteer) || loading" @click="submitFeedback(volunteer)">
-                  <span style="font-weight: 900;">Submit Feedback</span>
+                <textarea
+                  v-model="volunteer.feedback"
+                  placeholder="Leave your feedback here..."
+                ></textarea>
+                <q-btn
+                  size="sm"
+                  class="rating-bg-color full-width"
+                  :loading="loading"
+                  :disabled="!isRatingSet(volunteer) || loading"
+                  @click="submitFeedback(volunteer)"
+                >
+                  <span style="font-weight: 900">Submit Feedback</span>
                 </q-btn>
               </template>
 
@@ -151,7 +211,7 @@ const sosAcceptedUsers = async () => {
     const res = await api.get('/sos/sos-accepted-users', {
       params: {
         userId: userId,
-        eventId: props.eventId.toString()
+        eventId: props.eventId.toString(),
       },
     });
 
@@ -163,14 +223,15 @@ const sosAcceptedUsers = async () => {
         return {
           id: notification.recipient.id,
           name: notification.recipient.referralId,
-          profileImage: 'https://icons-for-free.com/iff/png/512/profile+profile+page+user+icon-1320186864367220794.png',
+          profileImage:
+            'https://icons-for-free.com/iff/png/512/profile+profile+page+user+icon-1320186864367220794.png',
           rating: receivedFeedback ? receivedFeedback.rating : 0,
           feedback: receivedFeedback ? receivedFeedback.feedbackText : '',
           eventId: notification.eventId,
           threatName: event.threat,
           createdAt: event.createdAt,
           feedbackAdded: notification.feedbackAdded,
-          referralCode: ''
+          referralCode: '',
         };
       });
     });
@@ -179,7 +240,7 @@ const sosAcceptedUsers = async () => {
     $q.notify({
       type: 'negative',
       message: 'Failed to load volunteer data',
-      position:'top-right'
+      position: 'top-right',
     });
   } finally {
     loading.value = false;
@@ -187,7 +248,7 @@ const sosAcceptedUsers = async () => {
 };
 
 const setRating = (volunteerId: number, star: number) => {
-  const volunteer = volunteers.value.find(v => v.id === volunteerId);
+  const volunteer = volunteers.value.find((v) => v.id === volunteerId);
   if (volunteer) {
     volunteer.rating = star;
   }
@@ -204,8 +265,10 @@ const submitFeedback = async (volunteerFeedBack: Volunteer) => {
       feedbackReceiverId: volunteerFeedBack.id,
       rating: volunteerFeedBack.rating,
       eventId: volunteerFeedBack.eventId,
-      feedbackText: volunteerFeedBack.feedback ? volunteerFeedBack.feedback : 'Good',
-      status: 'Resolved'
+      feedbackText: volunteerFeedBack.feedback
+        ? volunteerFeedBack.feedback
+        : 'Good',
+      status: 'Resolved',
     };
 
     const res = await api.post('/sos/feedback', { feedBackData });
@@ -226,7 +289,7 @@ const submitFeedback = async (volunteerFeedBack: Volunteer) => {
     $q.notify({
       type: 'negative',
       message: 'Failed to submit feedback',
-      position: 'top-right'
+      position: 'top-right',
     });
   } finally {
     loading.value = false;
@@ -244,7 +307,7 @@ onMounted(() => {
 defineExpose({
   dialogRef,
   onDialogHide,
-  onDialogOK
+  onDialogOK,
 });
 
 // Add these new refs for touch handling
@@ -260,7 +323,10 @@ const handleTouchStart = (event: TouchEvent) => {
 const handleTouchMove = (event: TouchEvent) => {
   event.preventDefault();
   touchEndY.value = event.touches[0].clientY;
-  const progress = Math.min(Math.max((touchEndY.value - touchStartY.value) / minSwipeDistance, 0), 1);
+  const progress = Math.min(
+    Math.max((touchEndY.value - touchStartY.value) / minSwipeDistance, 0),
+    1
+  );
   swipeProgress.value = progress;
 };
 
@@ -285,6 +351,8 @@ const handleDialogHide = () => {
 </script>
 
 <style lang="scss" scoped>
+@use 'sass:color'; // Place this at the top of the style block
+
 :deep(body) {
   overscroll-behavior-y: contain;
   overflow: hidden;
@@ -353,7 +421,6 @@ const handleDialogHide = () => {
 
 .codetext {
   font-size: 10px;
-
 }
 
 .stars {
@@ -389,7 +456,11 @@ textarea {
 }
 
 .rating-bg-color {
-  background: linear-gradient(135deg, $primary, darken($primary, 10%));
+  background: linear-gradient(
+    135deg,
+    $primary,
+    color.adjust($primary, $lightness: -10%)
+  );
   color: whitesmoke;
   padding-top: 8px;
   padding-bottom: 8px;
@@ -397,7 +468,11 @@ textarea {
 }
 
 .color-primary {
-  background: linear-gradient(95deg, $primary, darken($primary, 10%));
+  background: linear-gradient(
+    135deg,
+    $primary,
+    color.adjust($primary, $lightness: -10%)
+  );
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }

@@ -1,7 +1,14 @@
 <template>
-  <div class="sos-buttons q-mb-lg" style="border: 1px solid white; border-radius: 10px; margin-top: 20px">
-    <q-btn round style="background-color: #e74c3c" class="sos-button q-my-lg glowing-border"
-      @click="$emit('initiate-sos', true)">
+  <div
+    class="sos-buttons q-mb-lg"
+    style="border: 2px solid white; border-radius: 10px; margin-top: 20px"
+  >
+    <q-btn
+      round
+      style="background-color: #e74c3c"
+      class="sos-button q-my-lg glowing-border"
+      @click="handleClick"
+    >
       <div class="row items-center full-width">
         <span style="margin: auto; font-size: 40px; color: white">sos</span>
       </div>
@@ -20,7 +27,12 @@
     </div> -->
     <div>
       <q-banner dense class="transparent-banner">
-        <q-icon style="font-size: 16px;" class="q-mr-sm " name="info" @click="showPopup = true" />
+        <q-icon
+          style="font-size: 16px"
+          class="q-mr-sm"
+          name="info"
+          @click="showPopup = true"
+        />
         <small>{{ $t('common.sosButtonNote_label') }}</small>
         <template v-slot:action> </template>
       </q-banner>
@@ -29,12 +41,13 @@
       <q-dialog v-model="showPopup" persistent>
         <q-card style="max-width: 350px">
           <q-card-section>
-            <div class="text-h6" style="margin-bottom: 15px;">
+            <div class="text-h6" style="margin-bottom: 15px">
               {{ $t('common.sosButtonNote_descTitle') }}
             </div>
             <strong>{{ $t('common.sosButtonNote_H1') }} </strong>
             {{ $t('common.sosButtonNote_H1Desc') }} <br /><br />
-            <strong>{{ $t('common.sosButtonNote_H2') }} </strong>{{ $t('common.sosButtonNote_H2Desc') }}<br /><br />
+            <strong>{{ $t('common.sosButtonNote_H2') }} </strong
+            >{{ $t('common.sosButtonNote_H2Desc') }}<br /><br />
             <strong>{{ $t('common.sosButtonNote_H3') }} </strong>
             {{ $t('common.sosButtonNote_H3Desc') }}
             <q-card-actions align="right">
@@ -52,11 +65,17 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
+
 const showPopup = ref(false); // Reactive variable to control popup visibility
 
-defineEmits<{
+const emit = defineEmits<{
   (e: 'initiate-sos', contactsOnly: boolean): void;
 }>();
+
+const handleClick = () => {
+  // Emit the event to initiate SOS regardless of emergency contacts
+  emit('initiate-sos', true);
+};
 </script>
 
 <style lang="scss" scoped>

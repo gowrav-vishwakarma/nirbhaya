@@ -52,7 +52,7 @@
           ></div>
         </div>
 
-        <div class="step-item" :class="{ active: currentStep === 2 }">
+        <!-- <div class="step-item" :class="{ active: currentStep === 2 }">
           <div
             class="step-label"
             :class="{
@@ -108,7 +108,7 @@
               margin-top: 3px;
             "
           ></div>
-        </div>
+        </div>  -->
       </div>
     </div>
 
@@ -118,10 +118,10 @@
         v-if="currentStep === 1"
         :userData="userData"
         @update-profile="handleProfileUpdate"
-        @next-step="handleNextStep"
+        @next-step="handleSubmit"
       />
 
-      <EmergencyContactsStep
+      <!-- <EmergencyContactsStep
         v-if="currentStep === 2"
         :contacts="emergencyContacts"
         @update-contacts="handleContactsUpdate"
@@ -134,7 +134,7 @@
         @location-updated="handleLocationUpdate"
         @prev-step="handlePreviousStep"
         @next-step="handleSubmit"
-      />
+      /> -->
     </div>
   </div>
 </template>
@@ -145,8 +145,8 @@ import { useQuasar } from 'quasar';
 import { useI18n } from 'vue-i18n';
 import { useRouter, useRoute } from 'vue-router';
 import ProfileDetailsStep from './steps/ProfileDetailsStep.vue';
-import EmergencyContactsStep from './steps/EmergencyContactsStep.vue';
-import VolunteerLocationStep from './steps/VolnteerLocationStep.vue';
+// import EmergencyContactsStep from './steps/EmergencyContactsStep.vue';
+// import VolunteerLocationStep from './steps/VolnteerLocationStep.vue';
 
 const $q = useQuasar();
 const { t } = useI18n();
@@ -177,6 +177,7 @@ const formatDate = (date: string) => {
   return date.replace(/\//g, '-');
 };
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const handleProfileUpdate = (data: any) => {
   if (data.dob) {
     data.dob = formatDate(data.dob);
@@ -184,64 +185,64 @@ const handleProfileUpdate = (data: any) => {
   Object.assign(userData, data);
 };
 
-const handleNextStep = () => {
-  if (currentStep.value === 1) {
-    if (!completedSteps.value.includes(1)) {
-      completedSteps.value.push(1);
-    }
-    currentStep.value = 2;
-  } else if (currentStep.value === 2) {
-    if (!completedSteps.value.includes(2)) {
-      completedSteps.value.push(2);
-    }
-    currentStep.value = 3;
-  } else if (currentStep.value === 3) {
-    if (!completedSteps.value.includes(3)) {
-      completedSteps.value.push(3);
-    }
-    router.push('/volunteer');
-  }
-};
+// const handleNextStep = () => {
+//   if (currentStep.value === 1) {
+//     if (!completedSteps.value.includes(1)) {
+//       completedSteps.value.push(1);
+//     }
+//     currentStep.value = 2;
+//   } else if (currentStep.value === 2) {
+//     if (!completedSteps.value.includes(2)) {
+//       completedSteps.value.push(2);
+//     }
+//     currentStep.value = 3;
+//   } else if (currentStep.value === 3) {
+//     if (!completedSteps.value.includes(3)) {
+//       completedSteps.value.push(3);
+//     }
+//     router.push('/volunteer');
+//   }
+// };
 
-const handlePreviousStep = () => {
-  if (currentStep.value === 2) {
-    currentStep.value = 1;
-  } else if (currentStep.value === 3) {
-    currentStep.value = 2;
-  }
-};
+// const handlePreviousStep = () => {
+//   if (currentStep.value === 2) {
+//     currentStep.value = 1;
+//   } else if (currentStep.value === 3) {
+//     currentStep.value = 2;
+//   }
+// };
 
-const handleContactsUpdate = (contacts: Array<any>) => {
-  emergencyContacts.value = contacts;
-};
+// const handleContactsUpdate = (contacts: Array<any>) => {
+//   emergencyContacts.value = contacts;
+// };
 
-const handleLocationUpdate = (locationData: any) => {
-  volunteerLocation.value = locationData;
-};
+// const handleLocationUpdate = (locationData: any) => {
+//   volunteerLocation.value = locationData;
+// };
 
 const handleSubmit = async () => {
   try {
     const submitData = {
       profile: {
         ...userData,
-        dob: userData.dob ? formatDate(userData.dob) : null,
+        //dob: userData.dob ? formatDate(userData.dob) : null,
       },
-      emergencyContacts: emergencyContacts.value,
-      volunteerLocation: volunteerLocation.value,
+      //emergencyContacts: emergencyContacts.value,
+      //volunteerLocation: volunteerLocation.value,
     };
 
     console.log('Submitting data:', submitData);
 
     // await api.post('user/complete-profile', submitData)
 
-    $q.notify({
-      color: 'black',
-      message: t('common.profileCompleted'),
-      icon: 'check',
-      position: 'top-right',
-    });
-
-    router.push('/dashboard');
+    // $q.notify({
+    //   color: 'black',
+    //   message: t('common.profileCompleted'),
+    //   icon: 'check',
+    //   position: 'top-right',
+    // });
+    router.push('/sos');
+    // router.push('/dashboard');
   } catch (error) {
     console.error('Error submitting data:', error);
     $q.notify({

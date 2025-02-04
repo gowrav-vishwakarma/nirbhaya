@@ -89,7 +89,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, computed, watch, nextTick } from 'vue';
+import { ref, onUnmounted, computed, watch, nextTick } from 'vue';
 import { Geolocation } from '@capacitor/geolocation';
 import { useQuasar } from 'quasar';
 import { Loader } from '@googlemaps/js-api-loader';
@@ -155,8 +155,15 @@ const initMap = async (center: { lat: number; lng: number }) => {
   console.log('locationPicker ');
 
   try {
+    const apiKey = process.env.GOOGLE_MAPS_API_KEY;
+
+    if (!apiKey) {
+      console.error('Google Maps API key is not defined');
+      return;
+    }
+
     const loader = new Loader({
-      apiKey: process.env.GOOGLE_MAPS_API_KEY!,
+      apiKey: apiKey,
       version: 'weekly',
       libraries: ['places'],
     });
@@ -207,7 +214,7 @@ const initMap = async (center: { lat: number; lng: number }) => {
       showSearchResults.value = true;
 
       resultsContainer.innerHTML = '';
-      places.forEach((place, index) => {
+      places.forEach((place) => {
         const resultItem = document.createElement('div');
         resultItem.className = 'search-result-item';
         resultItem.innerHTML = `

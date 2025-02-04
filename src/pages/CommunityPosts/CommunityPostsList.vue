@@ -548,7 +548,7 @@ import { useUserStore } from 'src/stores/user-store';
 // import { communityPostService } from 'src/services/communityPostService';
 import type { CommunityPost } from 'src/types/CommunityPost';
 import PostEngagement from 'src/pages/CommunityPosts/PostEngagement.vue';
-import { Dialog } from 'quasar';
+// import { Dialog } from 'quasar';
 import LocationSelectionDialog from 'src/components/Location/LocationSelectionDialog.vue';
 import { Geolocation } from '@capacitor/geolocation';
 import SearchPostDialog from 'src/components/Community/SearchPostDialog.vue';
@@ -571,14 +571,14 @@ interface Post extends Omit<CommunityPost, 'liked'> {
 }
 
 // Add this interface after the Post interface
-interface UserInteractionLimits {
-  dailyLikeLimit: number;
-  dailyCommentLimit: number;
-  dailyPostLimit: number;
-  usedLikeCount: number;
-  usedCommentCount: number;
-  usedPostCount: number;
-}
+// interface UserInteractionLimits {
+//   dailyLikeLimit: number;
+//   dailyCommentLimit: number;
+//   dailyPostLimit: number;
+//   usedLikeCount: number;
+//   usedCommentCount: number;
+//   usedPostCount: number;
+// }
 
 const userStore = useUserStore();
 const locationStore = useLocationStore();
@@ -647,15 +647,13 @@ const performSearch = (searchParams?: {
 const formatDate = (dateString: string | null) => {
   if (!dateString) return 'Recent';
 
-  console.log('Input date:', dateString); // Log the input date
-
   try {
     // Extract the date using Quasar's extractDate method
     const parsedDate = date.extractDate(dateString, 'YYYY-MM-DD HH:mm:ss');
 
     // Check if the date is valid
     if (!parsedDate || isNaN(parsedDate.getTime())) {
-      console.error('Invalid date after parsing:', parsedDate); // Log invalid date
+      console.error('Invalid date after parsing:', parsedDate);
       return 'Invalid date';
     }
 
@@ -690,17 +688,8 @@ const formatDate = (dateString: string | null) => {
       return `${diffInDays} ${diffInDays === 1 ? 'day' : 'days'} ago`;
     }
 
-    // More than a week, format the date
-    const options: Intl.DateTimeFormatOptions = {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: true,
-    };
-
-    return date.formatDate(parsedDate, 'YYYY-MM-DDTHH:mm:ss.SSSZ'); // Format the date for display
+    // More than a week, format the date nicely
+    return date.formatDate(parsedDate, 'MMM D, YYYY [at] h:mm A');
   } catch (error) {
     console.error('Error formatting date:', error);
     return 'Date error';
@@ -708,10 +697,10 @@ const formatDate = (dateString: string | null) => {
 };
 
 // Add these new refs near the top of the script section
-const userLocation = ref({
-  latitude: null as number | null,
-  longitude: null as number | null,
-});
+// const userLocation = ref({
+//   latitude: null as number | null,
+//   longitude: null as number | null,
+// });
 
 // Update the loadPosts function
 const loadPosts = async (loadMore = false) => {
@@ -918,30 +907,33 @@ const onVideoIntersection = (postId: string) => ({
 });
 
 // Update the calculateAge function to handle both string and Date inputs
-const calculateAge = (dob: string | Date): number => {
-  const dobDate = dob instanceof Date ? dob : new Date(dob);
-  const today = new Date();
-  let age = today.getFullYear() - dobDate.getFullYear();
-  const monthDiff = today.getMonth() - dobDate.getMonth();
+// const calculateAge = (dob: string | Date): number => {
+//   const dobDate = dob instanceof Date ? dob : new Date(dob);
+//   const today = new Date();
+//   let age = today.getFullYear() - dobDate.getFullYear();
+//   const monthDiff = today.getMonth() - dobDate.getMonth();
 
-  if (
-    monthDiff < 0 ||
-    (monthDiff === 0 && today.getDate() < dobDate.getDate())
-  ) {
-    age--;
-  }
+//   if (
+//     monthDiff < 0 ||
+//     (monthDiff === 0 && today.getDate() < dobDate.getDate())
+//   ) {
+//     age--;
+//   }
 
-  return age;
-};
+//   return age;
+// };
 
 // Update the onMounted section where location is initialized
 onMounted(async () => {
-  const dob = userStore.user?.dob;
-  if (dob) {
-    isUserPermitted.value = calculateAge(dob) >= 13;
-  } else {
-    isUserPermitted.value = false;
-  }
+  // const dob = userStore.user?.dob;
+  // if (dob) {
+  //   isUserPermitted.value = calculateAge(dob) >= 13;
+  // } else {
+  //   isUserPermitted.value = false;
+  // }
+
+  const userType = userStore.user?.userType;
+  isUserPermitted.value = userType != null && userType !== 'Below (13)';
 
   // Get initial location with timeout
   try {
@@ -973,6 +965,7 @@ onMounted(async () => {
 
     try {
       const location = await Promise.race([locationPromise, timeoutPromise]);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       selectedLocation.value = location as any;
     } catch (timeoutError) {
       // If timeout or no stored location, check volunteering locations
@@ -1033,9 +1026,9 @@ onUnmounted(() => {
 });
 
 // Replace dialog methods with navigation method
-const goToCommunityPage = () => {
-  router.push('/community');
-};
+// const goToCommunityPage = () => {
+//   router.push('/community');
+// };
 const createPost = () => {
   if (!userInteractionRules.value) {
     return;
@@ -1079,9 +1072,9 @@ const activeCarouselPost = ref<string | null>(null);
 const carouselSlide = ref(0);
 
 // First, add a computed property to check if we're on the last slide
-const isLastSlide = computed(() => {
-  return currentIndex.value === totalSlides.value - 1;
-});
+// const isLastSlide = computed(() => {
+//   return currentIndex.value === totalSlides.value - 1;
+// });
 
 // Update the showCarousel method to handle number conversion
 const showCarousel = (postId: string | number, startIndex: number) => {
@@ -1608,18 +1601,14 @@ const getLocationDisplayName = computed(() => {
 
 // Update the makeLinksClickable function to handle priority
 const makeLinksClickable = (text: string, priority?: string) => {
+  console.log(text, priority);
   if (!text) return '';
 
   // URL regex pattern
   const urlPattern =
     /(https?:\/\/[^\s]+)|(www\.[^\s]+)|([a-zA-Z0-9._-]+\.[a-zA-Z]{2,6}(\/[^\s]*)?)/g;
 
-  // For low priority posts, just return the text
-  if (!priority || priority === 'low') {
-    return text;
-  }
-
-  // For other priorities, make links clickable
+  // Remove the priority check and always make links clickable
   const htmlContent = text.replace(urlPattern, (url) => {
     let href = url;
     if (url.startsWith('www.')) {
@@ -1634,9 +1623,9 @@ const makeLinksClickable = (text: string, priority?: string) => {
 };
 
 // Add this method to safely handle HTML content
-const createMarkup = (content: string) => {
-  return { __html: makeLinksClickable(content) };
-};
+// const createMarkup = (content: string) => {
+//   return { __html: makeLinksClickable(content) };
+// };
 
 // Add this computed property after other computed properties
 const getPostCardClass = (post: Post) => {

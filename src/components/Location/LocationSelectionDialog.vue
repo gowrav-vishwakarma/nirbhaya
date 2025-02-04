@@ -147,9 +147,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed } from 'vue';
 import { useQuasar } from 'quasar';
-import { Geolocation } from '@capacitor/geolocation';
+// import { Geolocation } from '@capacitor/geolocation';
 import LocationSelectorDialog from './LocationSelectorDialog.vue';
 
 interface UserLocation {
@@ -162,7 +162,7 @@ interface UserLocation {
 }
 
 const $q = useQuasar();
-const currentLocationName = ref('');
+// const currentLocationName = ref('');
 
 const props = defineProps<{
   modelValue: boolean;

@@ -1,6 +1,11 @@
+/// <reference types="@capacitor/cli" />
+
 import { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
+  appId: 'com.xavoc.shoutout',
+  appName: 'SOS Bharat',
+  webDir: 'www',
   server: {
     hostname: 'localhost',
     iosScheme: 'https',
@@ -21,6 +26,17 @@ const config: CapacitorConfig = {
         type: 'string',
       },
     },
+    CapacitorUpdater: {
+      autoUpdate: false,
+      statsUrl: '',
+      // updateUrl: 'https://myserver.com/app/updates/updates.json',
+    },
+    JitsiMeet: {
+      // Add any plugin specific configuration here
+    },
+  },
+  android: {
+    allowMixedContent: true,
   },
 };
 
