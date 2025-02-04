@@ -88,13 +88,42 @@ export default boot(async ({ router }) => {
 
         PushNotifications.addListener(
           'pushNotificationActionPerformed',
-          (notification) => {
-            console.log('Push notification action performed', notification);
-            const { sosEventId, location } = notification.notification.data;
-            router.push({
-              name: 'notifications', // Updated to point to the notifications page
-              params: { sosEventId, location },
-            });
+          async (notification) => {
+            const { sosEventId, screen } = notification.notification.data;
+            console.log(
+              'Push notification action performed',
+              screen,
+              JSON.stringify(notification)
+            );
+            setTimeout(() => {
+              // Force the navigation regardless of default app
+              router
+                .push({
+                  path: screen,
+                  query: { sosEventId },
+                  // Add replace: true to prevent navigation conflicts
+                  replace: true,
+                })
+                .catch((error) => {
+                  console.error('Router navigation failed:', error);
+                  // Fallback navigation if the first attempt fails
+                  setTimeout(() => {
+                    router
+                      .replace({
+                        path: screen,
+                        query: { sosEventId },
+                      })
+                      .catch((e) =>
+                        console.error('Fallback navigation failed:', e)
+                      );
+                  }, 500);
+                });
+            }, 100);
+            await router.push(screen);
+            console.log(
+              'Push notification action performed none sos id',
+              screen
+            );
           }
         );
 
