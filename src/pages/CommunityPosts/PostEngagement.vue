@@ -469,7 +469,7 @@ const shareOnWhatsApp = async () => {
   }
 
   try {
-    const text = `Hi, I'm interested in your post on https://app.sosbharat.com/#/sos-bharat-community-post/${props.post.id} : ${props.post.title}`;
+    const text = `Hi, I'm interested in your post on https://sosbharat.com/link?page=sos-bharat-community-post&id=${props.post.id}`;
     const encodedText = encodeURIComponent(text);
 
     // Create both universal and app-specific URLs
