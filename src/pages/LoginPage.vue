@@ -92,12 +92,6 @@
                 Read
               </span>
             </div>
-            <a
-              href="https://sosbharat.com/link?page=deeplink&ab=22&yz=33&seoFrendly=false"
-              class="text-capitalize text-primary"
-            >
-              deeplink
-            </a>
             <q-btn
               :label="otpSent ? t('common.login') : t('common.sendOTP')"
               type="submit"
