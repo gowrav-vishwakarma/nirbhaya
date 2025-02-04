@@ -81,7 +81,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch, onBeforeUnmount } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 import { api } from 'boot/axios';
 import { useQuasar } from 'quasar';
 import { useBackgroundNotifications } from 'src/composables/useBackgroundNotifications';
@@ -246,7 +246,7 @@ const getNotificationIcon = (notification: SosEvent) => {
   return notification.status === 'resolved' ? 'check_circle' : 'warning';
 };
 
-const emit = defineEmits(['notifications-updated']);
+// const emit = defineEmits(['notifications-updated']);
 
 const loadMore = async () => {
   if (isLoadingMore.value) return;
@@ -263,8 +263,14 @@ const loadMore = async () => {
 </script>
 
 <style lang="scss" scoped>
+@use 'sass:color';
+
 .notifications-page {
-  background: linear-gradient(135deg, $primary, darken($primary, 20%));
+  background: linear-gradient(
+    135deg,
+    $primary,
+    color.adjust($primary, $lightness: -20%)
+  );
   min-height: 100vh;
   padding: 0;
 }

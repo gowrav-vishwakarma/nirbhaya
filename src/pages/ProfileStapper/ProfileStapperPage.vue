@@ -177,6 +177,7 @@ const formatDate = (date: string) => {
   return date.replace(/\//g, '-');
 };
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const handleProfileUpdate = (data: any) => {
   if (data.dob) {
     data.dob = formatDate(data.dob);

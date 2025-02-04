@@ -27,9 +27,10 @@ const emit = defineEmits(['audioStatusChange']);
 const $q = useQuasar();
 const { t } = useI18n();
 
-const isLoading = ref(false);
+// const isLoading = ref(false);
 const isJoined = ref(false);
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 window.addEventListener('onParticipantsInfoRetrieved', (data: any) => {
   // do things here
   console.log('participant joined Rakesh', JSON.stringify(data));
@@ -82,26 +83,26 @@ const leaveConference = async () => {
   }
 };
 
-const toggleConference = async () => {
-  isLoading.value = true;
-  try {
-    if (!isJoined.value) {
-      await joinConference();
-    } else {
-      await leaveConference();
-    }
-  } catch (error) {
-    console.error('Error toggling conference:', error);
-    $q.notify({
-      color: 'negative',
-      message: t('common.errorTogglingAudio'),
-      icon: 'warning',
-      position: 'top-right',
-    });
-  } finally {
-    isLoading.value = false;
-  }
-};
+// const toggleConference = async () => {
+//   isLoading.value = true;
+//   try {
+//     if (!isJoined.value) {
+//       await joinConference();
+//     } else {
+//       await leaveConference();
+//     }
+//   } catch (error) {
+//     console.error('Error toggling conference:', error);
+//     $q.notify({
+//       color: 'negative',
+//       message: t('common.errorTogglingAudio'),
+//       icon: 'warning',
+//       position: 'top-right',
+//     });
+//   } finally {
+//     isLoading.value = false;
+//   }
+// };
 
 // Auto-join conference on mount for SOS initiator
 onMounted(async () => {

@@ -503,21 +503,21 @@ const isNewLocationValid = computed(() => {
 });
 
 // Add these methods
-const handleAvailabilityToggle = async () => {
-  try {
-    await validateAndSubmit(false);
-    props.reloadComponents?.();
-    emit('reloadComponents');
-  } catch (error) {
-    console.error('Error updating availability:', error);
-    $q.notify({
-      color: 'negative',
-      message: t('common.updateError'),
-      icon: 'error',
-      position: 'top-right',
-    });
-  }
-};
+// const handleAvailabilityToggle = async () => {
+//   try {
+//     await validateAndSubmit(false);
+//     props.reloadComponents?.();
+//     emit('reloadComponents');
+//   } catch (error) {
+//     console.error('Error updating availability:', error);
+//     $q.notify({
+//       color: 'negative',
+//       message: t('common.updateError'),
+//       icon: 'error',
+//       position: 'top-right',
+//     });
+//   }
+// };
 
 const clearInputFields = () => {
   newLocation.value = {

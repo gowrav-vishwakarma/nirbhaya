@@ -663,7 +663,6 @@ const isReferralIdStored = computed(() => {
 
 <style lang="scss" scoped>
 .profile-page {
-  // background: linear-gradient(135deg, $primary, darken($primary, 20%));
   min-height: 100% !important;
 }
 

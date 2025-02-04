@@ -256,7 +256,7 @@ const fetchSOSEvents = async () => {
       color: 'negative',
       message: t('common.fetchSOSEventsError'),
       icon: 'error',
-      position:'top-right'
+      position: 'top-right',
     });
   } finally {
     isLoading.value = false;
@@ -365,7 +365,7 @@ const getUserLocation = async () => {
       color: 'negative',
       message: t('common.locationError'),
       icon: 'error',
-      position:'top-right'
+      position: 'top-right',
     });
     return null;
   } finally {
@@ -405,8 +405,13 @@ onUnmounted(() => {
 </script>
 
 <style lang="scss" scoped>
+@use 'sass:color';
 .sos-events-map-page {
-  background: linear-gradient(135deg, $primary, darken($primary, 20%));
+  background: linear-gradient(
+    135deg,
+    $primary,
+    color.adjust($primary, $lightness: -20%)
+  );
   min-height: 100vh;
 }
 

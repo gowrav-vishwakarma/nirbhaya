@@ -177,7 +177,6 @@ onMounted(async () => {
 @use 'sass:color';
 
 .dashboard-page {
-  // background: linear-gradient(135deg, $primary, darken($primary, 20%));
   background: linear-gradient(
     135deg,
     $primary,
