@@ -422,10 +422,10 @@ const userTypes = [
   'Girl (13-18)',
   'Boy (13-18)',
   'Girl/Woman (18-35)',
-  'Woman (35+)',
-  'Senior Woman (60+)',
   'Boy/Man (18-35)',
+  'Woman (35+)',
   'Man (35+)',
+  'Senior Woman (60+)',
   'Senior Man (60+)',
 ];
 
