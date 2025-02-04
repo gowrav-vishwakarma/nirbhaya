@@ -719,37 +719,52 @@ const updateSOSData = async (data: {
         clearInterval(countdownInterval);
       }
       sosSent.value = true;
-      // notifiedPersons.value = 10;
-      // acceptedPersons.value = 3;
 
-      // Start timer for auto-notify nearby if enabled
+      // First API call - always with contactsOnly = false
+      values.value.contactsOnly = false;
+      await validateAndSubmit();
+
+      // Set up timer for nearby notification if enabled
       if (autoNotifyNearby.value && !sentSosUpdateNearByAlso.value) {
         nearbyNotificationTimer.value = setTimeout(() => {
           if (accepted.value === 0) {
-            // Only notify if no one has accepted
-            updateNearByAlso();
+            // Second API call - with contactsOnly = true if no one has accepted
+            values.value.contactsOnly = true;
+            validateAndSubmit();
+            sentSosUpdateNearByAlso.value = true;
+
+            $q.notify({
+              message: 'SOS Sent to Nearby Volunteers.',
+              color: 'positive',
+              position: 'top-right',
+              timeout: 2000,
+            });
           }
-        }, 180000); // 1 minute delay
+        }, 180000); // 3 minutes delay
       }
     }
 
-    // Always update all available values
+    // Update other values
     if (currentLocation.value.latitude && currentLocation.value.longitude) {
       values.value.location = {
         latitude: currentLocation.value.latitude,
         longitude: currentLocation.value.longitude,
       };
-      locationSentToServer.value = true; // Set this to true when data is successfully sent
+      locationSentToServer.value = true;
     }
     if (data.status) values.value.status = data.status;
     if (data.threat) values.value.threat = data.threat;
-    values.value.contactsOnly = contactsOnly.value;
     values.value.sosEventId = createdSosId.value;
 
     if (data.status === 'resolved' || data.status === 'cancelled') {
       leavingSos.value = true;
     }
-    await validateAndSubmit();
+
+    // Only make API call if not the initial SOS trigger
+    if (!data.confirm) {
+      await validateAndSubmit();
+    }
+
     if (data.status === 'resolved') {
       $q.dialog({
         component: SosRating,
@@ -759,6 +774,7 @@ const updateSOSData = async (data: {
         },
       });
     }
+
     console.log('SOS data updated:', values.value);
     logMessage(
       'SOS data updated: ' +
@@ -767,7 +783,7 @@ const updateSOSData = async (data: {
             location: currentLocation.value,
             status: data.status,
             threat: data.threat,
-            contactsOnly: contactsOnly.value,
+            contactsOnly: values.value.contactsOnly,
             sosEventId: createdSosId.value,
           },
           null,
@@ -971,11 +987,7 @@ const { values, validateAndSubmit, errors, callbacks, isLoading, updateUrl } =
   });
 
 callbacks.beforeSubmit = (data) => {
-  data.updateNearbyAlso = sentSosUpdateNearByAlso.value;
-  if (sentSosUpdateNearByAlso.value) {
-    data.status = !data.status ? 'active' : data.status;
-    data.contactsOnly = false;
-  }
+  // No need to modify data.updateNearbyAlso here anymore
   return data;
 };
 
@@ -1228,19 +1240,6 @@ const blobToBase64 = (blob: Blob): Promise<string> => {
 
 const handleAudioStatusChange = (status: string) => {
   audioStatus.value = status;
-};
-
-const updateNearByAlso = () => {
-  sentSosUpdateNearByAlso.value = true;
-  values.value.updateNearbyAlso = sentSosUpdateNearByAlso.value;
-  validateAndSubmit();
-  $q.notify({
-    message: 'SOS Sent Nearby Volunteers.',
-    color: 'positive',
-    position: 'top-right',
-    // multiLine: true,
-    timeout: 2000,
-  });
 };
 </script>
 
