@@ -282,21 +282,37 @@ callbacks.onSuccess = async (userData) => {
     } else {
       router.push('/profile');
     }
+    if (userData.status === 'delete_requested') {
+      Notify.create({
+        type: 'negative',
+        message:
+          'Your account is pending for deletion. Please contact support or cancel the deletion process.',
+        position: 'top-right',
+      });
+    }
   }
   isLoading.value = false;
 };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 callbacks.onError = async (error: any) => {
-  console.log('Error in login page', error);
-  isLoading.value = false;
-  Notify.create({
-    type: 'negative',
-    message: otpSent.value
-      ? 'Login failed. Please check your OTP and try again.'
-      : 'Failed to send OTP. Please try again.',
-    position: 'top-right',
-  });
+  if (error.response.status == 403) {
+    Notify.create({
+      type: 'negative',
+      message: error.response.data.message,
+      position: 'top-right',
+    });
+  } else {
+    console.log('Error in login page', error);
+    isLoading.value = false;
+    Notify.create({
+      type: 'negative',
+      message: otpSent.value
+        ? 'Login failed. Please check your OTP and try again.'
+        : 'Failed to send OTP. Please try again.',
+      position: 'top-right',
+    });
+  }
 };
 
 const startCountdown = () => {

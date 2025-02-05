@@ -201,6 +201,15 @@
           icon="logout"
         />
       </div>
+      <div class="text-center q-mt-sm">
+        <a
+          href="#"
+          class="delete-account-link"
+          @click.prevent="showDeleteDialog = true"
+          >Delete Account</a
+        >
+      </div>
+      <DeleteAccountDialog v-model="showDeleteDialog" />
     </div>
   </div>
 </template>
@@ -222,6 +231,7 @@ import { useUserStore } from 'src/stores/user-store';
 import { api } from 'src/boot/axios';
 import { useI18n } from 'vue-i18n';
 import { useUserForm } from 'src/composables/use-user-form';
+import DeleteAccountDialog from './DeleteAccountDialog.vue';
 const fileInput = ref<HTMLInputElement | null>(null);
 const isProcessingImages = ref(false);
 
@@ -401,6 +411,8 @@ const expandedItems = ref({
   settings: false,
   business: false,
 });
+
+const showDeleteDialog = ref(false);
 
 onMounted(() => {
   // Check if the URL has the 'open' query parameter
@@ -1026,6 +1038,17 @@ onMounted(() => {
 
   &:hover {
     color: $primary;
+  }
+}
+
+.delete-account-link {
+  font-size: 13px;
+  color: #666;
+  text-decoration: none;
+  transition: color 0.2s ease;
+
+  &:hover {
+    color: $negative;
   }
 }
 </style>

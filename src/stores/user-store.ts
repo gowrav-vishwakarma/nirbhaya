@@ -37,6 +37,9 @@ export interface User {
   startAudioVideoRecordOnSos: boolean;
   streamAudioVideoOnSos: boolean;
   broadcastAudioOnSos: boolean;
+  status: 'active' | 'inactive' | 'blocked' | 'delete_requested';
+  deletionRequestedAt?: Date;
+  scheduledDeletionAt?: Date;
   referralId: string;
   referredBy: string;
   state: string;
@@ -76,6 +79,7 @@ const defaultUser: User = {
   startAudioVideoRecordOnSos: false,
   streamAudioVideoOnSos: false,
   broadcastAudioOnSos: false,
+  status: 'active',
   referralId: '',
   referredBy: '',
   state: '',
