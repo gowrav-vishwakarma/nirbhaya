@@ -1,5 +1,34 @@
 [
   {
+    "group": "Emergency Services",
+    "options": [
+      {
+        "label": "Hospitals with Emergency Care",
+        "value": "hospitals_with_emergency_care"
+      },
+      {
+        "label": "24x7 Pharmacies",
+        "value": "24x7_pharmacies"
+      },
+      {
+        "label": "Ambulance Services",
+        "value": "24x7_ambulance_services"
+      },
+      {
+        "label": "Security Services",
+        "value": "24x7_security_services"
+      },
+      {
+        "label": "Fire & Rescue Services",
+        "value": "24x7_fire_rescue_services"
+      },
+      {
+        "label": "Emergency Electricians & Plumbers",
+        "value": "24x7_emergency_electricians_plumbers"
+      }
+    ]
+  },
+  {
     "group": "Properties & Real Estate",
     "options": [
       {
