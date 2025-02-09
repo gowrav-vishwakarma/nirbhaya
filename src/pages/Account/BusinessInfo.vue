@@ -263,7 +263,6 @@ import { api } from 'src/boot/axios';
 import { useUserStore } from 'src/stores/user-store';
 import LocationSelectorDialog from 'src/components/Location/LocationSelectorDialog.vue';
 import ManageCatalogDialog from 'src/components/ManageCatalogDialog.vue';
-import businessCategoriesData from 'src/jsondata/businessCategories.json';
 
 const $q = useQuasar();
 // const formRef = ref();
@@ -650,26 +649,36 @@ const showAddOrEditForm = (editMode = false) => {
   }
 };
 
-const businessCategories = computed(() => {
-  const categories = businessCategoriesData;
+const businessCategories = ref([]);
 
-  // Transform the categories into a flat list with group headers
-  return categories.reduce((acc, category, categoryIndex) => {
-    return [
-      ...acc,
-      {
-        group: category.group,
-        id: `group_${categoryIndex}`,
-        value: `group_${categoryIndex}`,
+const fetchBusinessCategories = async () => {
+  try {
+    const response = await api.get('/business-categories');
+    businessCategories.value = response.data.reduce(
+      (acc: any[], category: any, categoryIndex: number) => {
+        return [
+          ...acc,
+          {
+            group: category.group,
+            id: `group_${categoryIndex}`,
+            value: `group_${categoryIndex}`,
+          },
+          ...category.options.map((opt: any, optIndex: number) => ({
+            ...opt,
+            groupName: category.group,
+            id: `${categoryIndex}_${optIndex}`,
+          })),
+        ];
       },
-      ...category.options.map((opt, optIndex) => ({
-        ...opt,
-        groupName: category.group,
-        id: `${categoryIndex}_${optIndex}`,
-      })),
-    ];
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  }, [] as Array<any>);
+      []
+    );
+  } catch (error) {
+    console.error('Error fetching business categories:', error);
+  }
+};
+
+onMounted(() => {
+  fetchBusinessCategories();
 });
 
 const filterBusinessCategories = (

@@ -59,8 +59,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue';
-import businessCategoriesData from 'src/jsondata/businessCategories.json';
+import { ref, computed, watch, onMounted } from 'vue';
+import { api } from 'src/boot/axios';
 
 const props = defineProps<{
   modelValue: boolean;
@@ -99,24 +99,36 @@ watch(
   }
 );
 
-const businessCategories = computed(() => {
-  const categories = businessCategoriesData;
-  return categories.reduce((acc, category, categoryIndex) => {
-    return [
-      ...acc,
-      {
-        group: category.group,
-        id: `group_${categoryIndex}`,
-        value: `group_${categoryIndex}`,
+const businessCategories = ref([]);
+
+const fetchBusinessCategories = async () => {
+  try {
+    const response = await api.get('/business-categories');
+    businessCategories.value = response.data.reduce(
+      (acc: any[], category: any, categoryIndex: number) => {
+        return [
+          ...acc,
+          {
+            group: category.group,
+            id: `group_${categoryIndex}`,
+            value: `group_${categoryIndex}`,
+          },
+          ...category.options.map((opt: any, optIndex: number) => ({
+            ...opt,
+            groupName: category.group,
+            id: `${categoryIndex}_${optIndex}`,
+          })),
+        ];
       },
-      ...category.options.map((opt, optIndex) => ({
-        ...opt,
-        groupName: category.group,
-        id: `${categoryIndex}_${optIndex}`,
-      })),
-    ];
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  }, [] as Array<any>);
+      []
+    );
+  } catch (error) {
+    console.error('Error fetching business categories:', error);
+  }
+};
+
+onMounted(() => {
+  fetchBusinessCategories();
 });
 
 const filterBusinessCategories = (
