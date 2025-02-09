@@ -286,6 +286,12 @@ export default {
   sosMode: 'SOS મોડ',
   sosCountdownMessage: 'SOS કાઉન્ટડાઉન સંદેશ',
   notifiedPersons: 'સૂચિત કરેલા',
+  notifyNearbyVolunteers: 'નજીકના સ્વયંસેવકોને સૂચિત કરો',
+  notifyNearbyVolunteersHint:
+    'નજીકના સ્વયંસેવકોને તમારા SOS એલર્ટ માટે સૂચના પહેલાંથી પસંદ કરો.',
+  nearbyVolunteersNotified: 'નજીકના સ્વયંસેવકોને સૂચિત કરવામાં આવ્યું',
+  waitingForLocation: 'સ્થાન વિચારવામાં આવ્યું...',
+  joinMeeting: 'મિટિંગ જોડો',
   // notifiedPersons: 'સૂચિત કરેલા વ્યક્તિઓ',
   acceptedPersons: 'સ્વીકૃત',
   yes: 'હા',

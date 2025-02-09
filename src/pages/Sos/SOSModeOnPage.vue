@@ -109,6 +109,36 @@
               :sosEventId="createdSosId"
               @audioStatusChange="handleAudioStatusChange"
             />
+
+            <!-- Add button for notifying nearby volunteers -->
+            <div v-if="!sentSosUpdateNearByAlso" class="text-center q-mt-md">
+              <q-btn
+                @click="notifyNearbyVolunteers"
+                color="pink"
+                class="full-width"
+                style="border-radius: 8px"
+                :disable="locationStatus !== 'success'"
+              >
+                <q-icon name="people" class="q-mr-sm" />
+                <span class="text-bold">{{
+                  $t('common.notifyNearbyVolunteers')
+                }}</span>
+              </q-btn>
+              <div class="text-caption q-mt-sm text-grey-7">
+                <template v-if="locationStatus !== 'success'">
+                  {{ $t('common.waitingForLocation') }}
+                </template>
+                <template v-else>
+                  {{ $t('common.notifyNearbyVolunteersHint') }}
+                </template>
+              </div>
+            </div>
+            <div v-else class="text-center q-mt-md">
+              <div class="text-positive">
+                <q-icon name="check_circle" class="q-mr-xs" />
+                {{ $t('common.nearbyVolunteersNotified') }}
+              </div>
+            </div>
           </div>
 
           <!-- <div> -->
@@ -355,29 +385,20 @@
 </template>
 <script lang="ts" setup>
 import { ref, onMounted, onUnmounted, computed } from 'vue';
-import { useRouter, useRoute } from 'vue-router';
+import { useRouter, useRoute, onBeforeRouteLeave } from 'vue-router';
 import { useI18n } from 'vue-i18n';
-import { Platform } from 'quasar';
+import { Platform, useQuasar, throttle } from 'quasar';
 import {
   Geolocation,
   Position,
   WatchPositionCallback,
 } from '@capacitor/geolocation';
 import { Capacitor } from '@capacitor/core';
-// import { Network } from '@capacitor/network';
 import { useUserForm } from 'src/composables/use-user-form';
 import { usePermissions } from 'src/composables/usePermissions';
-import { useQuasar } from 'quasar';
-import { onBeforeRouteLeave } from 'vue-router';
 import { useUserStore } from 'src/stores/user-store';
-import { api } from 'boot/axios';
-import { throttle } from 'quasar';
 import AudioControls from './SosAudioControls.vue';
-import { Filesystem, Directory } from '@capacitor/filesystem';
 import SosRating from './SosRating.vue';
-// import SosButtonNearby from 'pages/Dashboard/components/SosButtonNearby.vue';
-// import { Plugins } from '@capacitor/core';
-// const { SMS } = Plugins;
 
 const router = useRouter();
 const route = useRoute();
@@ -387,15 +408,11 @@ const userStore = useUserStore();
 const leavingSos = ref(false);
 const sentSosUpdateNearByAlso = ref(false);
 
-const STREAM_SAVE = process.env.STREAM_SAVE;
-
 const countdownDuration = 10; // seconds
 const timeLeft = ref(countdownDuration);
 let countdownInterval: ReturnType<typeof setInterval> | null = null;
 const sosSent = ref(false);
 const isResolvingManually = ref(false);
-// const notifiedPersons = ref(0);
-// const acceptedPersons = ref(0);
 
 const createdSosId = ref(
   route.query.sosEventId ? parseInt(String(route.query.sosEventId)) : 0
@@ -406,15 +423,19 @@ const currentLocation = ref<Location>({ latitude: null, longitude: null });
 const currentLocationName = ref('');
 let watchId: string | null = null;
 
-const isRecording = ref(false);
 const isLocationReceived = ref(false);
 
 const { permissions, checkPermissions, requestPermission, activatePermission } =
   usePermissions();
 
-const shouldStream = computed(
-  () => STREAM_SAVE === 'true' && userStore.user.streamAudioVideoOnSos
-);
+const { values, validateAndSubmit, callbacks } = useUserForm('sos/sos-update', {
+  location: '',
+  status: '',
+  threat: '',
+  contactsOnly: contactsOnly.value,
+  sosEventId: createdSosId.value,
+  updateNearbyAlso: false,
+});
 
 const presignedUrl = ref<string | null>(null); // Create a ref for presigned URL
 
@@ -435,39 +456,6 @@ const threats = [
     threatName: 'safetyconcerns',
     visibleThreat: 'common.safetyconcerns',
   },
-
-  // {
-  //   color: '#808000',
-  //   icon: 'touch_app',
-  //   threatName: 'physicalThreat',
-  //   visibleThreat: 'common.physicalThreat',
-  // },
-  // {
-  //   color: '#641e16',
-  //   icon: 'pan_tool',
-  //   threatName: 'sexualAssault',
-  //   visibleThreat: 'common.sexualAssault',
-  // },
-  // {
-  //   color: '#FF00FF',
-  //   icon: 'gesture',
-  //   threatName: 'followedBySomeone',
-  //   visibleThreat: 'common.followedBySomeone',
-  // },
-
-  // {
-  //   color: '#008080',
-  //   icon: 'record_voice_over',
-  //   threatName: 'verbalHarassment',
-  //   visibleThreat: 'common.verbalHarassment',
-  // },
-
-  // 'common.followedBySomeone',
-  // 'common.verbalHarassment',
-  // 'common.physicalThreat',
-  // 'common.attemptedKidnapping',
-  // 'common.sexualAssault',
-  // 'common.domesticViolence',
 ];
 
 const logs = ref<string[]>([]); // Reactive array to store logs
@@ -476,33 +464,13 @@ const logMessage = (message: string) => {
   logs.value.push(message); // Add new log message
 };
 
-// const recordingIntervals = ref([5000, 10000, 20000, 30000]); // in milliseconds
-// const currentIntervalIndex = ref(0);
-// const recordingStartTime = ref(0);
-const nextUploadTimeout = ref<ReturnType<typeof setTimeout> | null>(null);
-const accumulatedChunks = ref<Blob[]>([]);
-const entireRecording = ref<Blob[]>([]);
-
 const lastUpdateTime = ref(0);
 const significantChange = ref(false);
-
-const mediaRecorder = ref<MediaRecorder | null>(null);
-const mediaStream = ref<MediaStream | null>(null);
-// const recordedChunks = ref<Blob[]>([]);
 
 // Add these new refs for status
 const recordingStatus = ref('pending');
 const audioStatus = ref('pending');
 const locationStatus = ref('pending');
-
-// Add this constant to determine video format
-const VIDEO_FORMAT = computed(() => {
-  const isIOS = Capacitor.getPlatform() === 'ios';
-  return {
-    extension: isIOS ? 'mp4' : 'webm',
-    mimeType: isIOS ? 'video/mp4' : 'video/webm;codecs=vp8,opus',
-  };
-});
 
 // Add this new function to get icon color based on status
 const getIconColor = (status: string) => {
@@ -541,17 +509,14 @@ onMounted(async () => {
   await activateSOSPermissions();
   startCountdown();
   await startLocationWatching();
-  // if (shouldRecord.value || shouldStream.value) {
-  //   await startRecordingAndStreaming();
-  // }
 
-  // Add this to update audio status based on SosAudioControls
-  if (shouldRecord.value || shouldStream.value) {
-    audioStatus.value = 'pending';
-  }
+  // // Add this to update audio status based on SosAudioControls
+  // if (shouldRecord.value || shouldStream.value) {
+  //   audioStatus.value = 'pending';
+  // }
 });
 
-const showResolveConfirmation = (): Promise<boolean> => {
+const showResolveConfirmation = async (): Promise<boolean> => {
   return new Promise((resolve) => {
     isResolvingManually.value = true;
     console.log('showResolveConfirmation');
@@ -577,28 +542,35 @@ const showResolveConfirmation = (): Promise<boolean> => {
       .onOk(async (action) => {
         switch (action) {
           case 'cancel':
-            await updateSOSData({ status: 'cancelled' });
+            values.value.status = 'cancelled';
+            await validateAndSubmit(false);
             $q.notify({
               message: 'Your SOS event has been closed.',
               color: 'info',
               position: 'top-right',
-              // multiLine: true,
               timeout: 3000,
             });
-            sosSent.value = false; // Reset sosSent
-            router.push('/sos'); // Redirect to dashboard
+            sosSent.value = false;
+            router.push('/sos');
             resolve(true);
             break;
           case 'resolve':
-            await updateSOSData({ status: 'resolved' });
+            values.value.status = 'resolved';
+            await validateAndSubmit(false);
             $q.notify({
               message: 'Your SOS event has been resolved.',
               color: 'positive',
               position: 'top-right',
-              // multiLine: true,
               timeout: 3000,
             });
-            sosSent.value = false; // Reset sosSent
+            sosSent.value = false;
+            $q.dialog({
+              component: SosRating,
+              componentProps: {
+                eventId: createdSosId.value,
+                source: 'sosmode',
+              },
+            });
             resolve(true);
             break;
           case 'keep':
@@ -606,7 +578,6 @@ const showResolveConfirmation = (): Promise<boolean> => {
               message: 'Your SOS event remains active.',
               color: 'warning',
               position: 'top-right',
-              // multiLine: true,
               timeout: 3000,
             });
             resolve(false);
@@ -657,7 +628,7 @@ onBeforeRouteLeave(async (to, from, next) => {
 
 onUnmounted(async () => {
   console.log('Unmounting SOSModeOnPage');
-  await stopRecordingAndStreaming();
+  // await stopRecordingAndStreaming();
 });
 
 const startCountdown = () => {
@@ -671,7 +642,30 @@ const startCountdown = () => {
       if (countdownInterval) {
         clearInterval(countdownInterval);
       }
-      updateSOSData({ status: 'active', confirm: true });
+      // Initial SOS activation
+      values.value.status = 'active';
+      values.value.contactsOnly = true;
+      sosSent.value = true;
+      validateAndSubmit(false);
+
+      // Set up timer for nearby notification
+      if (autoNotifyNearby.value && !sentSosUpdateNearByAlso.value) {
+        nearbyNotificationTimer.value = setTimeout(async () => {
+          if (accepted.value === 0) {
+            values.value.contactsOnly = false;
+            values.value.updateNearbyAlso = true;
+            await validateAndSubmit(false);
+            sentSosUpdateNearByAlso.value = true;
+
+            $q.notify({
+              message: 'SOS Sent to Nearby Volunteers.',
+              color: 'positive',
+              position: 'top-right',
+              timeout: 2000,
+            });
+          }
+        }, 180000);
+      }
     }
   }, 1000);
 };
@@ -686,7 +680,7 @@ const cancelSOS = async () => {
       clearTimeout(nearbyNotificationTimer.value);
       nearbyNotificationTimer.value = null;
     }
-    // await sendCancelSOSRequest();
+
     logMessage('SOS request cancelled.');
     router.push('/sos');
   } catch (error) {
@@ -709,192 +703,36 @@ const activateSOSPermissions = async () => {
   }
 };
 
-const updateSOSData = async (data: {
-  location?: Location;
-  status?: string;
-  threat?: string;
-  confirm?: boolean;
-}) => {
-  try {
-    if (data.confirm || !sosSent.value) {
-      if (countdownInterval) {
-        clearInterval(countdownInterval);
+const handleThreatButtonClick = async (threatType: string) => {
+  values.value.threat = threatType;
+  values.value.status = 'active';
+  values.value.contactsOnly = true;
+  sosSent.value = true;
+
+  if (countdownInterval) {
+    clearInterval(countdownInterval);
+  }
+
+  await validateAndSubmit(false);
+
+  // Set up timer for nearby notification
+  if (autoNotifyNearby.value && !sentSosUpdateNearByAlso.value) {
+    nearbyNotificationTimer.value = setTimeout(async () => {
+      if (accepted.value === 0) {
+        values.value.contactsOnly = false;
+        await validateAndSubmit(false);
+        sentSosUpdateNearByAlso.value = true;
+
+        $q.notify({
+          message: 'SOS Sent to Nearby Volunteers.',
+          color: 'positive',
+          position: 'top-right',
+          timeout: 2000,
+        });
       }
-      sosSent.value = true;
-
-      if (data.status) values.value.status = data.status;
-      if (data.threat) values.value.threat = data.threat;
-
-      // First API call - only to contacts
-      values.value.contactsOnly = true;
-      await validateAndSubmit();
-
-      // Set up timer for nearby notification if enabled
-      if (autoNotifyNearby.value && !sentSosUpdateNearByAlso.value) {
-        nearbyNotificationTimer.value = setTimeout(() => {
-          if (accepted.value === 0) {
-            // Second API call - to everyone if no one has accepted
-            values.value.contactsOnly = false;
-            validateAndSubmit();
-            sentSosUpdateNearByAlso.value = true;
-
-            $q.notify({
-              message: 'SOS Sent to Nearby Volunteers.',
-              color: 'positive',
-              position: 'top-right',
-              timeout: 2000,
-            });
-          }
-        }, 180000); // 3 minutes delay
-      }
-    }
-
-    // Update values
-    if (currentLocation.value.latitude && currentLocation.value.longitude) {
-      values.value.location = {
-        latitude: currentLocation.value.latitude,
-        longitude: currentLocation.value.longitude,
-      };
-      locationSentToServer.value = true;
-    }
-    if (data.status) values.value.status = data.status;
-    if (data.threat) values.value.threat = data.threat;
-
-    values.value.sosEventId = createdSosId.value;
-
-    // For subsequent updates, maintain the current contactsOnly value
-    // Don't override it here as it's managed by the timer logic
-
-    // Make API call for updates
-    if (!data.confirm) {
-      await validateAndSubmit();
-    }
-
-    if (data.status === 'resolved' || data.status === 'cancelled') {
-      leavingSos.value = true;
-    }
-
-    if (data.status === 'resolved') {
-      $q.dialog({
-        component: SosRating,
-        componentProps: {
-          eventId: createdSosId.value,
-          source: 'sosmode',
-        },
-      });
-    }
-
-    console.log('SOS data updated:', values.value);
-    logMessage(
-      'SOS data updated: ' +
-        JSON.stringify(
-          {
-            location: currentLocation.value,
-            status: data.status,
-            threat: data.threat,
-            contactsOnly: values.value.contactsOnly,
-            sosEventId: createdSosId.value,
-          },
-          null,
-          2
-        )
-    );
-
-    if (!isLocationReceived.value) {
-      updateCurrentLocation();
-    }
-  } catch (error) {
-    leavingSos.value = false;
-    logMessage('Failed to update SOS data: ' + error);
-    console.error('Failed to update SOS data:', error);
+    }, 180000);
   }
 };
-
-const handleThreatButtonClick = (threatType: string) => {
-  updateSOSData({ threat: threatType, status: 'active', confirm: true });
-};
-
-// const sendCancelSOSRequest = async () => {
-//   // TODO: Implement actual API call
-//   await updateSOSData({ status: 'cancelled' });
-//   logMessage('Sending cancel SOS request');
-//   console.log('Sending cancel SOS request');
-// };
-
-// const sendConfirmSOSRequest = async (threatType?: string) => {
-//   const networkStatus = await Network.getStatus();
-
-//   const sosData = {
-//     threatType,
-//     location: currentLocation.value,
-//     timestamp: new Date().toISOString(),
-//   };
-
-//   if (networkStatus.connected) {
-//     try {
-//       // TODO: Implement actual API call
-//       console.log('Sending confirm SOS request', sosData);
-//       // If API call is successful, return
-//       return;
-//     } catch (error) {
-//       console.error('Failed to send SOS request via API:', error);
-//       // If API call fails, fall through to SMS
-//     }
-//   } else {
-//     // If no internet, send SMS
-//     try {
-//       await sendSOSviaSMS(sosData);
-//     } catch (error) {
-//       console.error('Failed to send SOS via SMS:', error);
-//     }
-//   }
-
-//   // If no internet or API call failed, send SMS
-//   try {
-//     // TODO: Implement SMS sending
-//     // await sendSOSviaSMS(sosData);
-//   } catch (error) {
-//     console.error('Failed to send SOS via SMS:', error);
-//     // TODO: Show error message to user
-//   }
-
-//   // Start background task to keep trying API
-//   startBackgroundAPIRetry(sosData);
-// };
-
-// const sendSOSviaSMS = async (sosData: any) => {
-//   const message = `SOS: ${sosData.threatType || 'Emergency'} at ${
-//     sosData.location.latitude
-//   }, ${sosData.location.longitude}. Time: ${sosData.timestamp}`;
-
-//   try {
-//     await SMS.send({
-//       numbers: ['EMERGENCY_NUMBER'], // Replace with actual emergency number
-//       text: message,
-//     });
-//     console.log('SOS sent via SMS');
-//   } catch (error) {
-//     console.error('Failed to send SMS:', error);
-//     throw error;
-//   }
-// };
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-// const startBackgroundAPIRetry = (sosData: any) => {
-//   const retryInterval = setInterval(async () => {
-//     const networkStatus = await Network.getStatus();
-//     if (networkStatus.connected) {
-//       try {
-//         // TODO: Implement actual API call
-//         console.log('Retrying SOS API call', sosData);
-//         // If successful, clear the interval
-//         clearInterval(retryInterval);
-//       } catch (error) {
-//         console.error('Failed to send SOS request via API:', error);
-//       }
-//     }
-//   }, 30000); // Retry every 30 seconds
-// };
 
 const startLocationWatching = async () => {
   try {
@@ -917,9 +755,8 @@ const startLocationWatching = async () => {
   }
 };
 
-const handleLocationUpdate: WatchPositionCallback = (
+const handleLocationUpdate: WatchPositionCallback = async (
   position: Position | null,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   err?: any
 ) => {
   if (err) {
@@ -936,48 +773,23 @@ const handleLocationUpdate: WatchPositionCallback = (
       longitude: position.coords.longitude,
     };
 
+    // Update both currentLocation and values.value.location
     currentLocation.value = newLocation;
+    values.value.location = newLocation;
+
     currentLocationName.value = `Lat: ${newLocation.latitude?.toFixed(
       4
     )}, Lon: ${newLocation.longitude?.toFixed(4)}`;
     isLocationReceived.value = true;
     locationStatus.value = 'success';
 
-    throttledUpdateSOS();
+    // Only trigger update if SOS is already sent
+    if (sosSent.value) {
+      console.log('handleLocationUpdate', values.value);
+      await validateAndSubmit(false);
+    }
   }
 };
-
-// const calculateDistance = (
-//   loc1: LocationWithCoords,
-//   loc2: LocationWithCoords
-// ): number => {
-//   const R = 6371;
-//   const dLat = (loc2.latitude - loc1.latitude) * (Math.PI / 180);
-//   const dLon = (loc2.longitude - loc1.longitude) * (Math.PI / 180);
-//   const a =
-//     Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-//     Math.cos(loc1.latitude * (Math.PI / 180)) *
-//       Math.cos(loc2.latitude * (Math.PI / 180)) *
-//       Math.sin(dLon / 2) *
-//       Math.sin(dLon / 2);
-//   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-//   const distance = R * c * 1000; // Convert to meters
-
-//   return Math.round(distance);
-// };
-
-const throttledUpdateSOS = throttle(() => {
-  const now = Date.now();
-  if (
-    sosSent.value &&
-    (now - lastUpdateTime.value > 10000 || significantChange.value)
-  ) {
-    updateSOSData({}).catch(console.error);
-    logMessage('Location updated and sent to server');
-    lastUpdateTime.value = now;
-    significantChange.value = false;
-  }
-}, 10000);
 
 const stopLocationWatching = async () => {
   if (watchId !== null) {
@@ -985,20 +797,6 @@ const stopLocationWatching = async () => {
     watchId = null;
     console.log('Stopped watching location');
   }
-};
-
-const { values, validateAndSubmit, callbacks } = useUserForm('sos/sos-update', {
-  location: '',
-  status: '',
-  threat: '',
-  contactsOnly: contactsOnly.value,
-  sosEventId: createdSosId.value,
-  updateNearbyAlso: false,
-});
-
-callbacks.beforeSubmit = (data) => {
-  // No need to modify data.updateNearbyAlso here anymore
-  return data;
 };
 
 const informed = ref(0);
@@ -1019,237 +817,26 @@ const updateCurrentLocation = async (): Promise<void> => {
   }
 
   if (isLocationReceived.value) {
-    await updateSOSData({ location: currentLocation.value, status: 'active' });
+    await validateAndSubmit(false);
   }
-};
-
-// const getSupportedMimeType = (types: string[]): string | null => {
-//   // Add VIDEO_FORMAT.value.mimeType as the first option
-//   const allTypes = [VIDEO_FORMAT.value.mimeType, ...types];
-//   for (const type of allTypes) {
-//     if (MediaRecorder.isTypeSupported(type)) {
-//       logMessage('Supported MIME type found: ' + type);
-//       return type;
-//     }
-//   }
-//   return null;
-// };
-
-// const startRecordingAndStreaming = async () => {
-//   try {
-//     if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-//       mediaStream.value = await navigator.mediaDevices.getUserMedia({
-//         video: { width: 640, height: 480 },
-//         audio: true,
-//       });
-
-//       const mimeType = getSupportedMimeType([
-//         'video/webm;codecs=vp8,opus',
-//         'video/webm;codecs=vp9,opus',
-//         'video/webm;codecs=h264,opus',
-//         'video/mp4;codecs=h264,aac',
-//         'video/mp4;codecs=h265,aac',
-//         'video/mp4;codecs=avc1,aac',
-//         'video/webm',
-//         'video/mp4',
-//         'video/x-matroska',
-//         'video/quicktime',
-//       ]);
-
-//       if (!mimeType) {
-//         throw new Error('No supported mime type found for video recording');
-//       }
-
-//       const options = {
-//         mimeType,
-//         videoBitsPerSecond: 250000,
-//         audioBitsPerSecond: 128000,
-//       };
-
-//       mediaRecorder.value = new MediaRecorder(mediaStream.value, options);
-//       mediaRecorder.value.ondataavailable = handleDataAvailable;
-//       mediaRecorder.value.start(5000); // Record in 5-second chunks
-//       isRecording.value = true;
-//       recordingStartTime.value = Date.now();
-//       recordingStatus.value = 'success'; // Set status to success
-
-//       if (shouldStream.value) {
-//         scheduleNextProcessing();
-//       }
-//     } else {
-//       throw new Error('Media Devices API not available');
-//     }
-//   } catch (error) {
-//     console.error('Failed to start recording:', error);
-//     logMessage('Failed to start recording: ' + error);
-//     recordingStatus.value = 'error'; // Set status to error
-//   }
-// };
-
-const stopRecordingAndStreaming = async () => {
-  if (mediaRecorder.value && isRecording.value) {
-    mediaRecorder.value.stop();
-    isRecording.value = false;
-
-    if (mediaStream.value) {
-      mediaStream.value.getTracks().forEach((track) => track.stop());
-    }
-
-    if (nextUploadTimeout.value) {
-      clearTimeout(nextUploadTimeout.value);
-    }
-
-    // Final processing of any remaining chunks for streaming
-    if (shouldStream.value) {
-      await processAccumulatedChunks();
-    }
-
-    // Save the entire recording locally
-    if (shouldRecord.value) {
-      await saveLocalRecording();
-    }
-  }
-};
-
-// const scheduleNextProcessing = () => {
-//   const currentInterval = recordingIntervals.value[currentIntervalIndex.value];
-
-//   if (nextUploadTimeout.value) {
-//     clearTimeout(nextUploadTimeout.value);
-//   }
-
-//   nextUploadTimeout.value = setTimeout(() => {
-//     processAccumulatedChunks();
-
-//     if (currentIntervalIndex.value < recordingIntervals.value.length - 1) {
-//       currentIntervalIndex.value++;
-//     }
-
-//     scheduleNextProcessing();
-//   }, currentInterval);
-// };
-
-// const handleDataAvailable = (event: BlobEvent) => {
-//   if (event.data.size > 0) {
-//     if (shouldStream.value) {
-//       accumulatedChunks.value.push(event.data);
-//     }
-//     if (shouldRecord.value) {
-//       entireRecording.value.push(event.data);
-//     }
-//   }
-// };
-
-const processAccumulatedChunks = async () => {
-  if (accumulatedChunks.value.length > 0 && shouldStream.value) {
-    const blob = new Blob(accumulatedChunks.value, {
-      type: VIDEO_FORMAT.value.mimeType,
-    });
-    const fileName = `video_${Date.now()}.${VIDEO_FORMAT.value.extension}`;
-
-    await uploadVideo(blob, fileName);
-
-    accumulatedChunks.value = []; // Clear the chunks after processing
-  }
-};
-
-const uploadVideo = async (blob: Blob, fileName: string) => {
-  try {
-    const { data } = await api.get('/sos/get-presigned-url', {
-      params: {
-        sosEventId: createdSosId.value,
-        fileName,
-        contentType: VIDEO_FORMAT.value.mimeType,
-      },
-    });
-
-    await fetch(data.presignedUrl, {
-      method: 'PUT',
-      body: blob,
-      headers: {
-        'Content-Type': VIDEO_FORMAT.value.mimeType,
-      },
-    });
-
-    console.log(`Uploaded ${fileName} successfully`);
-    logMessage(`Uploaded ${fileName} successfully`);
-  } catch (error) {
-    console.error('Failed to upload video:', error);
-    logMessage('Failed to upload video: ' + error);
-  }
-};
-
-const saveLocalRecording = async () => {
-  if (entireRecording.value.length > 0) {
-    const blob = new Blob(entireRecording.value, {
-      type: VIDEO_FORMAT.value.mimeType,
-    });
-
-    const fileName = `sos_recording_${createdSosId.value}.${VIDEO_FORMAT.value.extension}`;
-
-    if (Capacitor.isNativePlatform()) {
-      const base64Data = await blobToBase64(blob);
-
-      try {
-        // Save to external storage with predictable filename
-        const result = await Filesystem.writeFile({
-          path: `DCIM/Nirbhaya/${fileName}`,
-          data: base64Data,
-          directory: Directory.ExternalStorage,
-          recursive: true,
-        });
-
-        console.log('File saved:', result.uri);
-        logMessage(`Full recording saved to DCIM/Nirbhaya/${fileName}`);
-
-        $q.notify({
-          message: `Video saved as ${fileName}`,
-          color: 'positive',
-          icon: 'save',
-          position: 'top',
-          timeout: 3000,
-        });
-      } catch (error) {
-        console.error('Failed to save full recording:', error);
-        logMessage('Failed to save full recording: ' + error);
-
-        $q.notify({
-          message: 'Failed to save video. Please check app permissions.',
-          color: 'negative',
-          icon: 'error',
-          position: 'top-right',
-          timeout: 3000,
-        });
-      }
-    } else {
-      // For web platform, use same predictable filename
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.style.display = 'none';
-      a.href = url;
-      a.download = fileName;
-      document.body.appendChild(a);
-      a.click();
-      URL.revokeObjectURL(url);
-      document.body.removeChild(a);
-      logMessage('Full recording downloaded in browser: ' + fileName);
-    }
-
-    entireRecording.value = []; // Clear the recording after saving
-  }
-};
-
-const blobToBase64 = (blob: Blob): Promise<string> => {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onloadend = () => resolve(reader.result as string);
-    reader.onerror = reject;
-    reader.readAsDataURL(blob);
-  });
 };
 
 const handleAudioStatusChange = (status: string) => {
   audioStatus.value = status;
+};
+
+const notifyNearbyVolunteers = async () => {
+  values.value.contactsOnly = false;
+  values.value.updateNearbyAlso = true;
+  await validateAndSubmit(false);
+  sentSosUpdateNearByAlso.value = true;
+
+  $q.notify({
+    message: t('common.nearbyVolunteersNotified'),
+    color: 'positive',
+    position: 'top-right',
+    timeout: 2000,
+  });
 };
 </script>
 

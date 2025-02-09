@@ -97,6 +97,12 @@ export default {
   retry: 'पुनः प्रयास करें',
   autoNotifyNearbyAfterDelay:
     'नज़दीकी व्यक्तियों को यदि कोई संपर्क नहीं जोड़ता है तो 3 मिनट में सूचित करें',
+  notifyNearbyVolunteers: 'नज़दीकी स्वयंसेवकों को सूचित करें',
+  notifyNearbyVolunteersHint:
+    'नज़दीकी स्वयंसेवकों को आपातकालीन अलर्ट के बारे में सूचित करें।',
+  nearbyVolunteersNotified: 'नज़दीकी स्वयंसेवकों को सूचित कर दिया गया',
+  waitingForLocation: 'स्थान प्राप्त कर रहे हैं...',
+  joinMeeting: 'मीटिंग जोड़ें',
   // Profile Page
   myProfile: 'मेरा प्रोफ़ाइल',
   emergencyContact: 'आपातकालीन संपर्क',

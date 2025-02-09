@@ -76,7 +76,7 @@ export default {
   errorGettingLocation: 'Error getting location. Please try again.',
   autoNotifyNearbyAfterDelay:
     'Notify nearby volunteers if no contact joins in 3 minute',
-
+  joinMeeting: 'Join Meeting',
   // Profile Page
   myProfile: 'My Profile',
   emergencyContact: 'Emergency Contact',
@@ -336,6 +336,11 @@ export default {
     'Add an emergency contact to use SOS features. click here to add.',
   addVolunteerLocationToVolunteer:
     'Set location for volunteer opportunities. click here to add.',
+  notifyNearbyVolunteers: 'Notify Nearby Volunteers',
+  notifyNearbyVolunteersHint:
+    'Notify nearby volunteers about your SOS event. This will send a notification to all volunteers within your notification locations.',
+  nearbyVolunteersNotified: 'Nearby volunteers notified successfully',
+  waitingForLocation: 'Waiting for location...',
   // CommunityImpactPage
   communityImpact: 'Community Impact',
   yourReferralId: 'Your Referral ID',
