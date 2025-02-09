@@ -109,6 +109,36 @@
               :sosEventId="createdSosId"
               @audioStatusChange="handleAudioStatusChange"
             />
+
+            <!-- Add button for notifying nearby volunteers -->
+            <div v-if="!sentSosUpdateNearByAlso" class="text-center q-mt-md">
+              <q-btn
+                @click="notifyNearbyVolunteers"
+                color="pink"
+                class="full-width"
+                style="border-radius: 8px"
+                :disable="locationStatus !== 'success'"
+              >
+                <q-icon name="people" class="q-mr-sm" />
+                <span class="text-bold">{{
+                  $t('common.notifyNearbyVolunteers')
+                }}</span>
+              </q-btn>
+              <div class="text-caption q-mt-sm text-grey-7">
+                <template v-if="locationStatus !== 'success'">
+                  {{ $t('common.waitingForLocation') }}
+                </template>
+                <template v-else>
+                  {{ $t('common.notifyNearbyVolunteersHint') }}
+                </template>
+              </div>
+            </div>
+            <div v-else class="text-center q-mt-md">
+              <div class="text-positive">
+                <q-icon name="check_circle" class="q-mr-xs" />
+                {{ $t('common.nearbyVolunteersNotified') }}
+              </div>
+            </div>
           </div>
 
           <!-- <div> -->
@@ -480,10 +510,10 @@ onMounted(async () => {
   startCountdown();
   await startLocationWatching();
 
-  // Add this to update audio status based on SosAudioControls
-  if (shouldRecord.value || shouldStream.value) {
-    audioStatus.value = 'pending';
-  }
+  // // Add this to update audio status based on SosAudioControls
+  // if (shouldRecord.value || shouldStream.value) {
+  //   audioStatus.value = 'pending';
+  // }
 });
 
 const showResolveConfirmation = async (): Promise<boolean> => {
@@ -793,6 +823,20 @@ const updateCurrentLocation = async (): Promise<void> => {
 
 const handleAudioStatusChange = (status: string) => {
   audioStatus.value = status;
+};
+
+const notifyNearbyVolunteers = async () => {
+  values.value.contactsOnly = false;
+  values.value.updateNearbyAlso = true;
+  await validateAndSubmit(false);
+  sentSosUpdateNearByAlso.value = true;
+
+  $q.notify({
+    message: t('common.nearbyVolunteersNotified'),
+    color: 'positive',
+    position: 'top-right',
+    timeout: 2000,
+  });
 };
 </script>
 
