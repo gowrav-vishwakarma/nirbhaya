@@ -1,15 +1,15 @@
 <template>
   <div>
-    <!-- <q-btn
+    <q-btn
       round
       :color="isJoined ? 'primary' : 'grey'"
-      :icon="$t('common.icons.volumeUp')"
+      icon="videocam"
       @click="toggleConference"
       :loading="isLoading"
       :disable="isLoading"
     >
       <q-tooltip>{{ $t(isJoined ? 'muteAudio' : 'unmuteAudio') }}</q-tooltip>
-    </q-btn> -->
+    </q-btn>
   </div>
 </template>
 
@@ -83,26 +83,23 @@ const leaveConference = async () => {
   }
 };
 
-// const toggleConference = async () => {
-//   isLoading.value = true;
-//   try {
-//     if (!isJoined.value) {
-//       await joinConference();
-//     } else {
-//       await leaveConference();
-//     }
-//   } catch (error) {
-//     console.error('Error toggling conference:', error);
-//     $q.notify({
-//       color: 'negative',
-//       message: t('common.errorTogglingAudio'),
-//       icon: 'warning',
-//       position: 'top-right',
-//     });
-//   } finally {
-//     isLoading.value = false;
-//   }
-// };
+const toggleConference = async () => {
+  try {
+    if (!isJoined.value) {
+      await joinConference();
+    }
+  } catch (error) {
+    console.error('Error toggling conference:', error);
+    $q.notify({
+      color: 'negative',
+      message: t('common.errorTogglingAudio'),
+      icon: 'warning',
+      position: 'top-right',
+    });
+  } finally {
+    isLoading.value = false;
+  }
+};
 
 // Auto-join conference on mount for SOS initiator
 onMounted(async () => {

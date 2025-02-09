@@ -398,6 +398,15 @@ const isLocationReceived = ref(false);
 const { permissions, checkPermissions, requestPermission, activatePermission } =
   usePermissions();
 
+const { values, validateAndSubmit, callbacks } = useUserForm('sos/sos-update', {
+  location: '',
+  status: '',
+  threat: '',
+  contactsOnly: contactsOnly.value,
+  sosEventId: createdSosId.value,
+  updateNearbyAlso: false,
+});
+
 const presignedUrl = ref<string | null>(null); // Create a ref for presigned URL
 
 const shouldRecord = computed(() => userStore.user.startAudioVideoRecordOnSos);
@@ -432,15 +441,6 @@ const significantChange = ref(false);
 const recordingStatus = ref('pending');
 const audioStatus = ref('pending');
 const locationStatus = ref('pending');
-
-// Add this constant to determine video format
-const VIDEO_FORMAT = computed(() => {
-  const isIOS = Capacitor.getPlatform() === 'ios';
-  return {
-    extension: isIOS ? 'mp4' : 'webm',
-    mimeType: isIOS ? 'video/mp4' : 'video/webm;codecs=vp8,opus',
-  };
-});
 
 // Add this new function to get icon color based on status
 const getIconColor = (status: string) => {
@@ -513,7 +513,7 @@ const showResolveConfirmation = async (): Promise<boolean> => {
         switch (action) {
           case 'cancel':
             values.value.status = 'cancelled';
-            await validateAndSubmit();
+            await validateAndSubmit(false);
             $q.notify({
               message: 'Your SOS event has been closed.',
               color: 'info',
@@ -526,7 +526,7 @@ const showResolveConfirmation = async (): Promise<boolean> => {
             break;
           case 'resolve':
             values.value.status = 'resolved';
-            await validateAndSubmit();
+            await validateAndSubmit(false);
             $q.notify({
               message: 'Your SOS event has been resolved.',
               color: 'positive',
@@ -616,14 +616,15 @@ const startCountdown = () => {
       values.value.status = 'active';
       values.value.contactsOnly = true;
       sosSent.value = true;
-      validateAndSubmit();
+      validateAndSubmit(false);
 
       // Set up timer for nearby notification
       if (autoNotifyNearby.value && !sentSosUpdateNearByAlso.value) {
         nearbyNotificationTimer.value = setTimeout(async () => {
           if (accepted.value === 0) {
             values.value.contactsOnly = false;
-            await validateAndSubmit();
+            values.value.updateNearbyAlso = true;
+            await validateAndSubmit(false);
             sentSosUpdateNearByAlso.value = true;
 
             $q.notify({
@@ -682,14 +683,14 @@ const handleThreatButtonClick = async (threatType: string) => {
     clearInterval(countdownInterval);
   }
 
-  await validateAndSubmit();
+  await validateAndSubmit(false);
 
   // Set up timer for nearby notification
   if (autoNotifyNearby.value && !sentSosUpdateNearByAlso.value) {
     nearbyNotificationTimer.value = setTimeout(async () => {
       if (accepted.value === 0) {
         values.value.contactsOnly = false;
-        await validateAndSubmit();
+        await validateAndSubmit(false);
         sentSosUpdateNearByAlso.value = true;
 
         $q.notify({
@@ -702,19 +703,6 @@ const handleThreatButtonClick = async (threatType: string) => {
     }, 180000);
   }
 };
-
-const throttledUpdateSOS = throttle(() => {
-  const now = Date.now();
-  if (
-    sosSent.value &&
-    (now - lastUpdateTime.value > 10000 || significantChange.value)
-  ) {
-    validateAndSubmit().catch(console.error);
-    logMessage('Location updated and sent to server');
-    lastUpdateTime.value = now;
-    significantChange.value = false;
-  }
-}, 10000);
 
 const startLocationWatching = async () => {
   try {
@@ -737,7 +725,7 @@ const startLocationWatching = async () => {
   }
 };
 
-const handleLocationUpdate: WatchPositionCallback = (
+const handleLocationUpdate: WatchPositionCallback = async (
   position: Position | null,
   err?: any
 ) => {
@@ -767,7 +755,8 @@ const handleLocationUpdate: WatchPositionCallback = (
 
     // Only trigger update if SOS is already sent
     if (sosSent.value) {
-      throttledUpdateSOS();
+      console.log('handleLocationUpdate', values.value);
+      await validateAndSubmit(false);
     }
   }
 };
@@ -779,15 +768,6 @@ const stopLocationWatching = async () => {
     console.log('Stopped watching location');
   }
 };
-
-const { values, validateAndSubmit, callbacks } = useUserForm('sos/sos-update', {
-  location: '',
-  status: '',
-  threat: '',
-  contactsOnly: contactsOnly.value,
-  sosEventId: createdSosId.value,
-  updateNearbyAlso: false,
-});
 
 const informed = ref(0);
 const accepted = ref(0);
@@ -807,7 +787,7 @@ const updateCurrentLocation = async (): Promise<void> => {
   }
 
   if (isLocationReceived.value) {
-    await validateAndSubmit();
+    await validateAndSubmit(false);
   }
 };
 
