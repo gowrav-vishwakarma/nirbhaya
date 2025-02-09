@@ -25,6 +25,63 @@
     ]
   },
   {
+    "group": "Medical Services",
+    "options": [
+      {
+        "label": "General Physicians & Family Doctors",
+        "value": "general_physicians"
+      },
+      {
+        "label": "Ayurvedic Doctors & Clinics",
+        "value": "ayurvedic_doctors"
+      },
+      {
+        "label": "Homeopathic Doctors & Clinics",
+        "value": "homeopathic_doctors"
+      },
+      {
+        "label": "Dental Clinics",
+        "value": "dental_clinics"
+      },
+      {
+        "label": "Eye Specialists & Opticians",
+        "value": "eye_specialists"
+      },
+      {
+        "label": "Pediatricians",
+        "value": "pediatricians"
+      },
+      {
+        "label": "Gynecologists",
+        "value": "gynecologists"
+      },
+      {
+        "label": "Orthopedics",
+        "value": "orthopedics"
+      },
+      {
+        "label": "Diagnostic Centers & Labs",
+        "value": "diagnostic_labs"
+      },
+      {
+        "label": "Medical Stores & Pharmacies",
+        "value": "medical_stores"
+      },
+      {
+        "label": "Mental Health Specialists",
+        "value": "mental_health"
+      },
+      {
+        "label": "Physiotherapy Centers",
+        "value": "physiotherapy"
+      },
+      {
+        "label": "Veterinary Clinics & Pet Care",
+        "value": "veterinary"
+      }
+    ]
+  },
+  {
     "group": "Properties & Real Estate",
     "options": [
       {
@@ -121,10 +178,6 @@
       {
         "label": "Education & Training",
         "value": "education"
-      },
-      {
-        "label": "Healthcare & Medical",
-        "value": "healthcare"
       },
       {
         "label": "Beauty & Wellness",
