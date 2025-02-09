@@ -264,9 +264,9 @@
             <q-btn
               v-for="threat in threats"
               :key="threat.threatName"
-              class="button-background q-mr-xs"
+              class="button-background q-mr-xs full-width"
               @click="handleThreatButtonClick(threat.threatName)"
-              size="sm"
+              size="lg"
               style="border-radius: 30px"
             >
               <q-btn
@@ -424,16 +424,16 @@ const locationSentToServer = ref(false);
 
 const threats = [
   {
-    color: '#000000',
-    icon: 'pan_tool',
-    threatName: 'safetyconcerns',
-    visibleThreat: 'common.safetyconcerns',
-  },
-  {
     color: '#FF0000',
     icon: 'emergency',
     threatName: 'medicalemergency',
     visibleThreat: 'common.medicalemergency',
+  },
+  {
+    color: '#000000',
+    icon: 'pan_tool',
+    threatName: 'safetyconcerns',
+    visibleThreat: 'common.safetyconcerns',
   },
 
   // {
@@ -722,16 +722,19 @@ const updateSOSData = async (data: {
       }
       sosSent.value = true;
 
-      // First API call - always with contactsOnly = false
-      values.value.contactsOnly = false;
+      if (data.status) values.value.status = data.status;
+      if (data.threat) values.value.threat = data.threat;
+
+      // First API call - only to contacts
+      values.value.contactsOnly = true;
       await validateAndSubmit();
 
       // Set up timer for nearby notification if enabled
       if (autoNotifyNearby.value && !sentSosUpdateNearByAlso.value) {
         nearbyNotificationTimer.value = setTimeout(() => {
           if (accepted.value === 0) {
-            // Second API call - with contactsOnly = true if no one has accepted
-            values.value.contactsOnly = true;
+            // Second API call - to everyone if no one has accepted
+            values.value.contactsOnly = false;
             validateAndSubmit();
             sentSosUpdateNearByAlso.value = true;
 
@@ -746,7 +749,7 @@ const updateSOSData = async (data: {
       }
     }
 
-    // Update other values
+    // Update values
     if (currentLocation.value.latitude && currentLocation.value.longitude) {
       values.value.location = {
         latitude: currentLocation.value.latitude,
@@ -756,15 +759,19 @@ const updateSOSData = async (data: {
     }
     if (data.status) values.value.status = data.status;
     if (data.threat) values.value.threat = data.threat;
+
     values.value.sosEventId = createdSosId.value;
+
+    // For subsequent updates, maintain the current contactsOnly value
+    // Don't override it here as it's managed by the timer logic
+
+    // Make API call for updates
+    if (!data.confirm) {
+      await validateAndSubmit();
+    }
 
     if (data.status === 'resolved' || data.status === 'cancelled') {
       leavingSos.value = true;
-    }
-
-    // Only make API call if not the initial SOS trigger
-    if (!data.confirm) {
-      await validateAndSubmit();
     }
 
     if (data.status === 'resolved') {
