@@ -355,29 +355,20 @@
 </template>
 <script lang="ts" setup>
 import { ref, onMounted, onUnmounted, computed } from 'vue';
-import { useRouter, useRoute } from 'vue-router';
+import { useRouter, useRoute, onBeforeRouteLeave } from 'vue-router';
 import { useI18n } from 'vue-i18n';
-import { Platform } from 'quasar';
+import { Platform, useQuasar, throttle } from 'quasar';
 import {
   Geolocation,
   Position,
   WatchPositionCallback,
 } from '@capacitor/geolocation';
 import { Capacitor } from '@capacitor/core';
-// import { Network } from '@capacitor/network';
 import { useUserForm } from 'src/composables/use-user-form';
 import { usePermissions } from 'src/composables/usePermissions';
-import { useQuasar } from 'quasar';
-import { onBeforeRouteLeave } from 'vue-router';
 import { useUserStore } from 'src/stores/user-store';
-import { api } from 'boot/axios';
-import { throttle } from 'quasar';
 import AudioControls from './SosAudioControls.vue';
-import { Filesystem, Directory } from '@capacitor/filesystem';
 import SosRating from './SosRating.vue';
-// import SosButtonNearby from 'pages/Dashboard/components/SosButtonNearby.vue';
-// import { Plugins } from '@capacitor/core';
-// const { SMS } = Plugins;
 
 const router = useRouter();
 const route = useRoute();
@@ -387,15 +378,11 @@ const userStore = useUserStore();
 const leavingSos = ref(false);
 const sentSosUpdateNearByAlso = ref(false);
 
-const STREAM_SAVE = process.env.STREAM_SAVE;
-
 const countdownDuration = 10; // seconds
 const timeLeft = ref(countdownDuration);
 let countdownInterval: ReturnType<typeof setInterval> | null = null;
 const sosSent = ref(false);
 const isResolvingManually = ref(false);
-// const notifiedPersons = ref(0);
-// const acceptedPersons = ref(0);
 
 const createdSosId = ref(
   route.query.sosEventId ? parseInt(String(route.query.sosEventId)) : 0
@@ -406,15 +393,10 @@ const currentLocation = ref<Location>({ latitude: null, longitude: null });
 const currentLocationName = ref('');
 let watchId: string | null = null;
 
-const isRecording = ref(false);
 const isLocationReceived = ref(false);
 
 const { permissions, checkPermissions, requestPermission, activatePermission } =
   usePermissions();
-
-const shouldStream = computed(
-  () => STREAM_SAVE === 'true' && userStore.user.streamAudioVideoOnSos
-);
 
 const presignedUrl = ref<string | null>(null); // Create a ref for presigned URL
 
@@ -435,39 +417,6 @@ const threats = [
     threatName: 'safetyconcerns',
     visibleThreat: 'common.safetyconcerns',
   },
-
-  // {
-  //   color: '#808000',
-  //   icon: 'touch_app',
-  //   threatName: 'physicalThreat',
-  //   visibleThreat: 'common.physicalThreat',
-  // },
-  // {
-  //   color: '#641e16',
-  //   icon: 'pan_tool',
-  //   threatName: 'sexualAssault',
-  //   visibleThreat: 'common.sexualAssault',
-  // },
-  // {
-  //   color: '#FF00FF',
-  //   icon: 'gesture',
-  //   threatName: 'followedBySomeone',
-  //   visibleThreat: 'common.followedBySomeone',
-  // },
-
-  // {
-  //   color: '#008080',
-  //   icon: 'record_voice_over',
-  //   threatName: 'verbalHarassment',
-  //   visibleThreat: 'common.verbalHarassment',
-  // },
-
-  // 'common.followedBySomeone',
-  // 'common.verbalHarassment',
-  // 'common.physicalThreat',
-  // 'common.attemptedKidnapping',
-  // 'common.sexualAssault',
-  // 'common.domesticViolence',
 ];
 
 const logs = ref<string[]>([]); // Reactive array to store logs
@@ -476,19 +425,8 @@ const logMessage = (message: string) => {
   logs.value.push(message); // Add new log message
 };
 
-// const recordingIntervals = ref([5000, 10000, 20000, 30000]); // in milliseconds
-// const currentIntervalIndex = ref(0);
-// const recordingStartTime = ref(0);
-const nextUploadTimeout = ref<ReturnType<typeof setTimeout> | null>(null);
-const accumulatedChunks = ref<Blob[]>([]);
-const entireRecording = ref<Blob[]>([]);
-
 const lastUpdateTime = ref(0);
 const significantChange = ref(false);
-
-const mediaRecorder = ref<MediaRecorder | null>(null);
-const mediaStream = ref<MediaStream | null>(null);
-// const recordedChunks = ref<Blob[]>([]);
 
 // Add these new refs for status
 const recordingStatus = ref('pending');
@@ -541,9 +479,6 @@ onMounted(async () => {
   await activateSOSPermissions();
   startCountdown();
   await startLocationWatching();
-  // if (shouldRecord.value || shouldStream.value) {
-  //   await startRecordingAndStreaming();
-  // }
 
   // Add this to update audio status based on SosAudioControls
   if (shouldRecord.value || shouldStream.value) {
@@ -663,7 +598,7 @@ onBeforeRouteLeave(async (to, from, next) => {
 
 onUnmounted(async () => {
   console.log('Unmounting SOSModeOnPage');
-  await stopRecordingAndStreaming();
+  // await stopRecordingAndStreaming();
 });
 
 const startCountdown = () => {
@@ -714,7 +649,7 @@ const cancelSOS = async () => {
       clearTimeout(nearbyNotificationTimer.value);
       nearbyNotificationTimer.value = null;
     }
-    // await sendCancelSOSRequest();
+
     logMessage('SOS request cancelled.');
     router.push('/sos');
   } catch (error) {
@@ -854,11 +789,6 @@ const { values, validateAndSubmit, callbacks } = useUserForm('sos/sos-update', {
   updateNearbyAlso: false,
 });
 
-callbacks.beforeSubmit = (data) => {
-  // No need to modify data.updateNearbyAlso here anymore
-  return data;
-};
-
 const informed = ref(0);
 const accepted = ref(0);
 
@@ -879,139 +809,6 @@ const updateCurrentLocation = async (): Promise<void> => {
   if (isLocationReceived.value) {
     await validateAndSubmit();
   }
-};
-
-const stopRecordingAndStreaming = async () => {
-  if (mediaRecorder.value && isRecording.value) {
-    mediaRecorder.value.stop();
-    isRecording.value = false;
-
-    if (mediaStream.value) {
-      mediaStream.value.getTracks().forEach((track) => track.stop());
-    }
-
-    if (nextUploadTimeout.value) {
-      clearTimeout(nextUploadTimeout.value);
-    }
-
-    // Final processing of any remaining chunks for streaming
-    if (shouldStream.value) {
-      await processAccumulatedChunks();
-    }
-
-    // Save the entire recording locally
-    if (shouldRecord.value) {
-      await saveLocalRecording();
-    }
-  }
-};
-
-const processAccumulatedChunks = async () => {
-  if (accumulatedChunks.value.length > 0 && shouldStream.value) {
-    const blob = new Blob(accumulatedChunks.value, {
-      type: VIDEO_FORMAT.value.mimeType,
-    });
-    const fileName = `video_${Date.now()}.${VIDEO_FORMAT.value.extension}`;
-
-    await uploadVideo(blob, fileName);
-
-    accumulatedChunks.value = []; // Clear the chunks after processing
-  }
-};
-
-const uploadVideo = async (blob: Blob, fileName: string) => {
-  try {
-    const { data } = await api.get('/sos/get-presigned-url', {
-      params: {
-        sosEventId: createdSosId.value,
-        fileName,
-        contentType: VIDEO_FORMAT.value.mimeType,
-      },
-    });
-
-    await fetch(data.presignedUrl, {
-      method: 'PUT',
-      body: blob,
-      headers: {
-        'Content-Type': VIDEO_FORMAT.value.mimeType,
-      },
-    });
-
-    console.log(`Uploaded ${fileName} successfully`);
-    logMessage(`Uploaded ${fileName} successfully`);
-  } catch (error) {
-    console.error('Failed to upload video:', error);
-    logMessage('Failed to upload video: ' + error);
-  }
-};
-
-const saveLocalRecording = async () => {
-  if (entireRecording.value.length > 0) {
-    const blob = new Blob(entireRecording.value, {
-      type: VIDEO_FORMAT.value.mimeType,
-    });
-
-    const fileName = `sos_recording_${createdSosId.value}.${VIDEO_FORMAT.value.extension}`;
-
-    if (Capacitor.isNativePlatform()) {
-      const base64Data = await blobToBase64(blob);
-
-      try {
-        // Save to external storage with predictable filename
-        const result = await Filesystem.writeFile({
-          path: `DCIM/Nirbhaya/${fileName}`,
-          data: base64Data,
-          directory: Directory.ExternalStorage,
-          recursive: true,
-        });
-
-        console.log('File saved:', result.uri);
-        logMessage(`Full recording saved to DCIM/Nirbhaya/${fileName}`);
-
-        $q.notify({
-          message: `Video saved as ${fileName}`,
-          color: 'positive',
-          icon: 'save',
-          position: 'top',
-          timeout: 3000,
-        });
-      } catch (error) {
-        console.error('Failed to save full recording:', error);
-        logMessage('Failed to save full recording: ' + error);
-
-        $q.notify({
-          message: 'Failed to save video. Please check app permissions.',
-          color: 'negative',
-          icon: 'error',
-          position: 'top-right',
-          timeout: 3000,
-        });
-      }
-    } else {
-      // For web platform, use same predictable filename
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.style.display = 'none';
-      a.href = url;
-      a.download = fileName;
-      document.body.appendChild(a);
-      a.click();
-      URL.revokeObjectURL(url);
-      document.body.removeChild(a);
-      logMessage('Full recording downloaded in browser: ' + fileName);
-    }
-
-    entireRecording.value = []; // Clear the recording after saving
-  }
-};
-
-const blobToBase64 = (blob: Blob): Promise<string> => {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onloadend = () => resolve(reader.result as string);
-    reader.onerror = reject;
-    reader.readAsDataURL(blob);
-  });
 };
 
 const handleAudioStatusChange = (status: string) => {
