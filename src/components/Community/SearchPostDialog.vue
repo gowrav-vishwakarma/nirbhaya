@@ -105,6 +105,7 @@ const fetchBusinessCategories = async () => {
   try {
     const response = await api.get('/business-categories');
     businessCategories.value = response.data.reduce(
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (acc: any[], category: any, categoryIndex: number) => {
         return [
           ...acc,
@@ -113,6 +114,7 @@ const fetchBusinessCategories = async () => {
             id: `group_${categoryIndex}`,
             value: `group_${categoryIndex}`,
           },
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           ...category.options.map((opt: any, optIndex: number) => ({
             ...opt,
             groupName: category.group,
