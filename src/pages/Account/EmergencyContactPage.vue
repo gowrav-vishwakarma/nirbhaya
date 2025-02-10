@@ -244,7 +244,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, computed } from 'vue';
+import { onMounted, ref, computed, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useQuasar } from 'quasar';
 import { useUserStore } from 'src/stores/user-store';
@@ -333,6 +333,17 @@ const newContact = ref({
   isVerified: false,
   isCreatedByEmg: false,
 });
+
+// Add watch effect to show input fields when no contacts
+watch(
+  () => values.value.emergencyContacts,
+  (contacts) => {
+    if (!contacts || contacts.length === 0) {
+      showInputFields.value = true;
+    }
+  },
+  { immediate: true }
+);
 
 const clearInputFields = () => {
   newContact.value = {
