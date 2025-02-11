@@ -8,7 +8,7 @@
     @hide="resetZoom"
   >
     <q-card class="image-viewer-card" @click="handleBackgroundClick">
-      <q-card-section class="image-viewer-header" @click.stop>
+      <q-card-section class="image-viewer-header q-mt-md" @click.stop>
         <div class="zoom-controls">
           <q-btn flat round color="white" icon="remove" @click="zoomOut" />
           <span class="zoom-level">{{ Math.round(zoomLevel * 100) }}%</span>
@@ -35,6 +35,7 @@
           @touchstart="startPinchZoom"
           @touchmove="pinchZoom"
           @touchend="endPinchZoom"
+          @dblclick.stop.prevent="handleDoubleClick"
           @click.stop
         >
           <img
@@ -248,10 +249,46 @@ const initializeImage = () => {
   resetZoom();
 };
 
+const DOUBLE_CLICK_ZOOM = 2.5; // Increased zoom level for better visibility
+
+const handleDoubleClick = (event: MouseEvent) => {
+  if (zoomLevel.value > 1) {
+    // If already zoomed, reset to normal
+    resetZoom();
+  } else {
+    // Get the click position relative to the container
+    const rect = imageContainer.value?.getBoundingClientRect();
+    if (!rect) return;
+
+    const x = event.clientX - rect.left;
+    const y = event.clientY - rect.top;
+
+    // Calculate the center point of the container
+    const centerX = rect.width / 2;
+    const centerY = rect.height / 2;
+
+    // Calculate the offset from center
+    const offsetX = x - centerX;
+    const offsetY = y - centerY;
+
+    // Set zoom level
+    zoomLevel.value = DOUBLE_CLICK_ZOOM;
+
+    // Set pan position to center on the clicked point
+    panPosition.value = {
+      x: -offsetX * (DOUBLE_CLICK_ZOOM - 1),
+      y: -offsetY * (DOUBLE_CLICK_ZOOM - 1),
+    };
+  }
+};
+
 const imageStyle = computed(() => ({
   transform: `translate(${panPosition.value.x}px, ${panPosition.value.y}px) scale(${zoomLevel.value})`,
-  cursor: zoomLevel.value > 1 ? 'grab' : 'default',
-  transition: isPanning.value ? 'none' : 'transform 0.2s ease',
+  cursor: zoomLevel.value > 1 ? 'grab' : 'zoom-in',
+  transition: isPanning.value
+    ? 'none'
+    : 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+  transformOrigin: 'center center',
 }));
 
 const handleBackgroundClick = (event: MouseEvent) => {
@@ -277,18 +314,20 @@ const handleBackgroundClick = (event: MouseEvent) => {
 
 <style lang="scss" scoped>
 .image-viewer-dialog {
-  background: rgba(0, 0, 0, 0.9);
+  background: rgba(0, 0, 0, 0.9) !important;
 }
 
 .image-viewer-card {
-  background: transparent;
-  box-shadow: none;
+  background: transparent !important;
+  box-shadow: none !important;
   cursor: default;
+  height: 100vh;
+  max-height: -webkit-fill-available;
 }
 
 .image-viewer-header {
   position: fixed;
-  top: 0;
+  top: env(safe-area-inset-top, 0);
   left: 0;
   right: 0;
   z-index: 2000;
@@ -296,7 +335,10 @@ const handleBackgroundClick = (event: MouseEvent) => {
   justify-content: space-between;
   align-items: center;
   padding: 12px;
-  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.5), transparent);
+  padding-top: max(12px, env(safe-area-inset-top, 12px));
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.7), transparent);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
 }
 
 .zoom-controls {
@@ -304,12 +346,14 @@ const handleBackgroundClick = (event: MouseEvent) => {
   align-items: center;
   gap: 8px;
   color: white;
+  z-index: 2001;
 }
 
 .zoom-level {
   min-width: 60px;
   text-align: center;
   font-size: 14px;
+  color: white;
 }
 
 .image-viewer-content {
@@ -373,6 +417,7 @@ img {
   padding: 4px 12px;
   border-radius: 16px;
   font-size: 14px;
+  z-index: 2001;
 }
 
 @media (max-width: 600px) {
@@ -383,6 +428,17 @@ img {
     &.right-arrow {
       right: 8px;
     }
+  }
+}
+
+// Add iOS-specific styles
+@supports (-webkit-touch-callout: none) {
+  .image-viewer-card {
+    height: -webkit-fill-available;
+  }
+
+  .image-viewer-header {
+    padding-top: env(safe-area-inset-top, 44px);
   }
 }
 </style>
