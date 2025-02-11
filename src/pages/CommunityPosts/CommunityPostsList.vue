@@ -421,6 +421,15 @@
                         "
                         class="single-image"
                         :fit="'contain'"
+                        @click="
+                          openImageViewer(
+                            Array.isArray(post.mediaUrls)
+                              ? post.mediaUrls[0]
+                              : post.mediaUrls,
+                            post,
+                            0
+                          )
+                        "
                       />
                     </template>
 
@@ -435,7 +444,7 @@
                           <q-img
                             :src="imageCdn + url"
                             class="grid-image"
-                            @click="showCarousel(post.id, index)"
+                            @click="openImageViewer(url, post, index)"
                           />
                         </div>
                       </div>
@@ -448,7 +457,7 @@
                           <q-img
                             :src="imageCdn + post.mediaUrls[0]"
                             class="main-grid-image"
-                            @click="showCarousel(post.id, 0)"
+                            @click="openImageViewer(post.mediaUrls[0], post, 0)"
                           />
                         </div>
                         <div class="secondary-images-container">
@@ -460,17 +469,8 @@
                             <q-img
                               :src="imageCdn + url"
                               class="secondary-grid-image"
-                              @click="showCarousel(post.id, index + 1)"
-                            >
-                              <div
-                                v-if="index === 1 && post.mediaUrls.length > 3"
-                                class="see-all-overlay"
-                              >
-                                <span class="text-white text-weight-bold"
-                                  >+{{ post.mediaUrls.length - 3 }}</span
-                                >
-                              </div>
-                            </q-img>
+                              @click="openImageViewer(url, post, index + 1)"
+                            />
                           </div>
                         </div>
                       </div>
@@ -536,6 +536,12 @@
     :user-name="selectedUser.name"
     v-model:is-open="showCatalog"
   />
+  <ImageViewer
+    v-model="showImageViewer"
+    :image-src="selectedImages[0]"
+    :images="selectedImages"
+    :current-index="selectedImageIndex"
+  />
 </template>
 
 <script setup lang="ts">
@@ -555,6 +561,7 @@ import SearchPostDialog from 'src/components/Community/SearchPostDialog.vue';
 import BusinessCatalog from 'src/components/Catalog/BusinessCatalog.vue';
 import { useLocationStore } from 'src/stores/location-store';
 import { date } from 'quasar'; // Import Quasar date utilities
+import ImageViewer from 'src/components/ImageViewer.vue';
 
 // Add these type definitions at the top of the script section
 interface Post extends Omit<CommunityPost, 'liked'> {
@@ -1077,30 +1084,30 @@ const carouselSlide = ref(0);
 // });
 
 // Update the showCarousel method to handle number conversion
-const showCarousel = (postId: string | number, startIndex: number) => {
-  const numericPostId =
-    typeof postId === 'string' ? parseInt(postId, 10) : postId;
-  activeCarouselPost.value = numericPostId.toString();
-  currentIndex.value = startIndex;
+// const showCarousel = (postId: string | number, startIndex: number) => {
+//   const numericPostId =
+//     typeof postId === 'string' ? parseInt(postId, 10) : postId;
+//   activeCarouselPost.value = numericPostId.toString();
+//   currentIndex.value = startIndex;
 
-  const post = posts.value.find((p) => p.id === numericPostId);
-  if (post && post.mediaUrls) {
-    const imageData = {
-      postId: numericPostId,
-      startIndex: startIndex + 1,
-      totalImages: Array.isArray(post.mediaUrls) ? post.mediaUrls.length : 1,
-      allImages: Array.isArray(post.mediaUrls)
-        ? post.mediaUrls.map((url, idx) => ({
-            index: idx + 1,
-            url: imageCdn + url,
-            isActive: idx === startIndex,
-          }))
-        : [{ index: 1, url: imageCdn + post.mediaUrls, isActive: true }],
-      activeDot: startIndex,
-    };
-    console.log('Carousel Opened:', imageData);
-  }
-};
+//   const post = posts.value.find((p) => p.id === numericPostId);
+//   if (post && post.mediaUrls) {
+//     const imageData = {
+//       postId: numericPostId,
+//       startIndex: startIndex + 1,
+//       totalImages: Array.isArray(post.mediaUrls) ? post.mediaUrls.length : 1,
+//       allImages: Array.isArray(post.mediaUrls)
+//         ? post.mediaUrls.map((url, idx) => ({
+//             index: idx + 1,
+//             url: imageCdn + url,
+//             isActive: idx === startIndex,
+//           }))
+//         : [{ index: 1, url: imageCdn + post.mediaUrls, isActive: true }],
+//       activeDot: startIndex,
+//     };
+//     console.log('Carousel Opened:', imageData);
+//   }
+// };
 
 const closeCarousel = () => {
   activeCarouselPost.value = null;
@@ -1764,6 +1771,30 @@ const isCatalogAccessible = (post: Post) => {
 };
 
 // Update the template section where catalog icon is shown
+
+// Add these refs after other refs
+const showImageViewer = ref(false);
+// const selectedImage = ref('');
+const selectedImages = ref<string[]>([]);
+const selectedImageIndex = ref(0);
+
+// Update the openImageViewer method to handle multiple images
+const openImageViewer = (imageUrl: string, post: Post, index = 0) => {
+  if (post.mediaUrls) {
+    // Handle multiple images
+    selectedImages.value = Array.isArray(post.mediaUrls)
+      ? post.mediaUrls.map((url) => imageCdn + url)
+      : [imageCdn + post.mediaUrls];
+    // Set the index before opening the viewer
+    selectedImageIndex.value = index;
+  } else {
+    // Handle single image
+    selectedImages.value = [imageCdn + imageUrl];
+    selectedImageIndex.value = 0;
+  }
+  // Open the viewer after setting up the images and index
+  showImageViewer.value = true;
+};
 </script>
 <style scoped lang="scss">
 @use 'sass:color';
