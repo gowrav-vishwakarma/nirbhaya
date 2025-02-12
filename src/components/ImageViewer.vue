@@ -10,14 +10,14 @@
     <q-card class="image-viewer-card" @click="handleBackgroundClick">
       <q-card-section class="image-viewer-header q-mt-md" @click.stop>
         <div class="zoom-controls">
-          <q-btn flat round color="white" icon="remove" @click="zoomOut" />
+          <q-btn flat color="white" icon="remove" @click="zoomOut" />
           <span class="zoom-level">{{ Math.round(zoomLevel * 100) }}%</span>
-          <q-btn flat round color="white" icon="add" @click="zoomIn" />
+          <q-btn flat color="white" icon="add" @click="zoomIn" />
         </div>
         <div class="image-counter" v-if="images.length > 1">
           {{ currentImageIndex + 1 }} / {{ images.length }}
         </div>
-        <q-btn flat round color="white" icon="close" v-close-popup />
+        <q-btn round color="primary" size="xs" icon="close" v-close-popup />
       </q-card-section>
 
       <q-card-section
@@ -154,9 +154,9 @@ const imageContainer = ref<HTMLElement | null>(null);
 const image = ref<HTMLImageElement | null>(null);
 
 // Zoom controls
-const MIN_ZOOM = 0.5;
+const MIN_ZOOM = 1;
 const MAX_ZOOM = 3;
-const ZOOM_STEP = 0.1;
+const ZOOM_STEP = 0.2;
 
 const zoomIn = () => {
   if (zoomLevel.value < MAX_ZOOM) {
@@ -167,6 +167,7 @@ const zoomIn = () => {
 const zoomOut = () => {
   if (zoomLevel.value > MIN_ZOOM) {
     zoomLevel.value = Math.max(zoomLevel.value - ZOOM_STEP, MIN_ZOOM);
+    // Center the image when zooming out
   }
 };
 
@@ -308,6 +309,11 @@ const handleTouchEnd = () => {
   lastTouchDistance.value = 0;
   initialTouchZoom.value = zoomLevel.value;
   endPan();
+
+  // Reset pan position if zoom level is at minimum
+  if (zoomLevel.value <= MIN_ZOOM) {
+    resetZoom(); // This will set panPosition to { x: 0, y: 0 }
+  }
 };
 
 // Update double click zoom
