@@ -5,7 +5,10 @@
     full-height
     maximized
     class="image-viewer-dialog"
-    @hide="resetZoom"
+    @hide="
+      resetZoom;
+      currentIndex = 0;
+    "
   >
     <q-card class="image-viewer-card">
       <q-card-section class="image-viewer-content">
@@ -31,11 +34,13 @@
             :disable="zoomLevel <= MIN_ZOOM"
           />
           <q-btn
-            flat
             round
-            color="white"
+            color="red"
             icon="close"
-            @click="isOpen = false"
+            @click="
+              isOpen = false;
+              currentIndex = 0;
+            "
           />
         </div>
 
@@ -60,7 +65,7 @@
         </div>
 
         <!-- Centered Slider Button and Index Display -->
-        <div class="slider-info">
+        <div v-if="props.imageSrc.length > 1" class="slider-info">
           <q-btn
             flat
             round
@@ -87,7 +92,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, onBeforeUnmount } from 'vue';
 
 const props = defineProps<{
   modelValue: boolean;
@@ -98,7 +103,7 @@ const emit = defineEmits(['update:modelValue']);
 
 // Constants
 const MIN_ZOOM = 1;
-const MAX_ZOOM = 3;
+const MAX_ZOOM = 5;
 const ZOOM_STEP = 0.2;
 
 // Component refs and state
@@ -117,6 +122,11 @@ const lastTapTime = ref(0);
 const initialTouchCenter = ref({ x: 0, y: 0 });
 
 const currentIndex = ref(0);
+
+// Reset currentIndex when the component is unmounted
+onBeforeUnmount(() => {
+  currentIndex.value = 0;
+});
 
 // Computed properties
 const isOpen = computed({

@@ -538,8 +538,7 @@
   />
   <ImageViewer
     v-model="showImageViewer"
-    :image-src="selectedImages[0]"
-    :images="selectedImages"
+    :imageSrc="selectedImages"
     :current-index="selectedImageIndex"
   />
 </template>
