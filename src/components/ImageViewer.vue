@@ -24,6 +24,7 @@
             icon="add"
             @click="handleZoomIn"
             :disable="zoomLevel >= MAX_ZOOM"
+            size="md"
           />
           <q-btn
             flat
@@ -32,6 +33,7 @@
             icon="remove"
             @click="handleZoomOut"
             :disable="zoomLevel <= MIN_ZOOM"
+            size="md"
           />
           <q-btn
             round
@@ -41,6 +43,7 @@
               isOpen = false;
               currentIndex = 0;
             "
+            size="md"
           />
         </div>
 
@@ -408,7 +411,7 @@ img {
   gap: 8px;
   z-index: 10;
   background: rgba(0, 0, 0, 0.5);
-  padding: 8px;
+  padding: 4px;
   border-radius: 24px;
   backdrop-filter: blur(8px);
 }
@@ -437,7 +440,7 @@ img {
   gap: 16px;
   z-index: 10;
   background: rgba(0, 0, 0, 0.5);
-  padding: 8px 16px;
+  padding: 8px;
   border-radius: 24px;
 }
 
