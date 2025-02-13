@@ -7,36 +7,46 @@
     class="image-viewer-dialog"
     @hide="resetZoom"
   >
-    <q-card class="image-viewer-card" @click="handleBackgroundClick">
-      <q-card-section class="image-viewer-header q-mt-md" @click.stop>
-        <div class="zoom-controls">
-          <q-btn flat color="white" icon="remove" @click="zoomOut" />
-          <span class="zoom-level">{{ Math.round(zoomLevel * 100) }}%</span>
-          <q-btn flat color="white" icon="add" @click="zoomIn" />
-        </div>
-        <div class="image-counter" v-if="images.length > 1">
-          {{ currentImageIndex + 1 }} / {{ images.length }}
-        </div>
-        <q-btn round color="primary" size="xs" icon="close" v-close-popup />
-      </q-card-section>
+    <q-card class="image-viewer-card">
+      <q-card-section class="image-viewer-content">
+        <!-- Zoom Level Display -->
+        <div class="zoom-level">{{ Math.round(zoomLevel * 100) }}%</div>
 
-      <q-card-section
-        class="image-viewer-content"
-        @click="handleBackgroundClick"
-      >
+        <!-- Control Buttons -->
+        <div class="controls">
+          <q-btn
+            flat
+            round
+            color="white"
+            icon="add"
+            @click="handleZoomIn"
+            :disable="zoomLevel >= MAX_ZOOM"
+          />
+          <q-btn
+            flat
+            round
+            color="white"
+            icon="remove"
+            @click="handleZoomOut"
+            :disable="zoomLevel <= MIN_ZOOM"
+          />
+          <q-btn
+            flat
+            round
+            color="white"
+            icon="close"
+            @click="isOpen = false"
+          />
+        </div>
+
         <div
           class="image-container"
           ref="imageContainer"
-          @wheel="handleWheel"
-          @mousedown="startPan"
-          @mousemove="pan"
-          @mouseup="endPan"
-          @mouseleave="endPan"
-          @touchstart="handleTouchStart"
-          @touchmove="handleTouchMove"
-          @touchend="handleTouchEnd"
-          @touchcancel="handleTouchEnd"
-          @dblclick.stop.prevent="handleDoubleClick"
+          @touchstart.prevent="handleTouchStart"
+          @touchmove.prevent="handleTouchMove"
+          @touchend.prevent="handleTouchEnd"
+          @touchcancel.prevent="handleTouchEnd"
+          @wheel.prevent="handleWheel"
           @click.stop
         >
           <img
@@ -45,185 +55,63 @@
             @load="initializeImage"
             ref="image"
             draggable="false"
+            alt="Viewer image"
           />
         </div>
-
-        <!-- Navigation Arrows -->
-        <q-btn
-          v-if="images.length > 1 && currentImageIndex > 0"
-          class="navigation-arrow left-arrow"
-          round
-          flat
-          color="white"
-          icon="chevron_left"
-          @click="previousImage"
-        />
-        <q-btn
-          v-if="images.length > 1 && currentImageIndex < images.length - 1"
-          class="navigation-arrow right-arrow"
-          round
-          flat
-          color="white"
-          icon="chevron_right"
-          @click="nextImage"
-        />
       </q-card-section>
     </q-card>
   </q-dialog>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue';
+import { ref, computed } from 'vue';
 
 const props = defineProps<{
   modelValue: boolean;
   imageSrc: string;
-  images?: string[];
-  currentIndex?: number;
 }>();
 
 const emit = defineEmits(['update:modelValue']);
 
+// Constants
+const MIN_ZOOM = 1;
+const MAX_ZOOM = 3;
+const ZOOM_STEP = 0.2;
+
+// Component refs and state
+const imageContainer = ref<HTMLElement | null>(null);
+const image = ref<HTMLImageElement | null>(null);
+const zoomLevel = ref(1);
+const panPosition = ref({ x: 0, y: 0 });
+
+// Touch handling state
+const touchStartPosition = ref({ x: 0, y: 0 });
+const lastTouchDistance = ref(0);
+const touchStartZoom = ref(1);
+const isZooming = ref(false);
+const isPanning = ref(false);
+const lastTapTime = ref(0);
+const initialTouchCenter = ref({ x: 0, y: 0 });
+
+// Computed properties
 const isOpen = computed({
   get: () => props.modelValue,
   set: (value) => emit('update:modelValue', value),
 });
 
-// Image slider functionality
-const images = computed(() => props.images || [props.imageSrc]);
-const currentImageIndex = ref(0);
+const currentImage = computed(() => props.imageSrc);
 
-// Watch for changes in props.currentIndex and update currentImageIndex
-watch(
-  () => props.currentIndex,
-  (newIndex) => {
-    if (newIndex !== undefined) {
-      currentImageIndex.value = newIndex;
-    }
-  },
-  { immediate: true }
-);
+const imageStyle = computed(() => ({
+  transform: `translate(${panPosition.value.x}px, ${panPosition.value.y}px) scale(${zoomLevel.value})`,
+  transition:
+    isPanning.value || isZooming.value ? 'none' : 'transform 0.2s ease-out',
+  transformOrigin: 'center center',
+  willChange: 'transform',
+}));
 
-const currentImage = computed(() => images.value[currentImageIndex.value]);
-
-const nextImage = () => {
-  if (currentImageIndex.value < images.value.length - 1) {
-    currentImageIndex.value++;
-    resetZoom();
-  }
-};
-
-const previousImage = () => {
-  if (currentImageIndex.value > 0) {
-    currentImageIndex.value--;
-    resetZoom();
-  }
-};
-
-// Add keyboard navigation
-const handleKeydown = (event: KeyboardEvent) => {
-  if (!isOpen.value) return;
-
-  switch (event.key) {
-    case 'ArrowLeft':
-      previousImage();
-      break;
-    case 'ArrowRight':
-      nextImage();
-      break;
-    case 'Escape':
-      isOpen.value = false;
-      break;
-  }
-};
-
-// Add and remove keyboard event listeners
-watch(isOpen, (newValue) => {
-  if (newValue) {
-    window.addEventListener('keydown', handleKeydown);
-  } else {
-    window.removeEventListener('keydown', handleKeydown);
-  }
-});
-
-const zoomLevel = ref(1);
-const panPosition = ref({ x: 0, y: 0 });
-const isPanning = ref(false);
-const startPanPos = ref({ x: 0, y: 0 });
-const imageContainer = ref<HTMLElement | null>(null);
-const image = ref<HTMLImageElement | null>(null);
-
-// Zoom controls
-const MIN_ZOOM = 1;
-const MAX_ZOOM = 3;
-const ZOOM_STEP = 0.2;
-
-const zoomIn = () => {
-  if (zoomLevel.value < MAX_ZOOM) {
-    zoomLevel.value = Math.min(zoomLevel.value + ZOOM_STEP, MAX_ZOOM);
-  }
-};
-
-const zoomOut = () => {
-  if (zoomLevel.value > MIN_ZOOM) {
-    zoomLevel.value = Math.max(zoomLevel.value - ZOOM_STEP, MIN_ZOOM);
-    // Center the image when zooming out
-  }
-};
-
-const handleWheel = (e: WheelEvent) => {
-  e.preventDefault();
-  if (e.deltaY < 0) {
-    zoomIn();
-  } else {
-    zoomOut();
-  }
-};
-
-// Pan controls
-const startPan = (e: MouseEvent | TouchEvent) => {
-  if (zoomLevel.value <= 1) return;
-
-  isPanning.value = true;
-  const point = e instanceof MouseEvent ? e : e.touches[0];
-  startPanPos.value = {
-    x: point.clientX - panPosition.value.x,
-    y: point.clientY - panPosition.value.y,
-  };
-};
-
-const pan = (e: MouseEvent | TouchEvent) => {
-  if (!isPanning.value) return;
-
-  const point = e instanceof MouseEvent ? e : e.touches[0];
-  const newX = point.clientX - startPanPos.value.x;
-  const newY = point.clientY - startPanPos.value.y;
-
-  // Get container dimensions
-  const container = imageContainer.value;
-  const img = image.value;
-  if (!container || !img) return;
-
-  const containerRect = container.getBoundingClientRect();
-  const imgRect = img.getBoundingClientRect();
-
-  // Calculate bounds
-  const maxX = (imgRect.width - containerRect.width) / 2;
-  const maxY = (imgRect.height - containerRect.height) / 2;
-
-  // Constrain panning within bounds
-  panPosition.value = {
-    x: Math.max(Math.min(newX, maxX), -maxX),
-    y: Math.max(Math.min(newY, maxY), -maxY),
-  };
-};
-
-const endPan = () => {
-  isPanning.value = false;
-};
-
+// Core functions
 const resetZoom = () => {
-  zoomLevel.value = 1;
+  zoomLevel.value = MIN_ZOOM;
   panPosition.value = { x: 0, y: 0 };
 };
 
@@ -231,39 +119,94 @@ const initializeImage = () => {
   resetZoom();
 };
 
-const DOUBLE_CLICK_ZOOM = 2.5; // Increased zoom level for better visibility
+// Pan position constraints
+const constrainPan = (x: number, y: number) => {
+  const container = imageContainer.value;
+  const img = image.value;
+  if (!container || !img) return { x: 0, y: 0 };
 
-// Touch handling
-const lastTouchDistance = ref(0);
-const initialTouchZoom = ref(1);
-const lastTouchCenter = ref({ x: 0, y: 0 });
+  const rect = container.getBoundingClientRect();
+  const imgRect = img.getBoundingClientRect();
 
+  const maxX = Math.max(0, (imgRect.width - rect.width) / 2);
+  const maxY = Math.max(0, (imgRect.height - rect.height) / 2);
+
+  return {
+    x: Math.min(Math.max(x, -maxX), maxX),
+    y: Math.min(Math.max(y, -maxY), maxY),
+  };
+};
+
+// Zoom control functions
+const handleZoomIn = () => {
+  if (zoomLevel.value < MAX_ZOOM) {
+    const newZoom = Math.min(zoomLevel.value + ZOOM_STEP, MAX_ZOOM);
+    const container = imageContainer.value;
+    if (container) {
+      const rect = container.getBoundingClientRect();
+      zoomToPoint(rect.width / 2, rect.height / 2, newZoom);
+    }
+  }
+};
+
+const handleZoomOut = () => {
+  if (zoomLevel.value > MIN_ZOOM) {
+    const newZoom = Math.max(zoomLevel.value - ZOOM_STEP, MIN_ZOOM);
+    const container = imageContainer.value;
+    if (container) {
+      const rect = container.getBoundingClientRect();
+      zoomToPoint(rect.width / 2, rect.height / 2, newZoom);
+    }
+  }
+};
+
+// Touch handlers
 const handleTouchStart = (e: TouchEvent) => {
   if (e.touches.length === 2) {
-    // Start pinch zoom
+    // Pinch zoom start
+    isZooming.value = true;
     const touch1 = e.touches[0];
     const touch2 = e.touches[1];
     lastTouchDistance.value = Math.hypot(
       touch2.clientX - touch1.clientX,
       touch2.clientY - touch1.clientY
     );
-    initialTouchZoom.value = zoomLevel.value;
-
-    // Calculate center point
-    lastTouchCenter.value = {
+    touchStartZoom.value = zoomLevel.value;
+    initialTouchCenter.value = {
       x: (touch1.clientX + touch2.clientX) / 2,
       y: (touch1.clientY + touch2.clientY) / 2,
     };
-  } else if (e.touches.length === 1 && zoomLevel.value > 1) {
-    // Start panning
-    startPan(e);
+  } else if (e.touches.length === 1) {
+    // Handle double tap zoom
+    const now = Date.now();
+    const touch = e.touches[0];
+
+    if (now - lastTapTime.value < 300) {
+      if (zoomLevel.value > 1) {
+        resetZoom();
+      } else {
+        const rect = imageContainer.value?.getBoundingClientRect();
+        if (rect) {
+          const x = touch.clientX - rect.left;
+          const y = touch.clientY - rect.top;
+          zoomToPoint(x, y, DOUBLE_TAP_ZOOM);
+        }
+      }
+    } else if (zoomLevel.value > 1) {
+      // Start panning
+      isPanning.value = true;
+      touchStartPosition.value = {
+        x: touch.clientX - panPosition.value.x,
+        y: touch.clientY - panPosition.value.y,
+      };
+    }
+
+    lastTapTime.value = now;
   }
 };
 
 const handleTouchMove = (e: TouchEvent) => {
-  e.preventDefault(); // Prevent default scrolling
-
-  if (e.touches.length === 2) {
+  if (e.touches.length === 2 && isZooming.value) {
     // Handle pinch zoom
     const touch1 = e.touches[0];
     const touch2 = e.touches[1];
@@ -272,10 +215,9 @@ const handleTouchMove = (e: TouchEvent) => {
       touch2.clientY - touch1.clientY
     );
 
-    // Calculate new zoom level
     const scale = currentDistance / lastTouchDistance.value;
     const newZoom = Math.min(
-      Math.max(initialTouchZoom.value * scale, MIN_ZOOM),
+      Math.max(touchStartZoom.value * scale, MIN_ZOOM),
       MAX_ZOOM
     );
 
@@ -285,83 +227,80 @@ const handleTouchMove = (e: TouchEvent) => {
       y: (touch1.clientY + touch2.clientY) / 2,
     };
 
-    // Update zoom and adjust pan position to keep the center point stable
-    if (imageContainer.value) {
-      // const rect = imageContainer.value.getBoundingClientRect();
-      const dx = currentCenter.x - lastTouchCenter.value.x;
-      const dy = currentCenter.y - lastTouchCenter.value.y;
+    if (newZoom !== zoomLevel.value) {
+      const rect = imageContainer.value?.getBoundingClientRect();
+      if (rect) {
+        const dx = currentCenter.x - initialTouchCenter.value.x;
+        const dy = currentCenter.y - initialTouchCenter.value.y;
 
-      zoomLevel.value = newZoom;
-      panPosition.value = {
-        x: panPosition.value.x + dx,
-        y: panPosition.value.y + dy,
-      };
+        zoomLevel.value = newZoom;
+        const constrained = constrainPan(
+          panPosition.value.x + dx,
+          panPosition.value.y + dy
+        );
+        panPosition.value = constrained;
 
-      lastTouchCenter.value = currentCenter;
+        initialTouchCenter.value = currentCenter;
+      }
     }
-  } else if (e.touches.length === 1 && isPanning.value) {
+  } else if (e.touches.length === 1 && isPanning.value && zoomLevel.value > 1) {
     // Handle panning
-    pan(e);
+    const touch = e.touches[0];
+    const newX = touch.clientX - touchStartPosition.value.x;
+    const newY = touch.clientY - touchStartPosition.value.y;
+    const constrained = constrainPan(newX, newY);
+    panPosition.value = constrained;
   }
 };
 
 const handleTouchEnd = () => {
-  lastTouchDistance.value = 0;
-  initialTouchZoom.value = zoomLevel.value;
-  endPan();
+  isZooming.value = false;
+  isPanning.value = false;
+  touchStartZoom.value = zoomLevel.value;
 
-  // Reset pan position if zoom level is at minimum
   if (zoomLevel.value <= MIN_ZOOM) {
-    resetZoom(); // This will set panPosition to { x: 0, y: 0 }
+    resetZoom();
   }
 };
 
-// Update double click zoom
-const handleDoubleClick = (event: MouseEvent) => {
-  event.preventDefault();
-  event.stopPropagation();
+const zoomToPoint = (x: number, y: number, targetZoom: number) => {
+  const container = imageContainer.value;
+  if (!container) return;
 
-  if (zoomLevel.value > 1) {
-    resetZoom();
-  } else {
+  const rect = container.getBoundingClientRect();
+  const centerX = rect.width / 2;
+  const centerY = rect.height / 2;
+
+  const offsetX = x - centerX;
+  const offsetY = y - centerY;
+
+  zoomLevel.value = targetZoom;
+  panPosition.value = constrainPan(
+    -offsetX * (targetZoom - 1),
+    -offsetY * (targetZoom - 1)
+  );
+};
+
+// Wheel zoom handler for testing
+const handleWheel = (e: WheelEvent) => {
+  if (e.ctrlKey) {
+    e.preventDefault();
+    const delta = -e.deltaY;
     const rect = imageContainer.value?.getBoundingClientRect();
     if (!rect) return;
 
-    const x = event.clientX - rect.left;
-    const y = event.clientY - rect.top;
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
 
-    // Calculate the center point of the container
-    const centerX = rect.width / 2;
-    const centerY = rect.height / 2;
+    const scaleFactor = 1 + (delta > 0 ? ZOOM_STEP : -ZOOM_STEP);
+    const newZoom = Math.min(
+      Math.max(zoomLevel.value * scaleFactor, MIN_ZOOM),
+      MAX_ZOOM
+    );
 
-    // Calculate the offset from center
-    const offsetX = x - centerX;
-    const offsetY = y - centerY;
-
-    // Set zoom level
-    zoomLevel.value = DOUBLE_CLICK_ZOOM;
-
-    // Set pan position to center on the clicked point
-    panPosition.value = {
-      x: -offsetX * (DOUBLE_CLICK_ZOOM - 1),
-      y: -offsetY * (DOUBLE_CLICK_ZOOM - 1),
-    };
-  }
-};
-
-const imageStyle = computed(() => ({
-  transform: `translate(${panPosition.value.x}px, ${panPosition.value.y}px) scale(${zoomLevel.value})`,
-  cursor: zoomLevel.value > 1 ? 'grab' : 'zoom-in',
-  transition: isPanning.value
-    ? 'none'
-    : 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-  transformOrigin: 'center center',
-}));
-
-const handleBackgroundClick = (event: MouseEvent) => {
-  // Only close if clicking directly on the background
-  if (event.target === event.currentTarget) {
-    isOpen.value = false;
+    if (newZoom !== zoomLevel.value) {
+      zoomToPoint(x, y, newZoom);
+    }
   }
 };
 </script>
@@ -374,49 +313,22 @@ const handleBackgroundClick = (event: MouseEvent) => {
 .image-viewer-card {
   background: transparent !important;
   box-shadow: none !important;
-  cursor: default;
   height: 100vh;
-  max-height: -webkit-fill-available;
-}
-
-.image-viewer-header {
-  position: fixed;
-  top: env(safe-area-inset-top, 0);
-  left: 0;
-  right: 0;
-  z-index: 2000;
+  height: calc(var(--vh, 1vh) * 100);
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 12px;
-  padding-top: max(12px, env(safe-area-inset-top, 12px));
-  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.7), transparent);
-  -webkit-backdrop-filter: blur(10px);
-  backdrop-filter: blur(10px);
-}
-
-.zoom-controls {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  color: white;
-  z-index: 2001;
-}
-
-.zoom-level {
-  min-width: 60px;
-  text-align: center;
-  font-size: 14px;
-  color: white;
+  flex-direction: column;
+  padding: 0;
 }
 
 .image-viewer-content {
-  height: 100vh;
+  flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
+  position: relative;
   padding: 0;
-  cursor: default;
+  overflow: hidden;
+  touch-action: none;
 }
 
 .image-container {
@@ -426,81 +338,51 @@ const handleBackgroundClick = (event: MouseEvent) => {
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  user-select: none;
+  touch-action: none;
+  -webkit-touch-callout: none;
   -webkit-user-select: none;
-  touch-action: pan-x pan-y;
-  cursor: default;
-
-  &:active {
-    cursor: grabbing;
-  }
+  user-select: none;
 }
 
 img {
   max-width: 100%;
   max-height: 100%;
-  object-fit: contain;
-  transform-origin: center;
-  will-change: transform;
+  pointer-events: none;
   user-select: none;
   -webkit-user-select: none;
-
-  &:active {
-    cursor: grabbing;
-  }
+  -webkit-touch-callout: none;
 }
 
-.navigation-arrow {
+.controls {
   position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
+  top: 16px;
+  right: 16px;
+  display: flex;
+  gap: 8px;
+  z-index: 10;
   background: rgba(0, 0, 0, 0.5);
-  transition: all 0.3s ease;
-
-  &:hover {
-    background: rgba(0, 0, 0, 0.8);
-  }
-
-  &.left-arrow {
-    left: 16px;
-  }
-
-  &.right-arrow {
-    right: 16px;
-  }
+  padding: 8px;
+  border-radius: 24px;
+  backdrop-filter: blur(8px);
 }
 
-.image-counter {
+.zoom-level {
   position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
+  top: 16px;
+  left: 16px;
   background: rgba(0, 0, 0, 0.5);
   color: white;
-  padding: 4px 12px;
+  padding: 6px 12px;
   border-radius: 16px;
   font-size: 14px;
-  z-index: 2001;
+  font-weight: 500;
+  backdrop-filter: blur(8px);
+  z-index: 10;
 }
 
-@media (max-width: 600px) {
-  .navigation-arrow {
-    &.left-arrow {
-      left: 8px;
-    }
-    &.right-arrow {
-      right: 8px;
-    }
-  }
-}
-
-// Add iOS-specific styles
 @supports (-webkit-touch-callout: none) {
   .image-viewer-card {
     height: -webkit-fill-available;
-  }
-
-  .image-viewer-header {
-    padding-top: env(safe-area-inset-top, 44px);
   }
 }
 </style>
