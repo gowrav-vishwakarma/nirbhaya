@@ -58,6 +58,29 @@
             alt="Viewer image"
           />
         </div>
+
+        <!-- Centered Slider Button and Index Display -->
+        <div class="slider-info">
+          <q-btn
+            flat
+            round
+            color="white"
+            icon="chevron_left"
+            @click="handlePreviousImage"
+            :disable="currentIndex === 0"
+          />
+          <span class="image-index"
+            >{{ currentIndex + 1 }} / {{ props.imageSrc.length }}</span
+          >
+          <q-btn
+            flat
+            round
+            color="white"
+            icon="chevron_right"
+            @click="handleNextImage"
+            :disable="currentIndex === props.imageSrc.length - 1"
+          />
+        </div>
       </q-card-section>
     </q-card>
   </q-dialog>
@@ -68,7 +91,7 @@ import { ref, computed } from 'vue';
 
 const props = defineProps<{
   modelValue: boolean;
-  imageSrc: string;
+  imageSrc: string[];
 }>();
 
 const emit = defineEmits(['update:modelValue']);
@@ -93,13 +116,15 @@ const isPanning = ref(false);
 const lastTapTime = ref(0);
 const initialTouchCenter = ref({ x: 0, y: 0 });
 
+const currentIndex = ref(0);
+
 // Computed properties
 const isOpen = computed({
   get: () => props.modelValue,
   set: (value) => emit('update:modelValue', value),
 });
 
-const currentImage = computed(() => props.imageSrc);
+const currentImage = computed(() => props.imageSrc[currentIndex.value]);
 
 const imageStyle = computed(() => ({
   transform: `translate(${panPosition.value.x}px, ${panPosition.value.y}px) scale(${zoomLevel.value})`,
@@ -303,6 +328,18 @@ const handleWheel = (e: WheelEvent) => {
     }
   }
 };
+
+const handleNextImage = () => {
+  if (currentIndex.value < props.imageSrc.length - 1) {
+    currentIndex.value++;
+  }
+};
+
+const handlePreviousImage = () => {
+  if (currentIndex.value > 0) {
+    currentIndex.value--;
+  }
+};
 </script>
 
 <style lang="scss" scoped>
@@ -378,6 +415,26 @@ img {
   font-weight: 500;
   backdrop-filter: blur(8px);
   z-index: 10;
+}
+
+.slider-info {
+  position: absolute;
+  bottom: 20px; /* Adjust as needed */
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  z-index: 10;
+  background: rgba(0, 0, 0, 0.5);
+  padding: 8px 16px;
+  border-radius: 24px;
+}
+
+.image-index {
+  color: white;
+  font-size: 16px;
+  font-weight: 500;
 }
 
 @supports (-webkit-touch-callout: none) {
