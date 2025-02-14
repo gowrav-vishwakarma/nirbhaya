@@ -539,7 +539,7 @@
   <ImageViewer
     v-model="showImageViewer"
     :imageSrc="selectedImages"
-    :current-index="selectedImageIndex"
+    :selectedImageIndex="selectedImageIndex"
   />
 </template>
 

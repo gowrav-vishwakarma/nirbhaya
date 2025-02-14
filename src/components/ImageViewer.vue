@@ -95,11 +95,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onBeforeUnmount } from 'vue';
+import { ref, computed, onBeforeUnmount, onMounted } from 'vue';
 
 const props = defineProps<{
   modelValue: boolean;
   imageSrc: string[];
+  selectedImageIndex: number;
 }>();
 
 const emit = defineEmits(['update:modelValue']);
@@ -125,6 +126,10 @@ const lastTapTime = ref(0);
 const initialTouchCenter = ref({ x: 0, y: 0 });
 
 const currentIndex = ref(0);
+
+onMounted(() => {
+  if (props.selectedImageIndex) currentIndex.value = props.selectedImageIndex;
+});
 
 // Reset currentIndex when the component is unmounted
 onBeforeUnmount(() => {
