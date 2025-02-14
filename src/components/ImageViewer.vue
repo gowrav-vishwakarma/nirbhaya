@@ -95,7 +95,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onBeforeUnmount, onMounted } from 'vue';
+import { ref, computed, onBeforeUnmount, watch } from 'vue';
 
 const props = defineProps<{
   modelValue: boolean;
@@ -127,9 +127,18 @@ const initialTouchCenter = ref({ x: 0, y: 0 });
 
 const currentIndex = ref(0);
 
-onMounted(() => {
-  if (props.selectedImageIndex) currentIndex.value = props.selectedImageIndex;
-});
+// Watch for changes in selectedImageIndex prop
+watch(
+  () => props.selectedImageIndex,
+  (newIndex) => {
+    currentIndex.value = newIndex; // Update currentIndex whenever selectedImageIndex changes
+  }
+);
+
+// Initialize currentIndex on mount
+// onMounted(() => {
+//   currentIndex.value = props.selectedImageIndex; // Set initial value
+// });
 
 // Reset currentIndex when the component is unmounted
 onBeforeUnmount(() => {
